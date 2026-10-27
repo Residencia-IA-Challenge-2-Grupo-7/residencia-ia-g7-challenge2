@@ -9,6 +9,7 @@
 ## Agora
 
 - Repositório criado com o enunciado do desafio e a estrutura de documentação.
+- Repositório na organização do grupo: [Residencia-IA-Challenge-2-Grupo-7](https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2) (privado).
 
 ## Próximos passos — Semana 1 (entregável: Definições do projeto)
 
@@ -20,7 +21,7 @@
 
 ## Em aberto
 
-- Criar a organização do grupo no GitHub e transferir este repositório para ela
+- Convidar os integrantes do grupo para a organização
 - Confirmar datas do roadmap e integrantes do Grupo 7
 
 ## Integrantes
