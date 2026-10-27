@@ -1,0 +1,11 @@
+# Decisões técnicas (ADRs)
+
+Cada decisão relevante vira um arquivo numerado (`0001-escolha-do-vector-store.md`, `0002-...`), criado a partir de [0000-template.md](0000-template.md). As seções do template seguem as restrições do desafio: justificar, explicitar riscos, validar com métricas e citar evidências.
+
+Não apague nem reescreva uma decisão antiga: se ela mudar, crie uma nova e marque a anterior como "substituída por NNNN".
+
+## Índice
+
+| Nº | Decisão | Status |
+|---|---|---|
+| — | (nenhuma ainda) | — |

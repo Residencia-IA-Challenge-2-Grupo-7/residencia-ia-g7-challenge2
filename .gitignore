@@ -1,0 +1,30 @@
+# Segredos
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.ipynb_checkpoints/
+.pytest_cache/
+
+# Dados e índices (versionar só amostras pequenas; documentar a origem)
+data/raw/
+data/processed/
+*.faiss
+chroma*/
+vectorstore/
+models/
+
+# Configurações locais de ferramentas
+.claude/settings.local.json
+.vscode/
+.idea/
+
+# Sistema operacional
+.DS_Store
+Thumbs.db
+desktop.ini
