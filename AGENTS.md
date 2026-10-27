@@ -25,6 +25,8 @@ Programa de Residência em IA (Instituto Eldorado + UnB), metodologia CBL (Chall
 | `docs/desafio/` | Enunciado do Challenge 2 (PDF original + versão em Markdown) |
 | `docs/decisoes/` | ADRs: decisões técnicas e suas justificativas |
 | `docs/semanas/` | Registro semanal alinhado ao roadmap (alimenta o relatório final) |
+| `docs/atas/` | Atas das reuniões do grupo, uma por data (`AAAA-MM-DD.md`) |
+| `docs/pesquisa/` | Instrumentos de pesquisa com usuários (questionários, roteiros de entrevista) e o script que gera o Google Forms |
 
 Atualize esta tabela ao criar pastas novas (ex.: `src/`, `data/`, `notebooks/`, `eval/`).
 
