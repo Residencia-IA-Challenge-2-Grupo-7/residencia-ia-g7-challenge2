@@ -9,3 +9,5 @@ Não apague nem reescreva uma decisão antiga: se ela mudar, crie uma nova e mar
 | Nº | Decisão | Status |
 |---|---|---|
 | [0001](0001-escolha-do-orquestrador-de-roles.md) | Seguir com o Orquestrador de Rolês | aceita |
+| [0002](0002-recorte-do-mvp.md) | Recorte do MVP: só o modo com amigos | aceita |
+| [0003](0003-canal-app-web.md) | Canal do MVP: app web próprio | proposta |

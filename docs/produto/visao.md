@@ -1,6 +1,6 @@
 # Visão do produto: Orquestrador de Rolês
 
-Documento de referência para quem vai detalhar requisitos, riscos, personas e métricas. Reúne a ideia, a pesquisa de concorrentes e evidências, e o que ainda está em aberto. Decisão de seguir com esta ideia: [ADR 0001](../decisoes/0001-escolha-do-orquestrador-de-roles.md).
+Documento de referência para quem vai detalhar requisitos, riscos, personas e métricas. Reúne a ideia, a pesquisa de concorrentes e evidências, e o que ainda está em aberto. Decisão de seguir com esta ideia: [ADR 0001](../decisoes/0001-escolha-do-orquestrador-de-roles.md). O MVP cobre só o modo com amigos ([ADR 0002](../decisoes/0002-recorte-do-mvp.md)); requisitos em [requisitos.md](requisitos.md).
 
 ## Em uma frase
 
@@ -69,7 +69,7 @@ Não foi encontrado app brasileiro com IA para combinar encontros entre amigos.
 
 ## Decisões em aberto
 
-- **Canal:** app próprio ou bot no grupo de conversa. No Brasil o grupo vive no WhatsApp, mas a Meta passou a restringir chatbots de IA de propósito geral na API do WhatsApp Business (verificar se um bot com função específica é permitido). Telegram e Discord são mais abertos.
+- **Canal:** app próprio ou bot no grupo de conversa. No Brasil o grupo vive no WhatsApp, mas a Meta passou a restringir chatbots de IA de propósito geral na API do WhatsApp Business (verificar se um bot com função específica é permitido). Telegram e Discord são mais abertos. Proposta: app web próprio ([ADR 0003](../decisoes/0003-canal-app-web.md)).
 - **Disponibilidade:** pedir dias e horários, importar do calendário ou deduzir da conversa.
 - **Regra de decisão do grupo:** média, "menor miséria" (proteger quem fica menos satisfeito) ou rodízio. A literatura não aponta uma regra universalmente melhor, e agentes LLM tendem a simplesmente tirar a média quando não recebem uma regra explícita. Precisa virar ADR.
 - **LLM orquestra, solver otimiza:** caronas e ponto de encontro são problemas de otimização (roteamento), que um LLM resolve mal sozinho.
