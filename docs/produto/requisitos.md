@@ -1,6 +1,6 @@
 # Requisitos do MVP: Orquestrador de Rolês
 
-- **Versão:** 0.1 (rascunho inicial), 2026-10-29
+- **Versão:** 0.2, 2026-10-29
 - **Status:** para revisão do grupo. As escolhas de comportamento foram feitas na sessão de requisitos de 29/10 e ainda precisam ser validadas com o grupo, as personas e o resultado do formulário.
 - **Base:** [visão do produto](visao.md) · recorte do MVP no [ADR 0002](../decisoes/0002-recorte-do-mvp.md) · canal no [ADR 0003](../decisoes/0003-canal-app-web.md)
 
@@ -9,7 +9,7 @@
 - **IDs fixos.** RF-NN são funcionais e RNF-NN são não funcionais. Um ID nunca é reaproveitado: requisito que sai fica marcado como *removido*.
 - **Prioridade provisória (MoSCoW):** **Must** (sem isso o MVP não resolve o problema), **Should** (importante, entra se couber nas 7 semanas), **Could** (desejável). O que está fora do MVP fica em [Extensões futuras](#7-extensões-futuras).
 - **Notação (estilo OpenSpec):** cada requisito tem um enunciado com **DEVE** e cenários **QUANDO / ENTÃO**, que servem de critério de aceitação e, depois, de casos de teste.
-- **Rastreabilidade:** as colunas Persona e Métrica ficam em branco até essas partes do pacote ficarem prontas. A coluna Riscos usa os nomes dos riscos da [visão](visao.md#riscos-conhecidos) até eles ganharem IDs (R-NN).
+- **Rastreabilidade:** a coluna Persona usa as personas da equipe (Rafaela, primária; Cadu, Bia e Márcio, secundárias). A coluna Métrica fica em branco até as métricas de sucesso ficarem prontas. A coluna Riscos usa os nomes dos riscos da [visão](visao.md#riscos-conhecidos) até eles ganharem IDs (R-NN).
 - **Documento final:** entra só o que é Must, agrupado por capacidade (ver [seção 4.12](#412-agrupamento-para-o-documento-final)). Esta lista completa fica no repositório.
 
 ## 1. Escopo do MVP
@@ -61,47 +61,51 @@
 
 | ID | Requisito | Prioridade | Riscos (visão) | Persona | Métrica |
 |---|---|---|---|---|---|
-| RF-01 | Cadastro e perfil | Must | Privacidade | | |
-| RF-02 | Consentimento e controle dos dados | Must | Privacidade | | |
-| RF-03 | Sala e convites (2 a 20 membros) | Must | | | |
-| RF-04 | Gestão da sala pelo organizador | Must | | | |
-| RF-05 | Pedido de rolê por qualquer membro | Must | | | |
-| RF-06 | Iniciativa da IA | Must | | | |
-| RF-07 | Conversa privada com cada participante | Must | Privacidade | | |
-| RF-08 | Disponibilidade por conversa livre | Must | | | |
-| RF-09 | Disponibilidade por grade de horários | Should | | | |
+| RF-01 | Cadastro e perfil | Must | Privacidade | Todas | |
+| RF-02 | Consentimento e controle dos dados | Must | Privacidade | Márcio, Cadu | |
+| RF-03 | Sala e convites (2 a 20 membros) | Must | | Rafaela | |
+| RF-04 | Gestão da sala pelo organizador | Must | | Rafaela | |
+| RF-05 | Pedido de rolê por qualquer membro | Must | | Rafaela | |
+| RF-06 | Iniciativa da IA | Must | | Rafaela | |
+| RF-07 | Conversa privada com cada participante | Must | Privacidade | Cadu, Rafaela | |
+| RF-08 | Disponibilidade por conversa livre | Must | | Cadu, Márcio | |
+| RF-09 | Disponibilidade por grade de horários | Should | | Cadu, Márcio | |
 | RF-10 | Disponibilidade pelo Google Agenda | Could | Privacidade | | |
-| RF-11 | Orçamento sigiloso | Must | Privacidade, Exclusão financeira | | |
-| RF-12 | Prazo de resposta e ação padrão | Must | | | |
-| RF-13 | Cruzamento de disponibilidades | Must | | | |
-| RF-14 | Regra de preferência de datas do organizador | Must | | | |
-| RF-15 | Planos completos com custo por pessoa | Must | Dados inventados | | |
-| RF-16 | Fundamentação na base de conhecimento | Must | Dados inventados | | |
-| RF-17 | Filtro de restrições duras | Must | Exclusão financeira | | |
-| RF-18 | Negociação privada de orçamento | Must | Exclusão financeira | | |
-| RF-19 | Ranqueamento justo e explicação | Must | Exclusão financeira | | |
-| RF-20 | Rolê em casa de alguém | Should | | | |
-| RF-21 | Deslocamento por pessoa | Must | | | |
-| RF-22 | Aviso de volta para casa | Should | Segurança | | |
-| RF-23 | Caronas otimizadas | Should | Segurança | | |
-| RF-24 | Modo de decisão da sala | Must | | | |
-| RF-25 | Votação | Must | | | |
-| RF-26 | Confirmação de presença | Must | | | |
-| RF-27 | Compartilhar no WhatsApp | Should | Privacidade | | |
-| RF-28 | Adicionar à agenda | Should | | | |
-| RF-29 | Lembretes antes do encontro | Should | | | |
-| RF-30 | Lançamento de gastos no chat | Must | | | |
+| RF-11 | Orçamento sigiloso | Must | Privacidade, Exclusão financeira | Cadu, Rafaela | |
+| RF-12 | Prazo de resposta e ação padrão | Must | | Rafaela | |
+| RF-13 | Cruzamento de disponibilidades | Must | | Cadu, Rafaela | |
+| RF-14 | Regra de preferência de datas do organizador | Must | | Rafaela | |
+| RF-15 | Planos completos com custo por pessoa | Must | Dados inventados | Rafaela, Cadu | |
+| RF-16 | Fundamentação na base de conhecimento | Must | Dados inventados | Rafaela | |
+| RF-17 | Filtro de restrições duras | Must | Exclusão financeira | Cadu, Bia | |
+| RF-18 | Negociação privada de orçamento | Must | Exclusão financeira | Cadu | |
+| RF-19 | Ranqueamento justo e explicação | Must | Exclusão financeira | Cadu | |
+| RF-20 | Rolê em casa de alguém | Should | | Márcio | |
+| RF-21 | Deslocamento por pessoa | Must | | Cadu | |
+| RF-22 | Aviso de volta para casa | Should | Segurança | Cadu, Rafaela | |
+| RF-23 | Caronas otimizadas | Should | Segurança | Rafaela, Márcio | |
+| RF-24 | Modo de decisão da sala | Must | | Rafaela | |
+| RF-25 | Votação | Must | | Rafaela, Márcio | |
+| RF-26 | Confirmação de presença | Must | | Cadu, Bia | |
+| RF-27 | Compartilhar no WhatsApp | Should | Privacidade | Márcio | |
+| RF-28 | Adicionar à agenda | Should | | Cadu | |
+| RF-29 | Lembretes antes do encontro | Should | | Márcio | |
+| RF-30 | Lançamento de gastos no chat | Must | | Rafaela | |
 | RF-31 | Lançamento por foto da nota fiscal | Should | | | |
-| RF-32 | Divisão dos gastos | Must | Exclusão financeira | | |
-| RF-33 | Código Pix de quem pagou | Should | Privacidade | | |
-| RF-34 | Quitação e lembretes discretos | Should | Exclusão financeira | | |
+| RF-32 | Divisão dos gastos | Must | Exclusão financeira | Cadu | |
+| RF-33 | Código Pix de quem pagou | Should | Privacidade | Rafaela | |
+| RF-34 | Quitação e lembretes discretos | Should | Exclusão financeira | Rafaela | |
 | RF-35 | Saldo entre rolês | Could | | | |
 | RF-36 | Confirmação de que o encontro aconteceu | Must | Métricas de vaidade | | |
-| RF-37 | Avaliação opcional por item | Should | | | |
+| RF-37 | Avaliação opcional por item | Should | | Rafaela | |
 | RF-38 | Aprendizado com as avaliações | Should | | | |
-| RF-39 | Entrada por voz | Must | | | |
-| RF-40 | Resposta em voz | Should | | | |
-| RF-41 | Notificações agrupadas | Must | | | |
+| RF-39 | Entrada por voz | Must | | Márcio | |
+| RF-40 | Resposta em voz | Should | | Márcio | |
+| RF-41 | Notificações agrupadas | Must | | Márcio, Rafaela | |
+| RF-42 | Login sem senha | Must | Privacidade | Márcio | |
+| RF-43 | Disponibilidade recorrente | Should | | Cadu | |
+| RF-44 | Preferências de ambiente e informações do local | Should | Privacidade | Bia | |
+| RF-45 | Status de preenchimento | Should | | Rafaela | |
 
 ### 4.1 Conta e sala
 
@@ -148,6 +152,18 @@ O sistema DEVE permitir que o organizador transfira o papel para outro membro, r
 **Cenário: organizador sai**
 - **QUANDO** o organizador tenta sair sem transferir o papel
 - **ENTÃO** o app pede que ele escolha um sucessor; se ele não escolher, o papel passa ao membro mais antigo
+
+#### RF-42 · Login sem senha (Must)
+
+O sistema DEVE permitir entrar sem criar senha, com um código de uso único enviado ao telefone ou ao e-mail, ou com uma conta Google. O método do MVP está em aberto, porque SMS e WhatsApp têm custo.
+
+**Cenário: primeiro acesso pelo convite**
+- **QUANDO** alguém abre o link de convite sem ter conta
+- **ENTÃO** entra informando só o telefone ou o e-mail e o código recebido, e cai direto na sala
+
+**Cenário: código expirado**
+- **QUANDO** o código passa da validade
+- **ENTÃO** o app oferece reenviar com um toque
 
 ### 4.2 Início do rolê
 
@@ -217,6 +233,18 @@ O sistema DEVE permitir conectar o Google Agenda com permissão só de livre/ocu
 - **QUANDO** a agenda está conectada
 - **ENTÃO** os horários ocupados saem das janelas, e a pessoa ainda pode corrigir pela conversa ou pela grade
 
+#### RF-43 · Disponibilidade recorrente (Should)
+
+O sistema DEVE permitir registrar uma única vez, no perfil, uma disponibilidade que se repete (semanal ou em escala, como plantões 12x36) e aplicá-la automaticamente a cada rolê, com exceções por data.
+
+**Cenário: escala 12x36**
+- **QUANDO** o participante informa "plantão 12x36 a partir de segunda, das 7h às 19h"
+- **ENTÃO** a IA calcula os dias de plantão das semanas seguintes, mostra para confirmação e desconta esses dias das janelas de todo rolê
+
+**Cenário: troca de plantão**
+- **QUANDO** ele troca um plantão
+- **ENTÃO** pode marcar a exceção só naquela data
+
 #### RF-11 · Orçamento sigiloso (Must)
 
 O sistema DEVE coletar em particular quanto cada participante quer gastar no rolê, transporte incluído, e usar esse valor só como restrição. O valor individual nunca é mostrado a outro membro nem atribuído a alguém nas explicações.
@@ -231,7 +259,7 @@ O sistema DEVE coletar em particular quanto cada participante quer gastar no rol
 
 #### RF-12 · Prazo de resposta e ação padrão (Must)
 
-O sistema DEVE associar a cada pergunta que trava o rolê (disponibilidade, orçamento, voto, presença) um prazo e uma ação padrão, para que o rolê avance sem depender de todos e sem que a pessoa precise voltar ao app várias vezes. Os valores dos prazos estão em aberto.
+O sistema DEVE associar a cada pergunta que trava o rolê (disponibilidade, orçamento, voto, presença) um prazo e uma ação padrão, para que o rolê avance sem depender de todos e sem que a pessoa precise voltar ao app várias vezes. O organizador pode ajustar os prazos da sala; os valores padrão estão em aberto.
 
 **Cenário: participante não responde**
 - **QUANDO** um participante não informa a disponibilidade até o prazo
@@ -240,6 +268,14 @@ O sistema DEVE associar a cada pergunta que trava o rolê (disponibilidade, orç
 **Cenário: lembrete único**
 - **QUANDO** o prazo está perto do fim
 - **ENTÃO** a IA manda um único lembrete
+
+#### RF-45 · Status de preenchimento (Should)
+
+O sistema DEVE mostrar aos participantes, e em destaque ao organizador, quantas pessoas já responderam cada etapa do rolê (disponibilidade, orçamento, voto, presença) e quanto falta para o prazo, sem mostrar o conteúdo das respostas nem quem ainda não respondeu.
+
+**Cenário: acompanhamento**
+- **QUANDO** 5 de 7 participantes informaram a disponibilidade
+- **ENTÃO** a sala mostra "5 de 7 responderam" e o prazo restante, e os lembretes a quem falta ficam por conta da IA (RF-12)
 
 ### 4.4 Datas
 
@@ -333,6 +369,18 @@ O sistema DEVE, em planos na casa de alguém, usar só a casa de quem se oferece
 - **QUANDO** nenhum participante se oferece como anfitrião
 - **ENTÃO** a IA não gera planos em casa
 
+#### RF-44 · Preferências de ambiente e informações do local (Should)
+
+O sistema DEVE permitir que cada pessoa informe em particular preferências de ambiente (calmo, pouco ruído, ao ar livre, pouca lotação), usá-las no ranqueamento sem revelar ao grupo de quem vieram, e mostrar em cada plano as informações do local que existirem na base: fotos, faixa de preço, nível de ruído e horários de maior movimento.
+
+**Cenário: preferência sigilosa**
+- **QUANDO** a Bia marca "ambiente calmo" e o plano escolhido é um café tranquilo
+- **ENTÃO** a explicação ao grupo cita o ambiente calmo como vantagem, sem dizer quem pediu
+
+**Cenário: dado ausente**
+- **QUANDO** a base não tem a informação de lotação de um lugar
+- **ENTÃO** o plano diz "sem informação", em vez de estimar
+
 ### 4.6 Transporte
 
 #### RF-21 · Deslocamento por pessoa (Must)
@@ -384,6 +432,10 @@ O sistema DEVE pedir que cada participante confirme presença no plano escolhido
 **Cenário: desistência depois de confirmar**
 - **QUANDO** alguém desconfirma depois da decisão
 - **ENTÃO** as caronas e as estimativas de custo são recalculadas, e os afetados são avisados
+
+**Cenário: recusa discreta**
+- **QUANDO** um participante recusa o convite ou desconfirma
+- **ENTÃO** a IA não pede justificativa, e o grupo vê só o número de confirmados
 
 ### 4.8 Depois da decisão
 
@@ -531,7 +583,7 @@ Sugestão de 12 capacidades que resumem os Must no pacote de definição:
 
 | Capacidade | RF |
 |---|---|
-| Contas e salas de 2 a 20 pessoas | RF-01 a RF-04 |
+| Contas, login sem senha e salas de 2 a 20 pessoas | RF-01 a RF-04, RF-42 |
 | Pedido de rolê e iniciativa da IA | RF-05, RF-06 |
 | Coleta privada com prazos | RF-07, RF-08, RF-12 |
 | Orçamento sigiloso | RF-11, RF-18 |
@@ -728,3 +780,4 @@ A consolidar no item Premissas do pacote de definição.
 | Versão | Data | Mudança |
 |---|---|---|
 | 0.1 | 2026-10-29 | Versão inicial: 41 RF e 16 RNF do MVP |
+| 0.2 | 2026-10-29 | RF-42 a RF-45 vindos das personas, coluna Persona preenchida, prazos ajustáveis pelo organizador (RF-12) e recusa discreta (RF-26) |
