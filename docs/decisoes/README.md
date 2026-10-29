@@ -8,4 +8,4 @@ Não apague nem reescreva uma decisão antiga: se ela mudar, crie uma nova e mar
 
 | Nº | Decisão | Status |
 |---|---|---|
-| — | (nenhuma ainda) | — |
+| [0001](0001-escolha-do-orquestrador-de-roles.md) | Seguir com o Orquestrador de Rolês | aceita |
