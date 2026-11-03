@@ -23,4 +23,4 @@
 
 - 20 a 30 pedidos de teste escritos antes da base; Postgres com pgvector em Docker; pipeline com 100 candidatos e taxa de aprovação por região.
 - Respostas do grupo às perguntas dos ADRs 0004 e 0005.
-- Atualizar o mapa da arquitetura com os ADRs 0004 e 0005, aqui e no repositório público.
+- Publicar no repositório público o mapa da arquitetura, já atualizado com os ADRs 0004 e 0005.
