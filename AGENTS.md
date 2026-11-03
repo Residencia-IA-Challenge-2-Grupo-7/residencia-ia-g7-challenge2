@@ -24,7 +24,8 @@ Programa de Residência em IA (Instituto Eldorado + UnB), metodologia CBL (Chall
 | `STATUS.md` | Estado vivo do projeto: a fonte da verdade sobre o "agora" |
 | `docs/desafio/` | Enunciado do Challenge 2 (PDF original + versão em Markdown) |
 | `docs/produto/` | Visão do produto escolhido (Orquestrador de Rolês) e requisitos do MVP |
-| `docs/decisoes/` | ADRs: decisões técnicas e suas justificativas |
+| `docs/decisoes/` | ADRs: decisões técnicas e suas justificativas; críticas e respostas em `revisoes/` |
+| `docs/dados/` | Esquema da base de lugares e eventos e regras de extração (ADRs 0004 e 0005) |
 | `docs/arquitetura/` | Mapa navegável da arquitetura (HTML único), publicado num repositório público à parte; guia de edição no `AGENTS.md` da pasta |
 | `docs/entregas/` | Entregáveis semanais (relatórios .docx) e o plano de cada um, uma pasta por semana |
 | `docs/semanas/` | Registro semanal alinhado ao roadmap (alimenta o relatório final) |

@@ -10,7 +10,21 @@
 
 - **Ideia escolhida: Orquestrador de Rolês**, com o Modo Descoberta ([ADR 0001](docs/decisoes/0001-escolha-do-orquestrador-de-roles.md)). Visão, diferenciais, concorrentes, decisões em aberto e riscos: [docs/produto/visao.md](docs/produto/visao.md).
 - **Recorte do MVP: só o modo com amigos.** Modo Descoberta, videogames e versão para menores ficam para depois ([ADR 0002](docs/decisoes/0002-recorte-do-mvp.md)). Canal proposto: app web próprio ([ADR 0003](docs/decisoes/0003-canal-app-web.md), a confirmar com o grupo).
-- **Requisitos v0.2** em [docs/produto/requisitos.md](docs/produto/requisitos.md): 45 RF e 16 RNF, com cenários no estilo OpenSpec e coluna Persona preenchida. Falta a revisão do grupo. **O documento da equipe (Google Doc) já está na v0.3**, com o RF-46 (imprevistos, Could), a coluna Riscos preenchida e ajustes de consistência; o arquivo do repositório ainda não foi sincronizado.
+- **Requisitos v0.3** em [docs/produto/requisitos.md](docs/produto/requisitos.md): 46 RF e 16 RNF, com cenários no estilo OpenSpec e colunas Persona e Riscos (R-NN) preenchidas. Sincronizados com o documento da equipe em 03/11. Falta a revisão do grupo.
+- **Fonte da base do RAG** ([ADR 0004](docs/decisoes/0004-fonte-e-manutencao-da-base.md), aceita na versão 2, depois da [crítica](docs/decisoes/revisoes/0004-critica.md)):
+  - candidatos da Overture e curadoria humana de horário e preço;
+  - Google Places só para conferir os finalistas na hora do plano, sob cinco condições dos termos: sem mapa não Google, só o place ID guardado, nada exibido nem lido em voz, nada na avaliação LLM × RAG, sem benchmark público;
+  - TomTom medida no piloto;
+  - meta de lugares derivada das horas, com teto de 200;
+  - aceite pelo teste de cobertura por região e por faixa de orçamento.
+  Esquema e guia em [docs/dados/](docs/dados/).
+- **Coleta automática e base vetorial** ([ADR 0005](docs/decisoes/0005-coleta-automatica-e-base-vetorial.md), proposta): substitui a curadoria humana do ADR 0004.
+  - Robô nos sites oficiais e nas agendas, com extração por LLM e evidência literal conferida por código; nenhum campo é digitado por uma pessoa.
+  - Rodada semanal (eventos duas vezes por semana).
+  - PostgreSQL com pgvector, busca híbrida e embeddings BGE-M3 locais.
+  - Limitação principal: lugares sem site ficam fora, o que pode concentrar a base no centro.
+  **Próximos passos da base:** pedidos de teste, Postgres com pgvector em Docker e etapas 1 a 5 do pipeline com 100 candidatos na semana 2. O grupo responde às perguntas dos ADRs 0004 e 0005 (conta de faturamento, plano sem mapa embutido, lugares sem site, e-mail do robô, provedor de LLM da extração).
+- **Pendente:** atualizar o [mapa da arquitetura](docs/arquitetura/index.html) e o repositório público com os ADRs 0004 e 0005. Hoje o mapa ainda mostra a curadoria manual, o banco vetorial "a decidir" e respostas de APIs em cache, que só vale para o que os termos permitem.
 - **Relatório da semana 1** (até 5 páginas de texto, ABNT): [relatorio-semana-01.docx](docs/entregas/semana-01/relatorio-semana-01.docx) e o [PDF](docs/entregas/semana-01/relatorio-semana-01.pdf), montados conforme o [plano](docs/entregas/semana-01/plano-relatorio.md) e alinhados ao documento da equipe revisado (46 RF, riscos renumerados, sem piloto). 5 páginas de texto, com cerca de 1,5 cm de folga. As partes da equipe estão no [documento do grupo](https://docs.google.com/document/d/1mlxgJ9XoadAl4qKV28bw6qexQxF6xpwcSx5aENsRPF4/edit?tab=t.mm6pfcuj8dpt#heading=h.tyssdhkqxqfd) (Google Docs).
 - **Mapa da arquitetura planejada** (pedido do mentor Isaque): [docs/arquitetura/index.html](docs/arquitetura/index.html), publicado em [residencia-ia-challenge-2-grupo-7.github.io/residencia-ia-g7-arquitetura](https://residencia-ia-challenge-2-grupo-7.github.io/residencia-ia-g7-arquitetura/). O site fica num repositório público à parte, porque o plano gratuito da organização não tem Pages em repositório privado. Como editar e publicar: [docs/arquitetura/AGENTS.md](docs/arquitetura/AGENTS.md).
 - Formulário curto "Pesquisa de Hábitos Sociais" (15 afirmações) em uso para validar a dor. A versão completa fica como referência em [docs/pesquisa/](docs/pesquisa/).
@@ -23,7 +37,7 @@
 - [x] Essential Question
 - [x] Mapa de stakeholders (PDF da equipe; precisa tirar jogos)
 - [x] Personas (PDF da equipe; limite de sala a corrigir para 20)
-- [ ] Requisitos funcionais e não funcionais (v0.2; falta revisão do grupo e coluna Métrica)
+- [ ] Requisitos funcionais e não funcionais (v0.3; falta revisão do grupo e coluna Métrica)
 - [x] Riscos (PDF da equipe; R-01 a R-09 na numeração nova, no relatório os 6 de maior P × I)
 - [x] Premissas (PDF da equipe)
 - [x] Métricas de sucesso (PDF da equipe; 7 métricas, no relatório as 3 de resultado)
@@ -32,9 +46,8 @@
 
 ## Próximos passos dos requisitos
 
-- Sincronizar `requisitos.md` com a v0.3 do documento da equipe (RF-46, coluna Riscos, ajustes nos RF-02, 03, 04, 12, 15, 17 e 25).
 - Revisar a v0.3 com o grupo, principalmente as escolhas de comportamento de 29/10 e a seção "Questões em aberto" do documento.
-- Preencher Risco (R-NN) e Métrica (M-NN) quando essas partes ficarem prontas. O resultado do formulário ajusta as prioridades, e as métricas dão os números dos RNF.
+- Preencher a coluna Métrica (M-NN) quando o plano de métricas fechar. O resultado do formulário ajusta as prioridades, e as métricas dão os números dos RNF.
 - No documento final, só os Must, agrupados nas 12 capacidades sugeridas no próprio arquivo.
 - Escrever os requisitos das extensões futuras (Modo Descoberta, videogames, versão para menores), se sobrar tempo.
 - Quando houver código (semana 2), avaliar `openspec init` e migrar cada capacidade para `openspec/specs/`.

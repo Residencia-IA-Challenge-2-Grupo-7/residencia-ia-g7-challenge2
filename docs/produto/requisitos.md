@@ -1,7 +1,7 @@
 # Requisitos do MVP: Orquestrador de Rolês
 
-- **Versão:** 0.2, 2026-10-29
-- **Status:** para revisão do grupo. As escolhas de comportamento foram feitas na sessão de requisitos de 29/10 e ainda precisam ser validadas com o grupo, as personas e o resultado do formulário.
+- **Versão:** 0.3.1, 2026-11-03
+- **Status:** para revisão do grupo. As escolhas de comportamento foram feitas na sessão de requisitos de 29/10 e ainda precisam ser validadas com o grupo, as personas e o resultado do formulário. O fechamento do MVP estava previsto para 30/10/2026 (premissa P04).
 - **Base:** [visão do produto](visao.md) · recorte do MVP no [ADR 0002](../decisoes/0002-recorte-do-mvp.md) · canal no [ADR 0003](../decisoes/0003-canal-app-web.md)
 
 ## Como ler
@@ -9,7 +9,7 @@
 - **IDs fixos.** RF-NN são funcionais e RNF-NN são não funcionais. Um ID nunca é reaproveitado: requisito que sai fica marcado como *removido*.
 - **Prioridade provisória (MoSCoW):** **Must** (sem isso o MVP não resolve o problema), **Should** (importante, entra se couber nas 7 semanas), **Could** (desejável). O que está fora do MVP fica em [Extensões futuras](#7-extensões-futuras).
 - **Notação (estilo OpenSpec):** cada requisito tem um enunciado com **DEVE** e cenários **QUANDO / ENTÃO**, que servem de critério de aceitação e, depois, de casos de teste.
-- **Rastreabilidade:** a coluna Persona usa as personas da equipe (Rafaela, primária; Cadu, Bia e Márcio, secundárias). A coluna Métrica fica em branco até as métricas de sucesso ficarem prontas. A coluna Riscos usa os nomes dos riscos da [visão](visao.md#riscos-conhecidos) até eles ganharem IDs (R-NN).
+- **Rastreabilidade:** a coluna Persona (só na tabela de RF) usa as personas da equipe (Rafaela, primária; Cadu, Bia e Márcio, secundárias). A coluna Riscos usa os IDs da guia Riscos do documento da equipe (lista em [Riscos referenciados](#riscos-referenciados)). A coluna Métrica fica em branco até o plano de métricas de sucesso ser fechado.
 - **Documento final:** entra só o que é Must, agrupado por capacidade (ver [seção 4.12](#412-agrupamento-para-o-documento-final)). Esta lista completa fica no repositório.
 
 ## 1. Escopo do MVP
@@ -17,9 +17,9 @@
 **Dentro**
 
 - Organização de rolês entre amigos que já se conhecem, em salas de 2 a 20 pessoas.
-- App web, pensado primeiro para o celular, com exportação do plano fechado para o WhatsApp e para a agenda.
+- App web, pensado primeiro para o celular. A exportação do plano fechado para o WhatsApp e para a agenda entra se couber (Should, RF-27 e RF-28).
 - Distrito Federal inteiro; adultos (18+) de qualquer idade.
-- Quatro tipos de rolê: comer e beber fora, eventos com data marcada, ao ar livre ou gratuitos, em casa de alguém.
+- Quatro tipos de rolê: comer e beber fora, eventos com data marcada, ao ar livre ou gratuitos e, se couber, em casa de alguém (Should, RF-20).
 - Conversa por texto e por voz.
 
 **Fora** (ver [Extensões futuras](#7-extensões-futuras))
@@ -31,14 +31,14 @@
 | Termo | Significado |
 |---|---|
 | Sala | Grupo fixo de amigos no app (2 a 20 membros), com um chat do grupo |
-| Organizador | Quem criou a sala, com papel transferível. Configura o modo de decisão, a regra de preferência de datas e a iniciativa da IA |
+| Organizador | Quem criou a sala, com papel transferível. Configura o modo de decisão, a regra de preferência de datas, os prazos de resposta e a iniciativa da IA |
 | Rolê | Um encontro em organização dentro de uma sala, do pedido até a avaliação |
 | Participante | Membro da sala convidado para um rolê específico |
 | Conversa privada | Chat individual entre um participante e a IA. O que é dito ali não aparece para os outros |
 | Plano | Proposta completa de rolê: o quê, onde, quando, como cada um chega e volta, e custo estimado por pessoa |
-| Restrição dura | Condição que elimina um plano: orçamento, disponibilidade, horário de funcionamento, restrições declaradas |
+| Restrição dura | Condição que elimina um plano: orçamento, disponibilidade, horário de funcionamento, restrições declaradas e, quando houver caronas, a capacidade dos carros |
 | Janela | Intervalo de data e hora em que os participantes estão livres |
-| Prazo de resposta | Tempo que a IA espera por uma resposta antes de seguir com uma ação padrão (valores em aberto) |
+| Prazo de resposta | Tempo que a IA espera por uma resposta antes de seguir com uma ação padrão (o organizador pode ajustar; valores padrão em aberto) |
 | Gasto | Valor pago por um participante durante o rolê e dividido com os outros |
 | Saldo | O que cada membro deve ou tem a receber na sala, somando os rolês |
 
@@ -59,53 +59,54 @@
 
 ### Resumo
 
-| ID | Requisito | Prioridade | Riscos (visão) | Persona | Métrica |
+| ID | Requisito | Prioridade | Riscos | Persona | Métrica |
 |---|---|---|---|---|---|
-| RF-01 | Cadastro e perfil | Must | Privacidade | Todas | |
-| RF-02 | Consentimento e controle dos dados | Must | Privacidade | Márcio, Cadu | |
+| RF-01 | Cadastro e perfil | Must | R-01 | Todas | |
+| RF-02 | Consentimento e controle dos dados | Must | R-01, R-09 | Márcio, Cadu | |
 | RF-03 | Sala e convites (2 a 20 membros) | Must | | Rafaela | |
 | RF-04 | Gestão da sala pelo organizador | Must | | Rafaela | |
 | RF-05 | Pedido de rolê por qualquer membro | Must | | Rafaela | |
-| RF-06 | Iniciativa da IA | Must | | Rafaela | |
-| RF-07 | Conversa privada com cada participante | Must | Privacidade | Cadu, Rafaela | |
+| RF-06 | Iniciativa da IA | Must | R-04 | Rafaela | |
+| RF-07 | Conversa privada com cada participante | Must | R-01 | Cadu, Rafaela | |
 | RF-08 | Disponibilidade por conversa livre | Must | | Cadu, Márcio | |
 | RF-09 | Disponibilidade por grade de horários | Should | | Cadu, Márcio | |
-| RF-10 | Disponibilidade pelo Google Agenda | Could | Privacidade | | |
-| RF-11 | Orçamento sigiloso | Must | Privacidade, Exclusão financeira | Cadu, Rafaela | |
-| RF-12 | Prazo de resposta e ação padrão | Must | | Rafaela | |
+| RF-10 | Disponibilidade pelo Google Agenda | Could | R-01 | | |
+| RF-11 | Orçamento sigiloso | Must | R-01, R-02 | Cadu, Rafaela | |
+| RF-12 | Prazo de resposta e ação padrão | Must | R-04 | Rafaela | |
 | RF-13 | Cruzamento de disponibilidades | Must | | Cadu, Rafaela | |
 | RF-14 | Regra de preferência de datas do organizador | Must | | Rafaela | |
-| RF-15 | Planos completos com custo por pessoa | Must | Dados inventados | Rafaela, Cadu | |
-| RF-16 | Fundamentação na base de conhecimento | Must | Dados inventados | Rafaela | |
-| RF-17 | Filtro de restrições duras | Must | Exclusão financeira | Cadu, Bia | |
-| RF-18 | Negociação privada de orçamento | Must | Exclusão financeira | Cadu | |
-| RF-19 | Ranqueamento justo e explicação | Must | Exclusão financeira | Cadu | |
+| RF-15 | Planos completos com custo por pessoa | Must | R-03 | Rafaela, Cadu | |
+| RF-16 | Fundamentação na base de conhecimento | Must | R-03 | Rafaela | |
+| RF-17 | Filtro de restrições duras | Must | R-02 | Cadu, Bia | |
+| RF-18 | Negociação privada de orçamento | Must | R-02 | Cadu | |
+| RF-19 | Ranqueamento justo e explicação | Must | R-02 | Cadu | |
 | RF-20 | Rolê em casa de alguém | Should | | Márcio | |
-| RF-21 | Deslocamento por pessoa | Must | | Cadu | |
-| RF-22 | Aviso de volta para casa | Should | Segurança | Cadu, Rafaela | |
-| RF-23 | Caronas otimizadas | Should | Segurança | Rafaela, Márcio | |
+| RF-21 | Deslocamento por pessoa | Must | R-05 | Cadu | |
+| RF-22 | Aviso de volta para casa | Should | R-05 | Cadu, Rafaela | |
+| RF-23 | Caronas otimizadas | Should | R-05 | Rafaela, Márcio | |
 | RF-24 | Modo de decisão da sala | Must | | Rafaela | |
 | RF-25 | Votação | Must | | Rafaela, Márcio | |
 | RF-26 | Confirmação de presença | Must | | Cadu, Bia | |
-| RF-27 | Compartilhar no WhatsApp | Should | Privacidade | Márcio | |
+| RF-27 | Compartilhar no WhatsApp | Should | R-01 | Márcio | |
 | RF-28 | Adicionar à agenda | Should | | Cadu | |
 | RF-29 | Lembretes antes do encontro | Should | | Márcio | |
 | RF-30 | Lançamento de gastos no chat | Must | | Rafaela | |
-| RF-31 | Lançamento por foto da nota fiscal | Should | | | |
-| RF-32 | Divisão dos gastos | Must | Exclusão financeira | Cadu | |
-| RF-33 | Código Pix de quem pagou | Should | Privacidade | Rafaela | |
-| RF-34 | Quitação e lembretes discretos | Should | Exclusão financeira | Rafaela | |
+| RF-31 | Lançamento por foto da nota fiscal | Should | R-09 | | |
+| RF-32 | Divisão dos gastos | Must | R-02 | Cadu | |
+| RF-33 | Código Pix de quem pagou | Should | R-01 | Rafaela | |
+| RF-34 | Quitação e lembretes discretos | Should | R-02 | Rafaela | |
 | RF-35 | Saldo entre rolês | Could | | | |
-| RF-36 | Confirmação de que o encontro aconteceu | Must | Métricas de vaidade | | |
+| RF-36 | Confirmação de que o encontro aconteceu | Must | R-06 | | |
 | RF-37 | Avaliação opcional por item | Should | | Rafaela | |
 | RF-38 | Aprendizado com as avaliações | Should | | | |
-| RF-39 | Entrada por voz | Must | | Márcio | |
-| RF-40 | Resposta em voz | Should | | Márcio | |
-| RF-41 | Notificações agrupadas | Must | | Márcio, Rafaela | |
-| RF-42 | Login sem senha | Must | Privacidade | Márcio | |
+| RF-39 | Entrada por voz | Must | R-09 | Márcio | |
+| RF-40 | Resposta em voz | Should | R-09 | Márcio | |
+| RF-41 | Notificações agrupadas | Must | R-04 | Márcio, Rafaela | |
+| RF-42 | Login sem senha | Must | R-01 | Márcio | |
 | RF-43 | Disponibilidade recorrente | Should | | Cadu | |
-| RF-44 | Preferências de ambiente e informações do local | Should | Privacidade | Bia | |
-| RF-45 | Status de preenchimento | Should | | Rafaela | |
+| RF-44 | Preferências de ambiente e informações do local | Should | R-01 | Bia | |
+| RF-45 | Status de preenchimento | Should | R-04 | Rafaela | |
+| RF-46 | Imprevistos no dia do rolê | Could | R-05 | Cadu, Bia | |
 
 ### 4.1 Conta e sala
 
@@ -123,7 +124,7 @@ O sistema DEVE permitir criar uma conta e um perfil com nome de exibição, regi
 
 #### RF-02 · Consentimento e controle dos dados (Must)
 
-O sistema DEVE pedir consentimento separado para cada finalidade sensível (localização, agenda, voz, chave Pix) e permitir que a pessoa veja, corrija, exporte e apague os próprios dados e a conta.
+O sistema DEVE pedir consentimento separado para cada finalidade sensível (localização, agenda, voz, foto da nota fiscal, chave Pix) e permitir que a pessoa veja, corrija, exporte e apague os próprios dados e a conta.
 
 **Cenário: revogação**
 - **QUANDO** a pessoa desconecta a agenda
@@ -135,7 +136,7 @@ O sistema DEVE pedir consentimento separado para cada finalidade sensível (loca
 
 #### RF-03 · Sala e convites (Must)
 
-O sistema DEVE permitir que qualquer usuário crie uma sala, da qual passa a ser o organizador, e convide amigos por um link compartilhável. Uma sala tem no mínimo 2 e no máximo 20 membros.
+O sistema DEVE permitir que qualquer usuário crie uma sala, da qual passa a ser o organizador, e convide amigos por um link compartilhável. Uma sala tem no máximo 20 membros e precisa de pelo menos 2 para iniciar um rolê.
 
 **Cenário: sala cheia**
 - **QUANDO** uma 21ª pessoa abre o link de convite
@@ -147,7 +148,7 @@ O sistema DEVE permitir que qualquer usuário crie uma sala, da qual passa a ser
 
 #### RF-04 · Gestão da sala (Must)
 
-O sistema DEVE permitir que o organizador transfira o papel para outro membro, remova membros e configure a sala: modo de decisão (RF-24), regra de preferência de datas (RF-14) e iniciativa da IA (RF-06). Qualquer membro pode sair da sala.
+O sistema DEVE permitir que o organizador transfira o papel para outro membro, remova membros e configure a sala: modo de decisão (RF-24), regra de preferência de datas (RF-14), prazos de resposta (RF-12) e iniciativa da IA (RF-06). Qualquer membro pode sair da sala.
 
 **Cenário: organizador sai**
 - **QUANDO** o organizador tenta sair sem transferir o papel
@@ -259,7 +260,7 @@ O sistema DEVE coletar em particular quanto cada participante quer gastar no rol
 
 #### RF-12 · Prazo de resposta e ação padrão (Must)
 
-O sistema DEVE associar a cada pergunta que trava o rolê (disponibilidade, orçamento, voto, presença) um prazo e uma ação padrão, para que o rolê avance sem depender de todos e sem que a pessoa precise voltar ao app várias vezes. O organizador pode ajustar os prazos da sala; os valores padrão estão em aberto.
+O sistema DEVE associar a cada pergunta que trava o rolê (disponibilidade, orçamento, voto, presença, lançamento de gastos) um prazo e uma ação padrão, para que o rolê avance sem depender de todos e sem que a pessoa precise voltar ao app várias vezes. O organizador pode ajustar os prazos da sala; os valores padrão estão em aberto.
 
 **Cenário: participante não responde**
 - **QUANDO** um participante não informa a disponibilidade até o prazo
@@ -307,7 +308,7 @@ O sistema DEVE permitir que o organizador defina, em ordem de prioridade, crité
 
 #### RF-15 · Planos completos com custo por pessoa (Must)
 
-O sistema DEVE propor 2 ou 3 planos para o rolê, cada um com atividade e local (ou evento), data e horário, como cada participante chega e volta, comida, itens para levar quando houver e custo estimado por pessoa (atividade, comida e transporte). Os planos podem ser de qualquer um dos quatro tipos do MVP.
+O sistema DEVE propor 2 ou 3 planos para o rolê, cada um com atividade e local (ou evento), data e horário, como cada participante chega e volta, comida, itens para levar quando houver e custo estimado por pessoa (atividade, comida e transporte). Os planos podem ser de qualquer um dos tipos do MVP; o rolê em casa depende do RF-20.
 
 **Cenário: apresentação**
 - **QUANDO** a IA apresenta os planos
@@ -327,11 +328,11 @@ O sistema DEVE montar planos só com lugares, eventos, preços e horários da ba
 
 **Cenário: dado antigo**
 - **QUANDO** um preço ou horário foi verificado há mais tempo que o limite (a definir)
-- **ENTÃO** ele aparece como "aproximado", com a data da verificação
+- **ENTÃO** ele aparece como "aproximado", com a data da verificação (limites por tipo de dado definidos no [ADR 0004](../decisoes/0004-fonte-e-manutencao-da-base.md#pergunta-3-reverificação-e-aproximado))
 
 #### RF-17 · Filtro de restrições duras (Must)
 
-O sistema DEVE descartar planos que violem o orçamento de algum participante, as janelas de disponibilidade, o horário de funcionamento do lugar ou evento, as restrições declaradas (alimentares, de acessibilidade) ou a capacidade das caronas.
+O sistema DEVE descartar planos que violem o orçamento de algum participante, as janelas de disponibilidade, o horário de funcionamento do lugar ou evento, as restrições declaradas (alimentares, de acessibilidade) ou, quando houver caronas (RF-23), a capacidade dos carros.
 
 **Cenário: lugar fecha antes**
 - **QUANDO** o restaurante fecha às 22h e o plano vai até as 23h
@@ -419,7 +420,7 @@ O sistema DEVE oferecer dois modos de decisão, escolhidos pelo organizador: vot
 
 #### RF-25 · Votação (Must)
 
-O sistema DEVE permitir que cada participante vote em um plano até o prazo. Vence a maioria simples; em empate, vence o plano mais bem colocado no ranking de justiça. Quem não vota não trava o resultado.
+O sistema DEVE permitir que cada participante vote em um plano até o prazo. Vence o plano mais votado; em empate, vence o plano mais bem colocado no ranking de justiça. Quem não vota não trava o resultado.
 
 **Cenário: empate**
 - **QUANDO** 3 votam no plano A, 3 no plano B, 1 não vota, e B está acima no ranking
@@ -462,6 +463,18 @@ O sistema DEVE lembrar cada participante antes do encontro, com horário de saí
 **Cenário: véspera**
 - **QUANDO** falta o tempo de antecedência configurado
 - **ENTÃO** cada participante recebe um lembrete com as próprias informações de saída
+
+#### RF-46 · Imprevistos no dia do rolê (Could)
+
+O sistema DEVE, quando um imprevisto afetar um plano já confirmado (chuva em rolê ao ar livre, linha de metrô ou ônibus parada, lugar fechado de última hora), avisar os participantes afetados e propor um ajuste ou um plano alternativo da base de conhecimento, decidido conforme o modo da sala (RF-24). As fontes de previsão do tempo e de alertas de transporte estão em aberto.
+
+**Cenário: chuva no rolê ao ar livre**
+- **QUANDO** a previsão indica chuva no horário de um rolê no parque
+- **ENTÃO** a IA avisa o grupo e propõe um lugar coberto próximo, com o custo por pessoa recalculado, ou adiar para outra janela
+
+**Cenário: transporte interrompido**
+- **QUANDO** a linha que um participante usaria para de funcionar
+- **ENTÃO** só ele recebe o aviso, com uma rota ou um meio alternativo e o custo extra estimado
 
 ### 4.9 Custos depois do rolê
 
@@ -537,7 +550,7 @@ O sistema DEVE perguntar a cada participante, depois do horário previsto, se o 
 
 #### RF-37 · Avaliação opcional por item (Should)
 
-O sistema DEVE oferecer, de forma opcional, notas de 1 a 5 para lugar, custo, transporte e horário, com comentário livre por texto ou voz.
+O sistema DEVE oferecer, de forma opcional, notas de 1 a 5 para lugar, custo, transporte e horário, com comentário livre por texto ou voz, e a pergunta "o lugar estava aberto e o preço bateu?". Uma divergência relatada só põe o lugar na fila de reconferência da base, sem registrar quem respondeu ([ADR 0004](../decisoes/0004-fonte-e-manutencao-da-base.md)).
 
 **Cenário: pessoa pula**
 - **QUANDO** a pessoa pula a avaliação
@@ -589,7 +602,7 @@ Sugestão de 12 capacidades que resumem os Must no pacote de definição:
 | Orçamento sigiloso | RF-11, RF-18 |
 | Escolha de datas | RF-13, RF-14 |
 | Planos fundamentados em dados reais | RF-15 a RF-17 |
-| Decisão justa e deslocamento | RF-19, RF-21 |
+| Ranqueamento justo e deslocamento | RF-19, RF-21 |
 | Decisão do grupo e presença | RF-24 a RF-26 |
 | Divisão de custos | RF-30, RF-32 |
 | Confirmação de que o encontro aconteceu | RF-36 |
@@ -600,26 +613,26 @@ Sugestão de 12 capacidades que resumem os Must no pacote de definição:
 
 ### Resumo
 
-| ID | Requisito | Prioridade | Riscos (visão) | Métrica |
+| ID | Requisito | Prioridade | Riscos | Métrica |
 |---|---|---|---|---|
-| RNF-01 | Privacidade e LGPD | Must | Privacidade | |
-| RNF-02 | Sigilo do orçamento e das conversas privadas | Must | Privacidade, Exclusão financeira | |
-| RNF-03 | Dados reais | Must | Dados inventados | |
-| RNF-04 | Cálculos fora do modelo de linguagem | Must | Dados inventados, Exclusão financeira | |
-| RNF-05 | Explicabilidade e transparência | Must | | |
-| RNF-06 | Mínimo de idas ao app | Must | | |
-| RNF-07 | Acessibilidade | Must | | |
-| RNF-08 | Português do Brasil | Must | | |
+| RNF-01 | Privacidade e LGPD | Must | R-01, R-09 | |
+| RNF-02 | Sigilo do orçamento e das conversas privadas | Must | R-01, R-02 | |
+| RNF-03 | Dados reais | Must | R-03 | |
+| RNF-04 | Cálculos fora do modelo de linguagem | Must | R-02, R-03 | |
+| RNF-05 | Explicabilidade e transparência | Must | R-03 | |
+| RNF-06 | Mínimo de idas ao app | Must | R-04 | |
+| RNF-07 | Acessibilidade | Must | R-09 | |
+| RNF-08 | Português do Brasil | Must | R-09 | |
 | RNF-09 | Web para celular, instalável | Must | | |
-| RNF-10 | Registro para métricas | Must | Métricas de vaidade | |
-| RNF-11 | Segurança da aplicação | Must | Privacidade, Segurança | |
-| RNF-12 | Arquitetura compatível com o roadmap | Must | | |
-| RNF-13 | Justiça e viés | Must | Exclusão financeira | |
-| RNF-14 | Desempenho | Should | | |
-| RNF-15 | Resiliência e dependência de APIs | Should | Dependência de APIs | |
-| RNF-16 | Álcool e segurança no encontro | Should | Álcool, Segurança | |
+| RNF-10 | Registro para métricas | Must | R-06 | |
+| RNF-11 | Segurança da aplicação | Must | R-01 | |
+| RNF-12 | Arquitetura compatível com o roadmap | Must | R-07 | |
+| RNF-13 | Justiça e viés | Must | R-02 | |
+| RNF-14 | Desempenho | Should | R-07 | |
+| RNF-15 | Resiliência e dependência de APIs | Should | R-07 | |
+| RNF-16 | Álcool e segurança no encontro | Should | R-05, R-08 | |
 
-As metas numéricas abaixo são provisórias e serão fixadas junto com as métricas de sucesso.
+As metas numéricas abaixo são provisórias, valem como intenção para os testes do MVP e serão fixadas junto com as métricas de sucesso.
 
 #### RNF-01 · Privacidade e LGPD (Must)
 
@@ -631,7 +644,7 @@ O sistema DEVE tratar dados pessoais conforme a LGPD: finalidade explícita, con
 - Conversas privadas e orçamentos de um rolê apagados depois de um prazo do fim do rolê (a definir).
 - Dados enviados a provedores de LLM e de APIs limitados ao necessário, sem nome nem contato.
 - Aviso de privacidade em linguagem simples antes do cadastro.
-- Checklist de LGPD revisado antes do piloto.
+- Checklist de LGPD revisado antes dos testes do MVP.
 
 #### RNF-02 · Sigilo do orçamento e das conversas privadas (Must)
 
@@ -670,15 +683,15 @@ O sistema DEVE mostrar, em cada plano, por que ele foi sugerido (restrições at
 O sistema DEVE permitir fechar um rolê com poucas interações obrigatórias por participante, com prazo e ação padrão em toda pergunta que trava o rolê (RF-12) e notificações agrupadas (RF-41).
 
 **Como verificar**
-- Meta provisória: no máximo 3 interações obrigatórias por participante (respostas na conversa privada, voto, presença), medidas nos registros do piloto (RNF-10).
+- Meta provisória: no máximo 3 interações obrigatórias por participante (respostas na conversa privada, voto, presença), medidas nos registros dos testes do MVP (RNF-10).
 
 #### RNF-07 · Acessibilidade (Must)
 
-O sistema DEVE ser utilizável por adultos de qualquer idade, inclusive pessoas mais velhas e com pouca experiência em apps: WCAG 2.1 nível AA, fonte ajustável, alvos de toque grandes, linguagem simples, e tudo que se faz por voz também se faz por texto, e vice-versa.
+O sistema DEVE ser utilizável por adultos de qualquer idade, inclusive pessoas com pouca experiência ou fluência com tecnologia: WCAG 2.1 nível AA, fonte ajustável, alvos de toque grandes, linguagem simples, e tudo que se faz por voz também se faz por texto, e vice-versa.
 
 **Como verificar**
 - Verificador automático de acessibilidade sem erros críticos.
-- Teste de uso com pelo menos uma pessoa do perfil da persona mais velha.
+- Teste de uso com pelo menos uma pessoa com pouca fluência digital, no perfil da persona Márcio.
 
 #### RNF-08 · Português do Brasil (Must)
 
@@ -692,7 +705,7 @@ O sistema DEVE usar pt-BR em interface, conversa e voz, com datas em dd/mm, hor�
 O sistema DEVE funcionar como app web responsivo e instalável (PWA), nas duas versões mais recentes do Chrome no Android e do Safari no iOS, e continuar utilizável no computador.
 
 **Como verificar**
-- Roteiro de teste manual nesses navegadores antes do piloto.
+- Roteiro de teste manual nesses navegadores antes dos testes do MVP.
 
 #### RNF-10 · Registro para métricas (Must)
 
@@ -728,11 +741,11 @@ O sistema DEVE usar uma regra de ranqueamento documentada em ADR que não favore
 O sistema DEVE responder na conversa em até 5 segundos (p90) e gerar os planos em até 60 segundos depois da última resposta necessária, mostrando o progresso, em salas de até 20 membros.
 
 **Como verificar**
-- Tempos medidos nos registros do piloto e em testes com salas de 20 membros simulados.
+- Tempos medidos nos registros dos testes do MVP, com salas de 20 membros simulados.
 
 #### RNF-15 · Resiliência e dependência de APIs (Should)
 
-O sistema DEVE preservar o estado do rolê quando o LLM, os mapas ou a voz falharem, tentar de novo e avisar com mensagem clara, e guardar em cache as respostas de APIs externas. O custo das APIs não é restrição por enquanto, mas o consumo é registrado.
+O sistema DEVE preservar o estado do rolê quando o LLM, os mapas ou a voz falharem, tentar de novo e avisar com mensagem clara, e guardar em cache as respostas de APIs externas só quando os termos do provedor permitem (da Google Places, por exemplo, só o place ID; ver [ADR 0004](../decisoes/0004-fonte-e-manutencao-da-base.md)). O consumo é registrado, e os testes do MVP devem caber nos créditos gratuitos de API de cada membro; pagar por APIs fica só como possibilidade (premissa P12).
 
 **Como verificar**
 - Testes com cada API externa desligada.
@@ -749,11 +762,12 @@ O sistema DEVE evitar incentivar o consumo de álcool, incluir uma opção sem f
 1. **Prazos de resposta:** valores para disponibilidade, orçamento, voto, presença e lançamento de gastos (RF-12, RF-18, RF-25, RF-30).
 2. **Iniciativa da IA:** período padrão sem encontro e limite de frequência (RF-06).
 3. **Regra de justiça do ranqueamento:** "menor miséria" é a proposta; precisa de ADR (RF-19, RNF-13).
-4. **Fonte de lugares, eventos e preços:** combinado em 29/10 usar uma base curada pelo grupo, indexada no RAG, mais uma API para conferir se o lugar existe e está aberto. Detalhar em ADR na semana 2 (RF-16, RNF-03).
+4. ~~**Fonte de lugares, eventos e preços.**~~ Decidida nos ADRs [0004](../decisoes/0004-fonte-e-manutencao-da-base.md) e [0005](../decisoes/0005-coleta-automatica-e-base-vetorial.md) (proposta): candidatos da Overture, extração automática dos sites oficiais com evidência literal, Google Places só para conferir os finalistas, limites de "aproximado" por tipo de dado e base vetorial em PostgreSQL com pgvector (RF-16, RNF-03).
 5. **Visibilidade de votos e dívidas:** sugestão de contagem de votos visível com voto individual secreto, e de cada devedor ver só o próprio valor enquanto quem pagou vê quem já pagou (RF-25, RF-34).
 6. **Caronas:** escolhidas para o MVP, mas marcadas como Should porque dependem de um otimizador de rotas. Confirmar a prioridade (RF-23).
 7. **Rolê em casa:** como dividir compras feitas antes do encontro por quem é anfitrião (RF-20, RF-32).
 8. **Transporte público do DF:** confirmar se os dados abertos (GTFS) estão disponíveis e atualizados (RF-21, RF-22).
+9. **Imprevistos:** fontes de previsão do tempo e de alertas de transporte do DF (RF-46).
 
 ## 7. Extensões futuras
 
@@ -773,7 +787,23 @@ A consolidar no item Premissas do pacote de definição.
 - Os usuários têm celular com navegador atualizado e internet.
 - O canal é um app web próprio ([ADR 0003](../decisoes/0003-canal-app-web.md), proposta).
 - Os dados de lugares do DF vêm de uma base curada pelo grupo, conferida por API.
-- O orçamento para APIs pagas não restringe o MVP por enquanto.
+- Os testes do MVP cabem nos créditos gratuitos de API fornecidos a cada membro; pagar por APIs fica só como possibilidade (P12).
+
+## Riscos referenciados
+
+IDs da guia Riscos do documento da equipe, usados nas colunas Riscos acima.
+
+| ID | Risco | P × I |
+|---|---|---|
+| R-01 | Privacidade e vazamento de dados | Média × Alta |
+| R-02 | Exclusão financeira e constrangimento social | Média × Alta |
+| R-03 | Dados inventados e alucinação | Alta × Alta |
+| R-04 | Inércia do grupo e "amigo gargalo" | Alta × Alta |
+| R-05 | Segurança no deslocamento e mobilidade urbana | Média × Alta |
+| R-06 | Métricas de vaidade | Média × Média |
+| R-07 | Dependência e limites de APIs externas | Alta × Média |
+| R-08 | Incentivo ao consumo de álcool e direção | Baixa × Alta |
+| R-09 | Tratamento de voz e fotos de notas fiscais | Média × Média |
 
 ## Histórico
 
@@ -781,3 +811,5 @@ A consolidar no item Premissas do pacote de definição.
 |---|---|---|
 | 0.1 | 2026-10-29 | Versão inicial: 41 RF e 16 RNF do MVP |
 | 0.2 | 2026-10-29 | RF-42 a RF-45 vindos das personas, coluna Persona preenchida, prazos ajustáveis pelo organizador (RF-12) e recusa discreta (RF-26) |
+| 0.3 | 2026-10-29 | RF-46 (imprevistos, Could); coluna Riscos com os IDs R-NN da guia Riscos; consistência com as outras guias: sala de 2 a 20, adultos 18+, créditos gratuitos de API, testes do MVP sem piloto, itens Should marcados no escopo, ajustes no glossário e nos RF-02, 03, 04, 12, 15, 17 e 25. Trazida do documento da equipe para o repositório em 2026-11-03 |
+| 0.3.1 | 2026-11-03 | Consequências do ADR 0004: RNF-15 com cache só do que os termos permitem; RF-37 com a pergunta opcional sobre lugar aberto e preço; questão em aberto 4 fechada |
