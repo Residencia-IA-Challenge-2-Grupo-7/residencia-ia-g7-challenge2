@@ -234,6 +234,119 @@ O pipeline é idempotente e versionado. Cada etapa grava a sua saída, e uma rod
 - Requisitos: a questão em aberto 4 aponta também para este ADR. O RF-16 não muda: a fonte é a URL do site, e a data é a da última extração com evidência.
 - Mapa da arquitetura: a curadoria vira pipeline automático; banco vetorial e embeddings decididos (pendente, aqui e no repositório público).
 
+## Resultado do piloto (03/11)
+
+Pipeline implementado em [src/base/](../../src/base/), com extração feita por subagentes Claude Haiku 5.5. Números completos em [data/base/relatorio.md](../../data/base/relatorio.md).
+
+| Etapa | Lugares |
+|---|---|
+| Candidatos da Overture nos tipos de rolê, no DF | 11.255 |
+| Com site próprio (sem redes, agregadores e delivery) | 3.357 |
+| Elegíveis (confiança ≥ 0,5, um por domínio) | 1.744 |
+| Sorteados no piloto (17 ou 16 por região) | 100 |
+| Site respondeu com conteúdo | 33 |
+| Aprovados com os campos obrigatórios | **0** |
+
+- **O validador e o LLM funcionaram:** nenhum trecho inventado (zero "evidência ausente"); o Haiku recusou os sites que eram de outro negócio.
+- **A fonte não entrega:**
+  - **Domínios mortos:** 52 dos 100 sites listados na Overture não existem mais.
+  - **Agregadores:** 140 dos elegíveis eram páginas geradas por agregadores (placeweb.site), hoje bloqueadas.
+  - **Site de outro negócio:** ao menos 5 dos 33 que responderam eram de outro negócio (uma clínica, o Jardim Botânico do Rio, um domínio revendido).
+- **Preço é o gargalo:** nenhum dos 33 sites tem preço em texto. Os cardápios são imagem, PDF sem texto ou JavaScript. Horário apareceu em 4.
+- **Bares:** todos os 18 sorteados estavam fora do ar ou sem site.
+
+**Consequência:** com as regras atuais, nem os 1.744 elegíveis chegariam aos 150 lugares da meta. Antes de mais rodadas, o grupo precisa escolher uma das opções:
+
+| Opção | O que muda | Custo e risco |
+|---|---|---|
+| A. Ler cardápio em imagem e PDF agora, adiantando a semana 5 | O robô baixa as imagens de cardápio; um OCR local gera o texto contra o qual o validador confere; o Haiku extrai desse texto | Mantém a coleta sem pessoas e a conferência em código; erro de OCR vira "sem informação" |
+| B. Preço deixa de ser obrigatório em comer e beber | Entra com horário; custo "sem informação" | O lugar some de todo filtro de orçamento (RF-15), justo o diferencial |
+| C. Agendas oficiais primeiro | Eventos e equipamentos públicos (CCBB, Sesc, parques), que publicam em texto | Cobre o tipo "ao ar livre ou gratuitos" e eventos, não comer e beber |
+| D. Mudar o RF-16 | Candidatos de comer e beber vêm de uma API na hora do plano, com os limites do ADR 0004 | Sai do RAG próprio para esse tipo; os termos da Google limitam o que se mostra |
+
+**Recomendação do autor:** C já, para ter base na semana 3, e A como experimento medido nos 33 sites do piloto. B e D ficam como plano de contingência.
+
+### Varredura ampliada (03/11)
+
+A reposição do sorteio levou o robô a **todos** os elegíveis do Oeste, Sul, Norte e Leste e a parte do Centro e do Oeste próximo. Uma triagem em código passou a mandar ao LLM só os sites com sinais de preço e horário no texto.
+
+| Etapa | Lugares |
+|---|---|
+| Sorteados (piloto mais reposição) | 811 |
+| Site respondeu com conteúdo | 234 (388 domínios mortos) |
+| Passaram na triagem | 41 |
+| **Aprovados** | **10**: 8 no Centro, 1 no Oeste próximo, 1 no Leste e nenhum no Oeste, Sul ou Norte |
+
+- **Validador:** 172 valores conferidos, 150 aceitos e 22 barrados. Só 1 por evidência inexistente; os outros eram valores que não estavam no trecho citado.
+- **Erros que passaram:** são de interpretação e só a amostra humana do RNF-03 mede:
+  - pizza inteira contada como prato de uma pessoa;
+  - sobremesa classificada como prato principal;
+  - horário tirado de um post de blog de 2015.
+- **Consumo:** cerca de 1,7 milhão de tokens do Haiku, em 13 lotes de extração e 1 de descrições.
+- **Teto da rota:** se a mesma taxa valer para os cerca de 930 elegíveis que faltam, quase todos no Centro e no Oeste próximo, a rota "Overture + site oficial" chega a uns 20 lugares, longe dos 150 da meta. Na periferia, ela não entrega nada.
+
+### Opção A: OCR de cardápio (testada em 03/11)
+
+O OCR roda localmente, com EasyOCR em português, sobre imagens e PDFs escaneados de cardápio achados nas páginas já salvas ([src/base/ocr.py](../../src/base/ocr.py)). O texto entra no manifesto como mais uma página, e o validador confere as evidências contra ele.
+
+| Etapa | Lugares |
+|---|---|
+| Comer e beber com site no ar, ainda não aprovados | 147 |
+| Com imagem ou PDF que parecia cardápio | 43 (159 arquivos) |
+| OCR rendeu texto | 17 (33 imagens) |
+| Passaram a ter 3 ou mais preços | 9 |
+| **Aprovados a mais** | **2**; outros 2 ganharam preços, mas o site não tem horário |
+
+- **Fotos de prato:** muitas imagens chamadas "cardápio" são fotos de prato.
+- **Cardápio em colunas:** o OCR embaralha a ordem e separa nome e preço.
+- **O Haiku "corrigiu" o OCR:** mesmo instruído a copiar, trocou "rs 34" por "R$ 34".
+- **Ajustes no validador:**
+  - as confusões típicas do OCR passam a ser normalizadas igual dos dois lados;
+  - partes de uma evidência separadas por "..." precisam estar próximas e **sem outro preço no meio**.
+  - A segunda regra também derrubou uma aprovação errada da rodada anterior: um hambúrguer pareado com um preço a 3 mil caracteres de distância.
+- **Conclusão:** o OCR melhora a precisão do validador, mas acrescenta pouco à cobertura. A base fica com 11 lugares, 9 deles no Centro.
+
+### OpenStreetMap como fonte complementar (medido em 03/11)
+
+A medição foi feita pelo Overpass, como consulta: nada foi importado ([src/base/osm.py](../../src/base/osm.py)). O OSM tem 3.338 lugares com nome no DF nos tipos de rolê (a Overture tem 11.255).
+
+| Dado | Comer e beber (2.668) | Ao ar livre ou gratuitos (567) | Locais de evento (103) |
+|---|---|---|---|
+| Horário (`opening_hours`) | 316 (12%) | 54 (10%) | 6 |
+| Site | 182 | 9 | 10 |
+| Cozinha (`cuisine`) | 1.045 (39%) | — | — |
+| Vegetariano / vegano | 39 / 26 | — | — |
+| Cadeira de rodas | 138 | 13 | 7 |
+| Área externa | 121 | — | — |
+| Preço | **0** | 6 com `fee` | 0 |
+
+- **Datas de conferência:** só 57 dos 376 horários têm data de conferência (`check_date`), 52 delas de 2025 ou 2026. Os outros não dizem quando foram vistos.
+- **Sites vivos:** 80% dos sites do OSM ainda existem, contra cerca de 50% dos da Overture no piloto.
+- **Cruzamento:**
+  - dos 100 do piloto, 14 estão no OSM e 3 com horário;
+  - dos 1.744 elegíveis da Overture, 403 estão no OSM e 59 com horário.
+- **Conclusão:** o OSM completa horário e cozinha de uma parte pequena dos lugares e não resolve preço. Usar esses dados obriga a cumprir a ODbL: atribuição e a base derivada publicada na mesma licença (seções 4.4 e 4.6). Isso é viável para um projeto acadêmico, mas exige uma decisão do grupo, porque muda o ADR 0004.
+
+### O que a Google Places (New) entrega, comparado com a base
+
+A comparação é pela documentação dos campos ([recurso Place](https://developers.google.com/maps/documentation/places/web-service/reference/rest/v1/places), [Text Search e SKUs](https://developers.google.com/maps/documentation/places/web-service/text-search)). Não houve chamada à API, porque não existe conta de faturamento.
+
+| Dado do plano | Nossa base (quando o site tem) | Google Places (New) | SKU |
+|---|---|---|---|
+| Aberto ou fechado | Status pelo site no ar | `businessStatus` | Pro |
+| Horário | Por dia, com o trecho do site | `regularOpeningHours`, e `currentOpeningHours` com feriados | Enterprise |
+| Preço | Itens com preço e custo por pessoa calculado | `priceRange` (faixa em reais) e `priceLevel` | Enterprise |
+| Vegetariano | Sim, com evidência | `servesVegetarianFood` | Enterprise + Atmosphere |
+| Vegano, sem glúten, sem lactose | Sim, com evidência | Não existe | — |
+| Área externa, música ao vivo | Com evidência | `outdoorSeating`, `liveMusic` | Enterprise + Atmosphere |
+| Acessibilidade | Entrada e banheiro | `accessibilityOptions` (entrada, banheiro, assento, estacionamento) | Pro |
+| Reserva, grupos | `exige_reserva`, `grupo_max` | `reservable`, `goodForGroups` | Enterprise + Atmosphere |
+| Fonte e data verificáveis | URL e data de cada campo | Não informa a origem nem a data | — |
+
+- **Mais completa, mas presa aos termos:** a Google provavelmente cobre muito mais lugares que a nossa base. Só que nada pode ser guardado além do place ID (3.2.3(a)(iii)), mostrado ou lido em voz, nem usado com mapa não Google (ADR 0004).
+- **Comparação de exatidão vetada:** comparar a exatidão do nosso extrator com a Google é usar conteúdo da Google para validar IA (3.2.3(c)(vii)), o que os termos proíbem. Dá para medir só a cobertura dos finalistas, internamente.
+- **Na hora do plano:** a Google pode filtrar os finalistas por horário e faixa de preço sem que o dado entre na base. O custo é o SKU Enterprise, com 1.000 chamadas gratuitas por mês, contra 5.000 do Pro previsto hoje.
+
 ## Perguntas para o grupo
 
 1. Aceitam que lugares sem site oficial fiquem fora do MVP? Se o teste de cobertura falhar numa região, preferem declarar a limitação ou mudar o RF-16?
@@ -255,3 +368,6 @@ O pipeline é idempotente e versionado. Cada etapa grava a sua saída, e uma rod
 | Data | Mudança |
 |---|---|
 | 2026-11-03 | Versão inicial |
+| 2026-11-03 | Resultado do piloto e opções para o grupo; pipeline em `src/base/` |
+| 2026-11-03 | Varredura ampliada (811 sorteados, 10 aprovados), medição do OSM e comparação com os campos da Google Places |
+| 2026-11-03 | Opção A (OCR de cardápio) testada: +2 aprovados, validador mais rígido; base com 11 lugares |
