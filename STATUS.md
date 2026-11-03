@@ -3,8 +3,8 @@
 > Arquivo vivo. Toda sessão (humana ou de agente) lê no início e atualiza no fim.
 > Mantenha curto: o histórico fica em `docs/semanas/` e no `git log`.
 
-**Atualizado em:** 2026-10-29
-**Semana do roadmap:** 1 — Problema, stakeholders, riscos e métricas (datas a confirmar)
+**Atualizado em:** 2026-11-03
+**Semana do roadmap:** 2 — Base de conhecimento e recuperação (datas a confirmar)
 
 ## Agora
 
@@ -12,6 +12,7 @@
 - **Recorte do MVP: só o modo com amigos.** Modo Descoberta, videogames e versão para menores ficam para depois ([ADR 0002](docs/decisoes/0002-recorte-do-mvp.md)). Canal proposto: app web próprio ([ADR 0003](docs/decisoes/0003-canal-app-web.md), a confirmar com o grupo).
 - **Requisitos v0.2** em [docs/produto/requisitos.md](docs/produto/requisitos.md): 45 RF e 16 RNF, com cenários no estilo OpenSpec e coluna Persona preenchida. Falta a revisão do grupo. **O documento da equipe (Google Doc) já está na v0.3**, com o RF-46 (imprevistos, Could), a coluna Riscos preenchida e ajustes de consistência; o arquivo do repositório ainda não foi sincronizado.
 - **Relatório da semana 1** (até 5 páginas de texto, ABNT): [relatorio-semana-01.docx](docs/entregas/semana-01/relatorio-semana-01.docx) e o [PDF](docs/entregas/semana-01/relatorio-semana-01.pdf), montados conforme o [plano](docs/entregas/semana-01/plano-relatorio.md) e alinhados ao documento da equipe revisado (46 RF, riscos renumerados, sem piloto). 5 páginas de texto, com cerca de 1,5 cm de folga. As partes da equipe estão no [documento do grupo](https://docs.google.com/document/d/1mlxgJ9XoadAl4qKV28bw6qexQxF6xpwcSx5aENsRPF4/edit?tab=t.mm6pfcuj8dpt#heading=h.tyssdhkqxqfd) (Google Docs).
+- **Mapa da arquitetura planejada** (pedido do mentor Isaque): [docs/arquitetura/index.html](docs/arquitetura/index.html), publicado em [residencia-ia-challenge-2-grupo-7.github.io/residencia-ia-g7-arquitetura](https://residencia-ia-challenge-2-grupo-7.github.io/residencia-ia-g7-arquitetura/). O site fica num repositório público à parte, porque o plano gratuito da organização não tem Pages em repositório privado. Como editar e publicar: [docs/arquitetura/AGENTS.md](docs/arquitetura/AGENTS.md).
 - Formulário curto "Pesquisa de Hábitos Sociais" (15 afirmações) em uso para validar a dor. A versão completa fica como referência em [docs/pesquisa/](docs/pesquisa/).
 - Repositório na organização do grupo: [Residencia-IA-Challenge-2-Grupo-7](https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2) (privado).
 

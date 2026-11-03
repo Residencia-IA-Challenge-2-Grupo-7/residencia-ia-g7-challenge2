@@ -25,6 +25,7 @@ Programa de Residência em IA (Instituto Eldorado + UnB), metodologia CBL (Chall
 | `docs/desafio/` | Enunciado do Challenge 2 (PDF original + versão em Markdown) |
 | `docs/produto/` | Visão do produto escolhido (Orquestrador de Rolês) e requisitos do MVP |
 | `docs/decisoes/` | ADRs: decisões técnicas e suas justificativas |
+| `docs/arquitetura/` | Mapa navegável da arquitetura (HTML único), publicado num repositório público à parte; guia de edição no `AGENTS.md` da pasta |
 | `docs/entregas/` | Entregáveis semanais (relatórios .docx) e o plano de cada um, uma pasta por semana |
 | `docs/semanas/` | Registro semanal alinhado ao roadmap (alimenta o relatório final) |
 | `docs/atas/` | Atas das reuniões do grupo, uma por data (`AAAA-MM-DD.md`) |
@@ -45,3 +46,4 @@ Atualize esta tabela ao criar pastas novas (ex.: `src/`, `data/`, `notebooks/`, 
 1. Atualize `STATUS.md`: o que mudou, o que ficou pendente, próximos passos.
 2. Tomou uma decisão técnica? Crie um ADR em `docs/decisoes/` a partir de `0000-template.md`.
 3. Registre o progresso relevante em `docs/semanas/semana-NN.md`.
+4. Mudou algo que aparece no mapa da arquitetura (decisão, componente, fluxo, situação de algo planejado)? Atualize `docs/arquitetura/index.html` seguindo [docs/arquitetura/AGENTS.md](docs/arquitetura/AGENTS.md).

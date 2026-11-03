@@ -1,0 +1,1316 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Arquitetura do Orquestrador</title>
+<meta name="description" content="Mapa navegável da arquitetura planejada do Orquestrador de Rolês, do Grupo 7 da Residência em IA.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bangers&family=Inter:wght@400;500;600;700;800;900&family=Newsreader:ital,opsz,wght@1,6..72,500;1,6..72,600&display=swap">
+<style>
+/* Canvas navegável (arrastar e aproximar), no formato do mapa da arquitetura do FOMO + VeritAI (Grupo 5).
+   Zonas da esquerda (pessoas) para a direita (serviços externos); segurança, base de conhecimento e motor de cálculo embaixo.
+   Preto e off-white, com laranja só em destaque; a IA usa moldura fina e serifa itálica. */
+:root{
+  --bg:#f0f0f0; --paper:#ffffff; --ink:#000000; --muted:#555555; --line:#cfcfcf;
+  --accent:#ff7a00; --on-accent:#000000; --zone:rgba(255,255,255,.55); --dots:rgba(0,0,0,.10);
+  --font:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,Arial,sans-serif;
+  --display:'Bangers','Impact','Arial Black',sans-serif;
+  --verit:'Newsreader',Georgia,'Times New Roman',serif;
+  --mono:ui-monospace,'Cascadia Mono',Consolas,'SF Mono',Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#0f0f0f; --paper:#1b1b1b; --ink:#f2f2f2; --muted:#a8a8a8; --line:#3b3b3b;
+  --accent:#ff9433; --on-accent:#000000; --zone:rgba(27,27,27,.6); --dots:rgba(255,255,255,.08); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0f0f0f; --paper:#1b1b1b; --ink:#f2f2f2; --muted:#a8a8a8; --line:#3b3b3b;
+  --accent:#ff9433; --on-accent:#000000; --zone:rgba(27,27,27,.6); --dots:rgba(255,255,255,.08); color-scheme:dark}
+
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.45 var(--font);overflow:hidden}
+[hidden]{display:none!important}
+button,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+.app{height:100%;display:flex;flex-direction:column}
+
+/* Barra superior */
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:10px 18px;padding:10px 16px;background:var(--paper);border-bottom:3px solid var(--ink);position:relative;z-index:20}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.burst{position:relative;isolation:isolate;padding:5px 15px 3px;font:400 26px/1 var(--display);letter-spacing:.04em;color:var(--bg)}
+.burst::before{content:"";position:absolute;inset:-7px -9px;z-index:-1;background:var(--ink);
+  clip-path:polygon(50% 0,60% 16%,80% 4%,78% 26%,100% 30%,86% 48%,100% 68%,78% 72%,82% 96%,60% 84%,48% 100%,38% 82%,16% 96%,20% 72%,0 64%,14% 48%,2% 26%,24% 26%,22% 4%,40% 16%)}
+.burst i{font-style:normal;color:var(--accent)}
+.plus{font:800 18px var(--font)}
+.vmark{display:inline-flex;align-items:baseline;padding:3px 8px 2px;border:1.5px solid var(--ink)}
+.vmark em{font:600 italic 23px/1 var(--verit)}
+.vmark b{font:900 19px/1 var(--font)}
+.titles{display:flex;flex-direction:column;min-width:0}
+.titles h1{margin:0;font:800 16px/1.15 var(--font);letter-spacing:-.01em}
+.titles small{font:500 12px/1.3 var(--font);color:var(--muted)}
+.tools{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-left:auto}
+.btn{display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 12px;border:2px solid var(--ink);border-radius:999px;background:var(--paper);font:700 13px var(--font);white-space:nowrap}
+.btn:hover{background:var(--bg)}
+.btn[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.btn.icon{width:34px;padding:0;justify-content:center;font-size:18px}
+.zoom{display:inline-flex;align-items:center;border:2px solid var(--ink);border-radius:999px;overflow:hidden;height:34px}
+.zoom button{border:0;background:var(--paper);width:34px;height:100%;font:700 18px var(--font)}
+.zoom button:hover{background:var(--bg)}
+.zoom output{min-width:48px;text-align:center;font:700 12px var(--mono);border-inline:2px solid var(--ink);line-height:30px;font-variant-numeric:tabular-nums}
+.goto{height:34px;border:2px solid var(--ink);border-radius:999px;background:var(--paper);padding:0 10px;font:700 13px var(--font)}
+
+/* Palco */
+.stage{position:relative;flex:1;min-height:0;overflow:hidden}
+#vp{position:absolute;inset:0;overflow:hidden;touch-action:none;cursor:grab;user-select:none;-webkit-user-select:none;
+  background-color:var(--bg);background-image:radial-gradient(var(--dots) 1.3px,transparent 1.6px);background-size:26px 26px}
+#vp.grabbing{cursor:grabbing}
+#world{position:absolute;left:0;top:0;width:3560px;height:1990px;transform-origin:0 0}
+#edges{position:absolute;left:0;top:0;width:3560px;height:1990px;overflow:visible;pointer-events:none;z-index:1}
+
+/* Zonas */
+.zone{position:absolute;border:2px solid var(--ink);border-radius:14px;background:var(--zone)}
+.zone.dashed{border-style:dashed}
+.zone.verit{border-width:1.5px;border-radius:0}
+.zlabel{position:absolute;z-index:4;border:0;cursor:pointer;text-align:left;display:flex;align-items:baseline;gap:10px;padding:6px 14px 4px;background:var(--ink);color:var(--bg);
+  transform:rotate(-1.2deg);transform-origin:0 100%;box-shadow:5px 5px 0 var(--accent);white-space:nowrap;transition:transform .25s}
+.zlabel b{font:400 32px/1 var(--display);letter-spacing:.04em}
+.zlabel small{font:600 12.5px/1 var(--font)}
+.zlabel .zmore{font:800 11px/1 var(--font);letter-spacing:.06em;text-transform:uppercase;padding:3px 6px;border:1.5px solid var(--bg);border-radius:999px;font-style:normal}
+.zlabel:hover{box-shadow:7px 7px 0 var(--accent)}
+.zlabel:hover .zmore{background:var(--accent);color:var(--on-accent);border-color:var(--accent)}
+.zlabel.verit b{font:600 italic 32px/1 var(--verit);letter-spacing:0}
+.zlabel.verit b span{font:900 normal 28px/1 var(--font)}
+.zrepo{position:absolute;right:16px;top:12px;font:600 11.5px var(--mono);color:var(--muted)}
+
+/* Cards */
+.card{position:absolute;z-index:2;display:flex;flex-direction:column;gap:6px;padding:12px 14px 13px;text-align:left;
+  background:var(--paper);color:var(--ink);border:3px solid var(--ink);border-radius:6px;
+  transition:opacity .25s,transform .15s,box-shadow .15s}
+.card:hover{transform:translate(-2px,-2px)}
+.card.sel{outline:4px solid var(--accent);outline-offset:4px}
+.card.dim{opacity:.2}
+.card > span{display:block}
+.eb{display:flex!important;align-items:center;gap:6px;font:700 10.5px/1.2 var(--font);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.eb svg{width:14px;height:14px;flex:none;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.ttl{font:800 17px/1.15 var(--font);letter-spacing:-.01em;text-wrap:balance}
+.tx{font:400 12.5px/1.42 var(--font)}
+.chips{display:flex!important;flex-wrap:wrap;gap:4px;margin-top:2px}
+.chip{font:600 10.5px/1 var(--mono);padding:4px 7px;border:1.5px solid var(--ink);border-radius:999px;background:var(--bg)}
+.farl{display:none!important}
+
+.card.k-pessoa{border-radius:26px;padding-inline:18px}
+.card.k-tela{padding-top:26px}
+.card.k-tela::before{content:"";position:absolute;left:0;right:0;top:0;height:13px;border-bottom:2px solid var(--ink);
+  background:radial-gradient(circle at 9px 6.5px,var(--ink) 2.4px,transparent 2.9px),radial-gradient(circle at 18px 6.5px,var(--ink) 2.4px,transparent 2.9px),radial-gradient(circle at 27px 6.5px,var(--ink) 2.4px,transparent 2.9px)}
+.card.k-rota,.card.k-seg,.card.k-regra{border-radius:3px;box-shadow:6px 6px 0 var(--ink)}
+.card.k-rota:hover,.card.k-seg:hover,.card.k-regra:hover{box-shadow:8px 8px 0 var(--ink)}
+.card.k-ia,.card.k-etapa{border-width:1.5px;border-radius:0}
+.card.k-ia .ttl,.card.k-etapa .ttl{font:600 italic 21px/1.08 var(--verit);letter-spacing:0}
+.card.k-etapa{flex-direction:row;gap:12px;align-items:flex-start}
+.card.k-etapa .num{font:600 italic 40px/.85 var(--verit);min-width:24px}
+.card.k-etapa .body{display:flex;flex-direction:column;gap:4px}
+.card.k-banco{border-top-left-radius:0;border-top-right-radius:0}
+.card.k-banco::before{content:"";position:absolute;left:-3px;right:-3px;top:-19px;height:22px;border:3px solid var(--ink);border-bottom:0;border-radius:50%/100% 100% 0 0;background:var(--paper)}
+.card.k-dados{border-width:2px;border-radius:0 6px 6px 6px}
+.card.k-dados::before{content:"";position:absolute;left:-2px;top:-15px;width:74px;height:13px;border:2px solid var(--ink);border-bottom:0;border-radius:6px 6px 0 0;background:var(--paper)}
+.card.k-infra{border-width:2px;border-radius:4px;background-image:radial-gradient(var(--dots) 1.2px,transparent 1.5px);background-size:7px 7px}
+.card.k-externo{border:2px dashed var(--ink);background:var(--bg)}
+
+.tbl{display:grid!important;grid-template-columns:auto 1fr;gap:4px 10px;margin-top:2px;font:500 11.5px/1.3 var(--font)}
+.tbl b{font-weight:800}
+.tbl code{font:600 11px var(--mono)}
+.tbl i{display:block;font-style:normal;color:var(--muted)}
+.flow{display:flex!important;flex-direction:column;align-items:flex-start;gap:3px;margin-top:2px}
+.fr{display:flex;flex-wrap:wrap;gap:4px}
+.st{font:700 11px/1 var(--font);padding:4px 7px;border:1.5px solid var(--ink);border-radius:3px;background:var(--bg)}
+.st.pub{background:var(--ink);color:var(--bg)}
+.fa{font:700 12px/1 var(--font);color:var(--muted);padding-left:6px}
+
+/* Zoom semântico: de longe, só o nome */
+.far .card > :not(.farl){visibility:hidden}
+.far .card .farl{display:flex!important;position:absolute;inset:0;align-items:center;justify-content:center;padding:8px 14px;text-align:center;
+  font:800 26px/1.06 var(--font);letter-spacing:-.015em;text-wrap:balance}
+.far .k-ia .farl,.far .k-etapa .farl{font:600 italic 30px/1.02 var(--verit);letter-spacing:0}
+.far .elabel{opacity:0}
+.far .zlabel{transform:rotate(-1.2deg) scale(1.55)}
+
+/* Setas */
+.edge{fill:none;stroke:var(--ink);stroke-width:2;transition:opacity .25s}
+.e-acao{stroke-width:3.6}
+.e-dados{stroke-dasharray:7 5}
+.e-build{stroke-dasharray:.5 6;stroke-linecap:round;stroke-width:2.8}
+.e-opcional{stroke:var(--muted);stroke-dasharray:7 5}
+.e-interno{stroke:var(--muted);stroke-width:1.6}
+.edge.hot{stroke:var(--accent);stroke-width:3.4;stroke-dasharray:9 7;stroke-linecap:butt;animation:flow .9s linear infinite}
+.edge.dim{opacity:.12}
+@keyframes flow{to{stroke-dashoffset:-32}}
+.ah-ink path{fill:var(--ink)} .ah-muted path{fill:var(--muted)} .ah-hot path{fill:var(--accent)}
+.elabel{position:absolute;z-index:3;transform:translate(-50%,-50%);width:max-content;max-width:var(--lw,150px);padding:3px 7px;
+  background:var(--bg);border:1.5px solid var(--ink);border-radius:4px;font:600 11px/1.28 var(--font);text-align:center;pointer-events:none;transition:opacity .25s}
+.elabel.soft{border-style:dashed;color:var(--muted);border-color:var(--muted)}
+.elabel.hot{background:var(--accent);color:var(--on-accent);border:1.5px solid var(--ink)}
+.elabel.dim{opacity:.12}
+
+/* Painéis */
+.panel{position:absolute;top:0;bottom:0;z-index:15;width:min(430px,100%);background:var(--paper);overflow:auto;overscroll-behavior:contain}
+#drawer{right:0;border-left:3px solid var(--ink)}
+#decs{left:0;width:min(390px,100%);border-right:3px solid var(--ink)}
+.ph{position:sticky;top:0;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 18px;background:var(--paper);border-bottom:2px solid var(--ink);z-index:1}
+.ph b{font:400 22px/1 var(--display);letter-spacing:.04em}
+.pb{padding:16px 22px 28px}
+.d-eb{margin:0 0 6px;font:700 11px/1.3 var(--font);letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.pb h2{margin:0 0 10px;font:800 24px/1.12 var(--font);letter-spacing:-.015em;text-wrap:balance}
+.pb h2.v{font:600 italic 30px/1.05 var(--verit);letter-spacing:0}
+.lead{margin:0 0 6px;font:500 15px/1.5 var(--font)}
+.sec{margin-top:18px}
+.sec h3{margin:0 0 6px;font:800 11px/1.2 var(--font);letter-spacing:.1em;text-transform:uppercase}
+.sec p{margin:0;font:400 14px/1.55 var(--font);max-width:62ch}
+.sec ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:5px;font:400 14px/1.5 var(--font)}
+.sec ul.num li{font-variant-numeric:tabular-nums}
+.sec code,.codes code{font:600 12px var(--mono);background:var(--bg);border:1px solid var(--line);padding:1px 5px;border-radius:3px;overflow-wrap:anywhere}
+.codes{display:flex;flex-direction:column;align-items:flex-start;gap:5px}
+.io{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.io > div{min-width:0;border:2px solid var(--ink);padding:10px 12px;border-radius:4px}
+.io ul{padding-left:16px;font-size:13px}
+.links{display:flex;flex-direction:column;gap:6px}
+.lk{display:flex;gap:8px;align-items:flex-start;width:100%;text-align:left;padding:8px 10px;border:1.5px solid var(--ink);border-radius:4px;background:var(--bg)}
+.lk:hover{background:var(--paper)}
+.lk .dir{font:800 14px/1.2 var(--font);width:16px;flex:none}
+.lk span{display:block;min-width:0}
+.lk b{display:block;font:700 13px/1.3 var(--font)}
+.lk small{display:block;font:500 12px/1.35 var(--font);color:var(--muted)}
+.tag{display:inline-block;font:700 10.5px/1 var(--font);letter-spacing:.06em;text-transform:uppercase;padding:4px 7px;border:1.5px solid var(--ink);border-radius:999px}
+.dgroup{margin-top:16px}
+.dgroup h3{margin:0 0 8px;font:400 20px/1 var(--display);letter-spacing:.05em}
+.ditem{display:block;width:100%;text-align:left;padding:10px 12px;margin-bottom:8px;border:2px solid var(--ink);border-radius:4px;background:var(--paper);box-shadow:3px 3px 0 var(--ink)}
+.ditem:hover{transform:translate(-1px,-1px);box-shadow:4px 4px 0 var(--ink)}
+.ditem b{display:block;font:800 14px/1.25 var(--font)}
+.ditem span{display:block;margin-top:3px;font:400 13px/1.45 var(--font);color:var(--muted)}
+
+/* Fluxos guiados */
+/* Fechada, só a alça aparece; abre ao clicar ou ao passar o mouse. Durante um fluxo, fica aberta. */
+#dock{position:absolute;z-index:12;bottom:0;left:var(--dx,50%);transform:translate(-50%,calc(100% - 44px));width:min(780px,calc(var(--aw,100vw) - 32px));
+  background:var(--paper);border:3px solid var(--ink);border-bottom:0;box-shadow:6px 0 0 var(--ink);padding:0 16px 14px;border-radius:8px 8px 0 0;transition:transform .28s ease}
+#dock.open,#dock.touring{transform:translate(-50%,0)}
+@media (hover:hover){#dock:not(.touring):hover,#dock:not(.touring):focus-within{transform:translate(-50%,0)}}
+.handle{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;height:41px;padding:0;border:0;background:none;text-align:left;margin-bottom:10px}
+.handle b{font:400 22px/1 var(--display);letter-spacing:.04em}
+.handle i{font:800 12px/1 var(--font);font-style:normal;transition:transform .28s}
+#dock.open .handle i{transform:rotate(180deg)}
+@media (hover:hover){#dock:not(.touring):hover .handle i{transform:rotate(180deg)}}
+#dock.touring{padding-top:12px}
+.dh{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:8px}
+.dh b{font:400 22px/1 var(--display);letter-spacing:.04em}
+.dh .eb{font-size:11px}
+.dh .cnt{font:700 12px var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tours{display:grid;grid-template-columns:repeat(auto-fit,minmax(138px,1fr));gap:8px}
+.tours button{display:flex;flex-direction:column;gap:3px;align-items:flex-start;text-align:left;padding:9px 11px;border:2px solid var(--ink);border-radius:4px;background:var(--bg)}
+.tours button:hover{background:var(--accent);color:var(--on-accent)}
+.tours button span{font:800 13px/1.2 var(--font)}
+.tours button small{font:600 11px var(--mono);opacity:.8}
+.cap{margin:0 0 10px;font:500 16px/1.45 var(--font);max-width:70ch;min-height:2.9em}
+.ctl{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.dots{display:flex;gap:5px;margin-inline:4px auto}
+.dots i{width:9px;height:9px;border:2px solid var(--ink);border-radius:50%}
+.dots i.on{background:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--on-accent)}
+.btn.link{border-color:transparent;background:transparent;text-decoration:underline;text-underline-offset:3px}
+
+/* Legenda e dica */
+#legend{position:absolute;z-index:13;right:16px;top:14px;width:262px;background:var(--paper);border:2px solid var(--ink);border-radius:4px;padding:10px 12px 12px;font:500 12px/1.3 var(--font)}
+#legend h3{margin:0 0 6px;font:800 11px/1.2 var(--font);letter-spacing:.1em;text-transform:uppercase}
+.lg{display:grid;grid-template-columns:44px 1fr;align-items:center;gap:5px 8px;margin-bottom:10px}
+.lg svg{width:44px;height:12px;overflow:visible}
+.sw{width:34px;height:16px;position:relative;background:var(--paper);border:2px solid var(--ink);box-sizing:border-box}
+.sw.k-pessoa{border-radius:9px}
+.sw.k-tela{border-top-width:5px}
+.sw.k-rota{border-radius:2px;box-shadow:3px 3px 0 var(--ink)}
+.sw.k-ia{border-width:1px;border-radius:0}
+.sw.k-banco{border-radius:4px 4px 2px 2px;border-top-width:4px}
+.sw.k-dados{border-radius:0 3px 3px 3px}
+.sw.k-infra{background-image:radial-gradient(var(--ink) .8px,transparent 1px);background-size:4px 4px}
+.sw.k-externo{border-style:dashed;background:var(--bg)}
+.lgnote{margin:0;color:var(--muted);font-size:11.5px}
+.tips{order:3;flex-basis:100%;display:flex;flex-wrap:wrap;justify-content:center;gap:4px 28px;min-width:0;margin-top:-2px;font:600 12.5px/1.3 var(--font);color:var(--muted)}
+.tips span{display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
+.tips svg{width:15px;height:22px;flex:none;overflow:visible}
+.tips .corpo{fill:none;stroke:var(--muted);stroke-width:1.6}
+.tips .marca{fill:var(--accent)}
+.tips .seta{fill:none;stroke:var(--accent);stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+
+@media (max-width:760px){
+  .titles small,.tips{display:none}
+  .burst{font-size:21px}.vmark em{font-size:19px}.vmark b{font-size:16px}
+  .tools{margin-left:0}
+  .panel{top:auto;height:62%;width:100%;border-left:0;border-right:0;border-top:3px solid var(--ink)}
+  #decs{width:100%;border-right:0}
+  #legend{right:8px;top:8px;width:230px}
+  .cap{font-size:14.5px}
+}
+@media (prefers-reduced-motion:reduce){.edge.hot{animation:none}.card,.zlabel{transition:none}.card:hover{transform:none}}
+
+/* Situação de cada card */
+.chip.s-ok{background:var(--ink);color:var(--bg)}
+.chip.s-prop{background:var(--paper);box-shadow:inset 0 -3px 0 var(--accent)}
+.chip.s-aberto{border-style:dashed;background:var(--paper);color:var(--muted);border-color:var(--muted)}
+.lg-st{grid-template-columns:76px 1fr}
+.lg-st .chip{justify-self:start}
+.ditem small{display:block;margin-top:5px;font:600 11px/1.2 var(--mono);color:var(--muted)}
+.titles h1{white-space:nowrap}
+/* De longe, a etiqueta da zona fica só com o nome, para não invadir a vizinha */
+.far .zlabel small,.far .zlabel .zmore{display:none}
+@media (max-width:760px){.titles h1{white-space:normal;font-size:14px}}
+</style>
+
+<div class="app">
+  <header class="bar">
+    <div class="brand" aria-label="Orquestrador de Rolês">
+      <span class="burst" aria-hidden="true">ROLÊ<i>!</i></span>
+      <div class="titles"><h1>Orquestrador de Rolês · mapa da arquitetura</h1><small>Grupo 7 · Residência em IA · Qualidade de Vida · <span id="sub"></span></small></div>
+    </div>
+    <div class="tips" id="tips">
+      <span id="tipClick"><svg viewBox="0 0 16 24" aria-hidden="true"><path class="marca" d="M8 1.2C4.3 1.2 1.6 3.8 1.6 7.4V9.6H8Z"/><rect class="corpo" x="1.6" y="1.2" width="12.8" height="21.6" rx="6.4"/><path class="corpo" d="M1.6 9.6h12.8M8 1.2v8.4"/></svg>Quase tudo é clicável!</span>
+      <span id="tipScroll"><svg viewBox="0 0 16 24" aria-hidden="true"><rect class="corpo" x="1.6" y="1.2" width="12.8" height="21.6" rx="6.4"/><rect class="marca" x="6.4" y="4.4" width="3.2" height="6" rx="1.6"/><path class="seta" d="M6.2 15.4 8 13.6 9.8 15.4M6.2 17.8 8 19.6 9.8 17.8"/></svg>Role o scroll do mouse para mostrar mais detalhes</span>
+    </div>
+    <div class="tools">
+      <button class="btn" id="bDecs" type="button" aria-pressed="false">Decisões <span id="nDecs"></span></button>
+      <select class="goto" id="goto" aria-label="Ir para uma parte do mapa">
+        <option value="">Ir para…</option>
+      </select>
+      <div class="zoom" role="group" aria-label="Zoom">
+        <button type="button" id="zOut" aria-label="Afastar">−</button>
+        <output id="zVal">100%</output>
+        <button type="button" id="zIn" aria-label="Aproximar">+</button>
+      </div>
+      <button class="btn" id="bFit" type="button">Ver tudo</button>
+      <button class="btn" id="bLeg" type="button" aria-pressed="false">Legenda</button>
+      <button class="btn" id="bFull" type="button" hidden>Tela cheia</button>
+    </div>
+  </header>
+
+  <div class="stage" id="stage">
+    <div id="vp" aria-label="Mapa da arquitetura. Arraste para mover e role para aproximar.">
+      <div id="world">
+        <svg id="edges" aria-hidden="true">
+          <defs>
+            <marker id="ah-ink" class="ah-ink" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="12" markerHeight="12" orient="auto"><path d="M0,0 L10,5 L0,10 z"/></marker>
+            <marker id="ah-muted" class="ah-muted" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="11" markerHeight="11" orient="auto"><path d="M0,0 L10,5 L0,10 z"/></marker>
+            <marker id="ah-hot" class="ah-hot" viewBox="0 0 10 10" refX="9" refY="5" markerUnits="userSpaceOnUse" markerWidth="14" markerHeight="14" orient="auto"><path d="M0,0 L10,5 L0,10 z"/></marker>
+          </defs>
+        </svg>
+      </div>
+    </div>
+
+    <div id="legend" hidden>
+      <h3>Cards</h3>
+      <div class="lg">
+        <span class="sw k-pessoa"></span><span>Pessoa</span>
+        <span class="sw k-tela"></span><span>Tela ou base do app</span>
+        <span class="sw k-rota"></span><span>Regra, entrada ou cálculo</span>
+        <span class="sw k-ia"></span><span>Agente ou etapa de IA</span>
+        <span class="sw k-banco"></span><span>Banco ou base de dados</span>
+        <span class="sw k-dados"></span><span>Documento, dado ou teste</span>
+        <span class="sw k-infra"></span><span>Segurança e operação</span>
+        <span class="sw k-externo"></span><span>Serviço externo</span>
+      </div>
+      <h3>Situação</h3>
+      <div class="lg lg-st">
+        <span class="chip s-ok">pronto</span><span>Já existe e está em uso</span>
+        <span class="chip s-plan">planejado</span><span>Definido nos requisitos</span>
+        <span class="chip s-prop">proposta</span><span>Falta o grupo confirmar</span>
+        <span class="chip s-aberto">a decidir</span><span>Ainda sem decisão</span>
+      </div>
+      <h3>Setas</h3>
+      <div class="lg" id="lgEdges"></div>
+      <p class="lgnote">A seta vai de quem envia para quem recebe. O rótulo diz o que passa.</p>
+    </div>
+
+
+    <aside class="panel" id="decs" hidden aria-label="Decisões de arquitetura">
+      <div class="ph"><b>Decisões de arquitetura</b><button class="btn icon" type="button" data-close="decs" aria-label="Fechar decisões">×</button></div>
+      <div class="pb" id="decsBody"></div>
+    </aside>
+
+    <aside class="panel" id="drawer" hidden aria-label="Detalhes">
+      <div class="ph"><b id="drawerKind">Detalhes</b><button class="btn icon" type="button" data-close="drawer" aria-label="Fechar detalhes">×</button></div>
+      <div class="pb" id="drawerBody"></div>
+    </aside>
+
+    <section id="dock" aria-live="polite"></section>
+  </div>
+</div>
+
+<script>
+(() => {
+'use strict';
+/* ===== DADOS DO MAPA =====
+   Tudo o que o mapa mostra está entre este comentário e "FIM DOS DADOS". O resto do arquivo
+   (estilo acima, motor do mapa abaixo) não precisa ser lido para editar.
+   Guia de edição: docs/arquitetura/AGENTS.md, no repositório do grupo. */
+
+const ATUALIZADO = '03/11/2026';
+const SUBTITULO = 'arquitetura planejada, ainda sem código';
+
+// Tamanho do canvas. Se uma zona crescer além dele, aumente aqui.
+const W = 3560, H = 1990;
+
+const ZONES = {
+  pessoas: {x:40,  y:110,  w:330,  h:1150, t:'Pessoas', s:'quem usa', st:['Adultos (18+) no Distrito Federal','Amigos que já se conhecem, em salas de 2 a 20 pessoas','Personas da equipe: Rafaela (primária), Cadu, Bia e Márcio','Entram pelo link de convite, sem criar senha (RF-42)']},
+  app:     {x:440, y:110,  w:650,  h:1150, t:'App web', s:'PWA, celular primeiro', repo:'ADR 0003 · proposta · semana 6', st:['App web responsivo e instalável (PWA): proposta do ADR 0003, a confirmar com o grupo','Chrome no Android e Safari no iOS, nas duas versões mais recentes (RNF-09)','WCAG 2.1 nível AA, fonte ajustável e alvos de toque grandes (RNF-07)','Português do Brasil: datas dd/mm, 24 horas e R$ (RNF-08)','Framework de front-end: a decidir']},
+  servidor:{x:1250,y:110,  w:660,  h:1150, t:'Servidor', s:'estado do rolê e regras', repo:'semana 6', st:['API própria com autenticação e HTTPS (RNF-11)','O estado do rolê fica no servidor, não no modelo (RNF-15)','Meio de tempo real para os chats: a decidir','Linguagem, framework e banco de dados: a decidir']},
+  ia:      {x:2050,y:110,  w:1060, h:1150, t:'Agentes de IA', html:'Agentes de <span>IA</span>', s:'conversam, interpretam e explicam', repo:'semana 4 · multiagentes', verit:true, st:['Sistema multiagentes da semana 4 (RNF-12)','Um agente por membro, mais planejador, logística, finanças e mediador','O LLM conversa, interpreta, orquestra e explica; os números vêm do motor de cálculo (RNF-04)','Provedor de LLM trocável por configuração: a decidir','Framework de agentes: a decidir']},
+  ext:     {x:3180,y:110,  w:345,  h:1150, t:'Fora do sistema', s:'serviços externos', dashed:true, st:['Login: código por e-mail ou telefone, ou conta Google','Provedor de LLM e de voz: a decidir','Mapas e rotas: Google Maps ou OpenStreetMap, a decidir','Transporte público do DF (GTFS): disponibilidade a confirmar','WhatsApp, agendas e apps de banco: pelo próprio celular, sem API']},
+  seg:     {x:40,  y:1330, w:330,  h:620,  t:'Segurança', s:'e operação', st:['HTTPS, autenticação e salas limitadas aos membros (RNF-11)','Segredos fora do git; chave Pix e dados sensíveis criptografados','Checklist básico do OWASP Top 10','Hospedagem e deploy: a decidir']},
+  rag:     {x:440, y:1330, w:1470, h:620,  t:'Base e avaliação', s:'RAG da semana 2 e como medimos', repo:'semanas 2, 3 e 7', st:['Base curada pelo grupo, conferida por API (combinado em 29/10)','Busca híbrida, filtros estruturados mais embeddings: proposta','Banco vetorial e modelo de embedding: a decidir','Avaliação LLM × RAG na semana 3, com a métrica do RNF-03','Métricas de sucesso calculadas a partir dos registros (RNF-10)']},
+  motor:   {x:2050,y:1330, w:1475, h:620,  t:'Motor de cálculo', s:'código, sem LLM', repo:'RNF-04', st:['Cálculos por código determinístico, com testes automatizados (RNF-04)','Nenhum valor em reais nem chave Pix vem de texto gerado pelo modelo','Otimizador para as caronas, não o modelo de linguagem (RF-23)','Linguagem: a decidir']},
+};
+
+const I = {
+  pessoa:'<circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/>',
+  tela:'<rect x="3" y="4" width="18" height="14" rx="1"/><path d="M3 8h18M8 21h8"/>',
+  rota:'<path d="M4 8h13l-3-3M20 16H7l3 3"/>',
+  seg:'<rect x="5" y="11" width="14" height="10" rx="1"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/>',
+  regra:'<circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="12" r="2.5"/><circle cx="6" cy="18" r="2.5"/><path d="M8.5 6h4l3 4M8.5 18h4l3-4"/>',
+  ia:'<circle cx="11" cy="11" r="6"/><path d="M16 16l5 5"/>',
+  etapa:'',
+  banco:'<ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/>',
+  dados:'<path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4"/>',
+  infra:'<rect x="3" y="4" width="18" height="7" rx="1"/><rect x="3" y="13" width="18" height="7" rx="1"/><path d="M7 7.5h.01M7 16.5h.01"/>',
+  externo:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
+};
+
+// Situação de cada card: rótulo do chip e texto do painel
+const ST = {
+  ok:['pronto','Pronto e em uso.'],
+  plan:['planejado','Definido nos requisitos; ainda não foi construído.'],
+  prop:['proposta','Proposta: ainda falta o grupo confirmar.'],
+  aberto:['a decidir','Ainda a decidir.'],
+};
+
+const CARDS = [
+// Pessoas
+{id:'p-org',k:'pessoa',z:'pessoas',x:70,y:175,w:260,eb:'Pessoa',t:'Organizador',st:'plan',
+ tx:'Cria a sala, convida os amigos e define como o grupo decide.',ch:['persona Rafaela'],
+ faz:'Quem cria a sala vira organizador. Configura o modo de decisão (votação ou palavra final), a regra de preferência de datas e a iniciativa da IA, e pode ajustar os prazos de resposta. Pode transferir o papel, remover membros e ver quantos já responderam cada etapa, sem ver o conteúdo das respostas.',
+ entra:['Quantos já responderam cada etapa','Ranking e recomendação da IA'],sai:['Convite por link','Configurações da sala'],
+ pq:['Hoje a organização pesa sobre uma pessoa só, como a Rafaela, persona primária. O app tira esse peso dela.','O organizador configura, mas não vê orçamentos nem conversas privadas.'],
+ rq:['RF-03, RF-04, RF-14, RF-24, RF-45']},
+{id:'p-part',k:'pessoa',z:'pessoas',x:70,y:470,w:260,eb:'Pessoa',t:'Participante',st:'plan',
+ tx:'Responde à IA em particular, vota, confirma presença e racha os gastos.',ch:['texto ou voz','Cadu, Bia, Márcio'],
+ faz:'Conversa com a IA em particular: dias e horários livres, quanto quer gastar, de onde sai e como vai. Depois vota num dos planos, confirma presença, lança o que pagou e diz se o encontro aconteceu. Pode recusar ou desconfirmar sem justificar.',
+ entra:['Perguntas da IA, com prazo','2 ou 3 planos, com o próprio custo e tempo em destaque','Código Pix de quem pagou'],sai:['Disponibilidade, orçamento, partida e transporte','Voto e presença','Gastos e avaliação'],
+ pq:['Meta provisória: no máximo 3 interações obrigatórias por pessoa em cada rolê (RNF-06).','Tudo que se faz por voz também se faz por texto, e vice-versa (RNF-07).'],
+ rq:['RF-07, RF-11, RF-25, RF-26, RF-30, RF-36','RNF-06, RNF-07']},
+{id:'p-grupo',k:'pessoa',z:'pessoas',x:70,y:800,w:260,eb:'Fora do app',t:'Grupo no WhatsApp',far:'WhatsApp do grupo',st:'plan',
+ tx:'Recebe o resumo do plano fechado. A conversa do grupo continua onde já está.',ch:['sem bot'],
+ faz:'Quando o plano fecha, qualquer participante compartilha um resumo (o quê, onde, quando, link do mapa e link da sala) pelo compartilhamento nativo do celular. O resumo não leva dados privados de ninguém.',
+ pq:['A Meta restringe chatbots de IA de uso geral na API do WhatsApp Business, que ainda cobra por conversa (ADR 0003).','Exportar o resumo mantém o grupo onde ele já conversa.'],
+ rq:['RF-27','ADR 0003']},
+
+// App web
+{id:'f-sala',k:'tela',z:'app',x:470,y:175,w:245,eb:'Tela',t:'Sala e chat do grupo',far:'Sala',st:'plan',
+ tx:'Membros, pedidos de rolê, mensagens da IA e quantos já responderam cada etapa.',ch:['2 a 20 membros'],
+ faz:'Qualquer membro pede um rolê em linguagem natural, por texto ou voz ("bora sair sábado?"). A IA posta ali as sugestões, os planos e os avisos. A sala mostra quantas pessoas já responderam cada etapa e o prazo restante, sem dizer quem falta.',
+ entra:['Mensagens do grupo e da IA','Status de preenchimento'],sai:['Pedido de rolê','Mensagens'],
+ pq:['O status sem nomes evita constranger quem ainda não respondeu (RF-45).'],
+ rq:['RF-03, RF-05, RF-06, RF-45']},
+{id:'f-privada',k:'tela',z:'app',x:470,y:445,w:245,eb:'Tela',t:'Conversa privada com a IA',far:'Conversa privada',st:'plan',
+ tx:'Chat individual: disponibilidade, orçamento, partida e transporte. Ninguém mais vê.',ch:['texto ou voz','sigilo'],
+ faz:'A IA reaproveita o que está no perfil e pergunta só o que falta ("vai de ônibus e gasta até R$ 60, como sempre?"). Frases como "sexta depois das 19h" viram janelas com data e hora, mostradas para confirmação antes de serem usadas.',
+ entra:['Perguntas da IA','Interpretação para confirmar'],sai:['Respostas em texto ou áudio'],
+ pq:['O orçamento só serve de restrição: nunca aparece para outro membro nem é atribuído a alguém nas explicações (RF-11).','Se alguém pede o que outro disse em particular, a IA se recusa (RF-07).'],
+ rq:['RF-07, RF-08, RF-11, RF-18, RF-39']},
+{id:'f-decisao',k:'tela',z:'app',x:470,y:715,w:245,eb:'Tela',t:'Votação e presença',far:'Votação',st:'plan',
+ tx:'Voto até o prazo, com empate desfeito pelo ranking de justiça. Depois, a confirmação de presença.',ch:['quem não vota não trava'],
+ faz:'No modo votação (o padrão), vence a maioria simples, e o empate vai para o plano mais bem colocado no ranking. No modo palavra final, o organizador escolhe vendo o ranking e a recomendação da IA. Com menos de 2 confirmados, o rolê é cancelado e a IA oferece outra janela.',
+ entra:['Planos','Prazo'],sai:['Voto','Presença ou recusa, sem justificativa'],
+ pq:['A IA recomenda, mas quem decide é o grupo.','O grupo vê só o número de confirmados (RF-26).'],
+ rq:['RF-24, RF-25, RF-26']},
+{id:'f-gastos',k:'tela',z:'app',x:470,y:985,w:245,eb:'Tela',t:'Gastos e Pix',far:'Gastos',st:'plan',
+ tx:'"Paguei 180 do bar": a IA confirma e divide. Também aceita a foto da nota fiscal.',ch:['texto, voz ou foto'],
+ faz:'Ao fim do rolê, a IA pergunta no chat se alguém pagou algo para rachar. Quem lançou pode desmarcar quem não participou de um gasto. Cada devedor recebe em particular o Pix copia e cola de quem pagou, e os lembretes de quitação vão só para quem deve.',
+ entra:['Pix copia e cola','Lembretes discretos'],sai:['Gasto lançado','Foto da nota','Dívida marcada como paga'],
+ pq:['Cobrar em particular evita o constrangimento de falar de dinheiro na frente do grupo.'],
+ rq:['RF-30 a RF-34']},
+{id:'f-planos',k:'tela',z:'app',x:820,y:175,w:245,eb:'Tela',t:'Comparação de planos',far:'Planos',st:'plan',
+ tx:'2 ou 3 planos lado a lado: o quê, onde, quando, como cada um chega e quanto custa.',ch:['custo por pessoa','fonte e data'],
+ faz:'Cada participante vê em destaque o próprio custo e tempo de deslocamento; o grupo vê a faixa de custo, do menor ao maior. Cada plano diz por que foi sugerido: restrições atendidas, regra de datas, critério de justiça, prós e contras. Cada lugar mostra a fonte e a data da última verificação.',
+ entra:['Planos ranqueados, com os motivos'],
+ pq:['A decisão é do grupo, e ele precisa entender as opções: explicar o ranking faz parte do produto (RNF-05).','Estimativas aparecem marcadas como estimativas.'],
+ rq:['RF-15, RF-16, RF-19, RF-21, RF-44','RNF-05']},
+{id:'f-pwa',k:'tela',z:'app',x:820,y:445,w:245,eb:'Base do app',t:'App instalável (PWA)',far:'PWA',st:'prop',
+ tx:'Instala pelo navegador, recebe notificações e conversa com o servidor.',ch:['ADR 0003','notificações'],
+ faz:'Concentra o que todas as telas usam: login, conexão com o servidor, notificações e o microfone para a voz. As notificações são agrupadas: duas pendências do mesmo rolê viram uma notificação só.',
+ entra:['Respostas e mensagens do servidor'],sai:['Pedidos HTTPS ao servidor','Áudio para transcrição'],
+ pq:['App web em vez de bot: a interface precisa mostrar planos lado a lado, votação e transcrição de voz, o que um chat mostra mal (ADR 0003).','Celular primeiro: Chrome no Android e Safari no iOS (RNF-09).'],
+ fora:['No iOS, notificação de app web só funciona com o app adicionado à tela inicial.','Framework de front-end: a decidir.'],
+ rq:['ADR 0003','RF-41, RF-42','RNF-07, RNF-09']},
+{id:'f-pos',k:'tela',z:'app',x:820,y:715,w:245,eb:'Tela',t:'Depois do rolê',st:'plan',
+ tx:'"O encontro aconteceu?" com um toque, e avaliação opcional de lugar, custo, transporte e horário.',ch:['um toque'],
+ faz:'Depois do horário previsto, a IA pergunta a cada um se o encontro aconteceu e se a pessoa foi. Se a maioria diz que não, pergunta o motivo, com opções curtas. A avaliação é opcional: quem pula não é cobrado de novo.',
+ sai:['Se aconteceu e, se não, o motivo','Notas de 1 a 5 e comentário'],
+ pq:['Saber se o encontro aconteceu é a base das métricas: medir encontros, não downloads.'],
+ rq:['RF-36, RF-37, RF-38']},
+{id:'f-export',k:'tela',z:'app',x:820,y:985,w:245,eb:'Tela',t:'Compartilhar e agenda',far:'Compartilhar',st:'plan',
+ tx:'Resumo do plano para o WhatsApp e evento na agenda, com o horário de saída de cada um.',ch:['compartilhamento nativo'],
+ faz:'O resumo abre no WhatsApp pronto para enviar ao grupo. O evento vai para a agenda escolhida (Google, Apple ou Android) com o horário de saída daquela pessoa.',
+ sai:['Resumo sem dados privados','Evento de agenda'],
+ rq:['RF-27, RF-28']},
+
+// Servidor
+{id:'b-api',k:'rota',z:'servidor',x:1280,y:175,w:245,eb:'Entrada',t:'API do servidor',far:'API',st:'aberto',
+ tx:'Recebe tudo o que vem do app e entrega as mensagens. Tecnologia a decidir.',ch:['HTTPS'],
+ faz:'Porta de entrada única do app: salas, rolês, mensagens, votos e gastos. Confere a sessão e a sala de cada pedido antes de seguir.',
+ entra:['Pedidos do app'],sai:['Ações do rolê','Mensagens para o app'],
+ pq:['Um ponto só para autenticar e para limitar cada sala aos seus membros (RNF-11).'],
+ fora:['Linguagem, framework e o meio de tempo real (WebSocket ou outro): a decidir.'],
+ rq:['RNF-11, RNF-12']},
+{id:'b-auth',k:'seg',z:'servidor',x:1280,y:445,w:245,eb:'Segurança',t:'Quem vê o quê',st:'plan',
+ tbl:[['Membro','chat da sala <i>só das próprias salas</i>'],['Participante','a própria conversa privada'],['Organizador','configurações e status <i>sem as respostas</i>'],['Ninguém','orçamento ou conversa de outra pessoa']],
+ faz:'Login sem senha: código de uso único por telefone ou e-mail, ou conta Google. Cada pedido só alcança as salas de quem pediu. Orçamentos e conversas privadas não chegam a outro membro, nem pela tela, nem pelas explicações da IA.',
+ pq:['Sem sigilo, ninguém conta quanto pode gastar, e o produto perde a razão de ser (RNF-02).'],
+ fora:['Método de login do MVP: em aberto, porque SMS e WhatsApp têm custo.'],
+ rq:['RF-42','RNF-02, RNF-11']},
+{id:'b-prazos',k:'regra',z:'servidor',x:1280,y:750,w:245,eb:'Regra',t:'Prazos e lembretes',st:'plan',
+ tx:'Toda pergunta que trava o rolê tem prazo e ação padrão. Um lembrete só.',ch:['ação padrão'],
+ faz:'Disponibilidade, orçamento, voto e presença têm prazo. Quem não responde não trava: a IA segue com quem respondeu, e a pessoa ainda pode entrar até a votação. Sem orçamento informado, vale o padrão do perfil ou o menor orçamento do grupo.',
+ pq:['O rolê avança sem depender de todos (RNF-06).'],
+ fora:['Valores dos prazos: em aberto.'],
+ rq:['RF-12, RF-29, RF-41','RNF-06']},
+{id:'b-privacidade',k:'seg',z:'servidor',x:1280,y:1020,w:245,eb:'LGPD',t:'Consentimento e dados',far:'LGPD',st:'plan',
+ tx:'Consentimento por finalidade; ver, corrigir, exportar e apagar os próprios dados.',ch:['LGPD','18+'],
+ faz:'Localização, agenda, voz e chave Pix têm consentimento separado. Ao apagar a conta, o app avisa de saldos em aberto e remove os dados pessoais; nos rolês passados a pessoa vira "ex-membro". Menores de 18 anos não se cadastram, e o que informaram não é guardado.',
+ pq:['Localização, rotina, renda e rede de amizades são dados sensíveis.'],
+ rq:['RF-01, RF-02','RNF-01']},
+{id:'b-ciclo',k:'regra',z:'servidor',x:1635,y:175,w:245,eb:'Regra de negócio',t:'Ciclo do rolê',st:'plan',
+ flow:[['Pedido'],['Coleta privada'],['Planos'],['Decisão','Cancelado'],['Encontro*'],['Gastos','Avaliação']],
+ faz:'Guarda em que etapa cada rolê está e chama os agentes na hora certa: abre as conversas privadas, pede os planos e manda o mediador falar no grupo. Com menos de 2 presenças confirmadas, o rolê é cancelado e pode ser reaberto com outra janela.',
+ pq:['O estado fica no servidor, não no modelo: se o LLM falhar, o rolê não se perde (RNF-15).'],
+ rq:['Fluxo principal (requisitos.md, seção 3)','RF-26','RNF-15']},
+{id:'b-db',k:'banco',z:'servidor',x:1635,y:615,w:245,eb:'Armazenamento',t:'Banco do app',st:'aberto',
+ tx:'Contas, salas, rolês, respostas, planos e gastos. Dados sensíveis criptografados.',ch:['a decidir'],
+ faz:'Guarda o estado de cada rolê e os dados das pessoas. A chave Pix e os dados sensíveis ficam criptografados em repouso. Conversas privadas e orçamentos de um rolê são apagados num prazo depois do fim dele.',
+ pq:['Retenção limitada: guardar só pelo tempo necessário (RNF-01).'],
+ fora:['Qual banco: a decidir.','Prazo de retenção: a definir.'],
+ rq:['RNF-01, RNF-11']},
+{id:'b-log',k:'dados',z:'servidor',x:1635,y:905,w:245,eb:'Registro',t:'Eventos para métricas',far:'Registro',st:'plan',
+ tx:'Cada etapa do rolê vira um evento pseudonimizado, com tempos e número de interações.',ch:['sem conversas','sem orçamentos'],
+ faz:'Registra pedido, respostas, planos gerados, escolha, confirmações, se o encontro aconteceu, avaliação e gastos lançados e quitados, com o tempo entre as etapas. Não registra o conteúdo das conversas privadas nem valores de orçamento.',
+ sai:['Eventos para o cálculo das métricas'],
+ pq:['Todas as métricas de sucesso precisam sair só destes registros (RNF-10).'],
+ rq:['RNF-10']},
+
+// Agentes de IA
+{id:'ia-membro',k:'ia',z:'ia',x:2080,y:175,w:250,eb:'Agente',t:'Agente de cada membro',far:'Agente do membro',st:'plan',
+ tx:'Um por participante. Conversa em particular e só conhece os dados dessa pessoa.',ch:['um por membro','sigilo'],
+ faz:'Conduz a conversa privada: interpreta disponibilidade, orçamento, partida e transporte, confirma o que entendeu e repassa ao planejador só restrições sem identificação. Quando o orçamento da pessoa trava as opções, é ele quem pergunta se ela pode gastar mais.',
+ entra:['Mensagens da conversa privada','Perfil da pessoa'],sai:['Restrições sem nome para o planejador'],
+ pq:['Isolar os dados por agente faz do sigilo uma propriedade da arquitetura, e não só do prompt (RNF-02).'],
+ rq:['RF-07, RF-08, RF-11, RF-18','RNF-02, RNF-12']},
+{id:'ia-mediador',k:'ia',z:'ia',x:2080,y:390,w:250,eb:'Agente',t:'Mediador',st:'plan',
+ tx:'Fala no chat do grupo: sugere rolês, apresenta os planos e explica as escolhas sem expor ninguém.',ch:['chat do grupo'],
+ faz:'Sugere um rolê quando a sala passa tempo demais sem se encontrar, com limite de frequência. Apresenta os planos com prós e contras e explica por que um ficou à frente. Diz "fora do orçamento do grupo", nunca "fora do orçamento da Ana".',
+ entra:['Planos ranqueados e os motivos'],sai:['Mensagens no chat do grupo'],
+ pq:['Deixa claro que quem fala é uma IA (RNF-05).'],
+ rq:['RF-06, RF-11, RF-19','RNF-05']},
+{id:'ia-planejador',k:'ia',z:'ia',x:2080,y:605,w:250,eb:'Agente',t:'Planejador',st:'plan',
+ tx:'Monta os planos: busca na base, chama o motor de cálculo e fica com os 2 ou 3 melhores.',ch:['usa ferramentas'],
+ faz:'Recebe as restrições sem nome, pede ao motor as janelas, busca lugares e eventos na base de conhecimento, pede à logística o deslocamento e ao motor os filtros e o ranking. O LLM interpreta e orquestra; os números vêm do motor.',
+ entra:['Restrições sem nome','Tipo de rolê e período'],sai:['2 ou 3 planos completos'],
+ pq:['"LLM orquestra, solver otimiza": janela, custo e ranking calculados por um LLM erram e não se explicam.'],
+ rq:['RF-13 a RF-19','RNF-04']},
+{id:'ia-logistica',k:'ia',z:'ia',x:2080,y:820,w:250,eb:'Agente',t:'Logística',st:'plan',
+ tx:'Como cada um chega e volta: tempo, custo, último ônibus e caronas.',ch:['mapas','transporte do DF'],
+ faz:'Estima a ida e a volta de cada participante pelo meio que ele usa. Avisa em particular quem ficaria sem ônibus para voltar e sugere alternativas. Pede ao otimizador a distribuição das caronas e a confirmação dos motoristas.',
+ entra:['Região de partida e meio de transporte','Local e horário do plano'],sai:['Tempo e custo por pessoa','Caronas'],
+ rq:['RF-21, RF-22, RF-23']},
+{id:'ia-financas',k:'ia',z:'ia',x:2080,y:1035,w:250,eb:'Agente',t:'Finanças',st:'plan',
+ tx:'Entende "paguei 180 do bar", confirma e pede ao motor a divisão e o Pix.',ch:['não calcula'],
+ faz:'Interpreta lançamentos por texto, voz ou foto da nota, pede a confirmação de quem pagou e de quem foi citado e entrega ao motor. Manda os lembretes discretos de quitação.',
+ entra:['Lançamentos de gastos'],sai:['Gastos confirmados para a divisão'],
+ pq:['Nenhum valor em reais nem chave Pix sai de texto gerado pelo modelo (RNF-04).'],
+ rq:['RF-30 a RF-34','RNF-04']},
+{id:'s1',k:'etapa',n:1,z:'ia',x:2400,y:175,w:300,eb:'Etapa 1 de 7',t:'Restrições sem nome',st:'plan',
+ tx:'Os agentes de membro repassam janelas, teto de gasto, região e transporte, sem dizer de quem.',
+ faz:'O planejador recebe um conjunto de restrições anônimas. Ele sabe que alguém do grupo só pode gastar até certo valor, mas não sabe quem.',
+ pq:['O sigilo começa na entrada do planejamento: o que o planejador não recebe, ele não vaza (RNF-02).'],rq:['RF-11','RNF-02']},
+{id:'s2',k:'etapa',n:2,z:'ia',x:2400,y:307,w:300,eb:'Etapa 2 de 7',t:'Janelas e datas',st:'plan',
+ tx:'O motor cruza as janelas livres e aplica a regra de datas do organizador.',
+ faz:'Sem janela com todos, usa as melhores parciais ("sábado à noite: 6 de 7 podem"), sem dizer quem não pode. Sem regra definida pelo organizador, vale a data mais próxima.',
+ rq:['RF-13, RF-14']},
+{id:'s3',k:'etapa',n:3,z:'ia',x:2400,y:439,w:300,eb:'Etapa 3 de 7',t:'Busca na base',st:'prop',
+ tx:'Lugares e eventos do tipo pedido, abertos na janela e na faixa de preço do grupo.',
+ faz:'Consulta a base de conhecimento (RAG) com filtros (tipo, região, horário, preço) e com a descrição do que o grupo quer, como "lugar tranquilo para conversar".',
+ pq:['O planejador só pode usar o que veio da base (RF-16).'],rq:['RF-16','RNF-03']},
+{id:'s4',k:'etapa',n:4,z:'ia',x:2400,y:571,w:300,eb:'Etapa 4 de 7',t:'Deslocamento e custo',st:'plan',
+ tx:'Tempo e custo de ida e volta de cada pessoa, mais atividade e comida.',
+ faz:'A logística estima o deslocamento com mapas e com os dados de transporte do DF; o motor soma o custo de cada pessoa.',
+ rq:['RF-15, RF-21']},
+{id:'s5',k:'etapa',n:5,z:'ia',x:2400,y:703,w:300,eb:'Etapa 5 de 7',t:'Filtro de restrições',st:'plan',
+ tx:'Sai o plano que estoura um orçamento, foge da janela, pega lugar fechado ou fere uma restrição.',
+ faz:'Se sobram menos de 2 planos por causa do orçamento de alguém, a IA pergunta só a essa pessoa se aceita gastar mais, mostrando quanto a mais e o que ganharia. Sem resposta no prazo, segue com o menor orçamento.',
+ rq:['RF-17, RF-18']},
+{id:'s6',k:'etapa',n:6,z:'ia',x:2400,y:835,w:300,eb:'Etapa 6 de 7',t:'Ranking justo',st:'aberto',
+ tx:'Ordena os planos protegendo quem fica pior em custo e tempo, e não pela média.',
+ faz:'Exemplo: o plano A tem média menor, mas obriga uma pessoa a viajar 90 minutos; o B deixa todos com cerca de 40. B vem antes, e a explicação diz por quê.',
+ pq:['Sem uma regra explícita, agentes LLM tendem a tirar a média.'],
+ fora:['A regra exata ("menor miséria" é a proposta) ainda precisa de ADR.'],rq:['RF-19','RNF-13']},
+{id:'s7',k:'etapa',n:7,z:'ia',x:2400,y:967,w:300,eb:'Etapa 7 de 7',t:'Explicação e conferência',st:'plan',
+ tx:'Prós, contras e motivos. Antes de sair, lugar fora da base e dado privado são barrados.',
+ faz:'O mediador escreve a explicação a partir dos motivos calculados. A verificação de saída descarta lugar que não está na base e bloqueia qualquer menção ao orçamento ou à conversa privada de alguém.',
+ rq:['RF-16, RF-19','RNF-02, RNF-05']},
+{id:'ia-modelos',k:'ia',z:'ia',x:2780,y:175,w:300,eb:'Configuração',t:'Modelos trocáveis',far:'Modelos',st:'aberto',
+ tx:'Provedores de LLM, voz e mapas definidos por configuração, não no código.',ch:['a decidir'],
+ faz:'Cada agente usa o modelo indicado na configuração, e trocar de provedor não muda o resto do sistema. Só vai ao provedor o necessário, sem nome nem contato.',
+ pq:['Permite comparar modelos na semana 3 e trocar se custo ou política mudarem (RNF-12, RNF-15).'],
+ fora:['Qual LLM e qual framework de agentes: a decidir.'],
+ rq:['RNF-01, RNF-12, RNF-15']},
+{id:'ia-multimodal',k:'ia',z:'ia',x:2780,y:435,w:300,eb:'Entradas',t:'Voz e foto',st:'plan',
+ tx:'A voz vira texto para confirmação; a foto da nota vira valor. Leitura em voz alta opcional.',ch:['semana 5'],
+ faz:'Transcreve a fala e mostra a transcrição antes de qualquer ação com data, valor ou presença. Lê o total (e os itens, quando der) da foto da nota fiscal. O áudio e a foto são descartados depois da extração.',
+ pq:['A voz pensa em quem tem pouca prática com apps, como o Márcio.'],
+ rq:['RF-31, RF-39, RF-40','RNF-01']},
+{id:'ia-memoria',k:'ia',z:'ia',x:2780,y:695,w:300,eb:'Aprendizado',t:'Preferências da sala',far:'Preferências',st:'plan',
+ tx:'Avaliações e escolhas anteriores ajustam as próximas sugestões.',ch:['partida a frio'],
+ faz:'Se o grupo avaliou mal o transporte de um lugar distante, lugares com deslocamento parecido descem no ranking daquela sala. Sem histórico, valem as preferências dos perfis, inclusive as de ambiente, que não são reveladas ao grupo.',
+ rq:['RF-38, RF-44']},
+{id:'ia-saida',k:'ia',z:'ia',x:2780,y:955,w:300,eb:'Guarda',t:'Verificação de saída',far:'Verificação',st:'plan',
+ tx:'Confere cada plano e cada mensagem antes de chegar às pessoas.',ch:['RF-16','RNF-02'],
+ faz:'Descarta lugar ou evento que não está na base. Bloqueia mensagem que cite o orçamento ou a conversa privada de alguém. Confere por API se o lugar existe e está aberto.',
+ pq:['Instrução escondida no chat ou numa página não muda as regras da IA (RNF-11).'],
+ rq:['RF-16','RNF-02, RNF-03, RNF-11']},
+
+// Fora do sistema
+{id:'e-login',k:'externo',z:'ext',x:3210,y:175,w:285,eb:'Externo',t:'Login',st:'aberto',
+ tx:'Código de uso único por e-mail ou telefone, ou conta Google.',ch:['a decidir'],
+ fora:['SMS e WhatsApp têm custo; o método do MVP está em aberto (RF-42).']},
+{id:'e-llm',k:'externo',z:'ext',x:3210,y:375,w:285,eb:'Externo',t:'Provedor de LLM',far:'LLM',st:'aberto',
+ tx:'O modelo que conversa e orquestra. Recebe só o necessário, sem nome nem contato.',ch:['a decidir']},
+{id:'e-voz',k:'externo',z:'ext',x:3210,y:575,w:285,eb:'Externo',t:'Fala e texto',far:'Voz',st:'aberto',
+ tx:'Transcrição da fala e leitura em voz alta.',ch:['a decidir']},
+{id:'e-celular',k:'externo',z:'ext',x:3210,y:775,w:285,eb:'Externo',t:'Apps do celular',st:'plan',
+ tx:'WhatsApp, agenda e o app do banco, que lê o Pix copia e cola.',ch:['sem API']},
+{id:'e-rotas',k:'externo',z:'ext',x:3210,y:1000,w:285,eb:'Externo',t:'Mapas e transporte do DF',far:'Mapas e GTFS',st:'aberto',
+ tx:'Rotas e tempos (Google Maps ou OpenStreetMap) e horários de ônibus e metrô (GTFS do DF).',ch:['a confirmar']},
+
+// Segurança e operação
+{id:'i-seg',k:'infra',z:'seg',x:70,y:1395,w:260,eb:'Segurança',t:'Segurança da aplicação',far:'Segurança',st:'plan',
+ tx:'HTTPS, autenticação, cada sala só para seus membros e segredos fora do git.',ch:['OWASP Top 10'],
+ faz:'Chave Pix e dados sensíveis criptografados em repouso. Texto de usuários e de fontes externas não muda as regras da IA. Checklist básico do OWASP Top 10 e testes de acesso a salas de outras pessoas.',
+ rq:['RNF-11']},
+{id:'i-infra',k:'infra',z:'seg',x:70,y:1660,w:260,eb:'Operação',t:'Repositório e hospedagem',far:'Hospedagem',st:'aberto',
+ tx:'Documentação e decisões no GitHub do grupo. Hospedagem e deploy a decidir.',ch:['a decidir'],
+ faz:'O repositório guarda requisitos, ADRs e o registro semanal. Se o LLM, os mapas ou a voz falharem, o estado do rolê é preservado, o sistema tenta de novo e avisa com mensagem clara. Respostas de APIs ficam em cache, e o consumo é registrado.',
+ rq:['RNF-15','STATUS.md e docs/decisoes/']},
+
+// Base e avaliação
+{id:'r-fontes',k:'dados',z:'rag',x:470,y:1395,w:250,eb:'Documento',t:'Lista de fontes',st:'aberto',
+ tx:'De onde vêm lugares e eventos, com a licença de cada fonte.',ch:['ADR na semana 2'],
+ faz:'Candidatas: OpenStreetMap, agenda cultural do GDF, Sympla e os sites dos próprios lugares. A licença decide o que pode ser guardado: o OpenStreetMap permite, citando a fonte; os termos do Google Places restringem.',
+ pq:['Conferir a licença antes da coleta, e não depois.'],
+ rq:['Questões em aberto, item 4 (requisitos.md)']},
+{id:'r-curadoria',k:'dados',z:'rag',x:760,y:1395,w:250,eb:'Processo',t:'Curadoria pela equipe',far:'Curadoria',st:'prop',
+ tx:'Algo entre 100 e 300 lugares do DF, nos tipos de rolê do MVP.',ch:['base curada'],
+ faz:'A equipe seleciona e confere lugares e eventos para comer e beber fora, eventos com data e programas ao ar livre ou gratuitos; o rolê em casa não depende da base. Combinado em 29/10: base curada pelo grupo, indexada no RAG, mais uma API para conferir se o lugar existe e está aberto.',
+ pq:['Uma base pequena e conferida rende mais confiança do que uma grande e desatualizada.'],
+ rq:['RF-16','RNF-03']},
+{id:'r-esquema',k:'dados',z:'rag',x:1050,y:1395,w:250,eb:'Formato',t:'Campos de cada item',far:'Formato',st:'prop',
+ tbl:[['Filtros','tipo, região, preço, horários, acessibilidade'],['Texto','descrição do ambiente'],['Origem','fonte e data da verificação']],
+ faz:'Os campos estruturados (também coordenadas e nível de ruído, quando houver) servem de filtro; a descrição serve à busca por semelhança. Dado verificado há mais tempo que o limite aparece como "aproximado".',
+ pq:['Fonte e data em cada item atendem o RF-16 e permitem conferir a base.'],
+ fora:['Limite de validade de preços e horários: a definir.'],
+ rq:['RF-16, RF-44']},
+{id:'r-ingestao',k:'dados',z:'rag',x:1340,y:1395,w:250,eb:'Pipeline',t:'Ingestão e indexação',far:'Ingestão',st:'plan',
+ tx:'Pipeline reproduzível que transforma a lista curada em índice. A base fica fora do git.',ch:['reproduzível'],
+ faz:'Lê a lista curada, valida os campos, gera os embeddings das descrições e grava a base. A origem e o passo a passo ficam documentados, porque datasets e índices não vão para o git.',
+ rq:['Convenções do AGENTS.md']},
+{id:'r-base',k:'banco',z:'rag',x:1630,y:1395,w:250,eb:'Base de conhecimento',t:'Lugares e eventos (RAG)',far:'Base (RAG)',st:'prop',
+ tx:'Busca híbrida: filtros pelos campos estruturados e embeddings pelas descrições.',ch:['semana 2'],
+ faz:'"Aberto sábado às 20h, até R$ 40 por pessoa" é filtro; "lugar tranquilo para conversar" é semelhança. Cada resultado traz a fonte e a data do item.',
+ pq:['Preço, horário e localização são dados estruturados: o filtro acerta onde a busca por semelhança erra.'],
+ fora:['Banco vetorial e modelo de embedding: a decidir.'],
+ rq:['RF-16','RNF-03']},
+{id:'d-form',k:'dados',z:'rag',x:470,y:1660,w:250,eb:'Pesquisa',t:'Pesquisa de Hábitos Sociais',far:'Formulário',st:'ok',
+ tx:'15 afirmações de 1 a 5, em uso para validar a dor e servir de linha de base.',ch:['Google Forms'],
+ faz:'Cobre dinheiro, agenda, decisão, iniciativa, distância e solidão. A frequência de encontros desejada e a real, e a sensação de solidão, servem de "antes" para medir impacto.',
+ rq:['docs/pesquisa/']},
+{id:'d-adversarial',k:'dados',z:'rag',x:760,y:1660,w:250,eb:'Teste',t:'Bateria de sigilo',st:'plan',
+ tx:'Ataques de propósito: pedir o orçamento de alguém, pedir "um resumo do que todos disseram", injetar instrução no chat.',ch:['meta: zero vazamentos'],
+ rq:['RNF-02, RNF-11']},
+{id:'d-perguntas',k:'dados',z:'rag',x:1050,y:1660,w:250,eb:'Conjunto de teste',t:'Perguntas de teste',st:'prop',
+ tx:'De 20 a 30 pedidos reais com a resposta esperada, escritos antes de montar a base.',ch:['semana 2'],
+ faz:'Exemplos: "bar até R$ 40 por pessoa, aberto sábado à noite, perto da Asa Norte" e "programa gratuito domingo à tarde". Mostram que dados coletar e servem à comparação da semana 3.'},
+{id:'d-avaliacao',k:'dados',z:'rag',x:1340,y:1660,w:250,eb:'Avaliação',t:'LLM × RAG',st:'plan',
+ tx:'Quantos lugares, preços e horários o LLM puro inventa e quantos o RAG acerta.',ch:['semana 3'],
+ num:['Meta: 100% dos lugares dos planos existem na base','Meta: ao menos 95% dos preços e horários corretos, numa amostra conferida à mão'],
+ rq:['RNF-03']},
+{id:'d-metricas',k:'dados',z:'rag',x:1630,y:1660,w:250,eb:'Métricas',t:'Métricas de sucesso',far:'Métricas',st:'plan',
+ tx:'Conversão de sala em rolê, encontros confirmados e satisfação, medidos no piloto.',ch:['semana 7'],
+ faz:'As métricas de uso saem dos registros pseudonimizados; o impacto compara o formulário antes e depois do piloto com grupos reais.',
+ num:['No máximo 3 interações obrigatórias por pessoa (RNF-06)','Resposta na conversa em até 5 s (p90) e planos em até 60 s (RNF-14)'],
+ rq:['RNF-06, RNF-10, RNF-14','Relatório da semana 1, métricas de sucesso']},
+
+// Motor de cálculo
+{id:'c-janelas',k:'regra',z:'motor',x:2080,y:1395,w:330,eb:'Função',t:'Cruzamento de janelas',far:'Janelas',st:'plan',
+ tx:'Janelas com todos livres; se não houver, as com mais gente. Depois, a regra de datas.',ch:['RF-13','RF-14'],
+ faz:'Empate em todos os critérios da regra de datas fica com a data mais próxima. Se nenhuma janela reúne ao menos 2 participantes, a IA propõe ampliar o período.',rq:['RF-13, RF-14']},
+{id:'c-filtro',k:'regra',z:'motor',x:2440,y:1395,w:330,eb:'Função',t:'Filtro de restrições duras',far:'Filtro',st:'plan',
+ tx:'Orçamento, janela, horário de funcionamento, restrições declaradas e vagas nas caronas.',ch:['RF-17'],
+ faz:'Um restaurante que fecha às 22h não entra num plano que vai até as 23h, a menos que o horário seja ajustado.',rq:['RF-17']},
+{id:'c-justica',k:'regra',z:'motor',x:2800,y:1395,w:330,eb:'Função',t:'Ranking justo',far:'Ranking',st:'aberto',
+ tx:'Protege quem fica pior em tempo e custo. A regra exata será fixada em ADR.',ch:['menor miséria?'],
+ faz:'Ordena os planos viáveis e devolve os motivos de cada posição, que o mediador transforma em explicação.',
+ num:['Teste previsto: comparar com a média simples em cenários com membros espalhados pelo DF (RNF-13)'],
+ fora:['ADR da regra de justiça: pendente.'],rq:['RF-19','RNF-13']},
+{id:'c-custo',k:'regra',z:'motor',x:3160,y:1395,w:330,eb:'Função',t:'Deslocamento e custo',far:'Custo',st:'plan',
+ tx:'Tempo e custo de ida e volta por pessoa, mais atividade e comida.',ch:['RF-15','RF-21'],
+ faz:'Usa rotas e horários de transporte externos e devolve, para cada participante, o tempo, o custo e a linha principal. Também aponta quem ficaria sem ônibus na volta.',rq:['RF-15, RF-21, RF-22']},
+{id:'c-negocia',k:'regra',z:'motor',x:2080,y:1660,w:330,eb:'Função',t:'Quanto a mais destrava',far:'Negociação',st:'plan',
+ tx:'Calcula o menor aumento de orçamento que deixa 2 planos viáveis, para a pergunta em particular.',ch:['RF-18'],
+ faz:'O agente do membro faz a pergunta, mas o valor vem do motor. Se a pessoa aceita, o novo limite vale só para aquele rolê.',rq:['RF-18','RNF-04']},
+{id:'c-caronas',k:'regra',z:'motor',x:2440,y:1660,w:330,eb:'Otimizador',t:'Caronas',st:'plan',
+ tx:'Distribui os passageiros entre os motoristas, respeitando vagas e o desvio máximo de cada um.',ch:['Should'],
+ faz:'Se um motorista recusa a rota proposta, o otimizador refaz a distribuição sem ele e avisa os passageiros afetados.',
+ fora:['Prioridade a confirmar, porque depende de um otimizador de rotas.'],rq:['RF-23']},
+{id:'c-divisao',k:'regra',z:'motor',x:2800,y:1660,w:330,eb:'Função',t:'Divisão e saldo',far:'Divisão',st:'plan',
+ tx:'Divide cada gasto entre os presentes. Os centavos que sobram ficam com quem pagou.',ch:['RF-32'],
+ faz:'Quem confirmou e não foi fica fora das divisões. O saldo entre rolês, que cobra só o valor líquido, é desejável (Could).',rq:['RF-32, RF-35']},
+{id:'c-pix',k:'regra',z:'motor',x:3160,y:1660,w:330,eb:'Função',t:'Pix copia e cola',far:'Pix',st:'plan',
+ tx:'Código estático no padrão do Banco Central, com a chave de quem pagou e o valor devido.',ch:['RF-33'],
+ faz:'Enviado em particular a cada devedor. O app orienta a conferir no banco o nome de quem recebe e o valor antes de pagar.',
+ pq:['Gerado por código determinístico, nunca pelo modelo.'],rq:['RF-33','RNF-04']},
+];
+
+const EDGES = [
+ {a:'p-org',b:'f-sala',k:'acao',l:'cria, convida e configura',lw:120},
+ {a:'p-part',b:'f-privada',k:'acao',l:'disponibilidade, orçamento e partida',lw:120},
+ {a:'p-part',b:'f-decisao',k:'acao',l:'voto e presença',lw:90},
+ {a:'p-part',b:'f-gastos',k:'acao',l:'gastos e foto da nota',lw:90},
+ {a:'f-export',b:'p-grupo',k:'dados',l:'resumo do plano',lw:110,s:'b',t:'b',via:[[942.5,1236],[200,1236]],lp:[571,1236]},
+ {a:'f-sala',b:'f-pwa',k:'interno'},
+ {a:'f-privada',b:'f-pwa',k:'interno'},
+ {a:'f-decisao',b:'f-pwa',k:'interno'},
+ {a:'f-gastos',b:'f-pwa',k:'interno'},
+ {a:'f-planos',b:'f-pwa',k:'interno'},
+ {a:'f-pos',b:'f-pwa',k:'interno'},
+ {a:'f-pwa',b:'b-api',k:'http',l:'HTTPS',lw:60},
+ {a:'b-auth',b:'b-api',k:'interno'},
+ {a:'b-api',b:'b-ciclo',k:'interno',l:'ações do rolê',lw:80},
+ {a:'b-ciclo',b:'b-prazos',k:'interno',l:'prazos',lw:60},
+ {a:'b-ciclo',b:'b-db',k:'dados',l:'estado do rolê',lw:90},
+ {a:'b-ciclo',b:'b-log',k:'dados',l:'eventos sem nome',lw:80,s:{side:'r',off:300},t:{side:'r',off:40},via:[[1932,475],[1932,945]],lp:[1932,710]},
+ {a:'b-privacidade',b:'b-db',k:'dados',l:'ver, exportar, apagar',lw:90},
+ {a:'b-ciclo',b:'ia-membro',k:'interno',l:'abre as conversas',lw:90},
+ {a:'b-ciclo',b:'ia-mediador',k:'interno',l:'fala no grupo',lw:80},
+ {a:'b-ciclo',b:'ia-planejador',k:'interno',l:'pede os planos',lw:80},
+ {a:'ia-membro',b:'s1',k:'interno'},
+ {a:'ia-planejador',b:'s1',k:'interno'},
+ {a:'ia-logistica',b:'s4',k:'interno'},
+ {a:'s7',b:'ia-mediador',k:'interno'},
+ {a:'s1',b:'s2',k:'interno'},{a:'s2',b:'s3',k:'interno'},{a:'s3',b:'s4',k:'interno'},{a:'s4',b:'s5',k:'interno'},
+ {a:'s5',b:'s6',k:'interno'},{a:'s6',b:'s7',k:'interno'},
+ {a:'s7',b:'ia-saida',k:'interno'},
+ {a:'ia-memoria',b:'s6',k:'dados'},
+ {a:'ia-modelos',b:'e-llm',k:'http'},
+ {a:'ia-multimodal',b:'e-voz',k:'http'},
+ {a:'ia-saida',b:'e-rotas',k:'http',l:'existe e está aberto?',lw:90},
+ {a:'s3',b:'r-base',k:'dados',l:'busca com filtros',lw:110,s:{side:'r',off:40},t:{side:'r',off:60},via:[[2712,479],[2712,1270],[1922,1270],[1922,1455]],lp:[2300,1270]},
+ {a:'s2',b:'c-janelas',k:'interno',s:{side:'r',off:40},t:'t',via:[[2726,347],[2726,1282],[2245,1282]]},
+ {a:'s4',b:'c-custo',k:'interno',s:{side:'r',off:40},t:{side:'t',off:90},via:[[2764,611],[2764,1286],[3250,1286]]},
+ {a:'s5',b:'c-filtro',k:'interno',s:{side:'r',off:40},t:'t',via:[[2740,743],[2740,1296],[2605,1296]]},
+ {a:'s6',b:'c-justica',k:'interno',s:{side:'r',off:40},t:'t',via:[[2752,875],[2752,1310],[2965,1310]]},
+ {a:'ia-logistica',b:'c-caronas',k:'interno',l:'caronas',lw:60,s:{side:'r',off:40},t:'t',via:[[2350,860],[2350,1360],[2425,1360],[2425,1615],[2605,1615]],lp:[2515,1615]},
+ {a:'ia-financas',b:'c-divisao',k:'interno',l:'gastos confirmados',lw:90,s:{side:'r',off:40},t:'t',via:[[2372,1075],[2372,1345],[2785,1345],[2785,1625],[2965,1625]],lp:[2875,1625]},
+ {a:'c-divisao',b:'c-pix',k:'interno'},
+ {a:'c-custo',b:'e-rotas',k:'http',l:'rotas e horários',lw:90,s:{side:'t',off:250},t:{side:'b',off:200},via:[],lp:[3410,1262]},
+ {a:'c-pix',b:'e-celular',k:'dados',l:'código no app do banco',lw:90,s:{side:'r',off:40},t:{side:'r',off:40},via:[[3512,1700],[3512,815]],lp:[3512,1606]},
+ {a:'r-fontes',b:'r-curadoria',k:'dados'},
+ {a:'r-curadoria',b:'r-esquema',k:'dados'},
+ {a:'r-esquema',b:'r-ingestao',k:'dados'},
+ {a:'r-ingestao',b:'r-base',k:'dados'},
+ {a:'r-base',b:'d-avaliacao',k:'dados'},
+ {a:'d-perguntas',b:'d-avaliacao',k:'dados'},
+ {a:'b-log',b:'d-metricas',k:'dados',l:'registros',lw:70,s:{side:'l',off:40},t:'t',via:[[1610,945],[1610,1625],[1755,1625]],lp:[1610,1300]},
+ {a:'d-form',b:'d-metricas',k:'dados',l:'linha de base: antes e depois do piloto',lw:200,s:'b',t:'b',via:[[595,1925],[1755,1925]],lp:[1175,1925]},
+];
+
+const TOURS = [
+ {t:'Um rolê, do pedido à conta', steps:[
+  {c:['p-org','f-sala','f-pwa','b-api','b-auth'], tx:'Quem cria a sala vira organizador e convida os amigos por link. Para entrar, basta o telefone ou o e-mail e um código, sem senha.'},
+  {c:['f-sala','b-api','b-ciclo','ia-mediador'], tx:'Qualquer membro pede um rolê ("bora sair sábado?"). Se a sala passa tempo demais sem se encontrar, o mediador sugere um.'},
+  {c:['p-part','f-privada','b-ciclo','b-prazos','ia-membro'], tx:'A IA conversa em particular com cada participante: disponibilidade, orçamento, ponto de partida e transporte. Toda pergunta tem prazo e ação padrão.'},
+  {c:['ia-membro','s1','s2','c-janelas'], tx:'Da conversa privada saem só restrições sem nome. O motor cruza as janelas e aplica a regra de datas do organizador.'},
+  {c:['ia-planejador','s3','r-base','s4','c-custo','e-rotas'], tx:'O planejador busca lugares e eventos na base de conhecimento, e o motor calcula o tempo e o custo de cada pessoa.'},
+  {c:['s5','c-filtro','c-negocia','s6','c-justica'], tx:'Saem os planos que violam alguma restrição. Se o orçamento de alguém trava tudo, só essa pessoa recebe a pergunta. O ranking protege quem fica pior.'},
+  {c:['s7','ia-saida','ia-mediador','f-planos'], tx:'Os planos passam pela verificação de saída e chegam ao grupo: 2 ou 3, com prós, contras e o custo de cada um.'},
+  {c:['p-part','f-decisao','b-ciclo','f-export','p-grupo'], tx:'O grupo vota, ou o organizador decide. Com a presença confirmada, o plano vai para o WhatsApp e para a agenda.'},
+  {c:['f-gastos','ia-financas','c-divisao','c-pix','e-celular'], tx:'Depois do rolê, quem pagou lança o gasto. O motor divide e gera o Pix copia e cola de cada devedor, enviado em particular.'},
+  {c:['f-pos','b-ciclo','b-log','d-metricas'], tx:'A IA pergunta se o encontro aconteceu e oferece uma avaliação opcional. Os registros sem nome alimentam as métricas.'},
+ ]},
+ {t:'Como nasce um plano', steps:[
+  {c:['b-ciclo','ia-planejador','ia-membro','s1'], tx:'O servidor pede os planos. Os agentes de membro entregam só restrições sem nome: o planejador sabe que alguém tem um teto de gasto, mas não quem.'},
+  {c:['s2','c-janelas'], tx:'O motor cruza as janelas livres. Sem janela com todos, usa as que reúnem mais gente, sem dizer quem não pode.'},
+  {c:['s3','r-base'], tx:'A busca na base combina filtros (tipo, horário, preço, região) com a descrição do ambiente. Nada fora da base entra no plano.'},
+  {c:['s4','ia-logistica','c-custo','e-rotas'], tx:'A logística e o motor estimam tempo e custo de ida e volta para cada pessoa, pelo meio que ela usa.'},
+  {c:['s5','c-filtro','c-negocia','ia-membro'], tx:'O filtro descarta o que fere uma restrição. Se o orçamento de alguém deixar menos de 2 planos, o motor calcula quanto a mais destravaria, e só essa pessoa é consultada.'},
+  {c:['s6','c-justica','ia-memoria'], tx:'O ranking protege quem fica pior em tempo e custo, em vez de tirar a média. A regra exata ainda vai para um ADR.'},
+  {c:['s7','ia-saida','ia-mediador','f-planos'], tx:'O mediador explica cada plano a partir dos motivos calculados, e a verificação de saída barra lugares fora da base e qualquer dado privado.'},
+ ]},
+ {t:'Quem vê o quê', steps:[
+  {c:['p-part','f-privada','ia-membro'], tx:'Cada participante conversa em particular com o próprio agente, que só conhece os dados dessa pessoa.'},
+  {c:['ia-membro','s1','ia-planejador'], tx:'O planejador recebe restrições sem nome. O que ele não recebe, ele não tem como vazar.'},
+  {c:['b-auth','b-api','p-org'], tx:'O servidor limita cada sala aos seus membros. O organizador vê quantos responderam, mas não as respostas.'},
+  {c:['s7','ia-saida','ia-mediador'], tx:'A explicação diz "fora do orçamento do grupo", nunca "fora do orçamento da Ana". A verificação de saída barra mensagens que vazem algo.'},
+  {c:['d-adversarial','i-seg'], tx:'Uma bateria de ataques testa o sigilo de propósito, inclusive com instruções injetadas no chat. A meta é nenhum vazamento.'},
+  {c:['b-log','b-privacidade','b-db','ia-modelos'], tx:'Os registros são pseudonimizados e sem conteúdo privado; cada pessoa pode ver, exportar e apagar os próprios dados; e o provedor de LLM recebe só o necessário.'},
+ ]},
+ {t:'A base de conhecimento', steps:[
+  {c:['r-fontes'], tx:'Semana 2 começa pela lista de fontes, com a licença de cada uma: a licença decide o que pode ser guardado.'},
+  {c:['d-perguntas'], tx:'Antes de coletar, de 20 a 30 perguntas de teste com a resposta esperada mostram que dados a base precisa ter.'},
+  {c:['r-curadoria','r-esquema'], tx:'A equipe cura de 100 a 300 lugares do DF, cada um com campos estruturados, descrição, fonte e data da verificação.'},
+  {c:['r-ingestao','r-base'], tx:'Um pipeline reproduzível gera o índice: filtros pelos campos e embeddings pelas descrições. A base fica fora do git.'},
+  {c:['s3','r-base','ia-saida','e-rotas'], tx:'O planejador consulta a base, e a verificação de saída confere por API se o lugar existe e está aberto.'},
+  {c:['d-perguntas','d-avaliacao','r-base'], tx:'Na semana 3, as mesmas perguntas medem quanto o LLM puro inventa e quanto o RAG acerta.'},
+ ]},
+ {t:'Semana a semana', steps:[
+  {c:['d-form','i-infra'], tx:'Semana 1: problema, requisitos, riscos e métricas. Já existem os requisitos, as decisões no repositório e o formulário de validação.'},
+  {c:['r-fontes','r-curadoria','r-esquema','r-ingestao','r-base','d-perguntas'], tx:'Semana 2: base de conhecimento e recuperação, o primeiro mecanismo RAG.'},
+  {c:['d-perguntas','d-avaliacao','r-base','ia-modelos'], tx:'Semana 3: comparação entre o LLM puro e o RAG, com a métrica de dados reais do RNF-03.'},
+  {c:['ia-membro','ia-mediador','ia-planejador','ia-logistica','ia-financas','c-janelas','c-filtro','c-justica','c-custo'], tx:'Semana 4: o sistema multiagentes. O motor de cálculo precisa estar pronto junto, porque os agentes dependem dele.'},
+  {c:['ia-multimodal','e-voz','f-privada','f-gastos'], tx:'Semana 5: voz em toda conversa e foto da nota fiscal.'},
+  {c:['f-sala','f-privada','f-decisao','f-planos','f-pwa','b-api','b-auth','b-ciclo','b-db'], tx:'Semana 6: app web e servidor integrados numa aplicação funcional.'},
+  {c:['d-adversarial','b-log','d-metricas','d-form'], tx:'Semana 7: bateria de sigilo, métricas e piloto com grupos reais.'},
+ ]},
+];
+
+const DEC = [
+ {g:'Produto',t:'Só o modo com amigos',s:'ADR 0002 · aceita',tx:'Modo Descoberta, videogames e versão para menores ficam para depois.',c:['p-org','p-part']},
+ {g:'Produto',t:'App web, exportando para o WhatsApp',s:'ADR 0003 · proposta',tx:'Um bot mostraria mal planos lado a lado e votação; o resumo vai para o WhatsApp pelo celular.',c:['f-pwa','f-export','p-grupo']},
+ {g:'Produto',t:'O grupo decide, a IA recomenda',s:'RF-24 e RF-25',tx:'Votação ou palavra final do organizador. O ranking só desempata.',c:['f-decisao','ia-mediador']},
+ {g:'Produto',t:'Poucas idas ao app',s:'RNF-06',tx:'Toda pergunta tem prazo e ação padrão, e as notificações vêm agrupadas.',c:['b-prazos','f-pwa']},
+ {g:'Produto',t:'Medir encontros, não downloads',s:'RF-36 e RNF-10',tx:'A métrica central é se o encontro aconteceu, calculada de registros sem nome.',c:['f-pos','b-log','d-metricas']},
+ {g:'IA',t:'O LLM orquestra, o código calcula',s:'RNF-04',tx:'Janelas, filtros, custos, ranking, divisão e Pix ficam no motor de cálculo.',c:['ia-planejador','c-janelas','c-filtro','c-justica','c-custo','c-divisao','c-pix']},
+ {g:'IA',t:'Um agente por membro',s:'RNF-02',tx:'Cada agente só conhece os dados do seu membro e repassa restrições sem nome.',c:['ia-membro','s1']},
+ {g:'IA',t:'Planos só com dados da base',s:'RF-16 e RNF-03',tx:'Lugar fora da base é descartado antes de chegar ao usuário.',c:['s3','r-base','ia-saida']},
+ {g:'IA',t:'Ranking que protege quem fica pior',s:'RF-19 e RNF-13 · regra a decidir',tx:'Não usar a média simples. "Menor miséria" é a proposta para o ADR.',c:['s6','c-justica']},
+ {g:'IA',t:'Provedores trocáveis',s:'RNF-12',tx:'LLM, voz e mapas definidos por configuração.',c:['ia-modelos','e-llm','e-voz','e-rotas']},
+ {g:'IA',t:'Voz sempre confirmada',s:'RF-39',tx:'Nada com data, valor ou presença é registrado antes de a pessoa confirmar a transcrição.',c:['ia-multimodal','f-privada']},
+ {g:'Privacidade',t:'Orçamento é restrição, nunca informação',s:'RF-11',tx:'Nunca é mostrado nem atribuído a alguém nas explicações.',c:['ia-membro','c-filtro','c-negocia','ia-mediador']},
+ {g:'Privacidade',t:'Coletar o mínimo',s:'RNF-01',tx:'Região em vez de endereço, agenda só livre ou ocupado, áudio e foto descartados depois da extração.',c:['b-privacidade','ia-multimodal','b-db']},
+ {g:'Privacidade',t:'Registros sem nome e sem conteúdo',s:'RNF-10',tx:'Os eventos não levam conversas privadas nem valores de orçamento.',c:['b-log']},
+ {g:'Privacidade',t:'Texto de fora não muda as regras',s:'RNF-11',tx:'Instrução injetada pelo chat ou por uma página é tratada como dado.',c:['ia-saida','i-seg','d-adversarial']},
+ {g:'Dados',t:'Base curada, conferida por API',s:'combinado em 29/10 · ADR na semana 2',tx:'A equipe cura os lugares e uma API confere se existem e estão abertos.',c:['r-curadoria','r-base','ia-saida','e-rotas']},
+ {g:'Dados',t:'Fonte e data em cada item',s:'RF-16',tx:'Preço ou horário antigo aparece como "aproximado".',c:['r-esquema','f-planos']},
+ {g:'Em aberto',t:'Busca híbrida no RAG',s:'proposta',tx:'Filtros pelos campos estruturados e embeddings pelas descrições.',c:['r-base','s3']},
+ {g:'Em aberto',t:'Tecnologias do app e do servidor',s:'a decidir',tx:'Framework de front-end, linguagem do servidor, banco e meio de tempo real.',c:['f-pwa','b-api','b-db']},
+ {g:'Em aberto',t:'Provedores de LLM, voz e mapas',s:'a decidir',tx:'Escolha a fazer com a comparação da semana 3.',c:['e-llm','e-voz','e-rotas','ia-modelos']},
+ {g:'Em aberto',t:'Transporte público do DF',s:'a confirmar',tx:'Confirmar se os dados abertos (GTFS) existem e estão atualizados.',c:['e-rotas','c-custo']},
+ {g:'Em aberto',t:'Método de login',s:'a decidir',tx:'SMS e WhatsApp têm custo; e-mail ou conta Google não.',c:['e-login','b-auth']},
+];
+
+const EDGE_KINDS = [
+ ['acao','Ação de uma pessoa na tela'],['http','Chamada pela rede (HTTPS ou API externa)'],['dados','Dados gravados, lidos ou enviados'],
+ ['interno','Chamada interna'],['hot','Destaque do fluxo atual'],
+];
+
+/* ===== FIM DOS DADOS ===== Daqui para baixo é o motor do mapa: não precisa ler para editar. */
+
+/* ---------- utilidades ---------- */
+const $ = s => document.querySelector(s);
+const byId = Object.fromEntries(CARDS.map(c => [c.id, c]));
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const coarse = matchMedia('(pointer: coarse)').matches;
+const stage = $('#stage'), vp = $('#vp'), world = $('#world'), svg = $('#edges');
+const drawer = $('#drawer'), decs = $('#decs'), dock = $('#dock'), legend = $('#legend');
+const NS = 'http://www.w3.org/2000/svg';
+$('#sub').textContent = `${SUBTITULO} · atualizado em ${ATUALIZADO}`;
+world.style.width = svg.style.width = W + 'px';
+world.style.height = svg.style.height = H + 'px';
+const zoneLabels = [];
+const clampK = k => Math.min(2.2, Math.max(.12, k));
+const state = {sel:null, tour:null, open:false, touched:false};
+
+/* ---------- zonas e cards ---------- */
+for (const [id, z] of Object.entries(ZONES)) {
+  const d = document.createElement('div');
+  d.className = 'zone' + (z.dashed ? ' dashed' : '') + (z.verit ? ' verit' : '');
+  d.style.cssText = `left:${z.x}px;top:${z.y}px;width:${z.w}px;height:${z.h}px`;
+  d.innerHTML = z.repo ? `<span class="zrepo">${z.repo}</span>` : '';
+  world.insertBefore(d, svg);
+  const lb = document.createElement('button');
+  lb.type = 'button'; lb.className = 'zlabel' + (z.verit ? ' verit' : '');
+  lb.style.cssText = `left:${z.x + 22}px;top:${z.y - 24}px`;
+  lb.innerHTML = `<b>${z.html || z.t}</b><small>${z.s}</small><i class="zmore">stack</i>`;
+  lb.setAttribute('aria-label', `${z.t}: ver detalhes`);
+  lb.addEventListener('click', () => openZone(id));
+  zoneLabels.push(lb);
+  const o = document.createElement('option'); o.value = id; o.textContent = z.t; $('#goto').appendChild(o);
+}
+const ov = document.createElement('option'); ov.value = '*'; ov.textContent = 'Visão geral'; $('#goto').insertBefore(ov, $('#goto').children[1]);
+
+function face(c) {
+  const ic = I[c.k] ? `<svg viewBox="0 0 24 24" aria-hidden="true">${I[c.k]}</svg>` : '';
+  let h;
+  if (c.k === 'etapa') {
+    h = `<span class="num" aria-hidden="true">${c.n}</span><span class="body"><span class="ttl">${c.t}</span><span class="tx">${c.tx}</span></span>`;
+  } else {
+    h = `<span class="eb">${ic}${c.eb}</span><span class="ttl">${c.t}</span>`;
+    if (c.tx) h += `<span class="tx">${c.tx}</span>`;
+    if (c.tbl) h += `<span class="tbl">${c.tbl.map(r => `<b>${r[0]}</b><span>${r[1]}</span>`).join('')}</span>`;
+    if (c.flow) h += `<span class="flow">${c.flow.map(r => `<span class="fr">${r.map(s => `<span class="st${s.endsWith('*') ? ' pub' : ''}">${s.replace('*', '')}</span>`).join('')}</span>`).join('<span class="fa" aria-hidden="true">↓</span>')}</span>`;
+    const chs = [...(c.st ? [`<span class="chip s-${c.st}">${ST[c.st][0]}</span>`] : []), ...(c.ch || []).map(x => `<span class="chip">${x}</span>`)];
+    if (chs.length) h += `<span class="chips">${chs.join('')}</span>`;
+  }
+  return h + `<span class="farl" aria-hidden="true">${c.far || c.t}</span>`;
+}
+for (const c of CARDS) {
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = `card k-${c.k}`; b.dataset.id = c.id;
+  b.style.cssText = `left:${c.x}px;top:${c.y}px;width:${c.w}px`;
+  b.innerHTML = face(c);
+  b.setAttribute('aria-label', `${c.t}: ${c.eb}. Abrir detalhes.`);
+  b.addEventListener('click', () => openCard(c.id));
+  world.appendChild(b); c.el = b;
+}
+const labelLayer = document.createElement('div'); world.appendChild(labelLayer);
+for (const lb of zoneLabels) world.appendChild(lb);
+
+/* ---------- setas ---------- */
+const N = {l:[-1,0], r:[1,0], t:[0,-1], b:[0,1]};
+function measure() { for (const c of CARDS) { c.w = c.el.offsetWidth; c.h = c.el.offsetHeight; } }
+const ctr = c => [c.x + c.w / 2, c.y + c.h / 2];
+function sidesFor(e) {
+  if (typeof e.s === 'string' && typeof e.t === 'string') return [e.s, e.t];
+  const a = byId[e.a], b = byId[e.b];
+  if (b.x >= a.x + a.w) return ['r', 'l'];
+  if (b.x + b.w <= a.x) return ['l', 'r'];
+  if (b.y >= a.y + a.h) return ['b', 't'];
+  return ['t', 'b'];
+}
+function onSide(c, side, f) {
+  if (side === 'l') return [c.x, c.y + c.h * f];
+  if (side === 'r') return [c.x + c.w, c.y + c.h * f];
+  if (side === 't') return [c.x + c.w * f, c.y];
+  return [c.x + c.w * f, c.y + c.h];
+}
+function anchorSpec(c, spec) {
+  if (typeof spec === 'string') return {p: onSide(c, spec, .5), n: N[spec]};
+  const s = spec.side, p = (s === 'l' || s === 'r') ? [s === 'l' ? c.x : c.x + c.w, c.y + spec.off] : [c.x + spec.off, s === 't' ? c.y : c.y + c.h];
+  return {p, n: N[s]};
+}
+const cub = (p0, c1, c2, p3, t) => { const u = 1 - t; return [0, 1].map(i => u*u*u*p0[i] + 3*u*u*t*c1[i] + 3*u*t*t*c2[i] + t*t*t*p3[i]); };
+function rounded(pts, r = 16) {
+  let d = `M${pts[0][0]},${pts[0][1]}`;
+  for (let i = 1; i < pts.length - 1; i++) {
+    const [a, p, b] = [pts[i - 1], pts[i], pts[i + 1]];
+    const la = Math.hypot(a[0] - p[0], a[1] - p[1]), lb = Math.hypot(b[0] - p[0], b[1] - p[1]);
+    const rr = Math.min(r, la / 2, lb / 2);
+    const q1 = [p[0] + (a[0] - p[0]) / la * rr, p[1] + (a[1] - p[1]) / la * rr];
+    const q2 = [p[0] + (b[0] - p[0]) / lb * rr, p[1] + (b[1] - p[1]) / lb * rr];
+    d += ` L${q1[0]},${q1[1]} Q${p[0]},${p[1]} ${q2[0]},${q2[1]}`;
+  }
+  const z = pts[pts.length - 1];
+  return d + ` L${z[0]},${z[1]}`;
+}
+function layoutEdges() {
+  const slots = {};
+  for (const e of EDGES) {
+    if (e.via) continue;
+    const [sa, sb] = sidesFor(e); e.sa = sa; e.sb = sb;
+    (slots[e.a + ':' + sa] ||= []).push({e, end:'a', o: ctr(byId[e.b])});
+    (slots[e.b + ':' + sb] ||= []).push({e, end:'b', o: ctr(byId[e.a])});
+  }
+  for (const [key, list] of Object.entries(slots)) {
+    const [id, side] = key.split(':'), c = byId[id], ax = (side === 'l' || side === 'r') ? 1 : 0;
+    list.sort((p, q) => p.o[ax] - q.o[ax]);
+    list.forEach((it, i) => {
+      const f = list.length === 1 ? .5 : .22 + .56 * i / (list.length - 1);
+      it.e[it.end === 'a' ? 'pa' : 'pb'] = onSide(c, side, f);
+    });
+  }
+  for (const e of EDGES) {
+    const a = byId[e.a], b = byId[e.b];
+    let d, lp;
+    if (e.via) {
+      const A = anchorSpec(a, e.s), B = anchorSpec(b, e.t);
+      const end = [B.p[0] + B.n[0] * 4, B.p[1] + B.n[1] * 4];
+      d = rounded([A.p, ...e.via, end]); lp = e.lp;
+    } else {
+      const p0 = e.pa, n0 = N[e.sa], n3 = N[e.sb];
+      const p3 = [e.pb[0] + n3[0] * 4, e.pb[1] + n3[1] * 4];
+      const dx = Math.abs(p3[0] - p0[0]), dy = Math.abs(p3[1] - p0[1]);
+      const k0 = n0[0] ? Math.max(26, dx * .5) : Math.max(26, dy * .5);
+      const k3 = n3[0] ? Math.max(26, dx * .5) : Math.max(26, dy * .5);
+      const c1 = [p0[0] + n0[0] * k0, p0[1] + n0[1] * k0], c2 = [p3[0] + n3[0] * k3, p3[1] + n3[1] * k3];
+      d = `M${p0[0]},${p0[1]} C${c1[0]},${c1[1]} ${c2[0]},${c2[1]} ${p3[0]},${p3[1]}`;
+      lp = cub(p0, c1, c2, p3, e.lt ?? .5);
+    }
+    if (!e.p) {
+      e.p = document.createElementNS(NS, 'path');
+      e.p.setAttribute('class', `edge e-${e.k}`);
+      svg.appendChild(e.p);
+      if (e.l) {
+        e.lab = document.createElement('div');
+        e.lab.className = 'elabel' + (e.k === 'interno' || e.k === 'opcional' ? ' soft' : '');
+        if (e.lw) e.lab.style.setProperty('--lw', e.lw + 'px');
+        e.lab.textContent = e.l; labelLayer.appendChild(e.lab);
+      }
+    }
+    e.p.setAttribute('d', d);
+    markEdge(e, e.p.classList.contains('hot'));
+    if (e.lab) { e.lab.style.left = lp[0] + 'px'; e.lab.style.top = lp[1] + 'px'; }
+  }
+}
+function markEdge(e, hot) {
+  e.p.setAttribute('marker-end', `url(#${hot ? 'ah-hot' : (e.k === 'interno' || e.k === 'opcional') ? 'ah-muted' : 'ah-ink'})`);
+}
+
+/* ---------- destaque ---------- */
+function highlight(set, sel) {
+  for (const c of CARDS) {
+    c.el.classList.toggle('dim', !!set && !set.has(c.id));
+    c.el.classList.toggle('sel', sel === c.id);
+  }
+  for (const e of EDGES) {
+    const hot = !!set && (sel ? (e.a === sel || e.b === sel) : (set.has(e.a) && set.has(e.b)));
+    e.p.classList.toggle('hot', hot); e.p.classList.toggle('dim', !!set && !hot); markEdge(e, hot);
+    if (hot) svg.appendChild(e.p);
+    if (e.lab) { e.lab.classList.toggle('hot', hot); e.lab.classList.toggle('dim', !!set && !hot); }
+  }
+}
+const neighbors = id => [...new Set(EDGES.flatMap(e => e.a === id ? [e.b] : e.b === id ? [e.a] : []))];
+
+/* ---------- câmera ---------- */
+const cam = {x:0, y:0, k:.4};
+let anim = 0;
+function apply() {
+  world.style.transform = `translate(${cam.x}px,${cam.y}px) scale(${cam.k})`;
+  const g = 26 * cam.k;
+  vp.style.backgroundSize = `${g}px ${g}px`;
+  vp.style.backgroundPosition = `${cam.x}px ${cam.y}px`;
+  world.classList.toggle('far', cam.k < .58);
+  $('#zVal').textContent = Math.round(cam.k * 100) + '%';
+}
+function flyTo(t, ms = 560) {
+  cancelAnimationFrame(anim);
+  if (reduce || !ms) { Object.assign(cam, t); apply(); return; }
+  const s = {...cam}, t0 = performance.now();
+  const ease = u => u < .5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+  const step = now => {
+    const u = Math.min(1, (now - t0) / ms), q = ease(u);
+    cam.x = s.x + (t.x - s.x) * q; cam.y = s.y + (t.y - s.y) * q; cam.k = s.k + (t.k - s.k) * q; apply();
+    if (u < 1) anim = requestAnimationFrame(step);
+  };
+  anim = requestAnimationFrame(step);
+}
+const wide = () => stage.clientWidth > 760;
+function area() {
+  let x0 = 0, x1 = stage.clientWidth, y1 = stage.clientHeight;
+  if (!drawer.hidden) { if (wide()) x1 -= drawer.offsetWidth; else y1 -= drawer.offsetHeight; }
+  if (!decs.hidden && wide()) x0 += decs.offsetWidth;
+  y1 -= state.tour ? dock.offsetHeight + 16 : 52;
+  return {x:x0, y:0, w:Math.max(80, x1 - x0), h:Math.max(80, y1)};
+}
+function fitBox(b, pad = 48, kmax = 1.15) {
+  const a = area();
+  const k = clampK(Math.min(kmax, (a.w - 2 * pad) / b.w, (a.h - 2 * pad) / b.h));
+  return {k, x: a.x + (a.w - b.w * k) / 2 - b.x * k, y: a.y + (a.h - b.h * k) / 2 - b.y * k};
+}
+function boxOf(ids) {
+  let x0 = 1e9, y0 = 1e9, x1 = -1e9, y1 = -1e9;
+  for (const id of ids) { const c = byId[id]; x0 = Math.min(x0, c.x); y0 = Math.min(y0, c.y); x1 = Math.max(x1, c.x + c.w); y1 = Math.max(y1, c.y + c.h); }
+  return {x:x0, y:y0, w:x1 - x0, h:y1 - y0};
+}
+const zoneBox = z => ({x:z.x - 10, y:z.y - 40, w:z.w + 20, h:z.h + 50});
+const overview = (ms) => flyTo(fitBox({x:20, y:70, w:W - 40, h:H - 80}, 20, 1), ms);
+function zoomAt(px, py, f) {
+  const k = clampK(cam.k * f);
+  cam.x = px - (px - cam.x) * (k / cam.k); cam.y = py - (py - cam.y) * (k / cam.k); cam.k = k; apply();
+}
+function zoomBtn(f) { const a = area(); cancelAnimationFrame(anim); zoomAt(a.x + a.w / 2, a.y + a.h / 2, f); }
+function centerOn(c) {
+  const a = area(), k = Math.min(1.1, Math.max(cam.k, .9));
+  flyTo({k, x: a.x + a.w / 2 - (c.x + c.w / 2) * k, y: a.y + a.h / 2 - (c.y + c.h / 2) * k});
+}
+
+/* ---------- interação ---------- */
+const ptrs = new Map(), drag = {moved:false, sx:0, sy:0, cx:0, cy:0, pinch:null};
+vp.addEventListener('pointerdown', e => {
+  if (e.pointerType === 'mouse' && e.button !== 0) return;
+  ptrs.set(e.pointerId, {x:e.clientX, y:e.clientY});
+  cancelAnimationFrame(anim); poke();
+  if (ptrs.size === 1) { drag.moved = false; drag.sx = e.clientX; drag.sy = e.clientY; drag.cx = cam.x; drag.cy = cam.y; }
+  else if (ptrs.size === 2) {
+    const [p, q] = [...ptrs.values()], r = vp.getBoundingClientRect();
+    const mx = (p.x + q.x) / 2 - r.left, my = (p.y + q.y) / 2 - r.top;
+    drag.pinch = {d: Math.hypot(p.x - q.x, p.y - q.y), k: cam.k, wx: (mx - cam.x) / cam.k, wy: (my - cam.y) / cam.k};
+    drag.moved = true;
+  }
+});
+vp.addEventListener('pointermove', e => {
+  if (!ptrs.has(e.pointerId)) return;
+  if (e.pointerType === 'mouse' && !e.buttons) { up(e); return; }
+  ptrs.set(e.pointerId, {x:e.clientX, y:e.clientY});
+  if (ptrs.size >= 2 && drag.pinch) {
+    const [p, q] = [...ptrs.values()], r = vp.getBoundingClientRect();
+    const k = clampK(drag.pinch.k * Math.hypot(p.x - q.x, p.y - q.y) / drag.pinch.d);
+    const mx = (p.x + q.x) / 2 - r.left, my = (p.y + q.y) / 2 - r.top;
+    cam.k = k; cam.x = mx - drag.pinch.wx * k; cam.y = my - drag.pinch.wy * k; apply(); return;
+  }
+  const dx = e.clientX - drag.sx, dy = e.clientY - drag.sy;
+  if (!drag.moved && Math.hypot(dx, dy) > 5) { drag.moved = true; try { vp.setPointerCapture(e.pointerId); } catch (_) {} vp.classList.add('grabbing'); }
+  if (drag.moved) { cam.x = drag.cx + dx; cam.y = drag.cy + dy; apply(); }
+});
+function up(e) {
+  ptrs.delete(e.pointerId);
+  if (ptrs.size < 2) drag.pinch = null;
+  if (ptrs.size === 1) { const p = [...ptrs.values()][0]; drag.sx = p.x; drag.sy = p.y; drag.cx = cam.x; drag.cy = cam.y; }
+  if (!ptrs.size) vp.classList.remove('grabbing');
+}
+vp.addEventListener('pointerup', up); vp.addEventListener('pointercancel', up);
+vp.addEventListener('click', e => {
+  if (drag.moved) { e.stopPropagation(); e.preventDefault(); drag.moved = false; return; }
+  if (!e.target.closest('.card,.zlabel')) clearSel();
+  if (state.open) { state.open = false; renderDock(); }
+}, true);
+vp.addEventListener('wheel', e => {
+  e.preventDefault(); poke(); cancelAnimationFrame(anim);
+  const r = vp.getBoundingClientRect();
+  if (e.shiftKey && !e.ctrlKey) { cam.x -= (e.deltaY || e.deltaX); apply(); return; }
+  const dy = e.deltaMode === 1 ? e.deltaY * 33 : e.deltaY;
+  zoomAt(e.clientX - r.left, e.clientY - r.top, Math.exp(-dy * (e.ctrlKey ? .01 : .0016)));
+}, {passive:false});
+
+addEventListener('keydown', e => {
+  poke();
+  if (e.target.closest && e.target.closest('select,input,textarea')) return;
+  const k = e.key;
+  if (state.tour && (k === 'ArrowRight' || k === 'PageDown')) { stepTour(1); e.preventDefault(); }
+  else if (state.tour && (k === 'ArrowLeft' || k === 'PageUp')) { stepTour(-1); e.preventDefault(); }
+  else if (k === '+' || k === '=') zoomBtn(1.25);
+  else if (k === '-' || k === '_') zoomBtn(.8);
+  else if (k === '0') overview();
+  else if (k === 'Escape') esc();
+  else if (!state.tour && k.startsWith('Arrow') && !e.target.closest('.panel,#dock')) {
+    const d = 80; cam.x += k === 'ArrowLeft' ? d : k === 'ArrowRight' ? -d : 0; cam.y += k === 'ArrowUp' ? d : k === 'ArrowDown' ? -d : 0; apply(); e.preventDefault();
+  }
+});
+function esc() {
+  if (!drawer.hidden) closeDrawer();
+  else if (!decs.hidden) toggleDecs(false);
+  else if (state.tour) endTour();
+  else clearSel();
+}
+
+/* ---------- painel de detalhes ---------- */
+const sec = (h, body) => body ? `<div class="sec"><h3>${h}</h3>${body}</div>` : '';
+const ul = (xs, cls = '') => xs && xs.length ? `<ul class="${cls}">${xs.map(x => `<li>${x}</li>`).join('')}</ul>` : '';
+function openCard(id) {
+  const c = byId[id]; if (!c) return;
+  state.sel = id;
+  if (!state.tour) highlight(new Set([id, ...neighbors(id)]), id);
+  else c.el.classList.add('sel');
+  const z = ZONES[c.z];
+  const ins = EDGES.filter(e => e.b === id), outs = EDGES.filter(e => e.a === id);
+  const lk = (e, dir) => { const o = byId[dir === '→' ? e.b : e.a]; return `<button class="lk" type="button" data-go="${o.id}"><span class="dir" aria-hidden="true">${dir}</span><span><b>${o.t}</b>${e.l ? `<small>${e.l}</small>` : ''}</span></button>`; };
+  const decsHere = DEC.filter(d => d.c.includes(id));
+  $('#drawerKind').textContent = z.t;
+  $('#drawerBody').innerHTML = `
+    <p class="d-eb">${c.eb}</p>
+    <h2 class="${c.k === 'ia' || c.k === 'etapa' ? 'v' : ''}">${c.t}</h2>
+    ${c.tx ? `<p class="lead">${c.tx}</p>` : ''}
+    ${c.st ? sec('Situação', `<p>${ST[c.st][1]}</p>`) : ''}
+    ${c.tbl ? `<div class="sec"><div class="tbl">${c.tbl.map(r => `<b>${r[0]}</b><span>${r[1]}</span>`).join('')}</div></div>` : ''}
+    ${sec('Como funciona', c.faz && `<p>${c.faz}</p>`)}
+    ${(c.entra || c.sai) ? `<div class="sec io">${c.entra ? `<div><h3>Entra</h3>${ul(c.entra)}</div>` : '<div><h3>Entra</h3><ul><li>—</li></ul></div>'}${c.sai ? `<div><h3>Sai</h3>${ul(c.sai)}</div>` : '<div><h3>Sai</h3><ul><li>—</li></ul></div>'}</div>` : ''}
+    ${sec('Por que assim', ul(c.pq))}
+    ${sec('Números', ul(c.num, 'num'))}
+    ${sec('O que ficou de fora ou falta', ul(c.fora))}
+    ${(ins.length || outs.length) ? sec('Ligações no mapa', `<div class="links">${ins.map(e => lk(e, '←')).join('')}${outs.map(e => lk(e, '→')).join('')}</div>`) : ''}
+    ${decsHere.length ? sec('Decisões ligadas', `<div class="links">${decsHere.map(d => `<button class="lk" type="button" data-dec="${DEC.indexOf(d)}"><span class="dir" aria-hidden="true">◆</span><span><b>${d.t}</b><small>${d.g}</small></span></button>`).join('')}</div>`) : ''}
+    ${c.rq ? sec('Onde está definido', `<div class="codes">${c.rq.map(x => `<code>${x}</code>`).join('')}</div>`) : ''}`;
+  showDrawer();
+  if (!state.tour) centerOn(c);
+}
+function openDecision(i) {
+  const d = DEC[i]; state.sel = null;
+  if (!state.tour) highlight(new Set(d.c));
+  $('#drawerKind').textContent = 'Decisão';
+  $('#drawerBody').innerHTML = `
+    <p class="d-eb"><span class="tag">${d.g}</span></p>
+    <h2>${d.t}</h2><p class="lead">${d.tx}</p>
+    ${sec('Situação e origem', `<p>${d.s}</p>`)}
+    ${sec('Onde aparece no mapa', `<div class="links">${d.c.map(id => `<button class="lk" type="button" data-go="${id}"><span class="dir" aria-hidden="true">→</span><span><b>${byId[id].t}</b><small>${ZONES[byId[id].z].t}</small></span></button>`).join('')}</div>`)}`;
+  showDrawer();
+  if (!state.tour) flyTo(fitBox(boxOf(d.c), 70, 1));
+}
+function openZone(id) {
+  const z = ZONES[id], ids = CARDS.filter(c => c.z === id).map(c => c.id);
+  state.sel = null;
+  if (!state.tour) highlight(new Set(ids));
+  $('#drawerKind').textContent = 'Detalhes';
+  $('#drawerBody').innerHTML = `
+    <p class="d-eb">${z.repo || 'parte do mapa'}</p>
+    <h2 class="${z.verit ? 'v' : ''}">${z.t}</h2><p class="lead">${z.s}</p>
+    ${sec('Tecnologias e escolhas', ul(z.st))}
+    ${sec('Cards nesta parte', `<div class="links">${ids.map(c => `<button class="lk" type="button" data-go="${c}"><span class="dir" aria-hidden="true">→</span><span><b>${byId[c].t}</b><small>${byId[c].eb}</small></span></button>`).join('')}</div>`)}`;
+  showDrawer();
+  if (!state.tour) flyTo(fitBox(zoneBox(z), 30, 1.1));
+}
+function showDrawer() { drawer.hidden = false; drawer.scrollTop = 0; layoutOverlays(); }
+function closeDrawer() { drawer.hidden = true; layoutOverlays(); if (!state.tour) clearSel(); else for (const c of CARDS) c.el.classList.remove('sel'); }
+function clearSel() { state.sel = null; if (!state.tour) highlight(null); }
+drawer.addEventListener('click', e => {
+  const g = e.target.closest('[data-go]'), dc = e.target.closest('[data-dec]');
+  if (g) openCard(g.dataset.go); else if (dc) openDecision(+dc.dataset.dec);
+});
+
+/* ---------- decisões ---------- */
+$('#nDecs').textContent = `(${DEC.length})`;
+const groups = [...new Set(DEC.map(d => d.g))];
+$('#decsBody').innerHTML = `<p class="lead">O que já foi decidido, o que é proposta e o que ainda falta decidir. Clique numa decisão para ver onde ela aparece no mapa.</p>` +
+  groups.map(g => `<div class="dgroup"><h3>${g}</h3>${DEC.map((d, i) => d.g === g ? `<button class="ditem" type="button" data-dec="${i}"><b>${d.t}</b><span>${d.tx}</span><small>${d.s}</small></button>` : '').join('')}</div>`).join('');
+$('#decsBody').addEventListener('click', e => { const b = e.target.closest('[data-dec]'); if (!b) return; if (!wide()) toggleDecs(false); openDecision(+b.dataset.dec); });
+function toggleDecs(on) { decs.hidden = !on; $('#bDecs').setAttribute('aria-pressed', String(on)); layoutOverlays(); }
+$('#bDecs').addEventListener('click', () => toggleDecs(decs.hidden));
+document.addEventListener('click', e => { const c = e.target.closest('[data-close]'); if (!c) return; if (c.dataset.close === 'drawer') closeDrawer(); else toggleDecs(false); });
+
+/* ---------- fluxos guiados ---------- */
+function renderDock() {
+  dock.classList.toggle('touring', !!state.tour);
+  dock.classList.toggle('open', !state.tour && state.open);
+  if (state.tour) {
+    const t = TOURS[state.tour.t], i = state.tour.i, s = t.steps[i], last = i === t.steps.length - 1;
+    dock.innerHTML = `<div class="dh"><span class="eb">Fluxo · ${t.t}</span><span class="cnt">Passo ${i + 1} de ${t.steps.length}</span></div>
+      <p class="cap">${s.tx}</p>
+      <div class="ctl"><button class="btn" type="button" data-t="prev" ${i === 0 ? 'disabled' : ''}>← Anterior</button>
+      <span class="dots" aria-hidden="true">${t.steps.map((_, j) => `<i class="${j === i ? 'on' : ''}"></i>`).join('')}</span>
+      <button class="btn primary" type="button" data-t="next">${last ? 'Concluir' : 'Próximo →'}</button>
+      <button class="btn link" type="button" data-t="end">Sair do fluxo</button></div>`;
+  } else {
+    dock.innerHTML = `<button class="handle" type="button" data-t="toggle" aria-expanded="${state.open}"><b>Percorra um fluxo</b><i aria-hidden="true">▲</i></button>
+      <div class="tours">${TOURS.map((t, i) => `<button type="button" data-tour="${i}"><span>${t.t}</span><small>${t.steps.length} passos</small></button>`).join('')}</div>`;
+  }
+  layoutOverlays();
+}
+dock.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.tour) { state.open = false; startTour(+b.dataset.tour); }
+  else if (b.dataset.t === 'prev') stepTour(-1);
+  else if (b.dataset.t === 'next') stepTour(1);
+  else if (b.dataset.t === 'end') endTour();
+  else if (b.dataset.t === 'toggle') { state.open = !state.open; renderDock(); }
+});
+function startTour(t) { state.tour = {t, i:0}; drawer.hidden = true; renderDock(); goStep(); }
+function goStep(ms) {
+  const s = TOURS[state.tour.t].steps[state.tour.i];
+  highlight(new Set(s.c));
+  renderDock();
+  flyTo(fitBox(boxOf(s.c), 64, 1.1), ms);
+}
+function stepTour(d) {
+  const t = TOURS[state.tour.t], i = state.tour.i + d;
+  if (i >= t.steps.length) { endTour(); return; }
+  if (i < 0) return;
+  state.tour.i = i; goStep();
+}
+function endTour() { state.tour = null; highlight(null); drawer.hidden = true; renderDock(); overview(); }
+
+/* ---------- legenda ---------- */
+$('#lgEdges').innerHTML = EDGE_KINDS.map(([k, t]) => `<svg viewBox="0 0 44 12" aria-hidden="true"><path class="edge ${k === 'hot' ? 'hot' : 'e-' + k}" d="M2,6 L36,6" marker-end="url(#${k === 'hot' ? 'ah-hot' : (k === 'interno' || k === 'opcional') ? 'ah-muted' : 'ah-ink'})"/></svg><span>${t}</span>`).join('');
+function toggleLegend(on) { legend.hidden = !on; $('#bLeg').setAttribute('aria-pressed', String(on)); }
+$('#bLeg').addEventListener('click', () => toggleLegend(legend.hidden));
+
+
+/* ---------- barra ---------- */
+$('#zIn').addEventListener('click', () => zoomBtn(1.25));
+$('#zOut').addEventListener('click', () => zoomBtn(.8));
+$('#bFit').addEventListener('click', () => overview());
+$('#goto').addEventListener('change', e => {
+  const v = e.target.value; e.target.value = '';
+  if (v === '*') overview(); else if (v) flyTo(fitBox(zoneBox(ZONES[v]), 30, 1.1));
+});
+const full = $('#bFull');
+if (document.fullscreenEnabled) {
+  full.hidden = false;
+  full.addEventListener('click', () => {
+    const p = document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen();
+    if (p && p.catch) p.catch(() => {});
+  });
+  document.addEventListener('fullscreenchange', () => { full.textContent = document.fullscreenElement ? 'Sair da tela cheia' : 'Tela cheia'; });
+}
+if (coarse) {
+  $('#tipClick').lastChild.textContent = 'Quase tudo é tocável!';
+  $('#tipScroll').lastChild.textContent = 'Afaste dois dedos para mostrar mais detalhes';
+}
+
+function layoutOverlays() {
+  let x0 = 0, x1 = stage.clientWidth;
+  if (wide()) { if (!drawer.hidden) x1 -= drawer.offsetWidth; if (!decs.hidden) x0 += decs.offsetWidth; }
+  dock.style.setProperty('--dx', `${(x0 + x1) / 2}px`);
+  dock.style.setProperty('--aw', `${x1 - x0}px`);
+}
+
+/* ---------- inatividade: volta à visão geral ---------- */
+let idle = 0;
+function poke() { clearTimeout(idle); idle = setTimeout(resetAll, 240000); }
+['pointerdown', 'wheel', 'keydown'].forEach(t => addEventListener(t, () => { state.touched = true; }, {passive:true, capture:true}));
+function resetAll() { state.tour = null; state.open = false; toggleLegend(false); drawer.hidden = true; toggleDecs(false); highlight(null); renderDock(); overview(); }
+['pointerdown', 'wheel'].forEach(t => addEventListener(t, poke, {passive:true}));
+
+/* ---------- início ---------- */
+let ready = false;
+function relayout() { measure(); layoutEdges(); }
+function init() {
+  relayout(); renderDock(); overview(0); poke(); ready = true;
+}
+// A página pode carregar sem tamanho (aba em segundo plano, moldura ainda não dimensionada):
+// enquanto ninguém mexeu, cada mudança de tamanho reenquadra a visão geral.
+let lastSize = '';
+new ResizeObserver(() => {
+  const w = stage.clientWidth, h = stage.clientHeight, size = w + 'x' + h;
+  if (!ready || !w || !h || size === lastSize) return;
+  lastSize = size; layoutOverlays();
+  if (state.tour) goStep(0);
+  else if (!state.touched) overview(0);
+  else apply();
+}).observe(stage);
+/* ---------- conferência visual: abra a página com ?checar no fim do endereço ---------- */
+function checar() {
+  const prob = [], dentro = (q, c) => q.x > c.x + 2 && q.x < c.x + c.w - 2 && q.y > c.y + 2 && q.y < c.y + c.h - 2;
+  for (let i = 0; i < CARDS.length; i++) for (let j = i + 1; j < CARDS.length; j++) {
+    const a = CARDS[i], b = CARDS[j];
+    if (a.x < b.x + b.w && b.x < a.x + a.w && a.y < b.y + b.h + 8 && b.y < a.y + a.h + 8) prob.push(`cards encostados: ${a.id} e ${b.id}`);
+  }
+  for (const c of CARDS) {
+    const z = ZONES[c.z];
+    if (c.x < z.x || c.y < z.y || c.x + c.w > z.x + z.w || c.y + c.h > z.y + z.h - 8) prob.push(`card sai da zona: ${c.id}`);
+  }
+  for (const e of EDGES) {
+    const L = e.p.getTotalLength();
+    for (let t = 8; t < L - 8; t += 6) {
+      const q = e.p.getPointAtLength(t), hit = CARDS.find(c => c.id !== e.a && c.id !== e.b && dentro(q, c));
+      if (hit) { prob.push(`seta ${e.a} → ${e.b} atravessa ${hit.id}`); break; }
+    }
+    if (e.lab) {
+      const l = e.lab, r = {x: l.offsetLeft - l.offsetWidth / 2, y: l.offsetTop - l.offsetHeight / 2, w: l.offsetWidth, h: l.offsetHeight};
+      const hit = CARDS.find(c => r.x < c.x + c.w && c.x < r.x + r.w && r.y < c.y + c.h && c.y < r.y + r.h);
+      if (hit) prob.push(`rótulo "${e.l}" cobre ${hit.id}`);
+    }
+  }
+  console[prob.length ? 'warn' : 'log']('[checar] ' + (prob.length ? prob.join('\n') : 'nenhum problema'));
+  const d = document.createElement('div');
+  d.id = 'checar'; d.setAttribute('role', 'status');
+  d.style.cssText = 'position:fixed;left:12px;bottom:12px;z-index:99;max-width:min(560px,90vw);max-height:40vh;overflow:auto;padding:10px 12px;border:2px solid var(--ink);border-radius:4px;background:var(--paper);font:600 12px/1.4 var(--mono);white-space:pre-wrap';
+  d.textContent = prob.length ? `checar: ${prob.length} problema(s)\n` + prob.join('\n') : 'checar: nenhum problema';
+  document.body.appendChild(d);
+}
+init();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { relayout(); if (!state.touched) overview(0); });
+if (/[?&]checar\b/.test(location.search)) (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => setTimeout(checar, 300));
+})();
+</script>
+
+</html>
