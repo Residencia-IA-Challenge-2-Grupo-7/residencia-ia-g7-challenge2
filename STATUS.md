@@ -3,7 +3,7 @@
 > Arquivo vivo. Toda sessão (humana ou de agente) lê no início e atualiza no fim.
 > Mantenha curto: o histórico fica em `docs/semanas/` e no `git log`.
 
-**Atualizado em:** 2026-11-03
+**Atualizado em:** 2026-11-05
 **Semana do roadmap:** 2 — Base de conhecimento e recuperação (datas a confirmar)
 
 ## Agora
@@ -23,8 +23,68 @@
   - Rodada semanal (eventos duas vezes por semana).
   - PostgreSQL com pgvector, busca híbrida e embeddings BGE-M3 locais.
   - Limitação principal: lugares sem site ficam fora, o que pode concentrar a base no centro.
-  **Próximos passos da base:** pedidos de teste, Postgres com pgvector em Docker e etapas 1 a 5 do pipeline com 100 candidatos na semana 2. O grupo responde às perguntas dos ADRs 0004 e 0005 (conta de faturamento, plano sem mapa embutido, lugares sem site, e-mail do robô, provedor de LLM da extração).
-- **Mapa da arquitetura atualizado** com os ADRs 0004 e 0005 (coleta automática, PostgreSQL com pgvector, Google só para conferir finalistas). **Falta publicar** no repositório público com `publicar.sh`.
+- **Pipeline da base implementado** em [src/base/](src/base/README.md) (população a cargo do Cauan):
+  - as 10 etapas do ADR 0005, com o Postgres e o pgvector em Docker (`docker-compose.yml`) e embeddings BGE-M3 locais;
+  - extração por subagentes Claude Haiku 5.5, conferida por um validador em código;
+  - 12 testes.
+- **Piloto de 100 candidatos: 0 aprovados.** 52 sites da Overture são domínios mortos, e nenhum dos que responderam publica preço em texto.
+- **Varredura ampliada: 811 sorteados (todos os elegíveis fora do Centro e do Oeste próximo) e 10 aprovados.**
+  - Dos aprovados, 8 ficam no Centro, e nenhum no Oeste, no Sul ou no Norte.
+  - Uma triagem em código manda ao Haiku só os sites com sinais de preço e horário.
+  - Depois do OCR, o banco tem 11 lugares, 40 itens com preço e 35 RAs, com vetores BGE-M3 e e5.
+  - A busca híbrida com filtros de dia, hora, teto e atributos já funciona (`python -m base buscar`).
+- **OCR de cardápio (opção A):**
+  - acrescentou 2 lugares;
+  - deixou o validador mais rígido, e uma aprovação errada da rodada anterior caiu;
+  - **a base tem 11 lugares, 9 no Centro**.
+- **Google Places:** a comparação de cobertura Google × OSM × Overture está pronta (`python -m base comparar-google`). Falta a chave no `.env`.
+- **Instagram e TikTok:** uma integrante testa a coleta por computer use. Isso contraria o ADR 0005 (termos das plataformas e LGPD) e precisa de um ADR próprio, se o grupo seguir.
+- **OpenStreetMap:** tem horário em 12% dos lugares de comer e beber e nenhum preço; usá-lo exige cumprir a ODbL.
+- **Google Places:** tem `priceRange`, horários e atributos, mas nada pode ser guardado.
+- **Tripadvisor (estudado em 05/11): não serve.**
+  - **Site:** os termos vedam robô, "sistema de IA", cópia manual e até link profundo sem permissão por escrito.
+  - **API oficial (Terra):** só guarda o ID, veda qualquer uso com IA fora de teste interno e dá o preço em três faixas, sem reais.
+  - **Cobertura:** fora do Centro, é pequena e antiga.
+  - **Única via:** uma permissão acadêmica por escrito.
+- **Detalhes:** a comparação completa e as opções A a D estão no [ADR 0005](docs/decisoes/0005-coleta-automatica-e-base-vetorial.md#resultado-do-piloto-0311).
+
+  **Próximos passos da base:**
+  - o grupo escolhe a opção;
+  - pedidos de teste;
+  - backend de API para a rodada semanal (semana 4);
+  - respostas às perguntas dos ADRs 0004 e 0005: conta de faturamento, plano sem mapa embutido, lugares sem site, e-mail do robô.
+- **Mapa da arquitetura** atualizado com os ADRs 0004 e 0005 e publicado. Ainda não mostra o pipeline implementado nem o resultado do piloto. Em 05/11 entraram os ADRs 0006 e 0007 (voz, interpretador, contrato da busca, provedores); **falta publicar** com `publicar.sh`.
+- **Voz e interpretador** (05/11, decididos em três rodadas de perguntas; [ADR 0006](docs/decisoes/0006-transcricao-de-fala.md) e [ADR 0007](docs/decisoes/0007-interpretador-e-contrato-de-busca.md), propostas):
+  - **Interpretador** em [src/interpretador/](src/interpretador/README.md):
+    - seis intenções, várias por mensagem;
+    - o LLM preenche um JSON Schema estrito, e o código resolve as datas, converte os valores (só do trecho literal), casa as RAs e decide confirmação, pergunta e destino;
+    - nomes pseudonimizados antes do LLM; orçamento dito no grupo é ignorado;
+    - DeepSeek V4.1 Flash pela OpenRouter, só com provedores sem retenção e sem fp4.
+  - **Contrato da busca** em [src/base/contrato.py](src/base/contrato.py): `buscar(ConsultaBusca) → ResultadoBusca`, com SQL só por parâmetros; `base buscar` passou a usá-lo.
+  - **Voz** em [src/voz/](src/voz/README.md): Whisper com provedor trocável (faster-whisper, MLX, Groq), áudio em bytes apagado num `finally`, medição de WER, termos críticos, latência e custo.
+  - **Prévia de voz com voz sintética (CPU):**
+    - `large-v3-turbo`: 3,6% de erro nos termos críticos e 16 s por frase;
+    - `small`: 7,2% e cerca de 4 s;
+    - "sexta" vira "6." no `small`;
+    - nenhum local cumpre o p90 de 2,5 s neste notebook; o modelo grande precisa do M4 ou do Groq;
+    - **Groq:** 3,6% de erro nos termos críticos, p90 de 1,0 s e US$ 0,006 pelas 50 frases.
+  - **Voz real** (22 gravações de uma pessoa, em `data/raw/voz/equipe/m1/`, fora do git):
+    - Groq, com retenção zero: 5,9% de erro nos termos críticos e p90 de 0,8 s;
+    - `small` local: 13,2% ("sexta" virou "6º" e "cesta");
+    - interpretador sobre a transcrição do Groq: 13/13 frases de disponibilidade e gastos certas.
+  - **Interpretador medido em 05/11 (DeepSeek V4.1 Flash, sem raciocínio):**
+    - texto: RNF-08 33/34 = 97,1% (meta de 90%), 100% das intenções, 98% dos campos, p90 de 1,6 s;
+    - voz sintética pelo Groq: 32/34 = 94,1%, p90 de 2,1 s;
+    - com raciocínio ligado, o p90 ia a 6,4 s e 2 respostas vinham sem JSON; por isso ficou desligado.
+  - **Conjunto de teste** em [eval/](eval/README.md): 50 frases com gabarito e [roteiro de gravação](eval/voz/roteiro.md) (10 por integrante, com consentimento). 57 testes passam sem LLM e sem rede.
+  - **Pendências:**
+    - retenção zero do Groq ligada em 05/11; decidir se o Groq vira o padrão depois da rodada no Mac M4 (modelo local grande com GPU);
+    - gravar as outras 28 frases, de preferência com a voz de outros integrantes;
+    - aumentar o conjunto para cerca de 60 frases de disponibilidade e gastos, para o limite inferior provar 90%;
+    - as 50 gravações da equipe;
+    - a rodada no Mac M4 (`--provedor mlx_whisper`);
+    - revisão do gabarito pelo grupo;
+    - a busca de ponta a ponta precisa do Docker ligado.
 - **Relatório da semana 1** (até 5 páginas de texto, ABNT): [relatorio-semana-01.docx](docs/entregas/semana-01/relatorio-semana-01.docx) e o [PDF](docs/entregas/semana-01/relatorio-semana-01.pdf), montados conforme o [plano](docs/entregas/semana-01/plano-relatorio.md) e alinhados ao documento da equipe revisado (46 RF, riscos renumerados, sem piloto). 5 páginas de texto, com cerca de 1,5 cm de folga. As partes da equipe estão no [documento do grupo](https://docs.google.com/document/d/1mlxgJ9XoadAl4qKV28bw6qexQxF6xpwcSx5aENsRPF4/edit?tab=t.mm6pfcuj8dpt#heading=h.tyssdhkqxqfd) (Google Docs).
 - **Mapa da arquitetura planejada** (pedido do mentor Isaque): [docs/arquitetura/index.html](docs/arquitetura/index.html), publicado em [residencia-ia-challenge-2-grupo-7.github.io/residencia-ia-g7-arquitetura](https://residencia-ia-challenge-2-grupo-7.github.io/residencia-ia-g7-arquitetura/). O site fica num repositório público à parte, porque o plano gratuito da organização não tem Pages em repositório privado. Como editar e publicar: [docs/arquitetura/AGENTS.md](docs/arquitetura/AGENTS.md).
 - Formulário curto "Pesquisa de Hábitos Sociais" (15 afirmações) em uso para validar a dor. A versão completa fica como referência em [docs/pesquisa/](docs/pesquisa/).

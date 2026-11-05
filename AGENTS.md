@@ -30,6 +30,13 @@ Programa de Residência em IA (Instituto Eldorado + UnB), metodologia CBL (Chall
 | `docs/entregas/` | Entregáveis semanais (relatórios .docx) e o plano de cada um, uma pasta por semana |
 | `docs/semanas/` | Registro semanal alinhado ao roadmap (alimenta o relatório final) |
 | `docs/atas/` | Atas das reuniões do grupo, uma por data (`AAAA-MM-DD.md`) |
+| `src/base/` | Pipeline de população da base (ADR 0005): `python -m base <etapa>`; como rodar no `README.md` da pasta |
+| `data/base/` | CSVs aprovados da base e relatório da rodada (versionados); `data/raw/` e `data/processed/` ficam fora do git |
+| `src/interpretador/` | Interpretador de mensagens (ADR 0007): texto → intenções estruturadas, destino e confirmação; `python -m interpretador` |
+| `src/voz/` | Transcrição de fala (ADR 0006), com provedor trocável; `python -m voz` |
+| `src/base/contrato.py` | Contrato da busca usada pelos agentes (ADR 0007): `buscar(ConsultaBusca) → ResultadoBusca` |
+| `eval/` | Conjuntos de teste com gabarito (50 frases), roteiro de gravação e resultados das medições; os áudios ficam em `data/raw/voz/` |
+| `tests/` | Testes do pipeline, do interpretador, do contrato e da voz (`PYTHONPATH=src python -m pytest tests`) |
 | `docs/pesquisa/` | Instrumentos de pesquisa com usuários (questionários, roteiros de entrevista) e o script que gera o Google Forms |
 
 Atualize esta tabela ao criar pastas novas (ex.: `src/`, `data/`, `notebooks/`, `eval/`).
