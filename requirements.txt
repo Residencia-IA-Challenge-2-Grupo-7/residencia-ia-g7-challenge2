@@ -1,0 +1,1 @@
+# Dependencias Python: lista de pacotes e versoes gerenciados pelo pip (pytest, langfuse, psycopg, etc.).
