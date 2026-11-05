@@ -1,1 +1,36 @@
-# Docker Compose: orquestracao de servicos multi-container locais (aplicacao Python + PostgreSQL com extensao pgvector).
+services:
+  # Servico 1: Banco PostgreSQL com extensao pgvector (Samara e Leticia)
+  base-pg:
+    image: pgvector/pgvector:pg17
+    container_name: orquestrador-base-pg
+    environment:
+      POSTGRES_DB: base
+      POSTGRES_USER: base
+      POSTGRES_PASSWORD: ${BASE_PG_SENHA:-base_local}
+    ports:
+      - "127.0.0.1:5434:5432"
+    volumes:
+      - base-pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U base -d base"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # Servico 2: Aplicacao Python (Pipeline RAG, Telemetria e Testes)
+  app:
+    build: .
+    container_name: orquestrador-app
+    depends_on:
+      base-pg:
+        condition: service_healthy
+    environment:
+      BASE_DSN: postgresql://base:${BASE_PG_SENHA:-base_local}@base-pg:5432/base
+    volumes:
+      - .:/app
+      - hf-cache:/cache/huggingface
+    command: pytest
+
+volumes:
+  base-pg-data:
+  hf-cache:
