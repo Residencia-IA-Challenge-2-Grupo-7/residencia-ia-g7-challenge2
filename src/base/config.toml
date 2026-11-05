@@ -1,0 +1,75 @@
+# Configuração do pipeline da base (ADR 0005). Limites e cotas ficam aqui, não no código.
+
+[pipeline]
+versao = "0.1.0"
+release_overture = "2026-10-21.0"
+# Recorte do DF: oeste, sul, leste, norte (WGS84). O corte fino é feito pelos polígonos das RAs.
+bbox = [-48.30, -16.06, -47.29, -15.49]
+semente = 20261103
+# Confiança mínima da Overture; a calibrar no piloto (ADR 0005, Seleção).
+confianca_min = 0.5
+
+[robo]
+# O e-mail do grupo ainda está em aberto (ADR 0005, Pergunta 2); por ora o contato é o site público do projeto.
+user_agent = "OrquestradorDeRoles/0.1 (projeto academico da Residencia em IA UnB; +https://residencia-ia-challenge-2-grupo-7.github.io/residencia-ia-g7-arquitetura/)"
+token_robots = "OrquestradorDeRoles"
+intervalo_s = 2.0
+max_paginas = 10
+timeout_s = 20
+max_bytes = 4000000
+max_paginas_pdf = 15
+reter_dias = 30
+trabalhadores = 8
+
+[extracao]
+modelo = "claude-haiku-5-5"
+max_chars_pagina = 8000
+max_chars_lugar = 24000
+lugares_por_lote = 6
+evidencia_max_chars = 240
+
+# OCR local de cardápio em imagem e PDF escaneado (EasyOCR, CPU)
+[ocr]
+max_imagens_lugar = 6
+max_paginas_pdf = 4
+lado_min_px = 450
+lado_max_px = 2000
+bytes_min = 20000
+confianca_min = 0.3
+
+# Triagem em código antes do LLM: só vai para a extração quem tem no texto sinais dos campos obrigatórios.
+[triagem]
+precos_min = 3
+
+[plausibilidade]
+horas_max_dia = 20
+preco_min = 1.0
+preco_max = 500.0
+evento_dias_max = 60
+
+# Estados por idade da verificação, em dias: [exato até, aproximado até]; depois disso, vencido (ADR 0004).
+[estados]
+horario = [30, 90]
+preco = [60, 180]
+taxa_entrada = [90, 365]
+evento = [7, 14]
+atributos = [180, 365]
+
+[piloto]
+candidatos = 100
+# Com 100 candidatos o piso de 15 por região domina, então a cota é igual por região.
+tipos = { comer_beber = 0.60, ar_livre_gratuito = 0.25, local_evento = 0.15 }
+comer_beber = { restaurante = 0.40, bar = 0.30, cafe_lanchonete_sorveteria = 0.30 }
+
+[embeddings]
+modelo = "BAAI/bge-m3"
+alternativa = "intfloat/multilingual-e5-large"
+dimensao = 1024
+
+[banco]
+# Banco local de desenvolvimento (docker-compose.yml). Em outro ambiente, use a variável BASE_DSN.
+dsn_local = "postgresql://base:base_local@127.0.0.1:5434/base"
+
+[busca]
+candidatos = 20
+rrf_k = 60

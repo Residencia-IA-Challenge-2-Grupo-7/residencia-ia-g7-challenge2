@@ -1,0 +1,20 @@
+# PostgreSQL com pgvector para a base de lugares e eventos (ADR 0005). Só para desenvolvimento local:
+# a porta fica presa ao 127.0.0.1 e a senha é a de desenvolvimento (troque com BASE_PG_SENHA).
+services:
+  base-pg:
+    image: pgvector/pgvector:pg17
+    environment:
+      POSTGRES_DB: base
+      POSTGRES_USER: base
+      POSTGRES_PASSWORD: ${BASE_PG_SENHA:-base_local}
+    ports:
+      - "127.0.0.1:5434:5432"
+    volumes:
+      - base-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U base -d base"]
+      interval: 5s
+      retries: 20
+
+volumes:
+  base-pg:
