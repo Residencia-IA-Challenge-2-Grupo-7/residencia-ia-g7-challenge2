@@ -20,10 +20,13 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # 7. Configuracoes de ambiente para Python e cache de modelos de IA
-ENV PYTHONPATH=/app/src \
+ENV PYTHONPATH=/app:/app/src \
     HF_HOME=/cache/huggingface \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
-# 8. Comando padrao de execucao: roda os testes unitarios
-CMD ["pytest"]
+# 8. Porta padrao exposta
+EXPOSE 8000
+
+# 9. Comando padrao de inicializacao do servidor web (adaptavel a porta da nuvem ou 8000 local)
+CMD ["sh", "-c", "uvicorn src.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
