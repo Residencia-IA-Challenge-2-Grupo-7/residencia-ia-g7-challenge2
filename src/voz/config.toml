@@ -1,7 +1,10 @@
-# Transcrição de fala (ADR 0006). O provedor padrão é provisório até a medição com as gravações da equipe.
+# Transcrição de fala (ADR 0006).
 
 [transcricao]
-provedor = "faster_whisper"   # faster_whisper | mlx_whisper | groq
+# Padrão escolhido em 05/11: Groq, com a retenção zero ligada na conta (Settings > Data Controls).
+# Locais: mlx_whisper (Mac com Apple Silicon; o modelo medium foi o melhor nas gravações) ou faster_whisper
+# (só com GPU NVIDIA; na CPU, o modelo small erra demais e os grandes passam de 3 s por frase).
+provedor = "groq"   # groq | mlx_whisper | faster_whisper
 idioma = "pt"
 # Vocabulário do domínio. O efeito é medido com e sem (python -m voz medir --sem-prompt).
 prompt = "Conversa entre amigos de Brasília combinando um rolê: bora, partiu, rachar, conto, pila, liso, trampo, Uber, iFood, Pix, Taguatinga, Ceilândia, Asa Sul, Sudoeste, Águas Claras."
@@ -16,8 +19,9 @@ vad = true
 threads = 8   # medido em 05/11: 8 threads ~10% mais rápido que o padrão no i5-1334U
 
 [mlx_whisper]
-# Só no Mac com Apple Silicon (pip install mlx-whisper)
-modelo = "mlx-community/whisper-large-v3-turbo"
+# Só no Mac com Apple Silicon (pip install mlx-whisper). Nas gravações de 05/11, o medium teve o menor erro
+# nos termos críticos (2,9%) e o large-v3-turbo empatou com o Groq (5,9%), ambos abaixo de 1 s.
+modelo = "mlx-community/whisper-medium-mlx"
 
 [groq]
 url = "https://api.groq.com/openai/v1/audio/transcriptions"

@@ -54,7 +54,7 @@
   - backend de API para a rodada semanal (semana 4);
   - respostas às perguntas dos ADRs 0004 e 0005: conta de faturamento, plano sem mapa embutido, lugares sem site, e-mail do robô.
 - **Mapa da arquitetura** atualizado com os ADRs 0004 e 0005 e publicado. Ainda não mostra o pipeline implementado nem o resultado do piloto. Em 05/11 entraram os ADRs 0006 e 0007 (voz, interpretador, contrato da busca, provedores); **falta publicar** com `publicar.sh`.
-- **Voz e interpretador** (05/11, decididos em três rodadas de perguntas; [ADR 0006](docs/decisoes/0006-transcricao-de-fala.md) e [ADR 0007](docs/decisoes/0007-interpretador-e-contrato-de-busca.md), propostas):
+- **Voz e interpretador** (05/11; resumo da experimentação em [docs/experimentos/](docs/experimentos/2026-11-05-voz-e-interpretador.md); decididos em três rodadas de perguntas; [ADR 0006](docs/decisoes/0006-transcricao-de-fala.md) e [ADR 0007](docs/decisoes/0007-interpretador-e-contrato-de-busca.md), propostas):
   - **Interpretador** em [src/interpretador/](src/interpretador/README.md):
     - seis intenções, várias por mensagem;
     - o LLM preenche um JSON Schema estrito, e o código resolve as datas, converte os valores (só do trecho literal), casa as RAs e decide confirmação, pergunta e destino;
@@ -71,14 +71,15 @@
   - **Voz real** (22 gravações de uma pessoa, em `data/raw/voz/equipe/m1/`, fora do git):
     - Groq, com retenção zero: 5,9% de erro nos termos críticos e p90 de 0,8 s;
     - `small` local: 13,2% ("sexta" virou "6º" e "cesta");
-    - interpretador sobre a transcrição do Groq: 13/13 frases de disponibilidade e gastos certas.
+    - interpretador sobre a transcrição do Groq: 13/13 frases de disponibilidade e gastos certas;
+    - **MacBook M4:** o MLX `medium` errou 2,9% dos termos críticos, com p90 de 0,9 s, e o MLX `large-v3-turbo` errou 5,9%, como o Groq. Os dois deram 13/13 no caminho completo. A vantagem do `medium` é de 2 frases numa voz só e ainda não decide nada.
   - **Interpretador medido em 05/11 (DeepSeek V4.1 Flash, sem raciocínio):**
     - texto: RNF-08 33/34 = 97,1% (meta de 90%), 100% das intenções, 98% dos campos, p90 de 1,6 s;
     - voz sintética pelo Groq: 32/34 = 94,1%, p90 de 2,1 s;
     - com raciocínio ligado, o p90 ia a 6,4 s e 2 respostas vinham sem JSON; por isso ficou desligado.
   - **Conjunto de teste** em [eval/](eval/README.md): 50 frases com gabarito e [roteiro de gravação](eval/voz/roteiro.md) (10 por integrante, com consentimento). 57 testes passam sem LLM e sem rede.
   - **Pendências:**
-    - retenção zero do Groq ligada em 05/11; decidir se o Groq vira o padrão depois da rodada no Mac M4 (modelo local grande com GPU);
+    - **Groq virou o padrão da transcrição em 05/11** (retenção zero ligada); MLX `medium` como opção local no Mac. Falta incluir no aviso de privacidade que o áudio passa pelo Groq nos EUA (RNF-01);
     - gravar as outras 28 frases, de preferência com a voz de outros integrantes;
     - aumentar o conjunto para cerca de 60 frases de disponibilidade e gastos, para o limite inferior provar 90%;
     - as 50 gravações da equipe;

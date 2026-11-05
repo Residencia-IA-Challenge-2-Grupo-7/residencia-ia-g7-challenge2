@@ -1,6 +1,6 @@
 # 0006 — Transcrição de fala (entrada por voz)
 
-- **Status:** proposta (o modelo final depende das gravações da equipe; ver [Como vamos validar](#como-vamos-validar))
+- **Status:** proposta, com o padrão escolhido em 05/11: **Groq** (`whisper-large-v3-turbo`, com retenção zero). Falta a revisão do grupo e a voz dos demais integrantes
 - **Data:** 2026-11-05
 - **Semana do roadmap:** 2 (preparação). A entrada multimodal é entrega da semana 5 (RNF-12)
 - **Requisitos:** RF-39, RF-40 (fora deste ADR), RNF-01, RNF-07, RNF-08, RNF-12, RNF-14, RNF-15
@@ -40,7 +40,12 @@ A primeira rodada mede **A, B e C** (escolha do grupo em 05/11). D fica como res
 
 1. **Família Whisper**, atrás de uma interface única (`src/voz/`): `transcrever(áudio) → texto`, com o provedor escolhido em `src/voz/config.toml` (`faster_whisper`, `mlx_whisper` ou `groq`).
 2. **Escolha por medição, não por reputação:** fica o provedor e o modelo que cumprirem as metas abaixo nas gravações da equipe, com esta ordem de desempate: (1) erro nos termos críticos, (2) p90 de latência, (3) privacidade (local antes de API) e (4) custo.
-3. **Padrão provisório até a medição:** `faster-whisper small` local, o único que roda em qualquer máquina sem chave. Com a chave do Groq no `.env`, ele entra na comparação. Se for o escolhido, a retenção zero precisa estar ligada na conta.
+3. **Padrão (escolhido em 05/11, depois das medições): Groq, `whisper-large-v3-turbo`**, com a retenção zero ligada na conta. Ele tem o mesmo acerto do melhor modelo local grande, com p90 abaixo de 1 s, roda em qualquer servidor sem GPU e custa cerca de US$ 0,0001 por frase.
+   - **Opção local:** MLX `whisper-medium` num Mac com Apple Silicon, para demonstrações e testes sem mandar áudio a terceiros.
+   - **Descartado:** faster-whisper na CPU. O `small` erra demais, e os grandes passam de 3 s por frase.
+   - **Se o Groq falhar** (rede, limite por minuto, fora do ar), não há reserva local automática: a IA pede para a pessoa repetir ou digitar (RNF-07, RNF-15). Um modelo local fraco registraria erros com aparência de acerto.
+   - **Revisão da escolha:** com as gravações dos outros integrantes, ou se um servidor com GPU entrar no plano de hospedagem.
+   - O critério de desempate (2) acima pôs a privacidade depois do acerto e da latência. Por isso o Groq ganhou do local empatado, já que o local só existe em Mac. A retenção zero e o descarte imediato reduzem o risco, mas o áudio ainda passa por um terceiro nos EUA, e isso precisa constar do aviso de privacidade (RNF-01).
 4. **Vocabulário do domínio no prompt inicial** do Whisper: gírias, nomes de RAs e "Pix" e "Uber". O efeito é medido com e sem o prompt, porque o prompt também pode induzir alucinação em trechos de silêncio.
 5. **Descarte do áudio:**
    - no fluxo do app, o áudio chega em bytes e vai para um arquivo temporário, apagado num `finally` depois da transcrição, com ou sem erro;
@@ -142,12 +147,46 @@ A transcrição levou até 1 s e a interpretação até 2,1 s, ambas no p90, den
 - **O `small` erra o que muda a ação:** "sexta" virou "6º" e "cesta", "Caio" virou "caiu", "cem" virou "sem", "Bia" virou "via". Fica descartado como modelo principal.
 - **Caminho completo** (Groq e depois o interpretador do ADR 0007): as 13 frases de disponibilidade e gastos certas. O interpretador entendeu até "livre de todo". O único erro foi "Itaguatinga", que não casou com a RA.
 
+### Rodada no MacBook M4 (05/11)
+
+As mesmas 22 gravações, medidas no M4 por outra sessão (commit `04d1b83`, só resultados). O erro nos termos críticos foi recalculado com o gabarito atual, para todas as linhas ficarem comparáveis.
+
+| Máquina | Provedor e modelo | WER | Erro nos termos críticos | Latência p50 / p90 | Caminho completo: RNF-08 |
+|---|---|---|---|---|---|
+| M4 (GPU) | **MLX `whisper-medium`** | **7,3%** | **2,9% (2 frases)** | 0,77 / 0,88 s | 13/13 |
+| M4 (GPU) | MLX `whisper-medium`, sem prompt | 9,4% | 7,4% (5 frases) | 0,74 / 0,86 s | — |
+| M4 (GPU) | MLX `whisper-large-v3-turbo` | 12,0% | 5,9% (4 frases) | 0,94 / 0,98 s | 13/13 |
+| M4 (GPU) | MLX `whisper-small` | 16,2% | 11,8% (7 frases) | 0,27 / 0,30 s | — |
+| M4 (CPU) | faster-whisper `large-v3-turbo` | 12,6% | 7,4% (5 frases) | 3,66 / 3,76 s | — |
+| M4 (CPU) | faster-whisper `small` | 15,2% | 14,7% (9 frases) | 0,82 / 0,91 s | 12/13 |
+| API | Groq `whisper-large-v3-turbo` | 11,5% | 5,9% (4 frases) | 0,71 / 0,80 s | 13/13 |
+| Windows (CPU) | faster-whisper `small` | 15,7% | 13,2% (8 frases) | 2,0 / 2,1 s | — |
+
+Com voz sintética (Luciana, 50 frases), o MLX `large-v3-turbo` errou 3,6% dos termos críticos, como o Groq, e o MLX `medium` errou 6,5%.
+
+**Leitura:**
+
+- **Na GPU do M4, os modelos locais cumprem a latência**, com p90 abaixo de 1 s. Na CPU, só o `small` cumpre, e ele erra demais.
+- **O MLX `medium` teve o menor erro nas gravações reais** (2,9%). As duas frases que falharam foram "vamo" e "ignore", que podem ter sido ditas como "vamos" e "ignora". Mas a vantagem sobre o Groq é de 2 frases em 22, de uma só voz, e com voz sintética o `medium` foi pior. Isso não sustenta uma escolha.
+- **O MLX `large-v3-turbo` empatou com o Groq** (5,9%), como esperado, porque é o mesmo modelo.
+- **O prompt de vocabulário volta a ajudar:** sem ele, o `medium` perdeu "Ceilândia", "sexta" e "Caio".
+- **O caminho completo cumpriu o RNF-08** em todos os modelos grandes: 13 de 13. O `small` perdeu uma frase.
+
+**O que isso muda na decisão:**
+
+- **Local com GPU fica no páreo:** um modelo grande rodando no Apple Silicon alcança a API em acerto e latência, sem o áudio sair da máquina.
+- **O MLX só roda em Mac.** O servidor do MVP ainda não foi escolhido, e dificilmente será um Mac. No app, as opções reais são o Groq (com retenção zero) ou um servidor com GPU NVIDIA rodando faster-whisper.
+- **O MLX `medium` vira a opção local** para demonstrações e testes no Mac.
+- **O `small` está descartado** como modelo principal, em qualquer máquina.
+
 **Pendente:**
 
-- as outras 28 frases e a voz dos demais integrantes;
-- a rodada no Mac M4 (`mlx_whisper` e faster-whisper `large-v3-turbo` na CPU do M4), para saber se um modelo local grande fica perto do Groq.
+- as outras 28 frases e a voz dos demais integrantes, para confirmar se o `medium` ganha mesmo do `large-v3-turbo`;
+- a escolha do padrão: Groq ou local.
 
 ## Histórico
 
 - 2026-11-05: proposta, depois de três rodadas de perguntas com o Cauan (candidatos, conjunto de teste, gravações).
 - 2026-11-05: prévia com voz sintética (faster-whisper `small`, `medium` e `large-v3-turbo`, com e sem prompt).
+- 2026-11-05: Groq e `small` nas 22 primeiras gravações reais; rodada no MacBook M4 (MLX e faster-whisper).
+- 2026-11-05: Groq escolhido como padrão pelo Cauan; MLX `medium` como opção local no Mac.

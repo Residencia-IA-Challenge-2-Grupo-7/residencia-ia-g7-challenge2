@@ -29,6 +29,7 @@ Programa de Residência em IA (Instituto Eldorado + UnB), metodologia CBL (Chall
 | `docs/arquitetura/` | Mapa navegável da arquitetura (HTML único), publicado num repositório público à parte; guia de edição no `AGENTS.md` da pasta |
 | `docs/entregas/` | Entregáveis semanais (relatórios .docx) e o plano de cada um, uma pasta por semana |
 | `docs/semanas/` | Registro semanal alinhado ao roadmap (alimenta o relatório final) |
+| `docs/experimentos/` | Relatos de experimentos (o que foi medido, resultados, impactos), um por data e tema (`AAAA-MM-DD-tema.md`) |
 | `docs/atas/` | Atas das reuniões do grupo, uma por data (`AAAA-MM-DD.md`) |
 | `src/base/` | Pipeline de população da base (ADR 0005): `python -m base <etapa>`; como rodar no `README.md` da pasta |
 | `data/base/` | CSVs aprovados da base e relatório da rodada (versionados); `data/raw/` e `data/processed/` ficam fora do git |
