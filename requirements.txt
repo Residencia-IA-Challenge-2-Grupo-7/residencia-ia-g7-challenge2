@@ -1,0 +1,20 @@
+# Testes e Qualidade
+pytest>=8.0.0
+
+# Observabilidade e Telemetria (ML/LLMOps)
+langfuse>=2.0.0
+
+# Banco de Dados e Vetores (PostgreSQL + pgvector)
+psycopg[binary]>=3.1.0
+pgvector>=0.3.0
+
+# Computacao Numerica
+numpy>=1.26.0
+
+# Utilidades e Modelos de Dados
+pydantic>=2.0.0
+requests>=2.31.0
+
+# Servidor Web e API (FastAPI + Uvicorn para Deploy na Nuvem)
+fastapi>=0.110.0
+uvicorn>=0.28.0
