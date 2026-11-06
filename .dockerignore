@@ -1,0 +1,27 @@
+# Controle de versão e CI
+.git
+.gitignore
+.github
+
+# Ambientes virtuais e pacotes locais
+.venv
+venv
+ENV/
+env/
+
+# Caches do Python e testes
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Segredos e variáveis de ambiente locais
+.env
+.env.*
+!.env.example
+
+# Arquivos de IDE e SO
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
