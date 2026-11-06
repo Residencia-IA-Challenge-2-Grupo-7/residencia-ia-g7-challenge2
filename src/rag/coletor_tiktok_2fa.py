@@ -11,18 +11,26 @@ import uuid
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-import yt_dlp
-from curl_cffi import requests as cffi_requests
+try:
+    import yt_dlp
+except ImportError:
+    yt_dlp = None
+
+try:
+    from curl_cffi import requests as cffi_requests
+except ImportError:
+    cffi_requests = None
 
 # Caminhos 100% multiplataforma (funcionam em macOS, Linux e Windows)
-BASE_DIR = Path(__file__).resolve().parent
-DATA_DIR = BASE_DIR / "data"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+BASE_DIR = PROJECT_ROOT
+DATA_DIR = PROJECT_ROOT / "data"
 DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 BANCO_APROVADO_FILE = DATA_DIR / "banco_aprovado_2fa.json"
 QUARENTENA_FILE = DATA_DIR / "fila_quarentena_2fa.json"
 CATALOGO_2026_FILE = DATA_DIR / "catalogo_videos_2026.json"
-ENV_FILE = BASE_DIR / ".env"
+ENV_FILE = PROJECT_ROOT / ".env"
 
 SSL_CTX = ssl._create_unverified_context()
 

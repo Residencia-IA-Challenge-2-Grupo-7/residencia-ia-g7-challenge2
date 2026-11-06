@@ -1,15 +1,32 @@
 import json
 import sys
 import urllib.request
+from pathlib import Path
 from typing import Any, Dict, List, Tuple
 
-from banco_vetorial import (
-    SSL_CTX,
-    VECTOR_DB_FILE,
-    buscar_no_banco_vetorial,
-    sincronizar_banco_vetorial,
-)
-from coletor_tiktok_2fa import load_env
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+RAG_DIR = Path(__file__).resolve().parent
+if str(RAG_DIR) not in sys.path:
+    sys.path.insert(0, str(RAG_DIR))
+
+try:
+    from src.rag.banco_vetorial import (
+        SSL_CTX,
+        VECTOR_DB_FILE,
+        buscar_no_banco_vetorial,
+        sincronizar_banco_vetorial,
+    )
+    from src.rag.coletor_tiktok_2fa import load_env
+except ImportError:
+    from banco_vetorial import (
+        SSL_CTX,
+        VECTOR_DB_FILE,
+        buscar_no_banco_vetorial,
+        sincronizar_banco_vetorial,
+    )
+    from coletor_tiktok_2fa import load_env
 
 
 def gerar_resposta_fundamentada_rag(

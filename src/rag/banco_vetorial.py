@@ -2,18 +2,36 @@ import csv
 import json
 import math
 import ssl
+import sys
 import urllib.request
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-from coletor_tiktok_2fa import (
-    BANCO_APROVADO_FILE,
-    DATA_DIR,
-    QUARENTENA_FILE,
-    load_env,
-    load_json_list,
-    save_json_list,
-)
+ROOT_DIR = Path(__file__).resolve().parent.parent.parent
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+RAG_DIR = Path(__file__).resolve().parent
+if str(RAG_DIR) not in sys.path:
+    sys.path.insert(0, str(RAG_DIR))
+
+try:
+    from src.rag.coletor_tiktok_2fa import (
+        BANCO_APROVADO_FILE,
+        DATA_DIR,
+        QUARENTENA_FILE,
+        load_env,
+        load_json_list,
+        save_json_list,
+    )
+except ImportError:
+    from coletor_tiktok_2fa import (
+        BANCO_APROVADO_FILE,
+        DATA_DIR,
+        QUARENTENA_FILE,
+        load_env,
+        load_json_list,
+        save_json_list,
+    )
 
 VECTOR_DB_FILE = DATA_DIR / "banco_vetorial_embeddings.json"
 CSV_CLEAN_FILE = DATA_DIR / "banco_aprovado_2fa.csv"
