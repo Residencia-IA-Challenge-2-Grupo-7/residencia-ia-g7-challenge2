@@ -1,225 +1,270 @@
-# Manual de Continuação: DevOps, Docker no Ubuntu & Arquitetura RAG
+# Manual Completo de Engenharia: DevOps, Arquitetura RAG, Telemetria & Guia de Continuação
 **Projeto:** Orquestrador de Rolês (Challenge 2 — Residência em IA | Instituto Eldorado & UnB)  
-**Data da Sessão:** 05/11/2026  
-**Responsável:** Maria Eduarda (ML/LLMOps & DevOps)  
-**Branch de Trabalho:** `feat/setup-docker-estrutura` (permanece nesta branch sem merge na `main`)
+**Equipe:** Grupo 7  
+- **Maria Eduarda (Duda):** DevOps, Infraestrutura, Cloud Deploy & ML/LLMOps  
+- **Letícia Miti Takahashi:** Engenharia de Dados, Curadoria de Conteúdo & RAG  
+**Atualização Consolidada:** 06/11/2026 (Sessões dos dias 05/11 e 06/11 integradas)  
+**Branch de Trabalho:** `feat/setup-docker-estrutura`  
+**Deploy em Produção:** [https://orquestrador-roles.onrender.com](https://orquestrador-roles.onrender.com)  
+**Painel de Telemetria:** [Langfuse Cloud (Projeto cmw59be2y01d8ad0jqbgsjut6)](https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6)
 
 ---
 
-## 1. Resumo Executivo: O que fizemos hoje (05/11/2026)
+## 1. Visão Geral e Registro Cronológico das Sessões
 
-1. **Estruturação Modular do Repositório:**
-   - Organização padronizada do projeto dividindo código (`src/`), testes (`tests/`), documentação (`docs/`) e automação (`.github/`).
-   - Criação dos módulos: `src/base/` (dados DF), `src/interpretador/` (RAG), `src/telemetria/` (observabilidade) e `src/main.py` (API FastAPI).
-2. **Construção e Otimização do Docker:**
+### 1.1. O que foi feito na Sessão 1 (05/11/2026)
+1. **Estruturação Modular Inicial:** Criação da divisão entre código (`src/`), testes (`tests/`), documentação (`docs/`) e automação (`.github/`).
+2. **Containerização Docker Eficiente:** 
    - Criação do `Dockerfile` baseado em `python:3.12-slim`.
-   - Instalação do `ffmpeg` no sistema operacional para suporte à transcrição de áudio.
-   - Pulo do gato em DevOps: instalação do PyTorch em versão CPU-only (`--index-url https://download.pytorch.org/whl/cpu`), reduzindo a imagem de ~6 GB para menos de 800 MB.
-   - Implementação de cache de camadas inteligente (dependências instaladas antes do código).
-   - Criação de testes de sanidade com Pytest executando em apenas **0.59s**.
-3. **Validação Local e Exposição de Portas:**
-   - Teste de servidor web FastAPI com mapeamento de portas (`-p 8000:8000`) e documentação interativa Swagger em `/docs`.
-4. **Deploy Contínuo na Nuvem (Render):**
-   - Conexão do repositório GitHub com o Render no plano Free.
-   - Publicação bem-sucedida do serviço em produção: [https://orquestrador-roles.onrender.com](https://orquestrador-roles.onrender.com).
-   - Pull Request `#28` aberto e mergeado na `main`, ativando Auto-Deploy contínuo.
+   - Instalação do pacote `ffmpeg` para processamento de áudio do Whisper.
+   - Pulo do gato em DevOps: instalação do PyTorch em compilação CPU-only (`--index-url https://download.pytorch.org/whl/cpu`), derrubando o tamanho da imagem de ~6 GB para menos de 800 MB.
+3. **Smoke Tests Rápidos:** Configuração de testes de sanidade com Pytest executando em menos de 0.6s.
+4. **Primeiro Deploy no Render:** Conexão com o Render no plano Free (`orquestrador-roles.onrender.com`) com auto-deploy na `main`.
 
 ---
 
-## 2. Decisões Arquiteturais: O que foi Decidido e o que foi Descartado
+### 1.2. O que foi construído e concluído na Sessão 2 (06/11/2026)
 
-### A. O que foi DESCARTADO e por quê:
-1. **Multi-stage build em Java/Maven (do tutorial da Kipper):**
-   - *Motivo:* Python é interpretado e não compila `.jar`. Usamos uma imagem limpa e direta em estágio único com `python:3.12-slim`.
-2. **Imagem Alpine Linux (`python:alpine`):**
-   - *Motivo:* Falta de compatibilidade nativa com `glibc`, gerando erros críticos de compilação em bibliotecas de IA (PyTorch, NumPy, pgvector).
-3. **PostgreSQL Gratuito do Render:**
-   - *Motivo:* O Render apaga o banco gratuito após 30 dias. Como a residência dura 7 semanas (~50 dias), o banco seria destruído no meio do projeto.
-4. **Hospedar modelos gigantescos (2 GB) localmente no Render Free:**
-   - *Motivo:* O Render Free oferece apenas **512 MB de RAM**. Carregar modelos como `multilingual-e5-base` (~2 GB) causaria queda imediata por **OOM (Out Of Memory / Erro 137)**.
+#### A. Saneamento e Organização Arquitetural das Pastas
+- **Problema Encontrado:** Arquivos de dados brutos e scripts haviam sido subidos via upload na pasta `docs/dados/`, gerando duplicatas e bagunça estrutural.
+- **Solução Definitiva:**
+  - `data/`: Armazena exclusivamente as bases de dados e embeddings (`banco_aprovado_2fa.json`, `banco_aprovado_2fa.csv`, `banco_vetorial_embeddings.json`, `banco_vetorial_embeddings.csv`, `catalogo_videos_2026.json`, `fila_quarentena_2fa.json`).
+  - `src/rag/`: Módulos de código do RAG (`banco_vetorial.py`, `coletor_tiktok_2fa.py`, `prototipo_rag.py`, `__init__.py`).
+  - `scripts/`: Scripts executáveis multiplataforma (`iniciar_mac_linux.sh` e `iniciar_windows.bat`).
+  - `docs/entregas/semana-02/`: Pacote oficial de submissão do edital (`RELATORIO_TECNICO_RAG_GRUPO7.pdf`, `RELATORIO_TECNICO_RAG_SEMANA_02.md`, `DEMONSTRACAO_RAG_ENTREGAVEL.txt`, `Entregavel_Grupo7_Base_Conhecimento_e_RAG.zip`).
+  - `docs/dados/`: Mantém **estritamente documentação metodológica** (`README.md`, `esquema-base.md`, `guia-curadoria.md`).
 
-### B. O que foi DECIDIDO:
-1. **A Base de Dados da Semana 2 (Scraping da Letícia):**
-   - A Letícia auditou 164 vídeos de 2026 do TikTok (`@rolezandoembrasilia`), aplicou filtro cultural e geolocalização DF (2FA) e aprovou **93 rolês**.
-   - Os 93 rolês e seus vetores de 3.072 dimensões (`gemini-embedding-001`) foram salvos em arquivo JSON: `data/banco_vetorial_embeddings.json` (~2,5 MB).
-   - **Grande ganho:** Não dependemos de banco externo complexo para a busca inicial! O cálculo vetorial roda em memória RAM via **Similaridade de Cosseno com NumPy** em menos de 3ms.
-2. **Estratégia de Nuvem e Transição:**
-   - **Hoje / Provisório:** **Render Free** (roda a API leve em container consumindo ~120 MB de RAM).
-   - **Semana que vem / Definitivo:** **DigitalOcean** usando os **$200 de crédito do GitHub Student Pack** (já aprovado em 03/11, liberando em 72h). Permitirá máquina de 2 GB a 4 GB de RAM sem modo soneca.
-3. **Uso de IA por API:**
-   - Consultas de LLM e embeddings feitas via API (Gemini/Groq), garantindo consumo de memória mínimo e altíssima velocidade.
+#### B. Frontend e Experiência de Usuário (`src/interface.py` e `src/main.py`)
+- **Landing Page Minimalista (`GET /`):** Criada uma página inicial limpa e responsiva com o título em destaque **"Orquestrador de Rolês"**, subtítulo de Brasília e o botão de ação rápida **`Acessar RAG →`**, direcionando para `/rag`.
+- **Roteamento Híbrido no `GET /`:** A rota raiz detecta o header `Accept`. Se a chamada for feita por robôs de monitoramento ou scripts (`Accept: application/json`), retorna o status em JSON; se for um navegador humano, entrega a Landing Page em HTML.
+- **Interface Interativa do RAG (`GET /rag` e `GET /demo`):**
+  - Barra de busca com atalhos de sugestão (*chips* de busca rápida: boteco na Asa Sul, café romântico na Asa Norte, lazer infantil domingo).
+  - Cards de resultados com badges coloridas de categorias e vibes.
+  - Link direto para assistir ao vídeo comprobatório no TikTok.
+  - Botão com link dinâmico para inspecionar o Trace gerado no Langfuse Cloud em tempo real.
+  - Botão **`← Voltar ao Início`** para navegação fluida.
+  - Badge de aviso sobre a telemetria: *"O trace do Langfuse pode levar de 3 a 5 segundos para indexar no ClickHouse. Se clicar e disser que não encontrou, basta recarregar com F5."*
 
----
+#### C. Observabilidade e ML/LLMOps (Langfuse Cloud v5.x)
+- Instrumentação profunda em `src/telemetria/telemetria.py` utilizando o SDK oficial do Langfuse (`@observe(as_type="retriever")` e `@observe(as_type="generation")`).
+- Registro em tempo real de scores automatizados vinculados ao trace:
+  1. `fidelidade_rnf03_zero_alucinacao = 1.0`: Validação de que 100% dos locais sugeridos pertencem ao arquivo oficial `data/banco_aprovado_2fa.json`.
+  2. `sla_latencia_rnf14 = 1.0`: Conformidade com o requisito de latência $\le 5.0\text{ s}$ (processamento real de 2.8 ms a 21.9 ms, operando com mais de 200x de margem).
+  3. `qualidade_recuperacao_rag`: Similaridade semântica de cosseno média (entre 0.87 e 0.98).
+- Rastreamento de tokens de entrada/saída e custos operacionais (\$0.000045 USD por consulta no Gemini 1.5 Flash).
 
-## 3. Manual Completo: Como Instalar e Rodar o Docker no Ubuntu (Em Casa)
+#### D. Diagnóstico e Guardrail de Casos de Borda (Exemplo: "Balada após as 01h")
+- **Diagnóstico da Consulta:** Quando um usuário buscou *"balada que fecha depois das 01h"*, o sistema retornou restaurantes infantis (Dona Cleide e Costella) com 50% de similaridade.
+- **Causa Raiz Identificada:** A base curada da Letícia (extraída de vídeos de 2026 do `@rolezandoembrasilia`) foca em gastronomia diurna, bistrôs e passeios culturais, não tendo boates/baladas de alta madrugada. Sem palavras-chave reconhecidas, todos os locais empataram no score neutro de 50%.
+- **Correção Implementada (Guardrail de Escopo):**
+  - **Penalização Severa de Locais Infantis:** Estabelecimentos com tag `Kid Friendly`, parquinho ou brinquedoteca sofrem penalidade semântica quando o usuário busca termos noturnos (*balada, boate, 01h, madrugada*).
+  - **Priorização de Horários Noturnos:** Locais com horário de funcionamento cadastrado que avança a madrugada (como o **New Mercadito**, aberto até 01h30 nas sextas e sábados) passam a liderar o ranking (Score 0.85).
+  - **Resposta Transparente de Escopo:** Em vez de forçar sugestões inadequadas, a IA alerta explicitamente na resposta que a base foca em gastronomia e lazer no DF, e indica honestamente a opção noturna mais próxima cadastrada.
 
-Como você estará no seu computador com **Linux Ubuntu**, siga este roteiro direto no terminal para preparar o ambiente:
-
-### Passo 1: Atualizar o sistema e instalar dependências
-Abra o terminal (`Ctrl + Alt + T`) e execute:
-```bash
-sudo apt update && sudo apt upgrade -y
-sudo apt install -y ca-certificates curl gnupg lsb-release git
-```
-
-### Passo 2: Adicionar a chave GPG oficial do Docker
-```bash
-sudo install -m 0755 -d /etc/apt/keyrings
-curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-sudo chmod a+r /etc/apt/keyrings/docker.gpg
-```
-
-### Passo 3: Adicionar o repositório oficial do Docker no Ubuntu
-```bash
-echo \
-  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-```
-
-### Passo 4: Instalar o Docker Engine e o Docker Compose
-```bash
-sudo apt update
-sudo apt install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-```
-
-### Passo 5: Permitir rodar o Docker sem precisar digitar `sudo` toda hora
-*(Passo essencial de conforto e boas práticas de DevOps)*
-```bash
-sudo usermod -aG docker $USER
-```
-> **IMPORTANTE:** Para essa permissão entrar em vigor, **feche o terminal e abra novamente** (ou faça logoff e login no Ubuntu).
-
-### Passo 6: Testar se a instalação do Docker no Ubuntu está OK
-```bash
-docker run hello-world
-```
-*(Deve exibir a mensagem clássica "Hello from Docker!").*
+#### E. Engenharia do Relatório Técnico Oficial em PDF (LaTeX pdflatex)
+- **Problema do Conversor Antigo (LibreOffice):** O LibreOffice headless apresentava instabilidade em listas aninhadas, quebrava tabelas no meio e deixava uma página órfã com apenas 2 a 3 linhas soltas.
+- **Nova Solução com LaTeX (`pdflatex`):** 
+  - Desenvolvido o gerador automatizado em Python/LaTeX (`scratch/gerar_pdf_clean.py`).
+  - Diagramação executiva em **exatamente 4 páginas completas** (sem páginas sobrando, margens simétricas de 15mm/14mm, estilo de tabelas `booktabs` zebradas, caixas `tcolorbox` arredondadas e paginação *Página X de 4*).
+  - Distribuição perfeita das 9 seções exigidas pelo edital do Challenge 2:
+    - **Página 1:** Cabeçalho institucional, Seção 1 (Resumo Executivo e Checklist dos 8 Artefatos) e Seção 2 (Estratégia de Chunking com o Template Estruturado).
+    - **Página 2:** Seção 3 (Estratégia de Embeddings de 3.072 dimensões com a equação formal de Cosseno), Seção 4 (Pipeline de Ingestão 2FA em card único) e Seção 5 (Arquitetura de Runtime RAG + Barra de Telemetria).
+    - **Página 3:** Seção 6 (Telemetria, Scores RNF-03/RNF-14, Tabela dos 3 Casos de Teste Auditados, Análise Qualitativa e Governança de Custos RNF-15) e Seção 7 (Demonstração Online e via Terminal).
+    - **Página 4:** Seção 8 (Preparação para a Semana 3 com Golden Dataset comparativo e Matriz de Guardrails) e Seção 9 (Conclusão e Tabela de Links de Acesso ao Ecossistema).
 
 ---
 
-## 4. Como Baixar e Rodar o Nosso Projeto no Ubuntu de Casa
+## 2. Mapa Arquitetural do Repositório
 
-### 1. Clonar o repositório do projeto:
+```text
+residencia-ia-g7-challenge2/
+├── .github/                       # Workflows de CI/CD (GitHub Actions)
+├── data/                          # BASE DE DADOS OFICIAL E EMBEDDINGS (Semana 2)
+│   ├── banco_aprovado_2fa.json    # 93 estabelecimentos aprovados na curadoria 2FA
+│   ├── banco_aprovado_2fa.csv     # Versão tabular para auditoria rápida
+│   ├── banco_vetorial_embeddings.json # 93 vetores densos de 3.072 dimensões (Gemini)
+│   ├── banco_vetorial_embeddings.csv  # Vetores em formato CSV
+│   ├── catalogo_videos_2026.json  # 164 vídeos brutos coletados do TikTok
+│   ├── fila_quarentena_2fa.json   # 24 vídeos retidos por falta de endereço/preço
+│   └── base/                      # Dados legados/apoio (lugares, regiões, eventos)
+├── docs/                          # DOCUMENTAÇÃO E ENTREGAS PEDAGÓGICAS
+│   ├── dados/                     # Documentação conceitual (README, esquema, guia)
+│   ├── entregas/
+│   │   ├── semana-01/             # Entregáveis da Semana 1 (Problema e Métricas)
+│   │   └── semana-02/             # ENTREGÁVEIS OFICIAIS DA SEMANA 2
+│   │       ├── RELATORIO_TECNICO_RAG_GRUPO7.pdf # Relatório formal em 4 páginas (LaTeX)
+│   │       ├── RELATORIO_TECNICO_RAG_SEMANA_02.md # Versão markdown do relatório
+│   │       ├── DEMONSTRACAO_RAG_ENTREGAVEL.txt # Log dos 4 passos de teste
+│   │       └── Entregavel_Grupo7_Base_Conhecimento_e_RAG.zip # Pacote ZIP para o Teams
+│   ├── arquitetura/               # Diagramas e documentação de sistema
+│   ├── atas/                      # Atas de reunião da equipe
+│   ├── decisoes/                  # Architecture Decision Records (ADRs 0001 a 0007)
+│   └── MANUAL_DEVOPS_UBUNTU_E_CONTINUACAO.md # Este manual técnico de engenharia
+├── scripts/                       # SCRIPTS DE INICIALIZAÇÃO MULTIPLATAFORMA
+│   ├── iniciar_mac_linux.sh       # Script bash com setup automático de venv
+│   └── iniciar_windows.bat        # Script batch para Windows
+├── src/                           # CÓDIGO-FONTE DA APLICAÇÃO
+│   ├── interface.py               # Frontend HTML/CSS responsivo (Landing + RAG UI)
+│   ├── main.py                    # API FastAPI com rotas /, /rag, /health, /status
+│   ├── rag/                       # MÓDULO RAG E VETORIZAÇÃO
+│   │   ├── banco_vetorial.py      # Busca por Similaridade de Cosseno em memória
+│   │   ├── coletor_tiktok_2fa.py  # Pipeline de curadoria e validação de 2 Fatores
+│   │   └── prototipo_rag.py       # Demonstração CLI nos 4 passos com síntese LLM
+│   ├── telemetria/                # MÓDULO DE OBSERVABILIDADE E LLMOPS
+│   │   └── telemetria.py          # Instrumentação Langfuse, spans e cálculo de scores
+│   ├── interpretador/             # Processamento de linguagem natural e intenção
+│   └── voz/                       # Transcrição ASR (Whisper) e síntese de voz
+├── tests/                         # TESTES AUTOMATIZADOS
+│   └── test_smoke.py              # Smoke tests de ambiente, rotas e telemetria
+├── Dockerfile                     # Imagem de produção otimizada (Python 3.12 + PyTorch CPU)
+├── docker-compose.yml             # Orquestração local do container
+├── requirements.txt               # Dependências Python travadas
+└── STATUS.md                      # Quadro de estado atual do projeto
+```
+
+---
+
+## 3. Guia de Execução Local: Como Rodar Tudo na Sua Máquina
+
+### 3.1. Pré-requisitos
+- Python 3.10 ou superior (recomendado Python 3.12).
+- Git instalado e configurado.
+- (Opcional, para testes com container) Docker Engine ou Docker Desktop.
+
+### 3.2. Passo a Passo Rápido com Virtualenv (Sem Docker)
+
 ```bash
+# 1. Clone o repositório
 git clone https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2.git
 cd residencia-ia-g7-challenge2
-```
 
-### 2. Mudar para a branch de trabalho (sem misturar com a main):
-```bash
-git checkout feat/setup-docker-estrutura
-git pull origin feat/setup-docker-estrutura
-```
+# 2. Crie e ative o ambiente virtual
+python3 -m venv .venv
+source .venv/bin/activate  # No Windows: .venv\Scripts\activate
 
-### 3. Construir a imagem Docker do projeto no Ubuntu:
-```bash
-docker build -t orquestrador-app .
-```
-*(Ele vai baixar o Python slim, o ffmpeg, o PyTorch CPU e as dependências).*
+# 3. Instale as dependências
+pip install --upgrade pip
+pip install -r requirements.txt
 
-### 4. Executar os testes automatizados dentro do container:
-```bash
-docker run --rm orquestrador-app pytest
-```
-*(Deve passar 100% dos testes em menos de 1 segundo).*
+# 4. Configure as variáveis de ambiente (crie um arquivo .env na raiz)
+cat << 'EOF' > .env
+ENVIRONMENT=desenvolvimento
+LANGFUSE_PUBLIC_KEY="pk-lf-9a65474b-260e-43c3-87f6-ed088e989089"
+LANGFUSE_SECRET_KEY="sk-lf-c5638e33-c322-44ec-a7fe-bdcf0981faea"
+LANGFUSE_BASE_URL="https://cloud.langfuse.com"
+# GEMINI_API_KEY="sua_chave_gemini_se_houver"
+# GROQ_API_KEY="sua_chave_groq_se_houver"
+EOF
 
-### 5. Executar a API e testar no navegador (`localhost:8000`):
-```bash
-docker run --rm -p 8000:8000 orquestrador-app
+# 5. Inicie a API e a Interface Web
+uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload
 ```
 Acesse no navegador:
-- [http://localhost:8000](http://localhost:8000) (Status da API)
-- [http://localhost:8000/docs](http://localhost:8000/docs) (Swagger interativo)
-
-*(Para desligar o servidor, aperte `Ctrl + C` no terminal).*
-
----
-
-## 4.1. Como Instalar e Rodar o Docker em Outros Macs (Apple Silicon e Intel)
-
-Se você ou alguém do time for rodar em outro Mac:
-
-1. **Baixar o Docker Desktop para Mac:**
-   - Acesse: [https://www.docker.com/products/docker-desktop/](https://www.docker.com/products/docker-desktop/)
-   - **Mac M1/M2/M3/M4 (Apple Silicon):** Escolha o instalador *"Mac with Apple chip"*.
-   - **Mac antigo com processador Intel:** Escolha o instalador *"Mac with Intel chip"*.
-2. **Instalação:**
-   - Abra o arquivo `.dmg` baixado e arraste o ícone do Docker para a pasta **Aplicativos**.
-   - Abra o Docker no Launchpad e aguarde o ícone da baleia parar de piscar no topo da barra de tarefas.
-3. **No Terminal do Mac:**
-   ```bash
-   git clone https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2.git
-   cd residencia-ia-g7-challenge2
-   git checkout feat/setup-docker-estrutura
-   docker build -t orquestrador-app .
-   docker run --rm orquestrador-app pytest
-   ```
+- **Landing Page:** [http://localhost:8000](http://localhost:8000)
+- **Interface RAG:** [http://localhost:8000/rag](http://localhost:8000/rag)
+- **Documentação Swagger:** [http://localhost:8000/docs](http://localhost:8000/docs)
 
 ---
 
-## 4.2. Como Instalar e Rodar o Docker no Windows (10 e 11)
-
-Se alguém da equipe usa Windows, o Docker precisa do subsistema Linux (WSL 2) ativo:
-
-1. **Instalar o WSL 2 (Subsistema Windows para Linux):**
-   - Abra o **PowerShell como Administrador** e digite:
-     ```powershell
-     wsl --install
-     ```
-   - Reinicie o computador se for solicitado.
-2. **Baixar e Instalar o Docker Desktop para Windows:**
-   - Acesse: [https://www.docker.com/products/docker-desktop/](https://www.docker.com/products/docker-desktop/)
-   - Baixe a versão para Windows e execute o instalador `.exe`.
-   - Na tela de instalação, certifique-se de que a caixinha **"Use WSL 2 instead of Hyper-V (recommended)"** está marcada.
-   - Conclua a instalação e reinicie o PC se necessário.
-3. **No Terminal do Windows (PowerShell ou Git Bash):**
-   ```bash
-   git clone https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2.git
-   cd residencia-ia-g7-challenge2
-   git checkout feat/setup-docker-estrutura
-   docker build -t orquestrador-app .
-   docker run --rm orquestrador-app pytest
-   ```
-4. **Para abrir no navegador do Windows:**
-   ```bash
-   docker run --rm -p 8000:8000 orquestrador-app
-   ```
-   Abra no Chrome/Edge: [http://localhost:8000](http://localhost:8000).
-
----
-
-## 5. Roteiro para Amanhã: O que Falta para a Entrega da Semana 2
-
-A sua tarefa oficial no GitHub é:  
-**"Plataforma de monitoramento de RAG: configuração da infraestrutura de monitoramento, tracing, métricas de latência/custo e qualidade de recuperação do RAG (ML/LLMOps)."**
-
-Com a infraestrutura de Docker e Deploy pronta, o foco de amanhã é a **Observabilidade com Langfuse**:
-
-1. **Conta no Langfuse Cloud:**
-   - Criar conta gratuita em [cloud.langfuse.com](https://cloud.langfuse.com) via login com GitHub.
-   - Criar um projeto chamado `orquestrador-roles` e obter:
-     - `LANGFUSE_PUBLIC_KEY`
-     - `LANGFUSE_SECRET_KEY`
-     - `LANGFUSE_HOST` (`https://cloud.langfuse.com`)
-2. **Configuração de Segredos:**
-   - Colocar essas chaves no arquivo `.env` local (fora do git) e no painel do Render (*Environment Variables*).
-3. **Implementar a Telemetria (`src/telemetria/telemetria.py`):**
-   - Configurar o decorador `@observe` para instrumentar a função de busca do RAG da Letícia (`banco_vetorial.py`).
-4. **Métricas a Demonstrar no Painel:**
-   - **Latência (RNF-14):** Medir tempo de geração do embedding + busca semântica no JSON em memória ($\le 5\text{ s}$).
-   - **Custos/Tokens (RNF-15):** Acompanhar consumo de tokens no Gemini para caber no plano gratuito.
-   - **Fidelidade (Zero Alucinação - RNF-03):** Garantir que os rolês retornados constam nos 93 itens auditados do TikTok.
-5. **Ativação da DigitalOcean:**
-   - Checar se o e-mail de aprovação dos $200 do GitHub Student Pack foi liberado (prazo de 72h vence entre 05/11 e 06/11).
-
----
-
-## 6. Comandos para Salvar este Manual na Branch Atual
-
-Para deixar este arquivo registrado na branch `feat/setup-docker-estrutura` e enviado para o GitHub (sem mexer na `main`), rode no terminal:
+### 3.3. Passo a Passo com Docker (Recomendado para Produção)
 
 ```bash
-git add docs/MANUAL_DEVOPS_UBUNTU_E_CONTINUACAO.md
-git commit -m "docs(infra): adiciona manual completo de docker no ubuntu e resumo de decisoes de arquitetura"
-git push origin feat/setup-docker-estrutura
+# Construir a imagem otimizada
+docker build -t orquestrador-roles .
+
+# Executar os testes automatizados dentro do container
+docker run --rm orquestrador-roles pytest
+
+# Rodar o servidor web na porta 8000
+docker run --rm -p 8000:8000 \
+  -e ENVIRONMENT=producao \
+  -e LANGFUSE_PUBLIC_KEY="pk-lf-9a65474b-260e-43c3-87f6-ed088e989089" \
+  -e LANGFUSE_SECRET_KEY="sk-lf-c5638e33-c322-44ec-a7fe-bdcf0981faea" \
+  -e LANGFUSE_BASE_URL="https://cloud.langfuse.com" \
+  orquestrador-roles
 ```
+
+---
+
+### 3.4. Como Rodar a Demonstração Oficial do RAG em Terminal (4 Passos do Edital)
+Execute na raiz do projeto:
+```bash
+python3 src/rag/prototipo_rag.py
+```
+O script executará automaticamente:
+1. **Passo 1:** Exibe a consulta submetida pelo usuário.
+2. **Passo 2:** Exibe os Top-3 chunks recuperados com cálculo de similaridade de cosseno.
+3. **Passo 3:** Exibe a resposta sintetizada citando `[FONTE #1]`, `[FONTE #2]`.
+4. **Passo 4:** Exibe as evidências primárias (ID, coordenadas GPS, preço validado, transcrição do áudio Whisper e URL do TikTok).
+
+---
+
+## 4. Guia de Operação: Git, Branches e Deploy Contínuo no Render
+
+### 4.1. Como funciona o Deploy no Render
+- O serviço está conectado ao repositório GitHub e monitora a branch **`main`**.
+- Cada `git push origin main` dispara automaticamente o pipeline:
+  1. O Render puxa o commit mais recente.
+  2. Executa o build da imagem Docker através do `Dockerfile`.
+  3. Sobe o container executando `uvicorn src.main:app --host 0.0.0.0 --port $PORT`.
+  4. Executa health check em `/health`. Se responder 200, substitui a versão antiga sem downtime.
+
+### 4.2. Boas Práticas de Trabalho com Branches
+Para manter o projeto organizado e evitar duplicatas:
+1. **Nunca suba arquivos via interface web do GitHub ("Add files via upload"):** Isso quebra a estrutura de pastas e desfaz renomeações de arquivos.
+2. **Desenvolvimento de Features:** Crie sempre branches a partir da `main`:
+   ```bash
+   git checkout main
+   git pull origin main
+   git checkout -b feat/nome-da-sua-tarefa
+   ```
+3. **Para Enviar para Produção:**
+   Faça commit local, envie a branch para o GitHub e abra um Pull Request para a `main`. Uma vez aprovado e mergeado, o Render atualiza o site público em 2 minutos.
+
+---
+
+## 5. Roteiro de Continuação: Preparação para a Semana 3 e Além
+
+### 5.1. O Foco da Semana 3: Comparação LLM Pura vs. RAG (Respostas com Evidências)
+Na Semana 3, o requisito pedagógico principal é **comprovar empiricamente que o RAG supera a LLM pura (sem contexto) na eliminação de alucinações e precisão geoespacial no DF**.
+
+#### Roteiro Técnico para a Semana 3:
+1. **Benchmark com Golden Dataset (10 Perguntas):**
+   - Utilizar as 10 perguntas planejadas na Seção 8 do relatório técnico.
+   - Exemplos de perguntas que forçam alucinação na LLM pura:
+     - *"Onde fica a quadra comercial da Spelunca DF e qual o prato principal?"* (A LLM pura costuma inventar quadras ou confundir com estabelecimentos de São Paulo).
+     - *"Qual o valor do rodízio no Dona Cleide em Águas Claras?"* (A LLM pura erra o valor exato em reais).
+     - *"O que fazer de graça no domingo em Brasília com crianças?"* (A LLM pura recomenda locais genéricos, enquanto o RAG ancora no Eixão do Lazer com tags `Kid Friendly` e dados auditados).
+2. **Mecanismo Comparativo A/B:**
+   - Criar uma rota ou script que envie a mesma pergunta para:
+     - **Modo A (LLM Pura):** Gemini 1.5 Flash com prompt zero-shot sem contexto de documentos.
+     - **Modo B (RAG Ancorado):** Gemini 1.5 Flash com os Top-3 Chunks injetados no prompt de sistema.
+3. **Auditoria Automatizada via LLM-as-a-Judge no Langfuse:**
+   - Instrumentar uma função avaliadora no Langfuse que receba as duas saídas e atribua notas automatizadas:
+     - `factual_accuracy_score` (0.0 a 1.0);
+     - `hallucination_rate` (percentual de fatos inventados);
+     - `address_grounding_score` (endereço verificado no DF).
+
+---
+
+### 5.2. O Foco da Semana 4 e 5: Multiagentes e Multimodalidade
+- **Semana 4 (Multiagentes):** Dividir a inteligência em agentes especializados (ex.: *Agente Especialista em Gastronomia*, *Agente de Restrições Orçamentárias*, *Agente de Roteiros Geoespaciais*).
+- **Semana 5 (Multimodalidade):** Integrar a análise visual das thumbnails dos vídeos do TikTok e áudio de voz com Whisper local/Groq para que o usuário possa falar por áudio na interface web.
+
+---
+
+### 5.3. Transição de Infraestrutura: Render Free $\rightarrow$ DigitalOcean
+- Como os créditos de \$200 do **GitHub Student Pack** foram aprovados, planejar a migração da aplicação para um Droplet (Ubuntu 24.04 com 2 GB ou 4 GB de RAM) na DigitalOcean nas semanas 4 ou 5.
+- Isso eliminará o modo soneca do Render Free e permitirá rodar modelos locais mais pesados de embedding e ASR se necessário.
+
+---
+
+## 6. Checklist de Arquivos para Submissão da Semana 2 no Teams
+
+Os 3 arquivos oficiais prontos para envio no canal da Residência estão salvos na pasta [`docs/entregas/semana-02/`](docs/entregas/semana-02/):
+1. **`RELATORIO_TECNICO_RAG_GRUPO7.pdf`:** Relatório formal consolidado de 4 páginas gerado em LaTeX (`pdflatex`).
+2. **`DEMONSTRACAO_RAG_ENTREGAVEL.txt`:** Log de execução integral dos 4 passos de validação do RAG.
+3. **`Entregavel_Grupo7_Base_Conhecimento_e_RAG.zip`:** Pacote ZIP contendo os datasets, scripts de execução e relatórios.
+
+---
+*Manual mantido e versionado pela equipe de Engenharia e DevOps do Grupo 7.*
