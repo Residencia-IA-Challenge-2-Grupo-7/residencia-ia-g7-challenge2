@@ -18,3 +18,7 @@ requests>=2.31.0
 # Servidor Web e API (FastAPI + Uvicorn para Deploy na Nuvem)
 fastapi>=0.110.0
 uvicorn>=0.28.0
+
+# Coleta de Dados e Metadados do TikTok (Audio & Scraping)
+yt-dlp>=2025.1.1
+curl_cffi>=0.7.0

@@ -12,7 +12,7 @@
   - o teste de cobertura por estrato como critério de aceite;
   - a amostra de validação do RNF-03;
   - as regras de LGPD
-- **Fica para outro ADR:** o contrato da API de busca usada pelos agentes da semana 4 (aqui só o fluxo de consulta)
+- **Fica para outro ADR:** o contrato da API de busca usada pelos agentes da semana 4 (aqui só o fluxo de consulta). Definido no [ADR 0007](0007-interpretador-e-contrato-de-busca.md)
 
 ## Contexto
 
@@ -55,7 +55,7 @@ Na conversa de 03/11 ficou claro que consultar uma API de lugares na hora da per
 | Google Places, na hora do plano | Status e horário de hoje dos finalistas | Sem guardar nada, nas condições do ADR 0004 |
 | Retorno dos usuários (RF-37) | Sinal de divergência | Põe o lugar na fila de reprocessamento prioritário, sem identificar quem respondeu |
 
-**Nunca entram no robô:** Google Maps, Instagram, Facebook, iFood, TripAdvisor, Sympla e outros agregadores. Os termos dessas plataformas proíbem ou limitam a coleta automatizada, ou o conteúdo não é do lugar.
+**Nunca entram no robô:** Google Maps, Instagram, Facebook, iFood, TripAdvisor, Sympla e outros agregadores. Os termos dessas plataformas proíbem ou limitam a coleta automatizada, ou o conteúdo não é do lugar. O caso do Tripadvisor, inclusive pela API oficial, está em [Tripadvisor](#tripadvisor-estudado-em-0511).
 
 ### Regras do robô
 
@@ -347,6 +347,44 @@ A comparação é pela documentação dos campos ([recurso Place](https://develo
 - **Comparação de exatidão vetada:** comparar a exatidão do nosso extrator com a Google é usar conteúdo da Google para validar IA (3.2.3(c)(vii)), o que os termos proíbem. Dá para medir só a cobertura dos finalistas, internamente.
 - **Na hora do plano:** a Google pode filtrar os finalistas por horário e faixa de preço sem que o dado entre na base. O custo é o SKU Enterprise, com 1.000 chamadas gratuitas por mês, contra 5.000 do Pro previsto hoje.
 
+### Tripadvisor (estudado em 05/11)
+
+O estudo leu os termos de uso do site, o robots.txt e a documentação da API oficial (Terra). Nenhuma página de lugar foi aberta, porque os termos proíbem o acesso por sistema de IA. Os indícios de cobertura vêm de resultados de busca.
+
+**Pelo site (robô, raspagem ou computer use): proibido.**
+- **Acesso automatizado:** os Termos de Utilização (seção "Atividades interditas", de 16/02/2024) vedam usar robô, aranha, "sistema de inteligência artificial (IA)" ou outro meio automatizado para acessar, copiar, raspar ou agregar conteúdo, salvo permissão por escrito. Um agente de computer use cai nessa regra.
+- **Cópia manual:** outro item da mesma seção veda copiar ou explorar o conteúdo "por meio automático ou processo manual" fora do contrato. Uma pessoa transcrevendo o Tripadvisor para a base também fica fora.
+- **Links profundos:** fazer link para qualquer parte do site exige autorização por escrito. Nem um botão "ver no Tripadvisor" na ficha é permitido sem ela.
+- **robots.txt:** o do .com.br bloqueia por inteiro ClaudeBot, GPTBot, CCBot, Google-Extended e outros robôs de IA.
+
+**Pela API oficial (Terra, pacote Discover):**
+
+| Ponto | O que dizem os termos e a documentação |
+|---|---|
+| API antiga (Content API) | Desativada em 31/08/2026. O plano de 5.000 chamadas grátis por mês acabou com ela |
+| Custo | 1.000 lugares grátis uma única vez por conta; depois, de US$ 0,015 a US$ 0,009 por lugar devolvido. Uma busca por proximidade devolve até 20 lugares e conta 20 |
+| Guardar | Só o location ID ([Caching Policy](https://docs.terra.tripadvisor.com/docs/caching-policy)). Nada pode ir para a nossa base |
+| Uso com IA | Nenhuma licença para usar o conteúdo com IA ou aprendizado de máquina, incluindo bancos de dados ligados a eles (3.1.2). A única exceção é o grounding por RAG em teste interno, não comercial e sem usuários |
+| Exclusividade | Enquanto o contrato valer, o cliente não pode coletar nem exibir conteúdo parecido com o licenciado (3.4.5) |
+| Exibição | Tudo como veio, com a marca e link para o Tripadvisor, sem combinar com outro conteúdo (3.4.2) e fora do alcance de buscadores (3.4.3) |
+| Quem contrata | Uma entidade constituída (6.1). Um grupo de alunos teria de contratar em nome de uma pessoa ou da universidade |
+
+- **Campos de Location Details:**
+  - horário por dia (`opening_hours`) e status (aberto, fechado ou fechado temporariamente);
+  - categorias e atributos (comodidades);
+  - links do site oficial e do cardápio;
+  - nota e ranking;
+  - aceita `locale=pt-BR`.
+- **O que falta:**
+  - preço em reais: a API dá só uma de três faixas (`Cheap Eats`, `Mid Range`, `Fine Dining`);
+  - itens com preço;
+  - tipo de cozinha: a versão nova não tem mais esse campo.
+- **Cobertura no DF** (pelos resultados de busca, não medida): a página de Brasília fala em cerca de 4.400 restaurantes, e a de Ceilândia lista de 30 a 40, com avaliações em geral de 2013 a 2018. O Tripadvisor também se concentra no Centro e envelhece fora dele.
+- **Conclusão: o Tripadvisor é mais restritivo que a Google para este projeto.**
+  - **Comparado com a Google:** a Google deixa usar o dado na hora do plano, com condições. O Tripadvisor veda qualquer uso com IA no produto e, durante o contrato, impede coletar dado parecido, o que bate de frente com o pipeline.
+  - **Nem a base nem o plano:** o Tripadvisor não entra na base nem na hora do plano, e continua na lista "Nunca entram no robô".
+  - **Única via:** uma permissão por escrito para uso acadêmico, prevista tanto nos termos da API (3.1.2) quanto nos do site. A resposta pode não chegar a tempo do MVP.
+
 ## Perguntas para o grupo
 
 1. Aceitam que lugares sem site oficial fiquem fora do MVP? Se o teste de cobertura falhar numa região, preferem declarar a limitação ou mudar o RF-16?
@@ -359,6 +397,8 @@ A comparação é pela documentação dos campos ([recurso Place](https://develo
 - IBRAM. **Unidades de conservação**. Disponível em: https://www.ibram.df.gov.br/unidades-de-conservacao. Acesso em: 3 nov. 2026.
 - INSTAGRAM. **Termos de Uso**. Disponível em: https://help.instagram.com/581066165581870. Acesso em: 3 nov. 2026.
 - OVERTURE MAPS FOUNDATION. **Places guide**; **Attribution**. Disponível em: https://docs.overturemaps.org/. Acesso em: 3 nov. 2026.
+- TRIPADVISOR. **API Master Terms and Conditions**; **Caching Policy**; **Usage-based pricing**; **FAQ** (migração da Content API). Disponível em: https://docs.terra.tripadvisor.com/. Acesso em: 5 nov. 2026.
+- TRIPADVISOR. **Termos de Utilização do Tripadvisor**. Disponível em: https://tripadvisor.mediaroom.com/BR-terms-of-use. Acesso em: 5 nov. 2026.
 - pgvector. **Open-source vector similarity search for Postgres**. Disponível em: https://github.com/pgvector/pgvector. Acesso em: 3 nov. 2026.
 - BAAI. **BGE-M3**. Disponível em: https://huggingface.co/BAAI/bge-m3. Acesso em: 3 nov. 2026.
 - CORMACK, G. V.; CLARKE, C. L. A.; BÜTTCHER, S. Reciprocal rank fusion outperforms Condorcet and individual rank learning methods. In: **SIGIR**, 2009.
@@ -371,3 +411,4 @@ A comparação é pela documentação dos campos ([recurso Place](https://develo
 | 2026-11-03 | Resultado do piloto e opções para o grupo; pipeline em `src/base/` |
 | 2026-11-03 | Varredura ampliada (811 sorteados, 10 aprovados), medição do OSM e comparação com os campos da Google Places |
 | 2026-11-03 | Opção A (OCR de cardápio) testada: +2 aprovados, validador mais rígido; base com 11 lugares |
+| 2026-11-05 | Estudo do Tripadvisor (site e API Terra): fica fora da base e do plano |
