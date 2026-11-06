@@ -1,9 +1,0 @@
-@echo off
-cd /d "%~dp0"
-echo Verificando bibliotecas (yt-dlp e curl_cffi)...
-python -m pip install -q -r requirements.txt
-echo Executando Coletor TikTok 2FA (2026) no Terminal...
-python coletor_tiktok_2fa.py 15
-echo Atualizando e Imprimindo o Banco de Dados Vetorial no Terminal...
-python banco_vetorial.py
-pause
