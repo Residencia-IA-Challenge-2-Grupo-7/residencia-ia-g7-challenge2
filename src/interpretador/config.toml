@@ -1,0 +1,60 @@
+# Configuração do interpretador de mensagens (ADR 0007). Provedor, modelo e convenções ficam aqui, não no código.
+
+[llm]
+# OpenRouter: API compatível com a da OpenAI. A chave fica em OPENROUTER_API_KEY (.env, fora do git).
+url = "https://openrouter.ai/api/v1/chat/completions"
+chave_env = "OPENROUTER_API_KEY"
+modelo = "deepseek/deepseek-v4.1-flash-1017"
+# Usados em ordem se nenhum provedor do modelo principal passar no roteamento abaixo (ADR 0007).
+reservas = []
+temperatura = 0
+max_tokens = 900
+# O DeepSeek V4.1 Flash raciocina antes de responder. Medido em 05/11: com raciocínio, 2 de 50 frases
+# esgotaram os tokens sem devolver o JSON e o p90 foi 6,4 s; sem raciocínio, cerca de 1,5 s.
+raciocinio = false
+timeout_s = 12
+tentativas = 2
+
+# Preferências de provedor da OpenRouter (RNF-01): sem retenção, sem coleta para treino, sem fp4.
+[llm.roteamento]
+zdr = true
+data_collection = "deny"
+quantizations = ["fp8", "fp16", "bf16", "fp32"]
+require_parameters = true
+sort = "latency"
+allow_fallbacks = true
+
+[tempo]
+fuso = "America/Sao_Paulo"
+# Convenções do ADR 0007, mostradas na confirmação. "24:00" = meia-noite do dia seguinte.
+periodos = { manha = ["08:00", "12:00"], tarde = ["13:00", "18:00"], noite = ["19:00", "24:00"], dia_todo = ["08:00", "24:00"] }
+# Início do dia quando só há "até as X" e fim quando só há "depois das X"
+inicio_padrao = "08:00"
+fim_padrao = "24:00"
+
+[valores]
+# Plausibilidade de um valor em reais dito na conversa
+minimo = 0.5
+maximo = 10000
+
+# Apelidos de lugares do DF -> RA de data/base/regioes.csv (minúsculas, sem acento)
+[lugares.apelidos]
+"asa sul" = "Plano Piloto"
+"asa norte" = "Plano Piloto"
+"plano" = "Plano Piloto"
+"eixao" = "Plano Piloto"
+"esplanada" = "Plano Piloto"
+"noroeste" = "Plano Piloto"
+"taguá" = "Taguatinga"
+"tagua" = "Taguatinga"
+"sudoeste" = "Sudoeste/Octogonal"
+"octogonal" = "Sudoeste/Octogonal"
+"estrutural" = "SCIA/Estrutural"
+"sol nascente" = "Sol Nascente/Pôr do Sol"
+"por do sol" = "Sol Nascente/Pôr do Sol"
+"aguas" = "Águas Claras"
+"bandeirante" = "Núcleo Bandeirante"
+"jardim botanico" = "Jardim Botânico"
+"sobradinho 2" = "Sobradinho II"
+"riacho 2" = "Riacho Fundo II"
+"recanto" = "Recanto das Emas"
