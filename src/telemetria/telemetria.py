@@ -87,6 +87,20 @@ def calcular_similaridade_leticia(pergunta: str, role: Dict[str, Any], categoria
     is_busca_parque = any(k in p for k in ["parque", "ar livre", "natureza", "piquenique", "caminhada", "domingo"])
     is_busca_restaurante = any(k in p for k in ["restaurante", "jantar", "almoço", "almoco", "pizza", "sushi", "carne"])
     is_busca_evento = any(k in p for k in ["evento", "festa", "show", "anime", "jogos", "experiência", "experiencia"])
+    is_busca_balada = any(k in p for k in ["balada", "boate", "madrugada", "01h", "02h", "03h", "noitada", "club", "baladinha", "dançar", "dancar", "after"])
+
+    if is_busca_balada:
+        # Penaliza fortemente locais infantis com brinquedoteca
+        if role.get("kid_friendly") or "kid" in vibes_str or "brinquedoteca" in resumo:
+            score -= 0.50
+        # Bonifica locais que funcionam até tarde (ex: New Mercadito fecha 01h30)
+        horario = str(role.get("horario_funcionamento", "")).lower()
+        if any(h in horario for h in ["01h", "01h30", "02h", "00h", "madrugada"]):
+            score += 0.35
+        if "bar" in tipo or "pub" in tipo:
+            score += 0.20
+        elif "cafeteria" in tipo or "doceria" in tipo:
+            score -= 0.40
 
     if is_busca_bar:
         if "bar" in tipo or "boteco" in tipo or "pub" in tipo or "bar" in nome:
@@ -139,7 +153,8 @@ def calcular_similaridade_leticia(pergunta: str, role: Dict[str, Any], categoria
     if any(k in p for k in ["date", "romantico", "romântico", "casal"]) and "romântico" in vibes_str:
         score += 0.12
     if any(k in p for k in ["kid", "criança", "crianca", "familia", "família"]) and (role.get("kid_friendly") or "kid" in vibes_str):
-        score += 0.15
+        if not is_busca_balada:
+            score += 0.15
     if any(k in p for k in ["barato", "baratinho", "pouca grana"]) and ("barato" in role.get("faixa_de_preco", "").lower() or "baratinho" in vibes_str):
         score += 0.10
 
@@ -147,7 +162,7 @@ def calcular_similaridade_leticia(pergunta: str, role: Dict[str, Any], categoria
     if categoria_filtro and categoria_filtro.lower() in tipo:
         score += 0.15
 
-    return min(max(round(score, 2), 0.35), 0.98)
+    return min(max(round(score, 2), 0.20), 0.98)
 
 
 @observe(name="recuperacao_vetorial_tiktok", as_type="retriever")
@@ -199,14 +214,26 @@ def _etapa_generation(pergunta: str, roles: List[Dict[str, Any]]) -> str:
     top = roles[0]
     outros = [f"{r['nome']} ({r.get('regiao_administrativa')})" for r in roles[1:]]
 
-    resposta_formatada = (
-        f"Para o seu pedido ({pergunta}), a recomendação oficial na base auditada do TikTok é o '{top['nome']}' "
-        f"em {top.get('regiao_administrativa')} ({top.get('endereco')})! "
-        f"{top.get('resumo_sensorial', '')} "
-        f"Preço médio estimado: R$ {top.get('custo_medio_rs', 'N/A')} ({top.get('faixa_de_preco', '')}). "
-    )
+    p_lower = pergunta.lower()
+    is_busca_balada = any(k in p_lower for k in ["balada", "boate", "madrugada", "01h", "02h", "03h", "noitada", "club", "baladinha"])
 
-    if outros:
+    if is_busca_balada:
+        resposta_formatada = (
+            f"⚠️ Nota de Escopo: A nossa base de 93 locais curados foca prioritariamente em gastronomia, cafés, bares de happy hour e passeios culturais em Brasília, "
+            f"sem baladas ou boates de alta madrugada catalogadas. "
+            f"O estabelecimento noturno mais próximo com música e drinks cadastrado é o '{top['nome']}' "
+            f"em {top.get('regiao_administrativa')} ({top.get('endereco')}), cujo horário registrado é: {top.get('horario_funcionamento', 'Consulte no local')}! "
+            f"Preço médio: R$ {top.get('custo_medio_rs', 'N/A')} ({top.get('faixa_de_preco', '')})."
+        )
+    else:
+        resposta_formatada = (
+            f"Para o seu pedido ({pergunta}), a recomendação oficial na base auditada do TikTok é o '{top['nome']}' "
+            f"em {top.get('regiao_administrativa')} ({top.get('endereco')})! "
+            f"{top.get('resumo_sensorial', '')} "
+            f"Preço médio estimado: R$ {top.get('custo_medio_rs', 'N/A')} ({top.get('faixa_de_preco', '')}). "
+        )
+
+    if outros and not is_busca_balada:
         resposta_formatada += f"Outras opções auditadas no DF: {', '.join(outros)}."
 
     tokens_input = 140 + len(str(roles)) // 4
