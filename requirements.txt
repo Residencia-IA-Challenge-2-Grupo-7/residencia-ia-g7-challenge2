@@ -1,18 +1,24 @@
-# Pipeline da base (src/base, ADR 0005). Python 3.11 ou mais novo.
-duckdb>=1.1
-pyarrow>=17
-requests>=2.32
-beautifulsoup4>=4.12
-lxml>=5
-pypdf>=5
-shapely>=2
-numpy>=2
-psycopg[binary]>=3.2
-pgvector>=0.3
-# Embeddings locais (CPU). No Windows/Linux sem GPU: pip install torch --index-url https://download.pytorch.org/whl/cpu
-sentence-transformers>=3
-pytest>=8
-# Interpretador e contrato da busca (ADR 0007)
-pydantic>=2.7
-# Transcrição de fala (ADR 0006). Precisa do ffmpeg no PATH. No Mac com Apple Silicon: pip install mlx-whisper
-faster-whisper>=1.1
+# Testes e Qualidade
+pytest>=8.0.0
+
+# Observabilidade e Telemetria (ML/LLMOps)
+langfuse>=2.0.0
+
+# Banco de Dados e Vetores (PostgreSQL + pgvector)
+psycopg[binary]>=3.1.0
+pgvector>=0.3.0
+
+# Computacao Numerica
+numpy>=1.26.0
+
+# Utilidades e Modelos de Dados
+pydantic>=2.0.0
+requests>=2.31.0
+
+# Servidor Web e API (FastAPI + Uvicorn para Deploy na Nuvem)
+fastapi>=0.110.0
+uvicorn>=0.28.0
+
+# Coleta de Dados e Metadados do TikTok (Audio & Scraping)
+yt-dlp>=2025.1.1
+curl_cffi>=0.7.0
