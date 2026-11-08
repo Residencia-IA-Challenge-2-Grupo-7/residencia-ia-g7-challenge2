@@ -33,26 +33,44 @@
 
 \begin{document}
 
+\begin{titlepage}
 \begin{center}
 {\bfseries INSTITUTO DE PESQUISAS ELDORADO\\
 UNIVERSIDADE DE BRASÍLIA\\
-RESIDÊNCIA EM INTELIGÊNCIA ARTIFICIAL -- TURMA 2\\
+RESIDÊNCIA EM INTELIGÊNCIA ARTIFICIAL -- BRASÍLIA\\[2.8cm]
+
 GRUPO 07\\[0.35cm]
 LETÍCIA MITI TAKAHASHI -- CIENTISTA DE DADOS\\
 MARIA EDUARDA -- ML/LLMOPS \& DEVOPS\\
 MARIA CAROLINA -- ENGENHARIA DE DADOS\\
 CAUAN SOARES -- ARQUITETO DA SOLUÇÃO\\
-SAMARA LETÍCIA -- ENGENHARIA DE DADOS\\[0.4cm]
-ORQUESTRADOR DE ROLÊS (DISTRITO FEDERAL)\\
-RELATÓRIO TÉCNICO: BASE DE CONHECIMENTO CURADA E PROTÓTIPO DE RAG\\
-Definições e Resultados -- Challenge 2, Semana 2\\[0.3cm]}
+SAMARA LETÍCIA -- ENGENHARIA DE DADOS\\[3.0cm]
+
+ORQUESTRADOR DE ROLÊS (DISTRITO FEDERAL)\\[0.3cm]
+{\normalsize RELATÓRIO TÉCNICO: BASE DE CONHECIMENTO CURADA E PROTÓTIPO DE RAG\\
+Definições e Resultados -- Challenge 2, Semana 2}\\[1.2cm]
+
+{\normalfont\small CENTRAL INTERATIVA DE ENTREGÁVEIS E PROTÓTIPO ONLINE:\\
+\textbf{\url{https://orquestrador-roles.onrender.com/entregaveis}}}\\[2.8cm]
+
+BRASÍLIA\\
+2026}
 \end{center}
+\end{titlepage}
+
+\setcounter{page}{1}
 
 \section{Visão Geral e Resumo dos Entregáveis}
 
 O presente relatório técnico documenta a concepção, o pipeline de ingestão automatizada de dados, a estratégia de segmentação semântica (\textit{chunking}), a modelagem de \textit{embeddings} vetoriais, a governança de observabilidade (\textit{LLMOps}) e a demonstração experimental do mecanismo de Geração Aumentada por Recuperação (\textit{Retrieval-Augmented Generation} -- RAG) desenvolvido pelo Grupo 07 no âmbito do Challenge 2 da Residência em Inteligência Artificial (Universidade de Brasília e Instituto de Pesquisas Eldorado).
 
 O sistema Orquestrador de Rolês tem como propósito apoiar grupos de amigos no Distrito Federal no planejamento de encontros presenciais, mitigando barreiras de constrangimento financeiro, sobrecarga de decisão e dispersão de informações. Para que as recomendações do agente inteligente sejam confiáveis, o sistema exige uma base de conhecimento factual rigorosa, imune a alucinações e ancorada em estabelecimentos reais, com valores monetários e localizações geográficas auditadas.
+
+Conforme diretriz do projeto, todos os artefatos desta entrega encontram-se centralizados e operacionais em nossa plataforma web interativa, dispensando a necessidade de inspeção manual de arquivos compactados. A central permite consultar a base homologada, inspecionar a quarentena, visualizar vetores, rodar buscas no protótipo de RAG e auditar as métricas de telemetria em tempo real:
+
+\begin{center}
+\fbox{\parbox{0.95\textwidth}{\centering \textbf{Portal Oficial e Central de Entregáveis:}\ \textbf{\url{https://orquestrador-roles.onrender.com/entregaveis}}}}
+\end{center}
 
 O Quadro 1 resume o atendimento a todos os requisitos estipulados para a entrega da Semana 2, associando cada item à sua implementação técnica e respectivo artefato no repositório.
 
@@ -286,7 +304,12 @@ Base de Dados Ativa & Requisito Semana 2 & Mínimo de 20 fontes & \textbf{93 doc
 \flushleft{\footnotesize{Fonte: elaborado pelos autores (2026).}}
 \end{table}
 
-Todos os dados curados, artefatos vetoriais, código-fonte e o protótipo funcional encontram-se disponíveis e podem ser avaliados de forma interativa diretamente no endereço web do projeto: \url{https://orquestrador-roles.onrender.com/entregaveis}.
+Todos os dados curados, artefatos vetoriais, código-fonte e o protótipo funcional encontram-se implantados e disponíveis para avaliação interativa diretamente no portal do projeto:
+\begin{center}
+\textbf{\url{https://orquestrador-roles.onrender.com/entregaveis}}
+\end{center}
+
+\clearpage
 
 \section*{Referências}
 \addcontentsline{toc}{section}{Referências}

@@ -1227,6 +1227,11 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
         <p>O presente relatório técnico documenta a concepção, o pipeline de ingestão automatizada de dados, a estratégia de segmentação semântica (<em>chunking</em>), a modelagem de <em>embeddings</em> vetoriais, a governança de observabilidade (<em>LLMOps</em>) e a demonstração experimental do mecanismo de Geração Aumentada por Recuperação (<em>Retrieval-Augmented Generation</em> — RAG) desenvolvido pelo Grupo 07 no âmbito do Challenge 2 da Residência em Inteligência Artificial (Universidade de Brasília e Instituto de Pesquisas Eldorado).</p>
         <p>O sistema Orquestrador de Rolês apoia grupos de amigos no Distrito Federal no planejamento de encontros presenciais, mitigando barreiras de constrangimento financeiro, sobrecarga de decisão e dispersão de informações, ancorado em uma base curada imune a alucinações.</p>
 
+        <div class="box-destaque" style="border-left:4px solid var(--purple); background:rgba(188, 140, 255, 0.08); text-align:center;">
+          <strong>Portal Oficial e Central de Entregáveis:</strong><br>
+          <a href="https://orquestrador-roles.onrender.com/entregaveis" target="_blank" style="color:#79c0ff; font-weight:700; text-decoration:underline;">https://orquestrador-roles.onrender.com/entregaveis</a>
+        </div>
+
         <p><strong>Quadro 1 – Conformidade dos requisitos da Semana 2</strong></p>
         <table>
           <thead>
