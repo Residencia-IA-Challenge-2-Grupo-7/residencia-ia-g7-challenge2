@@ -236,7 +236,6 @@ LANDING_PAGE = """<!DOCTYPE html>
         <span class="badge green">● 93 Rolês Auditados (2FA)</span>
         <span class="badge purple">● 71 Quarentenados</span>
         <span class="badge blue">● text-embedding-3-large</span>
-        <span class="badge">● Relatório Oficial 4 Páginas</span>
       </div>
 
       <div class="cta-group">
@@ -247,7 +246,7 @@ LANDING_PAGE = """<!DOCTYPE html>
       <div class="features-grid">
         <div class="feature-card">
           <div class="feature-icon">📄</div>
-          <div class="feature-title">Relatório Técnico ABNT</div>
+          <div class="feature-title">Relatório Técnico Oficial</div>
           <div class="feature-desc">Documento oficial com metodologia 2FA, arquitetura vetorial, guardrails noturnos e métricas RNF.</div>
         </div>
         <div class="feature-card">
@@ -1090,7 +1089,7 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
         <div>
           <div class="quadrado-top">
             <span class="quadrado-icon">📄</span>
-            <span class="quadrado-badge purple">4 Págs ABNT</span>
+            <span class="quadrado-badge purple">PDF Oficial</span>
           </div>
           <div class="quadrado-title">Relatório Técnico Oficial</div>
           <p class="quadrado-desc">
@@ -1680,7 +1679,7 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
         <div style="font-size:2.6rem; margin-bottom:8px;">📦</div>
         <h2 style="font-size:1.2rem; margin-bottom:6px;">Entregavel_Grupo7_Base_Conhecimento_e_RAG.zip</h2>
         <p style="color:var(--text-muted); max-width:520px; margin:0 auto 16px auto; font-size:0.84rem; line-height:1.4;">
-          Arquivo compactado consolidado (3.5 MB) contendo o relatório técnico oficial de 4 páginas em PDF, base homologada de 93 rolês (JSON), vetores de 3072d e códigos do pipeline RAG.
+          Arquivo compactado consolidado (3.5 MB) contendo o relatório técnico oficial em PDF, base homologada de 93 rolês (JSON), vetores de 3072d e códigos do pipeline RAG.
         </p>
         <a href="/download/entregavel-zip" class="btn-action" style="font-size:0.92rem; padding:10px 24px;">
           📥 Baixar Pacote ZIP Agora

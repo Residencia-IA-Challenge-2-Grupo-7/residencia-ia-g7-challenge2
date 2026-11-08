@@ -132,7 +132,7 @@ def visualizar_relatorio_pdf():
 
 @app.get("/download/relatorio-pdf")
 def download_relatorio_pdf():
-    """Download do Relatório Técnico Oficial de RAG (4 páginas exatas ABNT/IEEE)."""
+    """Download do Relatório Técnico Oficial de RAG (PDF)."""
     pdf_path = os.path.join(BASE_DIR, "docs/entregas/semana-02/RELATORIO_TECNICO_RAG_GRUPO7.pdf")
     if not os.path.isfile(pdf_path):
         raise HTTPException(status_code=404, detail="Relatório PDF não encontrado.")
