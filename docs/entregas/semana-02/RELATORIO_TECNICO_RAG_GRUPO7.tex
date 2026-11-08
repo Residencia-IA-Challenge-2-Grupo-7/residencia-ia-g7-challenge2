@@ -1,36 +1,40 @@
-\documentclass[12pt,a4paper]{article}
+\documentclass[11pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 \usepackage[brazil]{babel}
 \usepackage{mathptmx}
-\usepackage[left=3cm,top=3cm,right=2cm,bottom=2cm]{geometry}
+\usepackage[left=2.5cm,top=2.2cm,right=2.0cm,bottom=2.0cm]{geometry}
 \usepackage{setspace}
-\setstretch{1.15}
+\setstretch{1.08}
 \usepackage{indentfirst}
-\setlength{\parindent}{1.25cm}
+\setlength{\parindent}{1.0cm}
 \usepackage{titlesec}
 \titleformat{\section}{\bfseries\normalsize}{\thesection}{1em}{\MakeUppercase}
 \titleformat{\subsection}{\bfseries\normalsize}{\thesubsection}{1em}{}
-\titlespacing*{\section}{0pt}{14pt}{6pt}
-\titlespacing*{\subsection}{0pt}{10pt}{4pt}
+\titlespacing*{\section}{0pt}{8pt}{3pt}
+\titlespacing*{\subsection}{0pt}{6pt}{2pt}
 \usepackage{fancyhdr}
 \pagestyle{fancy}
 \fancyhf{}
 \fancyhead[R]{\thepage}
 \renewcommand{\headrulewidth}{0pt}
-\setlength{\headheight}{15pt}
+\setlength{\headheight}{14pt}
 \usepackage{caption}
-\captionsetup[table]{name=Quadro,labelsep=endash,justification=raggedright,singlelinecheck=false,font=bf}
+\captionsetup[table]{name=Quadro,labelsep=endash,justification=raggedright,singlelinecheck=false,font=bf,skip=2pt}
 \usepackage{booktabs}
 \usepackage{tabularx}
-\usepackage{float}
 \usepackage{amsmath}
+\usepackage{amssymb}
 \usepackage{enumitem}
+\setlist{nosep,leftmargin=0.7cm,itemsep=1pt,topsep=1pt,partopsep=0pt,parsep=0pt}
 \usepackage{microtype}
-\usepackage[hidelinks]{hyperref}
+\usepackage[table]{xcolor}
+\definecolor{linkblue}{HTML}{0969DA}
+\definecolor{highlightbg}{HTML}{F0F6FF}
+\definecolor{highlightborder}{HTML}{1D4ED8}
+\usepackage[colorlinks=true,linkcolor=black,citecolor=black,urlcolor=linkblue]{hyperref}
 \urlstyle{same}
 \sloppy
-
 \begin{document}
 
 \begin{titlepage}
@@ -50,8 +54,15 @@ ORQUESTRADOR DE ROLÊS (DISTRITO FEDERAL)\\[0.3cm]
 {\normalsize RELATÓRIO TÉCNICO: BASE DE CONHECIMENTO CURADA E PROTÓTIPO DE RAG\\
 Definições e Resultados -- Challenge 2, Semana 2}\\[1.2cm]
 
-{\normalfont\small CENTRAL INTERATIVA DE ENTREGÁVEIS E PROTÓTIPO ONLINE:\\
-\textbf{\url{https://orquestrador-roles.onrender.com/entregaveis}}}\\[2.8cm]
+\fcolorbox{highlightborder}{highlightbg}{%
+\parbox{0.92\textwidth}{\centering
+\vspace{6pt}
+{\normalsize\bfseries\textcolor{linkblue}{[PORTAL ONLINE] CENTRAL INTERATIVA DE ENTREGÁVEIS (CLIQUE AQUI)}}\\[3pt]
+{\footnotesize\bfseries Base de Conhecimento, Quarentena, Vetores e Protótipo de RAG Operacionais na Web:}\\[4pt]
+{\large\bfseries\href{https://orquestrador-roles.onrender.com/entregaveis}{\underline{https://orquestrador-roles.onrender.com/entregaveis}}}\\[3pt]
+{\footnotesize\itshape\textcolor{linkblue}{$\blacktriangleright$ Clique no link acima para abrir a plataforma interativa no seu navegador}}
+\vspace{6pt}
+}}\\[2.8cm]
 
 BRASÍLIA\\
 2026}
@@ -69,15 +80,23 @@ O sistema Orquestrador de Rolês tem como propósito apoiar grupos de amigos no 
 Conforme diretriz do projeto, todos os artefatos desta entrega encontram-se centralizados e operacionais em nossa plataforma web interativa, dispensando a necessidade de inspeção manual de arquivos compactados. A central permite consultar a base homologada, inspecionar a quarentena, visualizar vetores, rodar buscas no protótipo de RAG e auditar as métricas de telemetria em tempo real:
 
 \begin{center}
-\fbox{\parbox{0.95\textwidth}{\centering \textbf{Portal Oficial e Central de Entregáveis:}\ \textbf{\url{https://orquestrador-roles.onrender.com/entregaveis}}}}
+\fcolorbox{highlightborder}{highlightbg}{%
+\parbox{0.96\textwidth}{\centering
+\vspace{4pt}
+{\bfseries\normalsize\textcolor{linkblue}{[ACESSO INTERATIVO] CENTRAL DE ENTREGÁVEIS ONLINE (CLIQUE AQUI)}}\\[2pt]
+{\small Todos os artefatos desta entrega estão homologados e navegáveis na nuvem:}\\[3pt]
+\href{https://orquestrador-roles.onrender.com/entregaveis}{\large\bfseries\underline{https://orquestrador-roles.onrender.com/entregaveis}}\\[2pt]
+{\footnotesize\bfseries\itshape\textcolor{linkblue}{$\blacktriangleright$ Link clicável: clique para testar o RAG e inspecionar os dados diretamente}}
+\vspace{4pt}
+}}
 \end{center}
 
 O Quadro 1 resume o atendimento a todos os requisitos estipulados para a entrega da Semana 2, associando cada item à sua implementação técnica e respectivo artefato no repositório.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \small
-\renewcommand{\arraystretch}{1.15}
+\renewcommand{\arraystretch}{1.03}
 \caption{Conformidade dos requisitos da Semana 2}
 \begin{tabularx}{\textwidth}{p{4.0cm} p{4.6cm} X}
 \toprule
@@ -90,7 +109,7 @@ O Quadro 1 resume o atendimento a todos os requisitos estipulados para a entrega
 5. Banco vetorial implementado & Persistência em JSON/CSV e motor vetorial com busca Top-3 & data/\allowbreak banco\_vetorial\_embeddings.json e banco\_vetorial.py \\
 6. Demonstração dos 4 passos & Bateria com consulta, chunks, resposta fundamentada e fontes & prototipo\_rag.py e arquivo DEMONSTRACAO\_RAG\_ENTREGAVEL.txt \\
 7. Telemetria e LLMOps & Rastreamento em tempo real, cálculo de SLA e fidelidade no Langfuse & src/telemetria/telemetria.py e painel Langfuse Cloud v5.x \\
-8. Interface interativa & Central web para exploração de dados, relatórios e testes & https://orquestrador-roles.onrender.com/entregaveis \\
+8. Interface interativa & Central web para exploração de dados, relatórios e testes & \href{https://orquestrador-roles.onrender.com/entregaveis}{\textbf{\underline{Central Web Interativa (Clique aqui)}}} \\
 \bottomrule
 \end{tabularx}
 \vspace{0.1cm}
@@ -120,10 +139,10 @@ Os registros que falharam em qualquer uma das duas travas (24 vídeos com ausên
 
 O Quadro 2 sintetiza o balanço quantitativo da curadoria 2FA.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \small
-\renewcommand{\arraystretch}{1.15}
+\renewcommand{\arraystretch}{1.03}
 \caption{Balanço do processo de curadoria 2FA}
 \begin{tabularx}{\textwidth}{X c p{7.5cm}}
 \toprule
@@ -199,10 +218,10 @@ Para comprovar o funcionamento pleno do pipeline, submeteu-se o sistema a três 
 
 O Quadro 3 resume os três casos de demonstração auditados.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \small
-\renewcommand{\arraystretch}{1.15}
+\renewcommand{\arraystretch}{1.03}
 \caption{Resultados da demonstração experimental do RAG}
 \begin{tabularx}{\textwidth}{c p{3.6cm} p{3.2cm} c c X}
 \toprule
@@ -231,8 +250,8 @@ A seguir, transcrevem-se os detalhes comprobatórios de cada caso:
 \item \textbf{Resposta Fundamentada (RAG):} Recomenda o Nicolândia Parque Urbano [FONTE \#1] no Parque da Cidade (R\$ 29,90) por combinar brinquedos infantis com áreas ao ar livre, e o Vale Encantado [FONTE \#2] em Taguatinga (R\$ 19,90), enfatizando que ambas as opções cumprem o teto de R\$ 30,00 e possuem brinquedoteca monitorada e atmosfera familiar. A terceira fonte (Wellness Life Expo) foi descartada por ultrapassar o limite financeiro (R\$ 35,00).
 \item \textbf{Evidência e Rastreabilidade das Fontes:}
 \begin{itemize}
-\item \textbf{[FONTE \#1] Nicolândia Parque Urbano:} ID \textit{tiktok\_7622722061256920327}; GPS (-15.80126, -47.91021); Preço validado: R\$ 29,90; Transcrição Whisper: \textit{``...ingressos a partir de 29 e 90 para aproveitar o parque inteiro com as crianças...''}; Link: \url{https://www.tiktok.com/@rolezandoembrasilia/video/7622722061256920327}.
-\item \textbf{[FONTE \#2] Vale Encantado:} ID \textit{tiktok\_7698914646354447634}; GPS (-15.833, -48.056); Preço validado: R\$ 19,90; Transcrição Whisper: \textit{``...experiência temática familiar com túnel de luzes e show de neve por 19,90...''}; Link: \url{https://www.tiktok.com/@rolezandoembrasilia/video/7698914646354447634}.
+\item \textbf{[FONTE \#1] Nicolândia Parque Urbano:} ID \textit{tiktok\_7622722061256920327}; GPS (-15.80126, -47.91021); Preço validado: R\$ 29,90; Transcrição Whisper: \textit{``...ingressos a partir de 29 e 90 para aproveitar o parque inteiro com as crianças...''}; \href{https://www.tiktok.com/@rolezandoembrasilia/video/7622722061256920327}{\textbf{\underline{Ver Vídeo no TikTok $\nearrow$}}}.
+\item \textbf{[FONTE \#2] Vale Encantado:} ID \textit{tiktok\_7698914646354447634}; GPS (-15.833, -48.056); Preço validado: R\$ 19,90; Transcrição Whisper: \textit{``...experiência temática familiar com túnel de luzes e show de neve por 19,90...''}; \href{https://www.tiktok.com/@rolezandoembrasilia/video/7698914646354447634}{\textbf{\underline{Ver Vídeo no TikTok $\nearrow$}}}.
 \end{itemize}
 \end{itemize}
 
@@ -248,8 +267,8 @@ A seguir, transcrevem-se os detalhes comprobatórios de cada caso:
 \item \textbf{Resposta Fundamentada (RAG):} Para hambúrguer grelhado na brasa de carvão no Sudoeste, recomenda o Cabiburger [FONTE \#1] (preço médio de R\$ 50,00). Para grupos que buscam rodízio variado em ambiente descontraído em Taguatinga, indica o Filomenamburger [FONTE \#2] (preço médio de R\$ 50,00 com buffet de mini hambúrgueres e sobremesas). O House Burger [FONTE \#3] oferece opção econômica no Riacho Fundo (R\$ 30,00).
 \item \textbf{Evidência e Rastreabilidade das Fontes:}
 \begin{itemize}
-\item \textbf{[FONTE \#1] Cabiburger:} ID \textit{tiktok\_7670312298690481415}; GPS (-15.79616, -47.91498); Preço validado: R\$ 50,00; Transcrição Whisper: \textit{``...não tem hambúrguer na chapa, é feito direto na brasa com carvão de verdade...''}; Link: \url{https://www.tiktok.com/@rolezandoembrasilia/video/7670312298690481415}.
-\item \textbf{[FONTE \#2] Filomenamburger:} ID \textit{tiktok\_7688864663336963336}; GPS (-15.833, -48.056); Preço validado: R\$ 50,00; Transcrição Whisper: \textit{``...rodízio variado com mini hambúrgueres e sobremesa na cascata de cheddar...''}; Link: \url{https://www.tiktok.com/@rolezandoembrasilia/video/7688864663336963336}.
+\item \textbf{[FONTE \#1] Cabiburger:} ID \textit{tiktok\_7670312298690481415}; GPS (-15.79616, -47.91498); Preço validado: R\$ 50,00; Transcrição Whisper: \textit{``...não tem hambúrguer na chapa, é feito direto na brasa com carvão de verdade...''}; \href{https://www.tiktok.com/@rolezandoembrasilia/video/7670312298690481415}{\textbf{\underline{Ver Vídeo no TikTok $\nearrow$}}}.
+\item \textbf{[FONTE \#2] Filomenamburger:} ID \textit{tiktok\_7688864663336963336}; GPS (-15.833, -48.056); Preço validado: R\$ 50,00; Transcrição Whisper: \textit{``...rodízio variado com mini hambúrgueres e sobremesa na cascata de cheddar...''}; \href{https://www.tiktok.com/@rolezandoembrasilia/video/7688864663336963336}{\textbf{\underline{Ver Vídeo no TikTok $\nearrow$}}}.
 \end{itemize}
 \end{itemize}
 
@@ -265,8 +284,8 @@ A seguir, transcrevem-se os detalhes comprobatórios de cada caso:
 \item \textbf{Resposta Fundamentada (RAG):} Indica a Lefit Gelatos e Doces Saudáveis [FONTE \#1] (preço médio de R\$ 28,00), destacando que a casa é uma confeitaria e gelateria autoral com receitas livres de trigo, lactose e açúcar refinado, oferecendo ambiente intimista com baixo nível de ruído, perfeito para conversas tranquilas. A Oficina de Tortas [FONTE \#2] (R\$ 23,50) complementa como opção artesanal na Asa Sul.
 \item \textbf{Evidência e Rastreabilidade das Fontes:}
 \begin{itemize}
-\item \textbf{[FONTE \#1] Lefit Gelatos e Doces Saudáveis:} ID \textit{tiktok\_7699233720657530119}; GPS (-15.8192, -47.8988); Preço validado: R\$ 28,00; Transcrição Whisper: \textit{``...onde você come diversas delícias sem peso na consciência... tudo sem conservantes e sem açúcar refinado...''}; Link: \url{https://www.tiktok.com/@rolezandoembrasilia/video/7699233720657530119}.
-\item \textbf{[FONTE \#2] Oficina de Tortas:} ID \textit{tiktok\_7645713289552481543}; GPS (-15.8192, -47.8988); Preço validado: R\$ 23,50; Transcrição Whisper: \textit{``...confeitaria mais artesanal de Brasília no aniversário com fatias especiais...''}; Link: \url{https://www.tiktok.com/@rolezandoembrasilia/video/7645713289552481543}.
+\item \textbf{[FONTE \#1] Lefit Gelatos e Doces Saudáveis:} ID \textit{tiktok\_7699233720657530119}; GPS (-15.8192, -47.8988); Preço validado: R\$ 28,00; Transcrição Whisper: \textit{``...onde você come diversas delícias sem peso na consciência... tudo sem conservantes e sem açúcar refinado...''}; \href{https://www.tiktok.com/@rolezandoembrasilia/video/7699233720657530119}{\textbf{\underline{Ver Vídeo no TikTok $\nearrow$}}}.
+\item \textbf{[FONTE \#2] Oficina de Tortas:} ID \textit{tiktok\_7645713289552481543}; GPS (-15.8192, -47.8988); Preço validado: R\$ 23,50; Transcrição Whisper: \textit{``...confeitaria mais artesanal de Brasília no aniversário com fatias especiais...''}; \href{https://www.tiktok.com/@rolezandoembrasilia/video/7645713289552481543}{\textbf{\underline{Ver Vídeo no TikTok $\nearrow$}}}.
 \end{itemize}
 \end{itemize}
 
@@ -284,10 +303,10 @@ A auditoria matemática contínua monitora três Requisitos Não Funcionais prio
 
 O Quadro 4 apresenta as métricas consolidadas de observabilidade.
 
-\begin{table}[H]
+\begin{table}[!htbp]
 \centering
 \small
-\renewcommand{\arraystretch}{1.15}
+\renewcommand{\arraystretch}{1.03}
 \caption{Métricas de telemetria e requisitos não funcionais (RNF)}
 \begin{tabularx}{\textwidth}{p{4.2cm} p{4.2cm} c X}
 \toprule
@@ -305,8 +324,17 @@ Base de Dados Ativa & Requisito Semana 2 & Mínimo de 20 fontes & \textbf{93 doc
 \end{table}
 
 Todos os dados curados, artefatos vetoriais, código-fonte e o protótipo funcional encontram-se implantados e disponíveis para avaliação interativa diretamente no portal do projeto:
+
 \begin{center}
-\textbf{\url{https://orquestrador-roles.onrender.com/entregaveis}}
+\fcolorbox{highlightborder}{highlightbg}{%
+\parbox{0.96\textwidth}{\centering
+\vspace{4pt}
+{\bfseries\normalsize\textcolor{linkblue}{[AUDITORIA ONLINE] ACESSE A PLATAFORMA EM TEMPO REAL (CLIQUE AQUI)}}\\[2pt]
+{\small Teste o protótipo RAG com novos rolês e audite os registros de telemetria Langfuse:}\\[3pt]
+\href{https://orquestrador-roles.onrender.com/entregaveis}{\large\bfseries\underline{https://orquestrador-roles.onrender.com/entregaveis}}\\[2pt]
+{\footnotesize\bfseries\itshape\textcolor{linkblue}{$\blacktriangleright$ Clique no link acima para abrir a Central de Entregáveis no seu navegador}}
+\vspace{4pt}
+}}
 \end{center}
 
 \clearpage

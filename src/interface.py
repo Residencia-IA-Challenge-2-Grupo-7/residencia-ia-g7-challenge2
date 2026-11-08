@@ -1226,9 +1226,10 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
         <p>O presente relatório técnico documenta a concepção, o pipeline de ingestão automatizada de dados, a estratégia de segmentação semântica (<em>chunking</em>), a modelagem de <em>embeddings</em> vetoriais, a governança de observabilidade (<em>LLMOps</em>) e a demonstração experimental do mecanismo de Geração Aumentada por Recuperação (<em>Retrieval-Augmented Generation</em> — RAG) desenvolvido pelo Grupo 07 no âmbito do Challenge 2 da Residência em Inteligência Artificial (Universidade de Brasília e Instituto de Pesquisas Eldorado).</p>
         <p>O sistema Orquestrador de Rolês apoia grupos de amigos no Distrito Federal no planejamento de encontros presenciais, mitigando barreiras de constrangimento financeiro, sobrecarga de decisão e dispersão de informações, ancorado em uma base curada imune a alucinações.</p>
 
-        <div class="box-destaque" style="border-left:4px solid var(--purple); background:rgba(188, 140, 255, 0.08); text-align:center;">
-          <strong>Portal Oficial e Central de Entregáveis:</strong><br>
-          <a href="https://orquestrador-roles.onrender.com/entregaveis" target="_blank" style="color:#79c0ff; font-weight:700; text-decoration:underline;">https://orquestrador-roles.onrender.com/entregaveis</a>
+        <div class="box-destaque" style="border-left:4px solid #58a6ff; background:rgba(56, 139, 253, 0.12); text-align:center; padding:16px; border-radius:8px; margin:18px 0;">
+          <div style="font-weight:800; font-size:1.02rem; color:#79c0ff; margin-bottom:4px;">🌐 PLATAFORMA ONLINE E CENTRAL DE ENTREGÁVEIS (CLIQUE AQUI)</div>
+          <div style="font-size:0.84rem; color:var(--text-muted); margin-bottom:10px;">Ambiente na nuvem com base homologada 2FA, quarentena, vetores e protótipo RAG:</div>
+          <a href="https://orquestrador-roles.onrender.com/entregaveis" target="_blank" style="color:#ffffff; background:#1f6feb; border:1px solid rgba(255,255,255,0.25); padding:8px 22px; border-radius:6px; font-weight:700; text-decoration:none; display:inline-block; font-size:0.9rem;">👉 Acessar Central de Entregáveis Online (Link Clicável)</a>
         </div>
 
         <p><strong>Quadro 1 – Conformidade dos requisitos da Semana 2</strong></p>
@@ -1461,6 +1462,12 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
           </tbody>
         </table>
         <div style="font-size:0.8rem; color:var(--text-muted); margin-top:-10px; margin-bottom:16px;">Fonte: elaborado pelos autores (2026).</div>
+
+        <div class="box-destaque" style="border-left:4px solid #58a6ff; background:rgba(56, 139, 253, 0.12); text-align:center; padding:16px; border-radius:8px; margin:20px 0;">
+          <div style="font-weight:800; font-size:1.02rem; color:#79c0ff; margin-bottom:4px;">🎯 AUDITE OS ENTREGÁVEIS E TESTE O PROTÓTIPO EM TEMPO REAL</div>
+          <div style="font-size:0.84rem; color:var(--text-muted); margin-bottom:10px;">Interaja com os 93 rolês homologados, inspecione vetores 3072d e consulte os logs Langfuse:</div>
+          <a href="https://orquestrador-roles.onrender.com/entregaveis" target="_blank" style="color:#ffffff; background:#1f6feb; border:1px solid rgba(255,255,255,0.25); padding:8px 22px; border-radius:6px; font-weight:700; text-decoration:none; display:inline-block; font-size:0.9rem;">👉 Abrir Central de Entregáveis Completa</a>
+        </div>
 
         <h2>Referências</h2>
         <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.5;">
