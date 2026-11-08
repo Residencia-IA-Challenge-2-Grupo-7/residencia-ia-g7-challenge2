@@ -1,0 +1,311 @@
+\documentclass[12pt,a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[brazil]{babel}
+\usepackage{mathptmx}
+\usepackage[left=3cm,top=3cm,right=2cm,bottom=2cm]{geometry}
+\usepackage{setspace}
+\setstretch{1.15}
+\usepackage{indentfirst}
+\setlength{\parindent}{1.25cm}
+\usepackage{titlesec}
+\titleformat{\section}{\bfseries\normalsize}{\thesection}{1em}{\MakeUppercase}
+\titleformat{\subsection}{\bfseries\normalsize}{\thesubsection}{1em}{}
+\titlespacing*{\section}{0pt}{14pt}{6pt}
+\titlespacing*{\subsection}{0pt}{10pt}{4pt}
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[R]{\thepage}
+\renewcommand{\headrulewidth}{0pt}
+\setlength{\headheight}{15pt}
+\usepackage{caption}
+\captionsetup[table]{name=Quadro,labelsep=endash,justification=raggedright,singlelinecheck=false,font=bf}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{float}
+\usepackage{amsmath}
+\usepackage{enumitem}
+\usepackage{microtype}
+\usepackage[hidelinks]{hyperref}
+\urlstyle{same}
+\sloppy
+
+\begin{document}
+
+\begin{center}
+{\bfseries INSTITUTO DE PESQUISAS ELDORADO\\
+UNIVERSIDADE DE BRASÍLIA\\
+RESIDÊNCIA EM INTELIGÊNCIA ARTIFICIAL -- TURMA 2\\
+GRUPO 07\\[0.35cm]
+LETÍCIA MITI TAKAHASHI -- CIENTISTA DE DADOS\\
+MARIA EDUARDA -- ML/LLMOPS \& DEVOPS\\
+MARIA CAROLINA -- ENGENHARIA DE DADOS\\
+CAUAN SOARES -- ARQUITETO DA SOLUÇÃO\\
+SAMARA LETÍCIA -- ENGENHARIA DE DADOS\\[0.4cm]
+ORQUESTRADOR DE ROLÊS (DISTRITO FEDERAL)\\
+RELATÓRIO TÉCNICO: BASE DE CONHECIMENTO CURADA E PROTÓTIPO DE RAG\\
+Definições e Resultados -- Challenge 2, Semana 2\\[0.3cm]}
+\end{center}
+
+\section{Visão Geral e Resumo dos Entregáveis}
+
+O presente relatório técnico documenta a concepção, o pipeline de ingestão automatizada de dados, a estratégia de segmentação semântica (\textit{chunking}), a modelagem de \textit{embeddings} vetoriais, a governança de observabilidade (\textit{LLMOps}) e a demonstração experimental do mecanismo de Geração Aumentada por Recuperação (\textit{Retrieval-Augmented Generation} -- RAG) desenvolvido pelo Grupo 07 no âmbito do Challenge 2 da Residência em Inteligência Artificial (Universidade de Brasília e Instituto de Pesquisas Eldorado).
+
+O sistema Orquestrador de Rolês tem como propósito apoiar grupos de amigos no Distrito Federal no planejamento de encontros presenciais, mitigando barreiras de constrangimento financeiro, sobrecarga de decisão e dispersão de informações. Para que as recomendações do agente inteligente sejam confiáveis, o sistema exige uma base de conhecimento factual rigorosa, imune a alucinações e ancorada em estabelecimentos reais, com valores monetários e localizações geográficas auditadas.
+
+O Quadro 1 resume o atendimento a todos os requisitos estipulados para a entrega da Semana 2, associando cada item à sua implementação técnica e respectivo artefato no repositório.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.15}
+\caption{Conformidade dos requisitos da Semana 2}
+\begin{tabularx}{\textwidth}{p{4.0cm} p{4.6cm} X}
+\toprule
+\textbf{Requisito do Edital} & \textbf{Implementação Técnica} & \textbf{Artefato no Projeto} \\
+\midrule
+1. Base de conhecimento curada & Curadoria em Dois Fatores (2FA) com validação cultural e dupla trava & data/banco\_aprovado\_2fa.json e data/banco\_aprovado\_2fa.csv \\
+2. Mínimo de 20 documentos-fonte & 93 documentos homologados (extraídos de 164 vídeos de 2026) & data/banco\_aprovado\_2fa.json (93 itens aprovados) \\
+3. Estratégia de chunking & Chunking Semântico Centrado em Entidade (1 chunk autocontido) & Seção 3 deste relatório e módulo src/rag/banco\_vetorial.py \\
+4. Estratégia de embeddings & Modelo de 3.072 dimensões com busca por similaridade de cosseno & Seção 4 deste relatório e banco\_vetorial\_embeddings.json \\
+5. Banco vetorial implementado & Persistência em JSON/CSV e motor vetorial com busca Top-3 & data/\allowbreak banco\_vetorial\_embeddings.json e banco\_vetorial.py \\
+6. Demonstração dos 4 passos & Bateria com consulta, chunks, resposta fundamentada e fontes & prototipo\_rag.py e arquivo DEMONSTRACAO\_RAG\_ENTREGAVEL.txt \\
+7. Telemetria e LLMOps & Rastreamento em tempo real, cálculo de SLA e fidelidade no Langfuse & src/telemetria/telemetria.py e painel Langfuse Cloud v5.x \\
+8. Interface interativa & Central web para exploração de dados, relatórios e testes & https://orquestrador-roles.onrender.com/entregaveis \\
+\bottomrule
+\end{tabularx}
+\vspace{0.1cm}
+\flushleft{\footnotesize{Fonte: elaborado pelos autores (2026).}}
+\end{table}
+
+\section{Pipeline de Ingestão e Curadoria em Dois Fatores (2FA)}
+
+A construção da base de conhecimento fundamentou-se na extração integral dos vídeos publicados ao longo do ano de 2026 pelo canal especializado em gastronomia, entretenimento e turismo local \textit{@rolezandoembrasilia} na plataforma TikTok, totalizando 164 registros multimídia brutos.
+
+Em redes sociais, publicações em vídeo frequentemente omitem informações textuais relevantes nas legendas, reservando dados cruciais de preços, endereços e pratos à locução em áudio falado. Adicionalmente, canais de turismo intercalam recomendações genuínas com publicidades patrocinadas de segmentos dissociados do lazer (como óticas, comércio de vestuário e serviços de saúde). 
+
+Para assegurar a integridade da base e cumprir o requisito de não alucinação (RNF-03), foi desenvolvido no módulo \textit{coletor\_tiktok\_2fa.py} um pipeline de Autenticação de Dois Fatores de Dados (2FA), composto por cinco etapas sequenciais:
+
+\begin{enumerate}[label=\alph*)]
+\item \textbf{Coleta Bruta e Extração de Mídia:} Descoberta automatizada de identificadores de vídeo via identificador seguro (\textit{secUid}) utilizando as bibliotecas \textit{yt-dlp} e \textit{curl\_cffi}, com extração dos metadados públicos e download do fluxo de áudio em formato MP3 de todos os 164 vídeos de 2026.
+\item \textbf{Transcrição Automática de Fala (ASR):} Conversão da trilha de áudio em texto pelo modelo Whisper Large v3 Turbo, hospedado na infraestrutura de alta velocidade da Groq API. O processo recuperou detalhes citados exclusivamente pelos narradores, tais como valores monetários, formatos de atendimento e pontos de referência no Distrito Federal.
+\item \textbf{Fator 1 (Curadoria Cultural e Tipológica):} Processamento do texto transcrito por meio de modelo de linguagem (\textit{LLM}) instruído com esquema estrito. O filtro descartou automaticamente 47 vídeos de publicidade comercial (lojas de roupas, óticas e colchões) e extraiu estruturadamente: nome oficial, tipo de rolê (classificado em Restaurante/Gastronomia, Bar/Boteco/Pub, Cafeteria/Doceria, Ao Ar Livre/Parque ou Experiência/Evento) e perfil sensorial/vibes (Romântico/Date, Calmo/Bom para Conversar, Intimista/Aconchegante, Baratinho, Cultural/Alternativo, Kid Friendly e Animado/Galera).
+\item \textbf{Fator 2 (Validação Prática por Dupla Trava):} Submissão dos candidatos a duas regras determinísticas de conformidade:
+\begin{itemize}
+\item \textit{Trava 1 (Geolocalização no DF):} Exigência de confirmação de logradouro válido em uma das Regiões Administrativas do Distrito Federal e coordenadas de latitude e longitude verificáveis.
+\item \textit{Trava 2 (Orçamento Objetivo):} Exigência de valor monetário médio explícito por pessoa (em Reais) e enquadramento em faixa de custo (Barato, Moderado ou Caro).
+\end{itemize}
+Os registros que falharam em qualquer uma das duas travas (24 vídeos com ausência de preço exato ou sem endereço pontual) foram encaminhados à fila de quarentena (\textit{data/fila\_quarentena\_2fa.json}). Os 93 estabelecimentos aprovados simultaneamente em ambos os fatores integraram a base oficial (\textit{data/banco\_aprovado\_2fa.json}).
+\item \textbf{Vetorização e Indexação:} Geração dos chunks semânticos e cálculo dos vetores de 3.072 dimensões, persistidos no banco vetorial.
+\end{enumerate}
+
+O Quadro 2 sintetiza o balanço quantitativo da curadoria 2FA.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.15}
+\caption{Balanço do processo de curadoria 2FA}
+\begin{tabularx}{\textwidth}{X c p{7.5cm}}
+\toprule
+\textbf{Categoria de Destino} & \textbf{Volume} & \textbf{Justificativa Técnica e Destinação} \\
+\midrule
+Fontes Brutas Coletadas & 164 & Totalidade de vídeos publicados em 2026 no perfil auditado. \\
+Descartes do Fator 1 & 47 & Publicidades comerciais alheias ao escopo de lazer (óticas, lojas). \\
+Retidos em Quarentena (Fator 2) & 24 & Locais sem endereço auditável no DF ou sem preço especificado. \\
+\textbf{Base Curada Aprovada (2FA)} & \textbf{93} & \textbf{Homologados com endereço, coordenadas GPS, preço e vibes.} \\
+\bottomrule
+\end{tabularx}
+\vspace{0.1cm}
+\flushleft{\footnotesize{Fonte: elaborado pelos autores (2026).}}
+\end{table}
+
+\section{Estratégia de Chunking Semântico Centrado em Entidade}
+
+A definição do método de divisão de texto (\textit{chunking}) constitui um dos fatores mais determinantes para o sucesso de um sistema RAG. Vídeos curtos de recomendação (com duração entre 30 e 60 segundos) apresentam uma dinâmica narrativa peculiar: o nome do local é anunciado nos primeiros segundos; os destaques de ambiente e cardápio são apresentados no miolo; e os detalhes de localização, funcionamento e preço são enunciados no fechamento do vídeo.
+
+Caso fosse aplicado um particionamento cego por tamanho fixo (\textit{fixed-size chunking}) baseado em contagem de caracteres ou tokens, as coordenadas geográficas e os preços seriam fatalmente separados do nome do estabelecimento em blocos distintos. Essa fragmentação comprometeria a recuperação semântica e induziria o modelo a associar valores de um restaurante ao nome de outro, gerando alucinações.
+
+Diante disso, adotou-se o Chunking Semântico Centrado em Entidade (\textit{Entity-Centric Structured Semantic Chunking}). Nessa abordagem, cada documento aprovado pela curadoria 2FA corresponde rigorosamente a um único chunk autocontido, sintetizando quatro dimensões de informação:
+
+\begin{enumerate}
+\item \textbf{Identidade e Tipologia (Fator 1):} Nome oficial do estabelecimento e categoria de rolê;
+\item \textbf{Ancoragem Geoespacial e Financeira (Fator 2):} Região Administrativa, endereço completo, coordenadas geográficas e custo médio estimado por pessoa;
+\item \textbf{Atmosfera e Vocabulário Cultural (Fator 1):} Conjunto de etiquetas de clima (\textit{vibes}), sinalização de ambiente infantil (\textit{Kid Friendly}) e resumo sensorial da experiência;
+\item \textbf{Evidência Oral Transcrita (Whisper):} Fragmento literal da locução falada no vídeo (até 500 caracteres), preservando termos específicos de cardápio citados pelo autor (como rodízio, feijoada, parrilla, brinquedoteca ou artesanal).
+\end{enumerate}
+
+A estrutura padronizada de cada documento indexado segue o molde textual:
+\begin{center}
+\textit{Local: \{nome\} | Categoria: \{tipo\} | Região: \{regiao\} (\{endereco\}) | Faixa de Preço: \{faixa\} (R\$ \{custo\}) | Vibes: \{vibes\} | Experiência: \{resumo\} | Relato do TikTok: \{transcricao\}}
+\end{center}
+
+\section{Estratégia de Embeddings e Banco Vetorial}
+
+Para converter os chunks semânticos em representações numéricas comparáveis, selecionou-se o modelo \textit{models/gemini-embedding-001}, da Google Generative Language API, configurado com dimensionalidade densa de 3.072 valores em ponto flutuante por coordenada.
+
+A escolha do modelo fundamenta-se em três pilares:
+\begin{enumerate}[label=\alph*)]
+\item \textbf{Domínio do Português Brasileiro:} Elevada capacidade de generalização sobre termos coloquiais e equivalências semânticas típicas do vocabulário de lazer no DF (por exemplo, correlacionando ``passeio iluminado para crianças'' ao evento infantil ``Vale Encantado'', ou ``doce sem culpa'' a sobremesas sem adição de açúcar refinado);
+\item \textbf{Alta Resolução em 3.072 Dimensões:} Espaço vetorial amplo o suficiente para separar atmosferas contrastantes (como ambientes intimistas para encontros românticos versus espaços agitados com música ao vivo para grandes grupos);
+\item \textbf{Eficiência e Escalabilidade:} Recuperação determinística de alta precisão com custo de consulta nulo na operação cotidiana.
+\end{enumerate}
+
+A comparação entre o vetor da consulta formulada pelo usuário e cada um dos 93 documentos indexados no banco de dados é calculada através da métrica de Similaridade de Cosseno, definida pela fórmula matemática:
+
+\begin{equation}
+\text{Similaridade}(\vec{q}, \vec{d}) = \frac{\vec{q} \cdot \vec{d}}{\|\vec{q}\| \|\vec{d}\|} = \frac{\sum_{i=1}^{n} q_i d_i}{\sqrt{\sum_{i=1}^{n} q_i^2} \sqrt{\sum_{i=1}^{n} d_i^2}}
+\end{equation}
+
+Os 93 vetores de 3.072 dimensões encontram-se persistidos nos arquivos \textit{data/banco\_vetorial\_embeddings.json} e \textit{data/banco\_vetorial\_embeddings.csv}. O motor de recuperação implementado em \textit{src/rag/banco\_vetorial.py} carrega os dados em memória e executa a ordenação vetorial completa em menos de 10 milissegundos, selecionando os três estabelecimentos com maior pontuação semântica (Top-3).
+
+\section{Arquitetura do Protótipo de RAG e Guardrails de Escopo}
+
+O fluxo de processamento do protótipo de RAG opera segundo o paradigma de Geração Fundamentada (\textit{Grounded Generation}), dividindo-se em duas camadas:
+
+\begin{enumerate}
+\item \textbf{Camada de Recuperação (Retriever):} A pergunta em linguagem natural submetida pelo usuário é vetorizada no mesmo espaço de 3.072 dimensões. Em seguida, o motor calcula a similaridade de cosseno contra todos os 93 locais curados e seleciona os três primeiros classificados.
+\item \textbf{Camada de Síntese e Guardrails (Generator):} O modelo gerador recebe os três chunks recuperados inseridos em um prompt com instrução restritiva estrita. O modelo é impedido de inventar estabelecimentos ou alterar valores: sua função é redigir uma recomendação coesa, citando explicitamente as fontes com o marcador [FONTE \#X], endereço, preço e justificativa baseada nos atributos auditados.
+\end{enumerate}
+
+Para lidar com consultas atípicas ou fora de escopo, implementaram-se dois guardrails de salvaguarda:
+\begin{itemize}
+\item \textit{Guardrail de Escopo Regional:} Caso a consulta solicite rolês fora do Distrito Federal (por exemplo, em outros estados), o sistema rejeita a solicitação e esclarece que a base é exclusiva de Brasília e cidades satélites;
+\item \textit{Guardrail de Alta Madrugada:} Como a base de 93 locais curados foca prioritariamente em gastronomia, cafés, passeios culturais e bares de \textit{happy hour}, o sistema emite uma nota de escopo para perguntas de baladas de alta madrugada (após 01h00), indicando com transparência os estabelecimentos que funcionam até mais tarde (como o New Mercadito, aberto até 01h30, e o Carmelita, até 00h00) e evitando sugerir locais familiares com brinquedoteca.
+\end{itemize}
+
+\section{Demonstração Experimental e Evidências de Teste}
+
+Para comprovar o funcionamento pleno do pipeline, submeteu-se o sistema a três casos de teste oficiais com diferentes perfis de público e requisitos. A execução contemplou integralmente os quatro passos exigidos no edital: (1) Consulta submetida, (2) Recuperação dos chunks e scores, (3) Resposta sintetizada fundamentada e (4) Evidência e rastreabilidade das fontes com links originais do TikTok.
+
+O Quadro 3 resume os três casos de demonstração auditados.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.15}
+\caption{Resultados da demonstração experimental do RAG}
+\begin{tabularx}{\textwidth}{c p{3.6cm} p{3.2cm} c c X}
+\toprule
+\textbf{Caso} & \textbf{Consulta Submetida} & \textbf{Recomendação} & \textbf{Cosseno} & \textbf{Preço} & \textbf{Destaque / Vibe} \\
+\midrule
+\#1 & Passeio iluminado/parque com crianças até R\$ 30 & Nicolândia / Vale Encantado & 0.7205 & R\$ 29,90 & Kid Friendly, parque infantil, acessível \\
+\#2 & Hamburgueria artesanal animada no Sudoeste ou Taguatinga & Cabiburger / Filomenamburger & 0.7151 & R\$ 50,00 & Feito na brasa, rodízio variado, animado \\
+\#3 & Confeitaria/gelateria zero açúcar e calma na Asa Sul & Lefit Gelatos e Doces Saudáveis & 0.7763 & R\$ 28,00 & Sem trigo, lactose nem açúcar refinado, calmo \\
+\bottomrule
+\end{tabularx}
+\vspace{0.1cm}
+\flushleft{\footnotesize{Fonte: elaborado pelos autores (2026).}}
+\end{table}
+
+A seguir, transcrevem-se os detalhes comprobatórios de cada caso:
+
+\subsection{Caso de Demonstração \#1 -- Passeio Infantil Econômico}
+\begin{itemize}[leftmargin=1.0cm]
+\item \textbf{Consulta Submetida:} ``Quero levar meus filhos pequenos num passeio iluminado ou parque tranquilo gastando até 30 reais por pessoa''.
+\item \textbf{Chunks Recuperados (Top-3):}
+\begin{itemize}
+\item 1º Nicolândia Parque Urbano (Score: 0.7205; ID: \textit{tiktok\_7622722061256920327}; RA: Plano Piloto -- Parque da Cidade).
+\item 2º Vale Encantado (Score: 0.6923; ID: \textit{tiktok\_7698914646354447634}; RA: Taguatinga).
+\item 3º Wellness Life Expo (Score: 0.6851; ID: \textit{tiktok\_7688858178133527816}; RA: Plano Piloto).
+\end{itemize}
+\item \textbf{Resposta Fundamentada (RAG):} Recomenda o Nicolândia Parque Urbano [FONTE \#1] no Parque da Cidade (R\$ 29,90) por combinar brinquedos infantis com áreas ao ar livre, e o Vale Encantado [FONTE \#2] em Taguatinga (R\$ 19,90), enfatizando que ambas as opções cumprem o teto de R\$ 30,00 e possuem brinquedoteca monitorada e atmosfera familiar. A terceira fonte (Wellness Life Expo) foi descartada por ultrapassar o limite financeiro (R\$ 35,00).
+\item \textbf{Evidência e Rastreabilidade das Fontes:}
+\begin{itemize}
+\item \textbf{[FONTE \#1] Nicolândia Parque Urbano:} ID \textit{tiktok\_7622722061256920327}; GPS (-15.80126, -47.91021); Preço validado: R\$ 29,90; Transcrição Whisper: \textit{``...ingressos a partir de 29 e 90 para aproveitar o parque inteiro com as crianças...''}; Link: \url{https://www.tiktok.com/@rolezandoembrasilia/video/7622722061256920327}.
+\item \textbf{[FONTE \#2] Vale Encantado:} ID \textit{tiktok\_7698914646354447634}; GPS (-15.833, -48.056); Preço validado: R\$ 19,90; Transcrição Whisper: \textit{``...experiência temática familiar com túnel de luzes e show de neve por 19,90...''}; Link: \url{https://www.tiktok.com/@rolezandoembrasilia/video/7698914646354447634}.
+\end{itemize}
+\end{itemize}
+
+\subsection{Caso de Demonstração \#2 -- Hambúrguer Artesanal com Amigos}
+\begin{itemize}[leftmargin=1.0cm]
+\item \textbf{Consulta Submetida:} ``Hamburgueria artesanal animada para ir com a galera no Sudoeste ou Taguatinga''.
+\item \textbf{Chunks Recuperados (Top-3):}
+\begin{itemize}
+\item 1º Cabiburger (Score: 0.7151; ID: \textit{tiktok\_7670312298690481415}; RA: Plano Piloto / Sudoeste).
+\item 2º Filomenamburger (Score: 0.7034; ID: \textit{tiktok\_7688864663336963336}; RA: Taguatinga Norte).
+\item 3º House Burger (Score: 0.6989; ID: \textit{tiktok\_7698914666063432968}; RA: Riacho Fundo).
+\end{itemize}
+\item \textbf{Resposta Fundamentada (RAG):} Para hambúrguer grelhado na brasa de carvão no Sudoeste, recomenda o Cabiburger [FONTE \#1] (preço médio de R\$ 50,00). Para grupos que buscam rodízio variado em ambiente descontraído em Taguatinga, indica o Filomenamburger [FONTE \#2] (preço médio de R\$ 50,00 com buffet de mini hambúrgueres e sobremesas). O House Burger [FONTE \#3] oferece opção econômica no Riacho Fundo (R\$ 30,00).
+\item \textbf{Evidência e Rastreabilidade das Fontes:}
+\begin{itemize}
+\item \textbf{[FONTE \#1] Cabiburger:} ID \textit{tiktok\_7670312298690481415}; GPS (-15.79616, -47.91498); Preço validado: R\$ 50,00; Transcrição Whisper: \textit{``...não tem hambúrguer na chapa, é feito direto na brasa com carvão de verdade...''}; Link: \url{https://www.tiktok.com/@rolezandoembrasilia/video/7670312298690481415}.
+\item \textbf{[FONTE \#2] Filomenamburger:} ID \textit{tiktok\_7688864663336963336}; GPS (-15.833, -48.056); Preço validado: R\$ 50,00; Transcrição Whisper: \textit{``...rodízio variado com mini hambúrgueres e sobremesa na cascata de cheddar...''}; Link: \url{https://www.tiktok.com/@rolezandoembrasilia/video/7688864663336963336}.
+\end{itemize}
+\end{itemize}
+
+\subsection{Caso de Demonstração \#3 -- Confeitaria Saudável e Ambiente Calmo}
+\begin{itemize}[leftmargin=1.0cm]
+\item \textbf{Consulta Submetida:} ``Procuro uma confeitaria ou gelateria com opções zero açúcar ou saudáveis na Asa Sul para conversar com calma''.
+\item \textbf{Chunks Recuperados (Top-3):}
+\begin{itemize}
+\item 1º Lefit Gelatos e Doces Saudáveis (Score: 0.7763; ID: \textit{tiktok\_7699233720657530119}; RA: Plano Piloto -- Asa Sul).
+\item 2º Oficina de Tortas (Score: 0.7166; ID: \textit{tiktok\_7645713289552481543}; RA: Plano Piloto -- Asa Sul).
+\item 3º The Coffee Talk (Score: 0.7009; ID: \textit{tiktok\_7600076848222997767}; RA: Sudoeste).
+\end{itemize}
+\item \textbf{Resposta Fundamentada (RAG):} Indica a Lefit Gelatos e Doces Saudáveis [FONTE \#1] (preço médio de R\$ 28,00), destacando que a casa é uma confeitaria e gelateria autoral com receitas livres de trigo, lactose e açúcar refinado, oferecendo ambiente intimista com baixo nível de ruído, perfeito para conversas tranquilas. A Oficina de Tortas [FONTE \#2] (R\$ 23,50) complementa como opção artesanal na Asa Sul.
+\item \textbf{Evidência e Rastreabilidade das Fontes:}
+\begin{itemize}
+\item \textbf{[FONTE \#1] Lefit Gelatos e Doces Saudáveis:} ID \textit{tiktok\_7699233720657530119}; GPS (-15.8192, -47.8988); Preço validado: R\$ 28,00; Transcrição Whisper: \textit{``...onde você come diversas delícias sem peso na consciência... tudo sem conservantes e sem açúcar refinado...''}; Link: \url{https://www.tiktok.com/@rolezandoembrasilia/video/7699233720657530119}.
+\item \textbf{[FONTE \#2] Oficina de Tortas:} ID \textit{tiktok\_7645713289552481543}; GPS (-15.8192, -47.8988); Preço validado: R\$ 23,50; Transcrição Whisper: \textit{``...confeitaria mais artesanal de Brasília no aniversário com fatias especiais...''}; Link: \url{https://www.tiktok.com/@rolezandoembrasilia/video/7645713289552481543}.
+\end{itemize}
+\end{itemize}
+
+\section{Telemetria, LLMOps e Auditoria de Requisitos Não Funcionais}
+
+A fim de assegurar prontidão operacional para o ambiente de produção, o sistema foi integrado à plataforma de observabilidade \textit{Langfuse Cloud (versão 5.x)}. Cada consulta processada dispara automaticamente um fluxo de rastreamento (\textit{trace}) subdividido em dois \textit{spans}: (1) span de recuperação vetorial (\textit{retriever}) e (2) span de geração e síntese (\textit{generation}).
+
+A auditoria matemática contínua monitora três Requisitos Não Funcionais prioritários:
+
+\begin{enumerate}
+\item \textbf{RNF-03 (Fidelidade Semântica e Zero Alucinação):} Métrica avaliada com nota 1.0 (100\% de ancoramento). Todo o conteúdo das respostas é estritamente restrito aos 93 estabelecimentos catalogados pela curadoria 2FA.
+\item \textbf{RNF-14 (SLA de Latência):} O edital estabelece teto máximo de 2,5 segundos para retorno da busca. As medições em regime contínuo registraram latência entre 7,1 ms e 21,9 ms, operando com margem de segurança superior a 100 vezes o limite estipulado.
+\item \textbf{RNF-15 (Governança de Custos e Consumo de Tokens):} O consumo médio por requisição situa-se em aproximadamente 380 tokens totais (entrada e saída), correspondendo a um custo estimado de R\$ 0,0035 por busca, o que viabiliza mais de 30.000 consultas gratuitas mensais no plano operacional.
+\end{enumerate}
+
+O Quadro 4 apresenta as métricas consolidadas de observabilidade.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.15}
+\caption{Métricas de telemetria e requisitos não funcionais (RNF)}
+\begin{tabularx}{\textwidth}{p{4.2cm} p{4.2cm} c X}
+\toprule
+\textbf{Métrica de Telemetria} & \textbf{Requisito Associado} & \textbf{Meta Estipulada} & \textbf{Resultado Homologado} \\
+\midrule
+Fidelidade Factual & RNF-03 (Zero Alucinação) & Mínimo de 85\% & \textbf{1.0 (100\% das fontes auditadas no DF)} \\
+Latência Total da Busca & RNF-14 (SLA de Resposta) & Menor que 2.500 ms & \textbf{7,1 ms a 21,9 ms (Conforme)} \\
+Custo Médio por Consulta & RNF-15 (Custo Operacional) & Baixo Custo & \textbf{R\$ 0,0035 por requisição (380 tokens)} \\
+Dimensionalidade Vetorial & RNF-12 (Arquitetura) & Alta Resolução & \textbf{3.072 coordenadas densas (Gemini)} \\
+Base de Dados Ativa & Requisito Semana 2 & Mínimo de 20 fontes & \textbf{93 documentos oficiais auditados} \\
+\bottomrule
+\end{tabularx}
+\vspace{0.1cm}
+\flushleft{\footnotesize{Fonte: elaborado pelos autores (2026).}}
+\end{table}
+
+Todos os dados curados, artefatos vetoriais, código-fonte e o protótipo funcional encontram-se disponíveis e podem ser avaliados de forma interativa diretamente no endereço web do projeto: \url{https://orquestrador-roles.onrender.com/entregaveis}.
+
+\section*{Referências}
+\addcontentsline{toc}{section}{Referências}
+
+\noindent BARBOSA, Simone Diniz Junqueira et al. \textbf{Interação humano-computador e experiência do usuário}. [S. l.]: Autopublicação, 2021.
+
+\vspace{0.2cm}
+\noindent BRASIL. \textbf{Lei nº 13.709, de 14 de agosto de 2018}. Lei Geral de Proteção de Dados Pessoais (LGPD). Diário Oficial da União: seção 1, Brasília, DF, 15 ago. 2018.
+
+\vspace{0.2cm}
+\noindent COOPER, Alan. \textbf{The inmates are running the asylum: why high tech products drive us crazy and how to restore the sanity}. Indianapolis: Sams Publishing, 1999.
+
+\vspace{0.2cm}
+\noindent COURAGE, Catherine; BAXTER, Kathy. \textbf{Understanding your users: a practical guide to user requirements methods, tools, and techniques}. San Francisco: Morgan Kaufmann, 2005.
+
+\vspace{0.2cm}
+\noindent LEWIS, Patrick et al. Retrieval-augmented generation for knowledge-intensive NLP tasks. \textbf{Advances in Neural Information Processing Systems}, v. 33, p. 9459-9474, 2020.
+
+\vspace{0.2cm}
+\noindent RADFORD, Alec et al. Robust speech recognition via large-scale weak supervision. In: \textbf{International Conference on Machine Learning}. PMLR, 2023. p. 28492-28518.
+
+\end{document}

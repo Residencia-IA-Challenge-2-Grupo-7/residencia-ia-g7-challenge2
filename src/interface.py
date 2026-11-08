@@ -897,49 +897,54 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
       background: #0d1117;
       border: 1px solid var(--card-border);
       border-radius: 8px;
-      padding: 24px;
+      padding: 28px;
       color: #e6edf3;
-      font-size: 0.88rem;
-      line-height: 1.6;
+      font-size: 1.02rem;
+      line-height: 1.7;
     }
     .relatorio-html h2 {
-      font-size: 1.15rem;
+      font-size: 1.22rem;
+      font-weight: 700;
       color: var(--blue);
-      border-bottom: 1px solid #30363d;
-      padding-bottom: 4px;
-      margin: 20px 0 10px 0;
+      border-bottom: 2px solid #30363d;
+      padding-bottom: 6px;
+      margin: 28px 0 14px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
     .relatorio-html h3 {
-      font-size: 0.98rem;
+      font-size: 1.08rem;
+      font-weight: 600;
       color: #d2a8ff;
-      margin: 14px 0 6px 0;
+      margin: 18px 0 8px 0;
     }
-    .relatorio-html p { margin-bottom: 10px; color: #c9d1d9; }
-    .relatorio-html ul, .relatorio-html ol { margin-left: 20px; margin-bottom: 12px; }
-    .relatorio-html li { margin-bottom: 4px; }
+    .relatorio-html p { margin-bottom: 12px; color: #c9d1d9; font-size: 1.02rem; }
+    .relatorio-html ul, .relatorio-html ol { margin-left: 24px; margin-bottom: 14px; font-size: 1.02rem; }
+    .relatorio-html li { margin-bottom: 6px; }
     .relatorio-html table {
       width: 100%;
       border-collapse: collapse;
-      margin: 12px 0 16px 0;
-      font-size: 0.8rem;
+      margin: 16px 0 20px 0;
+      font-size: 0.92rem;
     }
     .relatorio-html th, .relatorio-html td {
       border: 1px solid var(--card-border);
-      padding: 8px 10px;
+      padding: 10px 12px;
       text-align: left;
     }
     .relatorio-html th {
       background: #161b22;
       color: var(--blue);
+      font-weight: 700;
     }
     .relatorio-html tr:nth-child(even) { background: #161b22; }
     .box-destaque {
       background: rgba(88, 166, 255, 0.08);
       border-left: 3px solid var(--blue);
-      padding: 10px 14px;
-      border-radius: 4px;
-      margin: 12px 0;
-      font-size: 0.84rem;
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin: 14px 0;
+      font-size: 0.95rem;
     }
 
     /* TOOLBAR DE FILTROS */
@@ -1201,127 +1206,267 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
       </div>
 
       <article class="relatorio-html">
-        <div style="background:#161b22; border-left:4px solid var(--blue); padding:12px 16px; border-radius:6px; margin-bottom:18px;">
-          <h2 style="margin:0 0 4px 0; border:none; padding:0; font-size:1.25rem;">Relatório Técnico: Base de Conhecimento, Protótipo de RAG e Telemetria</h2>
-          <div style="font-size:0.8rem; color:var(--text-muted); line-height:1.4;">
-            <strong>RES IA ELD UNB — Turma 2 | Grupo 7 — Orquestrador de Rolês (Brasília/DF)</strong><br>
-            <strong>Equipe:</strong> Letícia Miti Takahashi (Engenharia de Dados & RAG) e Maria Eduarda (DevOps, Infraestrutura & LLMOps)<br>
-            <strong>Aplicação Online:</strong> <a href="/rag" style="color:#79c0ff;">orquestrador-roles.onrender.com/rag</a> | 
-            <strong>Central de Entregáveis:</strong> <a href="/entregaveis" style="color:#bc8cff;">orquestrador-roles.onrender.com/entregaveis</a>
+        <div style="background:#161b22; border-left:4px solid var(--blue); padding:16px 20px; border-radius:8px; margin-bottom:24px;">
+          <div style="font-size:0.85rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">
+            Instituto de Pesquisas Eldorado &bull; Universidade de Brasília &bull; Residência em IA (Turma 2) &bull; Grupo 07
+          </div>
+          <h1 style="margin:8px 0 6px 0; font-size:1.35rem; color:var(--text-primary); font-weight:800;">
+            Relatório Técnico: Base de Conhecimento Curada e Protótipo de RAG
+          </h1>
+          <div style="font-size:0.92rem; color:var(--blue); font-weight:600; margin-bottom:8px;">
+            Orquestrador de Rolês (Distrito Federal) &bull; Definições e Resultados — Challenge 2, Semana 2
+          </div>
+          <div style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+            <strong>Autores:</strong> Letícia Miti Takahashi (Cientista de Dados), Maria Eduarda (ML/LLMOps & DevOps), Maria Carolina (Engenharia de Dados), Cauan Soares (Arquiteto da Solução) e Samara Letícia (Engenharia de Dados)<br>
+            <strong>Projeto e Repositório Oficial:</strong> <a href="https://orquestrador-roles.onrender.com" target="_blank" style="color:#79c0ff; text-decoration:underline;">orquestrador-roles.onrender.com</a> &bull; 
+            <strong>Central de Entregáveis:</strong> <a href="/entregaveis" style="color:#bc8cff; text-decoration:underline;">orquestrador-roles.onrender.com/entregaveis</a>
           </div>
         </div>
 
-        <h2>1. Resumo Executivo e Checklist dos Artefatos</h2>
-        <p>O objetivo deste entregável da Semana 2 é construir e auditar o mecanismo de <strong>RAG (Retrieval-Augmented Generation)</strong> fundamentado em base de conhecimento curada do DF, assegurando alta precisão na recuperação semântica, respostas sem alucinações e rastreabilidade total das fontes.</p>
+        <h2>1. Visão Geral e Resumo dos Entregáveis</h2>
+        <p>O presente relatório técnico documenta a concepção, o pipeline de ingestão automatizada de dados, a estratégia de segmentação semântica (<em>chunking</em>), a modelagem de <em>embeddings</em> vetoriais, a governança de observabilidade (<em>LLMOps</em>) e a demonstração experimental do mecanismo de Geração Aumentada por Recuperação (<em>Retrieval-Augmented Generation</em> — RAG) desenvolvido pelo Grupo 07 no âmbito do Challenge 2 da Residência em Inteligência Artificial (Universidade de Brasília e Instituto de Pesquisas Eldorado).</p>
+        <p>O sistema Orquestrador de Rolês apoia grupos de amigos no Distrito Federal no planejamento de encontros presenciais, mitigando barreiras de constrangimento financeiro, sobrecarga de decisão e dispersão de informações, ancorado em uma base curada imune a alucinações.</p>
 
+        <p><strong>Quadro 1 – Conformidade dos requisitos da Semana 2</strong></p>
         <table>
           <thead>
             <tr>
-              <th>Requisito do Edital</th>
-              <th>Status</th>
-              <th>Localização no Repositório</th>
-              <th>Resumo Técnico</th>
+              <th style="width:22%;">Requisito do Edital</th>
+              <th style="width:38%;">Implementação Técnica</th>
+              <th style="width:40%;">Artefato no Projeto</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td><strong>1. Base curada</strong></td>
-              <td><span class="quadrado-badge green">Concluído</span></td>
-              <td><code>data/banco_aprovado_2fa.json</code></td>
-              <td>93 estabelecimentos aprovados pelo protocolo 2FA.</td>
+              <td><strong>1. Base de conhecimento curada</strong></td>
+              <td>Curadoria em Dois Fatores (2FA) com validação cultural e dupla trava</td>
+              <td><code>data/banco_aprovado_2fa.json</code> e <code>.csv</code></td>
             </tr>
             <tr>
-              <td><strong>2. Mínimo 20 fontes</strong></td>
-              <td><span class="quadrado-badge green">Superado</span></td>
-              <td><code>data/banco_aprovado_2fa.json</code> (93 fontes)</td>
-              <td>164 vídeos auditados da safra 2026 (@rolezandoembrasilia).</td>
+              <td><strong>2. Mínimo de 20 documentos-fonte</strong></td>
+              <td>93 documentos homologados (extraídos de 164 vídeos de 2026)</td>
+              <td><code>data/banco_aprovado_2fa.json</code> (93 itens)</td>
             </tr>
             <tr>
-              <td><strong>3. Estratégia chunking</strong></td>
-              <td><span class="quadrado-badge green">Concluído</span></td>
-              <td>Seção 2 + <code>src/rag/banco_vetorial.py</code></td>
-              <td><em>Entity-Centric Semantic Chunking</em> (1 chunk por rolê).</td>
+              <td><strong>3. Estratégia de chunking</strong></td>
+              <td>Chunking Semântico Centrado em Entidade (1 chunk autocontido)</td>
+              <td>Seção 3 deste relatório e <code>src/rag/banco_vetorial.py</code></td>
             </tr>
             <tr>
-              <td><strong>4. Embeddings</strong></td>
-              <td><span class="quadrado-badge green">Concluído</span></td>
-              <td>Seção 3 + <code>src/rag/banco_vetorial.py</code></td>
-              <td><code>text-embedding-3-large</code> (3.072 dimensões) + Cosseno.</td>
+              <td><strong>4. Estratégia de embeddings</strong></td>
+              <td>Modelo de 3.072 dimensões com busca por similaridade de cosseno</td>
+              <td>Seção 4 deste relatório e <code>banco_vetorial_embeddings.json</code></td>
             </tr>
             <tr>
-              <td><strong>5. Banco vetorial</strong></td>
-              <td><span class="quadrado-badge green">Concluído</span></td>
-              <td><code>data/banco_vetorial_embeddings.json</code></td>
-              <td>93 vetores densos persistidos com busca Top-K (K=3).</td>
+              <td><strong>5. Banco vetorial implementado</strong></td>
+              <td>Persistência em JSON/CSV e motor vetorial com busca Top-3</td>
+              <td><code>data/banco_vetorial_embeddings.json</code> e motor RAG</td>
             </tr>
             <tr>
-              <td><strong>6. Demonstração RAG</strong></td>
-              <td><span class="quadrado-badge green">Concluído</span></td>
-              <td><code>src/rag/prototipo_rag.py</code> + <code>.txt</code></td>
-              <td>4 passos: Consulta &rarr; Chunks &rarr; Resposta &rarr; Fontes.</td>
+              <td><strong>6. Demonstração dos 4 passos</strong></td>
+              <td>Bateria com consulta, chunks, resposta fundamentada e fontes</td>
+              <td><code>prototipo_rag.py</code> e <code>DEMONSTRACAO_RAG_ENTREGAVEL.txt</code></td>
             </tr>
             <tr>
-              <td><strong>7. Diagrama & Pipeline</strong></td>
-              <td><span class="quadrado-badge green">Concluído</span></td>
-              <td>Seções 4 e 5 deste relatório</td>
-              <td>Fluxos de Ingestão 2FA e Arquitetura de Runtime RAG.</td>
+              <td><strong>7. Telemetria e LLMOps</strong></td>
+              <td>Rastreamento em tempo real, cálculo de SLA e fidelidade no Langfuse</td>
+              <td><code>src/telemetria/telemetria.py</code> e Langfuse Cloud v5.x</td>
             </tr>
             <tr>
-              <td><strong>8. Telemetria LLMOps</strong></td>
-              <td><span class="quadrado-badge green">Concluído</span></td>
-              <td>Seção 6 + <code>src/telemetria/telemetria.py</code></td>
-              <td>Langfuse Cloud v5.x (Auditoria RNF-03 e RNF-14).</td>
+              <td><strong>8. Interface interativa</strong></td>
+              <td>Central web para exploração de dados, relatórios e testes</td>
+              <td><a href="https://orquestrador-roles.onrender.com/entregaveis" target="_blank" style="color:#79c0ff;">orquestrador-roles.onrender.com/entregaveis</a></td>
             </tr>
           </tbody>
         </table>
+        <div style="font-size:0.8rem; color:var(--text-muted); margin-top:-10px; margin-bottom:16px;">Fonte: elaborado pelos autores (2026).</div>
 
-        <h2>2. Estratégia de Chunking (Entity-Centric Semantic Chunking)</h2>
-        <h3>Por que não utilizar Fixed-Size Chunking?</h3>
-        <p>Vídeos curtos de gastronomia e lazer (30 a 60 segundos) apresentam estrutura não linear: o nome do local aparece no início, as atrações no meio e o preço e endereço no final. Um particionamento cego por número fixo de caracteres separaria o endereço do nome, quebrando o contexto e induzindo alucinações.</p>
-
-        <h3>Solução Adotada: 1 Documento-Fonte = 1 Chunk Semântico Autocontido</h3>
-        <p>Cada estabelecimento aprovado consolida 4 camadas de informação em um bloco único coeso (~120 a 190 tokens):</p>
+        <h2>2. Pipeline de Ingestão e Curadoria em Dois Fatores (2FA)</h2>
+        <p>A base de conhecimento foi construída a partir da extração integral de 164 vídeos de 2026 do perfil <em>@rolezandoembrasilia</em> no TikTok. Como publicações em vídeo frequentemente reservam preços e endereços apenas ao áudio falado, ou contêm publicidades alheias ao lazer, desenvolvemos um pipeline rigoroso de 5 etapas:</p>
         <ol>
-          <li><strong>Identidade e Categoria (Fator 1):</strong> Nome oficial e classificação estruturada (Restaurante, Bar/Pub, Cafeteria, Ao Ar Livre, Experiência).</li>
-          <li><strong>Ancoragem Geoespacial e Financeira (Fator 2):</strong> Região Administrativa (RA), endereço validado via GPS Nominatim e preço médio em R$.</li>
-          <li><strong>Atmosfera e Cultura (Fator 1):</strong> Tags de Vibes (Romântico, Calmo, Baratinho, Kid Friendly, Animado) e Resumo Sensorial.</li>
-          <li><strong>Evidência Oral Bruta (Whisper ASR):</strong> Trecho literal da transcrição do áudio, preservando pratos e atrações específicas.</li>
+          <li><strong>Coleta Bruta e Extração de Mídia:</strong> Descoberta via <em>secUid</em> com <code>yt-dlp</code> e <code>curl_cffi</code>, baixando metadados e áudio MP3 dos 164 vídeos.</li>
+          <li><strong>Transcrição Automática de Fala (ASR):</strong> Conversão de áudio para texto pelo modelo Whisper Large v3 Turbo via Groq API.</li>
+          <li><strong>Fator 1 (Curadoria Cultural e Tipológica):</strong> LLM com esquema estrito descartou 47 anúncios comerciais (roupas, óticas, colchões) e extraiu estruturadamente categoria e vibes.</li>
+          <li><strong>Fator 2 (Validação Prática por Dupla Trava):</strong> Trava 1 (endereço e coordenadas GPS no DF) + Trava 2 (preço médio por pessoa em R$). 24 itens retidos em quarentena (<code>data/fila_quarentena_2fa.json</code>) e 93 locais aprovados (<code>data/banco_aprovado_2fa.json</code>).</li>
+          <li><strong>Vetorização e Indexação:</strong> Geração de chunks semânticos e cálculo de vetores densos de 3.072 dimensões.</li>
         </ol>
 
+        <p><strong>Quadro 2 – Balanço do processo de curadoria 2FA</strong></p>
+        <table>
+          <thead>
+            <tr>
+              <th>Categoria de Destino</th>
+              <th>Volume</th>
+              <th>Justificativa Técnica e Destinação</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Fontes Brutas Coletadas</td>
+              <td>164</td>
+              <td>Totalidade de vídeos publicados em 2026 no perfil auditado.</td>
+            </tr>
+            <tr>
+              <td>Descartes do Fator 1</td>
+              <td>47</td>
+              <td>Publicidades comerciais alheias ao escopo de lazer (óticas, vestuário).</td>
+            </tr>
+            <tr>
+              <td>Retidos em Quarentena (Fator 2)</td>
+              <td>24</td>
+              <td>Locais sem endereço auditável no DF ou sem preço especificado.</td>
+            </tr>
+            <tr>
+              <td><strong>Base Curada Aprovada (2FA)</strong></td>
+              <td><strong>93</strong></td>
+              <td><strong>Homologados com endereço, coordenadas GPS, preço e vibes.</strong></td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="font-size:0.8rem; color:var(--text-muted); margin-top:-10px; margin-bottom:16px;">Fonte: elaborado pelos autores (2026).</div>
+
+        <h2>3. Estratégia de Chunking Semântico Centrado em Entidade</h2>
+        <p>Vídeos curtos de 30 a 60 segundos possuem narrativa específica: o nome do local aparece no início, o ambiente no miolo e preço/endereço no final. Um particionamento cego por tamanho fixo (<em>fixed-size chunking</em>) separaria as coordenadas do nome do restaurante, induzindo alucinações. Por isso, adotamos o <strong>Chunking Semântico Centrado em Entidade</strong>, onde cada documento compõe um único chunk autocontido com 4 dimensões:</p>
+        <ul>
+          <li><strong>Identidade e Tipologia (Fator 1):</strong> Nome oficial e categoria de rolê.</li>
+          <li><strong>Ancoragem Geoespacial e Financeira (Fator 2):</strong> RA, endereço, GPS e custo médio por pessoa.</li>
+          <li><strong>Atmosfera e Vocabulário Cultural (Fator 1):</strong> Tags de clima (vibes), Kid Friendly e resumo sensorial.</li>
+          <li><strong>Evidência Oral Transcrita (Whisper):</strong> Trecho literal falado pelo autor no vídeo (até 500 caracteres).</li>
+        </ul>
         <div class="box-destaque">
           <strong>Template Estruturado do Chunk Indexado:</strong><br>
-          <code>Local: {nome} | Categoria: {tipo} | Região: {RA} ({endereco}) | Preço: {faixa} (R$ {custo_medio}) | Vibes: {vibes} | Experiência: {resumo_sensorial} | TikTok: {transcricao_whisper}</code>
+          <code>Local: {nome} | Categoria: {tipo} | Região: {regiao} ({endereco}) | Faixa de Preço: {faixa} (R$ {custo}) | Vibes: {vibes} | Experiência: {resumo} | Relato do TikTok: {transcricao}</code>
         </div>
 
-        <h2>3. Estratégia de Embeddings e Banco Vetorial</h2>
-        <ul>
-          <li><strong>Modelo de Embedding:</strong> <code>text-embedding-3-large</code> (OpenAI) / <code>gemini-embedding-001</code>.</li>
-          <li><strong>Dimensionalidade:</strong> <strong>3.072 dimensões</strong> (vetores densos de alta fidelidade sem perda de nuances).</li>
-          <li><strong>Métrica de Similaridade:</strong> Similaridade de Cosseno calculada entre o vetor da consulta e os 93 vetores curados:</li>
-        </ul>
-        <div style="text-align:center; padding:8px; background:#161b22; border-radius:6px; margin:8px 0; font-family:monospace; color:#79c0ff;">
-          Similaridade(q, d) = (q &bull; d) / (||q|| * ||d||)
+        <h2>4. Estratégia de Embeddings e Banco Vetorial</h2>
+        <p>Para representação semântica, adotou-se o modelo <code>models/gemini-embedding-001</code> em <strong>3.072 dimensões</strong>, ideal para nuances do português do DF e distinção precisa entre diferentes atmosferas de lazer.</p>
+        <p>A comparação entre a consulta do usuário e os 93 documentos é realizada via <strong>Similaridade de Cosseno</strong>:</p>
+        <div style="text-align:center; padding:12px; background:#161b22; border-radius:6px; margin:12px 0; font-family:serif; font-size:1.1rem; color:#79c0ff;">
+          Similaridade(q, d) = (q &bull; d) / (||q|| &times; ||d||) = &sum;(q<sub>i</sub> d<sub>i</sub>) / [ &radic;&sum;(q<sub>i</sub><sup>2</sup>) &radic;&sum;(d<sub>i</sub><sup>2</sup>) ]
         </div>
+        <p>Os 93 vetores encontram-se persistidos em <code>data/banco_vetorial_embeddings.json</code> e <code>.csv</code>, com tempo de busca Top-3 inferior a 10 milissegundos.</p>
 
-        <h2>4. Pipeline de Ingestão de Dados (Curadoria em 2 Fatores — 2FA)</h2>
-        <p>Para impedir que vídeos patrocinados de varejo (lojas de colchão, óticas) ou locais sem preço contaminassem a base, criamos o filtro de 2 Fatores:</p>
+        <h2>5. Arquitetura do Protótipo de RAG e Guardrails de Escopo</h2>
+        <p>O fluxo opera no modelo de Geração Fundamentada (<em>Grounded Generation</em>) em duas camadas:</p>
+        <ol>
+          <li><strong>Camada de Recuperação (Retriever):</strong> Vetorização da pergunta em 3.072d e recuperação dos 3 melhores locais curados por Similaridade de Cosseno.</li>
+          <li><strong>Camada de Síntese e Guardrails (Generator):</strong> O LLM sintetiza a resposta exclusivamente com base nos chunks, citando [FONTE #X], endereço e preço auditado.</li>
+        </ol>
+        <p>Implementaram-se dois guardrails de salvaguarda: <strong>Guardrail de Escopo Regional</strong> (rejeição amigável para consultas fora do DF) e <strong>Guardrail de Alta Madrugada</strong> (esclarecimento de horário para buscas de baladas após 01h00, priorizando casas com horário estendido como New Mercadito e Carmelita e prevenindo alucinações).</p>
+
+        <h2>6. Demonstração Experimental e Evidências de Teste</h2>
+        <p>A eficácia do pipeline foi comprovada em três casos de demonstração oficiais abrangendo os quatro passos exigidos no edital (Consulta, Top-3 Chunks, Resposta Fundamentada e Evidência/Links):</p>
+
+        <p><strong>Quadro 3 – Resultados da demonstração experimental do RAG</strong></p>
+        <table>
+          <thead>
+            <tr>
+              <th style="width:8%;">Caso</th>
+              <th style="width:32%;">Consulta Submetida</th>
+              <th style="width:24%;">Recomendação</th>
+              <th style="width:10%;">Cosseno</th>
+              <th style="width:10%;">Preço</th>
+              <th style="width:16%;">Destaque / Vibe</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>#1</td>
+              <td>Passeio iluminado/parque com crianças até R$ 30</td>
+              <td>Nicolândia / Vale Encantado</td>
+              <td>0.7205</td>
+              <td>R$ 29,90</td>
+              <td>Kid Friendly, parque infantil, acessível</td>
+            </tr>
+            <tr>
+              <td>#2</td>
+              <td>Hamburgueria artesanal animada no Sudoeste ou Taguatinga</td>
+              <td>Cabiburger / Filomenamburger</td>
+              <td>0.7151</td>
+              <td>R$ 50,00</td>
+              <td>Feito na brasa, rodízio variado, animado</td>
+            </tr>
+            <tr>
+              <td>#3</td>
+              <td>Confeitaria/gelateria zero açúcar e calma na Asa Sul</td>
+              <td>Lefit Gelatos e Doces Saudáveis</td>
+              <td>0.7763</td>
+              <td>R$ 28,00</td>
+              <td>Sem trigo, lactose nem açúcar refinado, calmo</td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="font-size:0.8rem; color:var(--text-muted); margin-top:-10px; margin-bottom:16px;">Fonte: elaborado pelos autores (2026).</div>
+
+        <p><strong>Evidências Comprobatórias dos Casos:</strong></p>
         <ul>
-          <li><strong>Etapa 1 — Coleta & ASR:</strong> 164 vídeos brutos de 2026 (@rolezandoembrasilia) com extração de áudio e transcrição via Whisper.</li>
-          <li><strong>Etapa 2 — FATOR 1 (Cultural):</strong> Filtro semântico que descartou 47 propagandas não-lazer e aprovou 117 locais culturais.</li>
-          <li><strong>Etapa 3 — FATOR 2 (Prático):</strong> Dupla trava exigindo Endereço no DF validado via GPS + Preço comprovado em R$. Retidos 24 vídeos na quarentena e homologadas <strong>93 fontes definitivas</strong>.</li>
-          <li><strong>Etapa 4 — Indexação:</strong> Geração dos 93 vetores de 3.072d persistidos em <code>data/banco_vetorial_embeddings.json</code>.</li>
+          <li><strong>Caso #1 (Parque Infantil):</strong> Nicolândia Parque Urbano [FONTE #1] (R$ 29,90; Parque da Cidade; GPS: -15.80126, -47.91021; <a href="https://www.tiktok.com/@rolezandoembrasilia/video/7622722061256920327" target="_blank" style="color:#79c0ff;">Ver no TikTok ↗</a>) e Vale Encantado [FONTE #2] (R$ 19,90; Taguatinga; GPS: -15.833, -48.056; <a href="https://www.tiktok.com/@rolezandoembrasilia/video/7698914646354447634" target="_blank" style="color:#79c0ff;">Ver no TikTok ↗</a>).</li>
+          <li><strong>Caso #2 (Hambúrguer com Galera):</strong> Cabiburger [FONTE #1] (R$ 50,00; Sudoeste; GPS: -15.79616, -47.91498; <a href="https://www.tiktok.com/@rolezandoembrasilia/video/7670312298690481415" target="_blank" style="color:#79c0ff;">Ver no TikTok ↗</a>) e Filomenamburger [FONTE #2] (R$ 50,00; Taguatinga Norte; GPS: -15.833, -48.056; <a href="https://www.tiktok.com/@rolezandoembrasilia/video/7688864663336963336" target="_blank" style="color:#79c0ff;">Ver no TikTok ↗</a>).</li>
+          <li><strong>Caso #3 (Confeitaria Saudável):</strong> Lefit Gelatos e Doces Saudáveis [FONTE #1] (R$ 28,00; Asa Sul CLS 116; GPS: -15.8192, -47.8988; <a href="https://www.tiktok.com/@rolezandoembrasilia/video/7699233720657530119" target="_blank" style="color:#79c0ff;">Ver no TikTok ↗</a>) e Oficina de Tortas [FONTE #2] (R$ 23,50; Asa Sul CLS 310; GPS: -15.8192, -47.8988; <a href="https://www.tiktok.com/@rolezandoembrasilia/video/7645713289552481543" target="_blank" style="color:#79c0ff;">Ver no TikTok ↗</a>).</li>
         </ul>
 
-        <h2>5. Telemetria, Observabilidade e Auditoria de RNFs</h2>
-        <p>A instrumentação no Langfuse Cloud audita cada chamada em tempo real:</p>
-        <ul>
-          <li><strong>Fidelidade (RNF-03):</strong> Score 1.0 (100% ancorado nos 93 documentos, zero alucinação).</li>
-          <li><strong>Latência (RNF-14):</strong> Recuperação vetorial entre 2.8 ms e 21.9 ms (meta SLA &lt; 2.5s plenamente atendida).</li>
-          <li><strong>Governança de Custos (RNF-15):</strong> Consumo médio de ~345 tokens totais por consulta, mantendo custo de R$ 0,0035 por requisição.</li>
-        </ul>
+        <h2>7. Telemetria, LLMOps e Auditoria de Requisitos Não Funcionais</h2>
+        <p>A governança operacional integrada ao <strong>Langfuse Cloud v5.x</strong> registra cada ciclo de busca em tempo real, auditando os Requisitos Não Funcionais prioritários:</p>
+        <ol>
+          <li><strong>RNF-03 (Fidelidade Semântica e Zero Alucinação):</strong> Nota 1.0 (100% de ancoramento nas 93 fontes homologadas).</li>
+          <li><strong>RNF-14 (SLA de Latência):</strong> Tempo médio de busca entre 7,1 ms e 21,9 ms, atendendo com folga o SLA estipulado (&lt; 2.500 ms).</li>
+          <li><strong>RNF-15 (Governança de Custos):</strong> Consumo de ~380 tokens por consulta (custo de R$ 0,0035 por requisição).</li>
+        </ol>
 
-        <h2>6. Preparação para a Semana 3 (Baseline LLM vs. RAG)</h2>
-        <p>A base homologada de 93 rolês e os traces do Langfuse formam o <em>Golden Dataset</em> para o benchmark da Semana 3, que comparará respostas geradas sem contexto (Zero-Shot) versus o nosso RAG fundamentado.</p>
+        <p><strong>Quadro 4 – Métricas de telemetria e requisitos não funcionais (RNF)</strong></p>
+        <table>
+          <thead>
+            <tr>
+              <th>Métrica de Telemetria</th>
+              <th>Requisito Associado</th>
+              <th>Meta Estipulada</th>
+              <th>Resultado Homologado</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Fidelidade Factual</td>
+              <td>RNF-03 (Zero Alucinação)</td>
+              <td>Mínimo de 85%</td>
+              <td><strong>1.0 (100% das fontes auditadas no DF)</strong></td>
+            </tr>
+            <tr>
+              <td>Latência Total da Busca</td>
+              <td>RNF-14 (SLA de Resposta)</td>
+              <td>Menor que 2.500 ms</td>
+              <td><strong>7,1 ms a 21,9 ms (Conforme)</strong></td>
+            </tr>
+            <tr>
+              <td>Custo Médio por Consulta</td>
+              <td>RNF-15 (Custo Operacional)</td>
+              <td>Baixo Custo</td>
+              <td><strong>R$ 0,0035 por requisição (380 tokens)</strong></td>
+            </tr>
+            <tr>
+              <td>Dimensionalidade Vetorial</td>
+              <td>RNF-12 (Arquitetura)</td>
+              <td>Alta Resolução</td>
+              <td><strong>3.072 coordenadas densas (Gemini)</strong></td>
+            </tr>
+            <tr>
+              <td>Base de Dados Ativa</td>
+              <td>Requisito Semana 2</td>
+              <td>Mínimo de 20 fontes</td>
+              <td><strong>93 documentos oficiais auditados</strong></td>
+            </tr>
+          </tbody>
+        </table>
+        <div style="font-size:0.8rem; color:var(--text-muted); margin-top:-10px; margin-bottom:16px;">Fonte: elaborado pelos autores (2026).</div>
+
+        <h2>Referências</h2>
+        <p style="font-size:0.9rem; color:var(--text-muted); line-height:1.5;">
+          BARBOSA, S. D. J. et al. <strong>Interação humano-computador e experiência do usuário</strong>. Autopublicação, 2021.<br><br>
+          BRASIL. <strong>Lei nº 13.709, de 14 de agosto de 2018 (LGPD)</strong>. Diário Oficial da União, Brasília, DF, 2018.<br><br>
+          COOPER, A. <strong>The inmates are running the asylum</strong>. Indianapolis: Sams Publishing, 1999.<br><br>
+          COURAGE, C.; BAXTER, K. <strong>Understanding your users</strong>. San Francisco: Morgan Kaufmann, 2005.<br><br>
+          LEWIS, P. et al. Retrieval-augmented generation for knowledge-intensive NLP tasks. <strong>NeurIPS</strong>, 2020.<br><br>
+          RADFORD, A. et al. Robust speech recognition via large-scale weak supervision. <strong>ICML</strong>, 2023.
+        </p>
       </article>
     </div>
 
