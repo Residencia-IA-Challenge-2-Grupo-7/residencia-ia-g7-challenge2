@@ -25,6 +25,7 @@ def test_api_rotas_carregadas():
     assert "/telemetria/status" in rotas
     assert "/rag/buscar" in rotas
     assert "/entregaveis" in rotas
+    assert "/visualizar/relatorio-pdf" in rotas
     assert "/download/relatorio-pdf" in rotas
     assert "/download/entregavel-zip" in rotas
     assert "/api/entregaveis/arquivo" in rotas
@@ -41,7 +42,7 @@ def test_entregaveis_endpoints():
     # 1. Pagina HTML de entregaveis
     res_page = client.get("/entregaveis")
     assert res_page.status_code == 200
-    assert "Central Interativa de Entregáveis" in res_page.text
+    assert "Central de Entregáveis" in res_page.text
 
     # 2. Dados aprovados 2FA (93 roles)
     res_dados = client.get("/api/entregaveis/dados?colecao=aprovados")
@@ -64,6 +65,17 @@ def test_entregaveis_endpoints():
     # 5. Seguranca: tentar path traversal
     res_traversal = client.get("/api/entregaveis/arquivo?caminho=../etc/passwd")
     assert res_traversal.status_code == 403
+
+    # 6. Visualizacao inline de PDF (sem forcar download automatico)
+    res_pdf = client.get("/visualizar/relatorio-pdf")
+    assert res_pdf.status_code == 200
+    assert res_pdf.headers["content-type"] == "application/pdf"
+    assert "attachment" not in res_pdf.headers.get("content-disposition", "")
+
+    # 7. Download explicito de PDF (com header attachment)
+    res_down = client.get("/download/relatorio-pdf")
+    assert res_down.status_code == 200
+    assert "attachment" in res_down.headers.get("content-disposition", "")
 
 
 

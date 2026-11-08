@@ -6,7 +6,13 @@ Programa de Residência em IA do Instituto Eldorado em parceria com a UnB (metod
 
 **Desafio:** projetar e desenvolver uma solução baseada em IA capaz de apoiar a tomada de decisão em um contexto relacionado à qualidade de vida.
 
-## Roadmap
+## 🚀 Aplicação em Produção (Render)
+
+* **🎭 Aplicação & Chat RAG:** [https://orquestrador-roles.onrender.com/rag](https://orquestrador-roles.onrender.com/rag)
+* **📂 Central Interativa de Entregáveis (Semana 2):** [https://orquestrador-roles.onrender.com/entregaveis](https://orquestrador-roles.onrender.com/entregaveis)
+* **Status da API:** [https://orquestrador-roles.onrender.com/status](https://orquestrador-roles.onrender.com/status)
+
+---
 
 | Semana | Foco | Entregável |
 |---|---|---|

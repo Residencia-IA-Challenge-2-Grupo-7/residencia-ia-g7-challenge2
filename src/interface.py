@@ -3,11 +3,10 @@ Módulo de Interface Web Interativa (FastAPI HTML)
 Projeto: Orquestrador de Rolês (Residência em IA — UnB / Instituto Eldorado)
 Responsável: Maria Eduarda (ML/LLMOps & DevOps)
 
-Interface web moderna, responsiva e sem dependências externas pesadas para:
-1. Página inicial minimalista com navegação direta para o RAG e Central de Entregáveis;
-2. Interface do RAG para consultas semânticas de rolês no DF com telemetria Langfuse;
-3. Central de Entregáveis Interativa (/entregaveis) para exploração de relatórios (PDF),
-   bases de dados auditadas (2FA), embeddings vetoriais (3072d), código e métricas.
+Interface web limpa, moderna, sem links redundantes e baseada em Quadrados (Cards) modulares:
+1. Página inicial com acesso direto ao RAG e Central de Entregáveis;
+2. Interface do RAG para consultas semânticas de rolês no DF com telemetria;
+3. Central de Entregáveis em Quadrados (/entregaveis) com navegação limpa, sem download automático.
 """
 
 LANDING_PAGE = """<!DOCTYPE html>
@@ -47,7 +46,6 @@ LANDING_PAGE = """<!DOCTYPE html>
       padding: 16px 32px;
       background: rgba(22, 27, 34, 0.9);
       border-bottom: 1px solid var(--card-border);
-      backdrop-filter: blur(10px);
       position: sticky;
       top: 0;
       z-index: 100;
@@ -95,7 +93,7 @@ LANDING_PAGE = """<!DOCTYPE html>
       justify-content: center;
       padding: 48px 24px;
       text-align: center;
-      max-width: 920px;
+      max-width: 900px;
       margin: 0 auto;
       width: 100%;
     }
@@ -230,10 +228,8 @@ LANDING_PAGE = """<!DOCTYPE html>
     <a href="/" class="nav-brand">🎭 Orquestrador de Rolês</a>
     <div class="nav-links">
       <a href="/" class="nav-link active">🏠 Início</a>
-      <a href="/rag" class="nav-link">🤖 RAG Demo</a>
-      <a href="/entregaveis" class="nav-link highlight">📂 Entregáveis (Semana 2)</a>
-      <a href="/docs" class="nav-link">📘 Swagger API</a>
-      <a href="https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6" target="_blank" class="nav-link">🚀 Langfuse ↗</a>
+      <a href="/rag" class="nav-link">🤖 Chat RAG</a>
+      <a href="/entregaveis" class="nav-link highlight">📂 Central de Entregáveis</a>
     </div>
   </nav>
 
@@ -241,43 +237,43 @@ LANDING_PAGE = """<!DOCTYPE html>
     <div class="hero-card">
       <h1>🎭 Orquestrador de Rolês</h1>
       <p class="subtitle">
-        Recomendador semântico inteligente para o Distrito Federal com RAG multimodal (TikTok + Whisper), banco vetorial 3072d e observabilidade contínua em produção com Langfuse Cloud.
+        Recomendador semântico para o Distrito Federal com RAG multimodal (TikTok + Whisper), banco vetorial 3072d e observabilidade em tempo real.
       </p>
 
       <div class="badges-bar">
-        <span class="badge green">● FastAPI + Docker</span>
-        <span class="badge purple">● Langfuse Cloud Conectado</span>
-        <span class="badge blue">● 93 Rolês TikTok DF (2FA)</span>
-        <span class="badge">● text-embedding-3-large (3072d)</span>
+        <span class="badge green">● 93 Rolês Auditados (2FA)</span>
+        <span class="badge purple">● 71 Quarentenados</span>
+        <span class="badge blue">● text-embedding-3-large (3072d)</span>
+        <span class="badge">● Relatório Oficial 4 Páginas</span>
       </div>
 
       <div class="cta-group">
         <a href="/rag" class="btn btn-rag">🤖 Testar Chat RAG &rarr;</a>
-        <a href="/entregaveis" class="btn btn-entregaveis">📂 Central de Entregáveis Interativa &rarr;</a>
+        <a href="/entregaveis" class="btn btn-entregaveis">📂 Central de Entregáveis &rarr;</a>
       </div>
 
       <div class="features-grid">
         <div class="feature-card">
           <div class="feature-icon">📄</div>
           <div class="feature-title">Relatório Técnico ABNT</div>
-          <div class="feature-desc">Documento oficial de 4 páginas exatas cobrindo metodologia 2FA, arquitetura vetorial, guardrails noturnos e métricas RNF.</div>
+          <div class="feature-desc">Documento oficial de 4 páginas com metodologia 2FA, arquitetura vetorial, guardrails noturnos e métricas RNF.</div>
         </div>
         <div class="feature-card">
           <div class="feature-icon">🛡️</div>
           <div class="feature-title">Base Auditada & Quarentena</div>
-          <div class="feature-desc">93 estabelecimentos aprovados com geolocalização e preço; 71 vídeos retidos na quarentena auditada com justificativa.</div>
+          <div class="feature-desc">93 locais aprovados com coordenadas e preços verificados; 71 vídeos retidos na quarentena auditada com justificativa.</div>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">🔭</div>
-          <div class="feature-title">Telemetria & Tracing LLMOps</div>
-          <div class="feature-desc">Tracing em tempo real no Langfuse. SLA rigoroso: latência < 2.5s, fidelidade > 85% e controle de custo por token.</div>
+          <div class="feature-icon">⚡</div>
+          <div class="feature-title">RAG Semântico & Telemetria</div>
+          <div class="feature-desc">Embeddings densos de 3.072 dimensões com busca por similaridade de cosseno e monitoramento de SLA.</div>
         </div>
       </div>
     </div>
   </main>
 
   <footer>
-    Residência em IA — Instituto Eldorado & UnB • Challenge 2 (Grupo 7) • DevOps & LLMOps: Maria Eduarda
+    Residência em IA — Instituto Eldorado & UnB • Challenge 2 (Grupo 7) • Letícia Takahashi & Maria Eduarda
   </footer>
 </body>
 </html>
@@ -288,7 +284,7 @@ HTML_PAGE = """<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Orquestrador de Rolês — RAG & Telemetria LLMOps</title>
+  <title>Orquestrador de Rolês — RAG & Telemetria</title>
   <style>
     :root {
       --bg: #0d1117;
@@ -489,7 +485,6 @@ HTML_PAGE = """<!DOCTYPE html>
     .btn-submit:hover { opacity: 0.92; }
     .btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* Telemetry KPI Grid */
     .kpi-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -532,9 +527,7 @@ HTML_PAGE = """<!DOCTYPE html>
       font-weight: 600;
     }
     .status-pill.conforme { background: rgba(35, 134, 54, 0.2); color: var(--success-text); }
-    .status-pill.atencao { background: rgba(210, 153, 34, 0.2); color: var(--warning); }
 
-    /* Results List */
     .results-container {
       display: none;
     }
@@ -600,36 +593,6 @@ HTML_PAGE = """<!DOCTYPE html>
       border-radius: 6px;
     }
 
-    .langfuse-link-box {
-      margin-top: 20px;
-      background: #1c2128;
-      border: 1px dashed var(--accent);
-      border-radius: 8px;
-      padding: 12px 16px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 10px;
-    }
-
-    .langfuse-link-box span {
-      font-size: 0.85rem;
-      color: var(--text-muted);
-    }
-
-    .btn-langfuse {
-      background: #8957e5;
-      color: #fff;
-      text-decoration: none;
-      padding: 6px 14px;
-      border-radius: 6px;
-      font-size: 0.82rem;
-      font-weight: 600;
-      transition: background 0.2s;
-    }
-    .btn-langfuse:hover { background: #6e40c9; }
-
     footer {
       text-align: center;
       margin-top: 40px;
@@ -643,22 +606,18 @@ HTML_PAGE = """<!DOCTYPE html>
 <body>
   <div class="container">
     <div class="top-nav">
-      <a href="/" style="font-weight:600; color:#e6edf3;">&larr; Voltar ao Início</a>
-      <div style="display:flex; gap:14px; align-items:center;">
-        <a href="/entregaveis" class="nav-highlight">📂 Ver Entregáveis & Base &rarr;</a>
-        <a href="/docs">📘 Swagger API</a>
-        <a href="https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6" target="_blank">🚀 Langfuse ↗</a>
-      </div>
+      <a href="/" style="font-weight:600; color:#e6edf3;">&larr; Início</a>
+      <a href="/entregaveis" class="nav-highlight">📂 Central de Entregáveis &rarr;</a>
     </div>
 
     <header>
       <h1>🎭 Orquestrador de Rolês (DF)</h1>
-      <p>Mecanismo RAG Semântico com Observabilidade & Tracing de LLMOps em Tempo Real</p>
+      <p>Mecanismo RAG Semântico com Observabilidade & Tracing em Tempo Real</p>
       
       <div class="badge-bar">
-        <div class="badge green">● API Online (FastAPI)</div>
-        <div class="badge purple">● Langfuse Cloud Conectado</div>
-        <div class="badge blue">● Base: 93 Rolês TikTok 2026 Auditados (2FA)</div>
+        <div class="badge green">● 93 Rolês Auditados (2FA)</div>
+        <div class="badge purple">● Latência RNF-14 < 2.5s</div>
+        <div class="badge blue">● Embeddings 3.072d</div>
       </div>
     </header>
 
@@ -703,14 +662,14 @@ HTML_PAGE = """<!DOCTYPE html>
           </div>
 
           <button type="submit" id="submitBtn" class="btn-submit">
-            <span>🚀 Buscar Rolê & Disparar Telemetria</span>
+            <span>🚀 Buscar Rolê no Banco Vetorial</span>
           </button>
         </form>
       </div>
 
       <div id="resultsSection" class="results-container">
         <div class="card">
-          <div class="card-title">📊 Telemetria de LLMOps (Langfuse Cloud)</div>
+          <div class="card-title">📊 Telemetria de LLMOps</div>
           
           <div class="kpi-grid">
             <div class="kpi-card">
@@ -742,14 +701,8 @@ HTML_PAGE = """<!DOCTYPE html>
             </div>
           </div>
 
-          <div class="langfuse-link-box">
-            <div>
-              <strong style="color:var(--text); font-size:0.9rem;">ID da Chamada no Langfuse:</strong>
-              <span id="traceIdTxt" style="font-family:monospace; margin-left:6px;">-</span>
-            </div>
-            <a id="btnLangfuseTrace" href="https://cloud.langfuse.com" target="_blank" class="btn-langfuse">
-              Ver Trace no Langfuse &rarr;
-            </a>
+          <div style="font-size:0.82rem; color:var(--text-muted); background:#161b22; padding:10px 14px; border-radius:6px;">
+            Trace ID: <span id="traceIdTxt" style="font-family:monospace; color:var(--text);">-</span>
           </div>
         </div>
 
@@ -761,7 +714,7 @@ HTML_PAGE = """<!DOCTYPE html>
     </main>
 
     <footer>
-      Residência em IA — Instituto Eldorado & UnB • Challenge 2 (Grupo 7) • DevOps: Maria Eduarda
+      Residência em IA — Instituto Eldorado & UnB • Challenge 2 (Grupo 7) • Letícia Takahashi & Maria Eduarda
     </footer>
   </div>
 
@@ -784,7 +737,7 @@ HTML_PAGE = """<!DOCTYPE html>
       if (!pergunta) return;
 
       btn.disabled = true;
-      btn.innerHTML = '<span>⏳ Consultando embeddings & Langfuse...</span>';
+      btn.innerHTML = '<span>⏳ Consultando embeddings...</span>';
 
       try {
         const payload = { pergunta: pergunta, top_k: topK };
@@ -800,7 +753,6 @@ HTML_PAGE = """<!DOCTYPE html>
 
         const data = await response.json();
 
-        // 1. Atualizar KPIs de Telemetria
         document.getElementById('kpiLatencia').innerText = data.latencia_total_segundos ? (data.latencia_total_segundos * 1000).toFixed(0) + ' ms' : 'N/A';
         document.getElementById('kpiFidelidade').innerText = data.pontuacao_fidelidade ? (data.pontuacao_fidelidade * 100).toFixed(1) + '%' : 'N/A';
         document.getElementById('kpiTokens').innerText = (data.tokens_utilizados || 420) + ' tokens';
@@ -808,9 +760,7 @@ HTML_PAGE = """<!DOCTYPE html>
 
         const traceId = data.langfuse_trace_id || 'simulacao-local';
         document.getElementById('traceIdTxt').innerText = traceId;
-        document.getElementById('btnLangfuseTrace').href = data.url_dashboard_langfuse || ('https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/' + traceId);
 
-        // 2. Renderizar Rolês
         const resultsSection = document.getElementById('resultsSection');
         const listContainer = document.getElementById('rolesList');
         listContainer.innerHTML = '';
@@ -852,7 +802,7 @@ HTML_PAGE = """<!DOCTYPE html>
         alert('Erro ao consultar RAG: ' + err.message);
       } finally {
         btn.disabled = false;
-        btn.innerHTML = '<span>🚀 Buscar Rolê & Disparar Telemetria</span>';
+        btn.innerHTML = '<span>🚀 Buscar Rolê no Banco Vetorial</span>';
       }
     }
   </script>
@@ -877,7 +827,6 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
       --purple: #bc8cff;
       --green: #3fb950;
       --orange: #f0883e;
-      --red: #f85149;
       --font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
 
@@ -929,383 +878,246 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
     .nav-link:hover { color: var(--text); }
     .nav-link.active { color: var(--purple); font-weight: 600; }
 
-    /* Page Header */
-    .header-bar {
-      padding: 24px 28px 16px 28px;
-      max-width: 1440px;
+    .main-container {
+      max-width: 1200px;
       margin: 0 auto;
+      padding: 32px 24px;
       width: 100%;
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      flex-wrap: wrap;
-      gap: 16px;
+      flex: 1;
     }
 
-    .header-info h1 {
-      font-size: 1.7rem;
+    .page-header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .page-header h1 {
+      font-size: 2.2rem;
       font-weight: 800;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       background: linear-gradient(90deg, #58a6ff, #bc8cff);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
 
-    .header-info p {
+    .page-header p {
       color: var(--text-muted);
-      font-size: 0.9rem;
-      max-width: 820px;
-      line-height: 1.45;
+      font-size: 1rem;
+      max-width: 700px;
+      margin: 0 auto 16px auto;
+      line-height: 1.5;
     }
 
-    .btn-zip-download {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: linear-gradient(180deg, #238636, #2ea043);
-      color: #fff;
-      text-decoration: none;
-      font-size: 0.88rem;
-      font-weight: 600;
-      padding: 10px 18px;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(46, 160, 67, 0.3);
-      transition: opacity 0.2s, transform 0.15s;
-    }
-    .btn-zip-download:hover {
-      opacity: 0.92;
-      transform: translateY(-1px);
-    }
-
-    .badges-strip {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-top: 10px;
-    }
-
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 3px 10px;
-      border-radius: 14px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      background: #21262d;
-      border: 1px solid var(--card-border);
-      color: var(--text-muted);
-    }
-    .badge.green { color: var(--green); border-color: rgba(46, 160, 67, 0.4); }
-    .badge.purple { color: #d2a8ff; border-color: rgba(188, 140, 255, 0.4); }
-    .badge.blue { color: #79c0ff; border-color: rgba(88, 166, 255, 0.4); }
-    .badge.orange { color: var(--orange); border-color: rgba(240, 136, 62, 0.4); }
-
-    /* Explorer Two-Column Layout */
-    .explorer-container {
-      flex: 1;
-      display: flex;
+    /* GRID DOS QUADRADOS */
+    .quadrados-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
       gap: 20px;
-      max-width: 1440px;
-      margin: 0 auto 32px auto;
-      padding: 0 28px;
-      width: 100%;
-    }
-    @media (max-width: 880px) {
-      .explorer-container { flex-direction: column; }
+      margin-bottom: 40px;
     }
 
-    /* Left Sidebar: Folder Tree */
-    .tree-sidebar {
-      width: 320px;
-      min-width: 290px;
+    .quadrado-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 16px;
-      height: fit-content;
-      max-height: calc(100vh - 180px);
-      overflow-y: auto;
+      border-radius: 14px;
+      padding: 24px;
+      cursor: pointer;
+      transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      text-decoration: none;
+      color: inherit;
+    }
+    .quadrado-card:hover {
+      transform: translateY(-4px);
+      border-color: #58a6ff;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
     }
 
-    .tree-search-box {
+    .quadrado-icon {
+      font-size: 2.2rem;
       margin-bottom: 14px;
     }
 
-    .tree-search-input {
-      width: 100%;
-      background: #0d1117;
-      border: 1px solid var(--card-border);
-      border-radius: 6px;
-      color: var(--text);
-      padding: 8px 12px;
-      font-size: 0.85rem;
-      outline: none;
-    }
-    .tree-search-input:focus { border-color: var(--blue); }
-
-    .tree-group-title {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--text-muted);
+    .quadrado-title {
+      font-size: 1.2rem;
       font-weight: 700;
-      margin: 14px 4px 6px 4px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .tree-item {
+      color: var(--text);
+      margin-bottom: 8px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 7px 10px;
-      border-radius: 6px;
-      font-size: 0.84rem;
-      color: var(--text);
-      cursor: pointer;
-      user-select: none;
-      transition: background 0.15s;
-      margin-bottom: 2px;
-      text-decoration: none;
-    }
-    .tree-item:hover { background: #21262d; }
-    .tree-item.active {
-      background: rgba(88, 166, 255, 0.15);
-      border-left: 3px solid var(--blue);
-      color: #79c0ff;
-      font-weight: 600;
-    }
-    .tree-item.special-active {
-      background: rgba(188, 140, 255, 0.15);
-      border-left: 3px solid var(--purple);
-      color: #d2a8ff;
-      font-weight: 600;
     }
 
-    .tree-item-name {
+    .quadrado-badge {
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+      background: #21262d;
+      border: 1px solid var(--card-border);
+    }
+    .quadrado-badge.green { color: var(--green); border-color: rgba(46, 160, 67, 0.4); }
+    .quadrado-badge.purple { color: #d2a8ff; border-color: rgba(188, 140, 255, 0.4); }
+    .quadrado-badge.orange { color: var(--orange); border-color: rgba(240, 136, 62, 0.4); }
+    .quadrado-badge.blue { color: #79c0ff; border-color: rgba(88, 166, 255, 0.4); }
+
+    .quadrado-desc {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+      margin-bottom: 18px;
+    }
+
+    .quadrado-action {
       display: flex;
       align-items: center;
-      gap: 8px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .item-tag {
-      font-size: 0.68rem;
-      padding: 1px 6px;
-      border-radius: 10px;
-      background: #21262d;
-      color: var(--text-muted);
+      gap: 6px;
+      font-size: 0.85rem;
       font-weight: 600;
-      margin-left: 6px;
+      color: var(--blue);
     }
-    .item-tag.green { color: var(--green); }
-    .item-tag.purple { color: #d2a8ff; }
-    .item-tag.orange { color: var(--orange); }
 
-    /* Right Main Panel: Viewer */
-    .viewer-panel {
-      flex: 1;
-      min-width: 0;
+    /* DETALHE EXPANDIDO */
+    .modulo-detalhe {
+      display: none;
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 12px;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
+      border-radius: 14px;
+      padding: 24px;
+      margin-top: 20px;
+    }
+    .modulo-detalhe.active {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
-    .viewer-header {
-      padding: 14px 20px;
-      background: #1c2128;
-      border-bottom: 1px solid var(--card-border);
+    .detalhe-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       flex-wrap: wrap;
       gap: 12px;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--card-border);
     }
 
-    .viewer-path {
-      font-family: monospace;
-      font-size: 0.88rem;
-      color: var(--text);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .viewer-actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    .viewer-btn {
+    .btn-voltar {
       background: #21262d;
       border: 1px solid var(--card-border);
       color: var(--text);
-      padding: 5px 12px;
-      border-radius: 6px;
-      font-size: 0.78rem;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.88rem;
       font-weight: 600;
       cursor: pointer;
-      text-decoration: none;
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: background 0.15s;
+      transition: background 0.2s;
     }
-    .viewer-btn:hover { background: #30363d; border-color: #8b949e; }
-    .viewer-btn.primary {
-      background: #238636;
-      border-color: #2ea043;
+    .btn-voltar:hover {
+      background: #30363d;
+      border-color: #8b949e;
+    }
+
+    .btn-action {
+      background: linear-gradient(180deg, #238636, #2ea043);
       color: #fff;
-    }
-    .viewer-btn.primary:hover { background: #2ea043; }
-
-    .viewer-body {
-      padding: 20px;
-      flex: 1;
-      overflow-y: auto;
-      max-height: calc(100vh - 220px);
-    }
-
-    /* Views */
-    .view-container { display: none; }
-    .view-container.active { display: block; }
-
-    /* PDF View */
-    .pdf-meta-box {
-      background: #0d1117;
-      border: 1px solid var(--card-border);
+      text-decoration: none;
+      padding: 8px 16px;
       border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 16px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 12px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
     }
-    .pdf-meta-item h4 {
-      font-size: 0.82rem;
-      color: var(--blue);
-      margin-bottom: 4px;
-    }
-    .pdf-meta-item p {
-      font-size: 0.78rem;
-      color: var(--text-muted);
-      line-height: 1.4;
-    }
-
-    .pdf-frame-wrapper {
-      width: 100%;
-      height: 780px;
+    .btn-action.secondary {
+      background: #21262d;
       border: 1px solid var(--card-border);
-      border-radius: 8px;
-      overflow: hidden;
-      background: #0d1117;
-    }
-    .pdf-frame-wrapper iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
     }
 
-    /* Interactive Table / Filter Area */
-    .table-toolbar {
+    /* Toolbar de filtros */
+    .toolbar {
       display: flex;
       flex-wrap: wrap;
       gap: 12px;
       align-items: center;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
       background: #0d1117;
       padding: 12px;
       border-radius: 8px;
       border: 1px solid var(--card-border);
     }
 
-    .search-input {
+    .input-busca {
       flex: 1;
       min-width: 220px;
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 6px;
       color: var(--text);
-      padding: 7px 12px;
-      font-size: 0.85rem;
+      padding: 8px 12px;
+      font-size: 0.88rem;
     }
-    .search-input:focus { outline: none; border-color: var(--blue); }
+    .input-busca:focus { outline: none; border-color: var(--blue); }
 
-    .filter-select {
+    .select-filtro {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 6px;
       color: var(--text);
-      padding: 7px 12px;
+      padding: 8px 12px;
       font-size: 0.85rem;
     }
 
-    .counter-txt {
-      font-size: 0.8rem;
-      color: var(--text-muted);
-      font-weight: 600;
-    }
-
-    .cards-grid {
+    .cards-list {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
-      gap: 14px;
-    }
-    @media (max-width: 600px) {
-      .cards-grid { grid-template-columns: 1fr; }
+      grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+      gap: 16px;
     }
 
-    .data-card {
+    .item-card {
       background: #0d1117;
       border: 1px solid var(--card-border);
-      border-radius: 8px;
+      border-radius: 10px;
       padding: 16px;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
-      transition: border-color 0.2s, transform 0.15s;
-    }
-    .data-card:hover {
-      border-color: #58a6ff;
-      transform: translateY(-2px);
     }
 
-    .card-top {
-      margin-bottom: 10px;
-    }
-
-    .card-name {
+    .item-card-title {
       font-size: 1.05rem;
       font-weight: 700;
       color: var(--text);
+      margin-bottom: 4px;
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      gap: 8px;
-      margin-bottom: 4px;
     }
 
-    .card-meta {
+    .item-card-meta {
       font-size: 0.8rem;
       color: var(--text-muted);
       margin-bottom: 8px;
     }
 
-    .card-desc {
-      font-size: 0.82rem;
+    .item-card-desc {
+      font-size: 0.84rem;
       color: #c9d1d9;
       line-height: 1.45;
       margin-bottom: 12px;
     }
 
-    .card-quarantine-box {
+    .item-card-quarentena {
       background: rgba(248, 81, 73, 0.1);
       border: 1px solid rgba(248, 81, 73, 0.3);
       border-radius: 6px;
@@ -1313,30 +1125,9 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
       font-size: 0.8rem;
       color: #ff7b72;
       margin-bottom: 10px;
-      line-height: 1.4;
     }
 
-    .card-bottom {
-      border-top: 1px solid #21262d;
-      padding-top: 10px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.78rem;
-    }
-
-    .tiktok-link {
-      color: #ff0050;
-      text-decoration: none;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .tiktok-link:hover { text-decoration: underline; }
-
-    /* Code View */
-    .code-wrapper {
+    .code-container {
       background: #0d1117;
       border: 1px solid var(--card-border);
       border-radius: 8px;
@@ -1347,80 +1138,27 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
       color: #e6edf3;
       overflow-x: auto;
       white-space: pre-wrap;
-      word-break: break-word;
     }
 
-    /* Vector Inspector View */
-    .vector-banner {
-      background: #1c2128;
-      border: 1px solid var(--purple);
-      border-radius: 8px;
-      padding: 16px;
-      margin-bottom: 16px;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 12px;
-    }
-    .vector-stat-title { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; }
-    .vector-stat-val { font-size: 1.25rem; font-weight: 700; color: #d2a8ff; margin-top: 2px; }
-
-    .vector-chunk-card {
-      background: #0d1117;
+    /* PDF Embed */
+    .pdf-viewer-box {
+      width: 100%;
+      height: 820px;
       border: 1px solid var(--card-border);
       border-radius: 8px;
-      padding: 14px;
-      margin-bottom: 12px;
-    }
-    .vector-chunk-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 4px; color: var(--blue); }
-    .vector-chunk-text { font-size: 0.82rem; color: var(--text-muted); line-height: 1.45; margin-bottom: 8px; }
-    .vector-preview-box {
-      background: #161b22;
-      border-radius: 6px;
-      padding: 8px 10px;
-      font-family: monospace;
-      font-size: 0.75rem;
-      color: #79c0ff;
-      word-break: break-all;
-    }
-
-    /* ZIP View */
-    .zip-box {
+      overflow: hidden;
       background: #0d1117;
-      border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 36px 24px;
-      text-align: center;
-      max-width: 600px;
-      margin: 40px auto;
     }
-    .zip-box-icon { font-size: 3rem; margin-bottom: 12px; }
-    .zip-box h2 { font-size: 1.4rem; margin-bottom: 8px; }
-    .zip-box p { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 24px; line-height: 1.5; }
-
-    /* Telemetry View */
-    .telemetry-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 16px;
-      margin-bottom: 24px;
+    .pdf-viewer-box iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
     }
-    .telemetry-box {
-      background: #0d1117;
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 20px;
-    }
-    .telemetry-label { font-size: 0.78rem; text-transform: uppercase; color: var(--text-muted); }
-    .telemetry-val { font-size: 1.8rem; font-weight: 800; margin: 6px 0; }
-    .telemetry-val.green { color: var(--green); }
-    .telemetry-val.purple { color: #d2a8ff; }
-    .telemetry-val.blue { color: var(--blue); }
-    .telemetry-desc { font-size: 0.8rem; color: var(--text-muted); line-height: 1.4; }
 
     footer {
       text-align: center;
-      padding: 20px;
-      font-size: 0.82rem;
+      padding: 24px;
+      font-size: 0.85rem;
       color: var(--text-muted);
       border-top: 1px solid var(--card-border);
     }
@@ -1431,486 +1169,333 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
     <a href="/" class="nav-brand">🎭 Orquestrador de Rolês</a>
     <div class="nav-links">
       <a href="/" class="nav-link">🏠 Início</a>
-      <a href="/rag" class="nav-link">🤖 RAG Demo</a>
-      <a href="/entregaveis" class="nav-link active">📂 Entregáveis (Semana 2)</a>
-      <a href="/docs" class="nav-link">📘 Swagger API</a>
-      <a href="https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6" target="_blank" class="nav-link">🚀 Langfuse ↗</a>
+      <a href="/rag" class="nav-link">🤖 Chat RAG</a>
+      <a href="/entregaveis" class="nav-link active">📂 Central de Entregáveis</a>
     </div>
   </nav>
 
-  <header class="header-bar">
-    <div class="header-info">
-      <h1>📂 Central Interativa de Entregáveis — Semana 02</h1>
+  <div class="main-container">
+    <header class="page-header" id="pageHeader">
+      <h1>📂 Central de Entregáveis — Semana 02</h1>
       <p>
-        Explore relatórios técnicos, datasets auditados com 2FA, vetores semânticos, código e telemetria diretamente no navegador, sem a necessidade de baixar arquivos pesados.
+        Clique em um dos módulos abaixo para explorar relatórios técnicos, datasets auditados com 2FA, vetores semânticos e demonstração diretamente no navegador.
       </p>
-      <div class="badges-strip">
-        <span class="badge purple">● 📄 Relatório Técnico 4 Páginas</span>
-        <span class="badge green">● 🛡️ 93 Rolês Aprovados (2FA)</span>
-        <span class="badge orange">● ⚠️ 71 Quarentenados</span>
-        <span class="badge blue">● 🧠 OpenAI text-embedding-3-large (3072d)</span>
-        <span class="badge">● 📈 Tracing Langfuse Cloud</span>
+    </header>
+
+    <!-- OS 6 QUADRADOS -->
+    <div class="quadrados-grid" id="quadradosGrid">
+      <!-- 1. RELATORIO PDF -->
+      <div class="quadrado-card" onclick="abrirModulo('pdf')">
+        <div>
+          <div class="quadrado-icon">📄</div>
+          <div class="quadrado-title">
+            <span>Relatório Técnico Oficial</span>
+            <span class="quadrado-badge purple">PDF (4 Págs)</span>
+          </div>
+          <p class="quadrado-desc">
+            Documento técnico completo em 4 páginas (ABNT/IEEE) com metodologia 2FA, arquitetura vetorial (3.072d), guardrails noturnos e conformidade de RNFs.
+          </p>
+        </div>
+        <div class="quadrado-action">Visualizar Relatório &rarr;</div>
+      </div>
+
+      <!-- 2. BASE APROVADA -->
+      <div class="quadrado-card" onclick="abrirModulo('aprovados')">
+        <div>
+          <div class="quadrado-icon">📊</div>
+          <div class="quadrado-title">
+            <span>Base Aprovada 2FA</span>
+            <span class="quadrado-badge green">93 Rolês DF</span>
+          </div>
+          <p class="quadrado-desc">
+            Buscador e catálogo interativo dos 93 rolês aprovados com geolocalização exata no DF, preços médios em R$, tags de vibes e links diretos do TikTok.
+          </p>
+        </div>
+        <div class="quadrado-action">Explorar Base &rarr;</div>
+      </div>
+
+      <!-- 3. QUARENTENA -->
+      <div class="quadrado-card" onclick="abrirModulo('quarentena')">
+        <div>
+          <div class="quadrado-icon">⚠️</div>
+          <div class="quadrado-title">
+            <span>Fila de Quarentena</span>
+            <span class="quadrado-badge orange">71 Vídeos</span>
+          </div>
+          <p class="quadrado-desc">
+            Auditoria transparente de exclusão: 71 vídeos bloqueados com justificativa detalhada (falta de endereço no DF, falta de preço ou propaganda não-lazer).
+          </p>
+        </div>
+        <div class="quadrado-action">Inspecionar Quarentena &rarr;</div>
+      </div>
+
+      <!-- 4. VETORES -->
+      <div class="quadrado-card" onclick="abrirModulo('vetores')">
+        <div>
+          <div class="quadrado-icon">🧠</div>
+          <div class="quadrado-title">
+            <span>Embeddings Vetoriais</span>
+            <span class="quadrado-badge blue">3.072 Dimensões</span>
+          </div>
+          <p class="quadrado-desc">
+            Inspeção da representação vetorial densa (text-embedding-3-large), cálculo de similaridade de cosseno e amostragem dos chunks indexados.
+          </p>
+        </div>
+        <div class="quadrado-action">Ver Arquitetura Vetorial &rarr;</div>
+      </div>
+
+      <!-- 5. DEMONSTRACAO -->
+      <div class="quadrado-card" onclick="abrirModulo('logs')">
+        <div>
+          <div class="quadrado-icon">🧪</div>
+          <div class="quadrado-title">
+            <span>Evidências de Teste RAG</span>
+            <span class="quadrado-badge">4 Passos</span>
+          </div>
+          <p class="quadrado-desc">
+            Log integral dos testes executados comprovando os 4 passos avaliativos: Consulta submetida, Chunks recuperados, Resposta ancorada e Fontes com TikTok.
+          </p>
+        </div>
+        <div class="quadrado-action">Ver Logs de Teste &rarr;</div>
+      </div>
+
+      <!-- 6. PACOTE ZIP -->
+      <div class="quadrado-card" onclick="abrirModulo('zip')">
+        <div>
+          <div class="quadrado-icon">📦</div>
+          <div class="quadrado-title">
+            <span>Pacote ZIP Oficial</span>
+            <span class="quadrado-badge green">3.5 MB</span>
+          </div>
+          <p class="quadrado-desc">
+            Download do arquivo compactado consolidado contendo toda a base curada (JSON), vetores, códigos do RAG e relatórios para arquivamento offline.
+          </p>
+        </div>
+        <div class="quadrado-action">Opções de Download &rarr;</div>
       </div>
     </div>
-    <a href="/download/entregavel-zip" class="btn-zip-download">
-      <span>📥 Baixar Pacote ZIP Oficial (3.7 MB)</span>
-    </a>
-  </header>
 
-  <main class="explorer-container">
-    <!-- LEFT SIDEBAR: TREE -->
-    <aside class="tree-sidebar">
-      <div class="tree-search-box">
-        <input type="text" id="filterTreeInput" class="tree-search-input" placeholder="🔍 Filtrar pastas e arquivos..." oninput="filtrarArvore(this.value)">
-      </div>
+    <!-- MODULOS DETALHADOS (EXPANDIDOS SOB DEMANDA) -->
 
-      <div id="treeList">
-        <div class="tree-group-title">📁 docs/entregas/semana-02/</div>
-        <div class="tree-item special-active" data-path="docs/entregas/semana-02/RELATORIO_TECNICO_RAG_GRUPO7.pdf" data-type="pdf" onclick="carregarArquivo(this)">
-          <span class="tree-item-name">📄 RELATORIO_TECNICO...pdf</span>
-          <span class="item-tag purple">PDF 4 Págs</span>
-        </div>
-        <div class="tree-item" data-path="docs/entregas/semana-02/RELATORIO_TECNICO_RAG_SEMANA_02.md" data-type="md" onclick="carregarArquivo(this)">
-          <span class="tree-item-name">📝 RELATORIO_TECNICO...md</span>
-          <span class="item-tag">MD</span>
-        </div>
-        <div class="tree-item" data-path="docs/entregas/semana-02/DEMONSTRACAO_RAG_ENTREGAVEL.txt" data-type="txt" onclick="carregarArquivo(this)">
-          <span class="tree-item-name">🧪 DEMONSTRACAO_RAG...txt</span>
-          <span class="item-tag">Logs</span>
-        </div>
-        <div class="tree-item" data-path="docs/entregas/semana-02/Entregavel_Grupo7_Base_Conhecimento_e_RAG.zip" data-type="zip" onclick="carregarArquivo(this)">
-          <span class="tree-item-name">📦 Entregavel_Grupo7...zip</span>
-          <span class="item-tag green">3.7 MB</span>
-        </div>
-
-        <div class="tree-group-title">📁 data/ (Bases & Vetores)</div>
-        <div class="tree-item" data-path="data/banco_aprovado_2fa.json" data-type="aprovados" onclick="carregarArquivo(this)">
-          <span class="tree-item-name">📊 banco_aprovado_2fa.json</span>
-          <span class="item-tag green">93 Rolês</span>
-        </div>
-        <div class="tree-item" data-path="data/fila_quarentena_2fa.json" data-type="quarentena" onclick="carregarArquivo(this)">
-          <span class="tree-item-name">⚠️ fila_quarentena_2fa.json</span>
-          <span class="item-tag orange">71 Quarentena</span>
-        </div>
-        <div class="tree-item" data-path="data/banco_vetorial_embeddings.json" data-type="vetores" onclick="carregarArquivo(this)">
-          <span class="tree-item-name">🧠 banco_vetorial_emb...json</span>
-          <span class="item-tag purple">3072 dims</span>
-        </div>
-        <div class="tree-item" data-path="data/catalogo_videos_2026.json" data-type="code" onclick="carregarArquivo(this)">
-          <span class="tree-item-name">📹 catalogo_videos_2026.json</span>
-          <span class="item-tag">JSON</span>
-        </div>
-        <div class="tree-item" data-path="data/base/lugares.csv" data-type="code" onclick="carregarArquivo(this)">
-          <span class="tree-item-name">📄 data/base/lugares.csv</span>
-          <span class="item-tag">CSV</span>
-        </div>
-        <div class="tree-item" data-path="data/base/itens.csv" data-type="code" onclick="carregarArquivo(this)">
-          <span class="tree-item-name">📄 data/base/itens.csv</span>
-          <span class="item-tag">CSV</span>
-        </div>
-        <div class="tree-item" data-path="data/base/regioes.csv" data-type="code" onclick="carregarArquivo(this)">
-          <span class="tree-item-name">📄 data/base/regioes.csv</span>
-          <span class="item-tag">CSV</span>
-        </div>
-        <div class="tree-item" data-path="data/base/relatorio.md" data-type="md" onclick="carregarArquivo(this)">
-          <span class="tree-item-name">📄 data/base/relatorio.md</span>
-          <span class="item-tag">MD</span>
-        </div>
-
-        <div class="tree-group-title">📁 src/rag/ (Pipeline RAG)</div>
-        <div class="tree-item" data-path="src/rag/prototipo_rag.py" data-type="code" onclick="carregarArquivo(this)">
-          <span class="tree-item-name">🐍 prototipo_rag.py</span>
-          <span class="item-tag">Python</span>
-        </div>
-        <div class="tree-item" data-path="src/rag/banco_vetorial.py" data-type="code" onclick="carregarArquivo(this)">
-          <span class="tree-item-name">🐍 banco_vetorial.py</span>
-          <span class="item-tag">Python</span>
-        </div>
-        <div class="tree-item" data-path="src/rag/coletor_tiktok_2fa.py" data-type="code" onclick="carregarArquivo(this)">
-          <span class="tree-item-name">🐍 coletor_tiktok_2fa.py</span>
-          <span class="item-tag">Python</span>
-        </div>
-
-        <div class="tree-group-title">📁 docs/ & telemetria/</div>
-        <div class="tree-item" data-path="docs/MANUAL_DEVOPS_UBUNTU_E_CONTINUACAO.md" data-type="md" onclick="carregarArquivo(this)">
-          <span class="tree-item-name">📘 MANUAL_DEVOPS...md</span>
-          <span class="item-tag blue">Guia</span>
-        </div>
-        <div class="tree-item" data-path="telemetria" data-type="telemetria" onclick="carregarArquivo(this)">
-          <span class="tree-item-name">📈 Painel LLMOps (Langfuse)</span>
-          <span class="item-tag purple">Live SLA</span>
+    <!-- MODULO 1: PDF -->
+    <div id="moduloPdf" class="modulo-detalhe">
+      <div class="detalhe-header">
+        <button class="btn-voltar" onclick="fecharModulos()">&larr; Voltar aos Quadrados</button>
+        <div style="display:flex; gap:10px;">
+          <a href="/visualizar/relatorio-pdf" target="_blank" class="btn-action secondary">↗ Abrir em Nova Aba</a>
+          <a href="/download/relatorio-pdf" class="btn-action">📥 Baixar PDF</a>
         </div>
       </div>
-    </aside>
+      <div class="pdf-viewer-box">
+        <iframe id="iframePdf" src=""></iframe>
+      </div>
+    </div>
 
-    <!-- RIGHT PANEL: VIEWER -->
-    <section class="viewer-panel">
-      <div class="viewer-header">
-        <div class="viewer-path" id="viewerPath">
-          <span>📄</span>
-          <span id="currentPathTxt">docs/entregas/semana-02/RELATORIO_TECNICO_RAG_GRUPO7.pdf</span>
-          <span id="currentBadge" class="item-tag purple">PDF Oficial (4 Páginas)</span>
-        </div>
-        <div class="viewer-actions">
-          <a id="btnDownload" href="/download/relatorio-pdf" target="_blank" class="viewer-btn primary">
-            📥 Baixar Arquivo
-          </a>
-          <button id="btnCopy" class="viewer-btn" onclick="copiarConteudoAtual()" style="display:none;">
-            📋 Copiar
-          </button>
-          <a id="btnNewTab" href="/download/relatorio-pdf" target="_blank" class="viewer-btn">
-            ↗ Abrir em Nova Aba
-          </a>
-        </div>
+    <!-- MODULO 2: BASE APROVADA -->
+    <div id="moduloAprovados" class="modulo-detalhe">
+      <div class="detalhe-header">
+        <button class="btn-voltar" onclick="fecharModulos()">&larr; Voltar aos Quadrados</button>
+        <a href="/api/entregaveis/arquivo?caminho=data/banco_aprovado_2fa.json" target="_blank" class="btn-action secondary">📥 Baixar JSON (93 Rolês)</a>
       </div>
 
-      <div class="viewer-body">
-        <!-- 1. VIEW PDF -->
-        <div id="viewPdf" class="view-container active">
-          <div class="pdf-meta-box">
-            <div class="pdf-meta-item">
-              <h4>1. Coleta Multimodal & Auditoria 2FA</h4>
-              <p>Extração automática de 93 rolês via TikTok + Whisper, com checagem de geolocalização exata no DF e precificação real.</p>
-            </div>
-            <div class="pdf-meta-item">
-              <h4>2. Arquitetura de Embeddings</h4>
-              <p>OpenAI text-embedding-3-large com vetores densos de 3.072 dimensões e similaridade de cosseno em memória.</p>
-            </div>
-            <div class="pdf-meta-item">
-              <h4>3. Guardrails & Filtro Noturno</h4>
-              <p>Penalização de rolês infantis em consultas noturnas e priorização determinística de estabelecimentos com horário > 01h.</p>
-            </div>
-            <div class="pdf-meta-item">
-              <h4>4. Observabilidade & RNF</h4>
-              <p>Metas rigorosas atingidas: Latência < 2.5s (RNF-14), Fidelidade > 85% (RNF-03) e tracing completo no Langfuse.</p>
-            </div>
-          </div>
-
-          <div class="pdf-frame-wrapper">
-            <iframe id="pdfIframe" src="/download/relatorio-pdf#view=FitH"></iframe>
-          </div>
-        </div>
-
-        <!-- 2. VIEW APROVADOS (93 ROLES) -->
-        <div id="viewAprovados" class="view-container">
-          <div class="table-toolbar">
-            <input type="text" id="buscaAprovados" class="search-input" placeholder="🔍 Pesquisar por nome, cidade/RA, vibe ou descrição..." oninput="filtrarAprovados()">
-            
-            <select id="filtroCategoriaAprovados" class="filter-select" onchange="filtrarAprovados()">
-              <option value="">Todas as Categorias</option>
-              <option value="Cafeteria / Doceria">Cafeteria / Doceria</option>
-              <option value="Bar / Boteco / Pub">Bar / Boteco / Pub</option>
-              <option value="Restaurante / Gastronomia">Restaurante / Gastronomia</option>
-              <option value="Ao Ar Livre / Parque">Ao Ar Livre / Parque</option>
-              <option value="Experiência / Evento">Experiência / Evento</option>
-            </select>
-
-            <select id="filtroRaAprovados" class="filter-select" onchange="filtrarAprovados()">
-              <option value="">Todas as Regiões (DF)</option>
-              <option value="Plano Piloto">Plano Piloto (Asa Sul / Norte)</option>
-              <option value="Águas Claras">Águas Claras</option>
-              <option value="Taguatinga">Taguatinga</option>
-              <option value="Guará">Guará</option>
-              <option value="Sudoeste">Sudoeste</option>
-              <option value="Vicente Pires">Vicente Pires</option>
-            </select>
-
-            <span id="counterAprovados" class="counter-txt">Carregando dados...</span>
-          </div>
-
-          <div id="gridAprovados" class="cards-grid"></div>
-        </div>
-
-        <!-- 3. VIEW QUARENTENA (71 VIDEOS) -->
-        <div id="viewQuarentena" class="view-container">
-          <div class="table-toolbar">
-            <input type="text" id="buscaQuarentena" class="search-input" placeholder="🔍 Pesquisar vídeo, autor ou motivo da reprovação..." oninput="filtrarQuarentena()">
-            
-            <select id="filtroMotivoQuarentena" class="filter-select" onchange="filtrarQuarentena()">
-              <option value="">Todos os Motivos</option>
-              <option value="Localização">Falta de Localização no DF</option>
-              <option value="Preço">Faixa de Preço Não Comprovada</option>
-              <option value="propaganda">Propaganda Comercial / Pet</option>
-              <option value="áudio">Sem Conteúdo de Lazer / Gastronomia</option>
-            </select>
-
-            <span id="counterQuarentena" class="counter-txt">Carregando quarentena...</span>
-          </div>
-
-          <div id="gridQuarentena" class="cards-grid"></div>
-        </div>
-
-        <!-- 4. VIEW VETORES -->
-        <div id="viewVetores" class="view-container">
-          <div class="vector-banner">
-            <div>
-              <div class="vector-stat-title">Modelo de Embeddings</div>
-              <div class="vector-stat-val">text-embedding-3-large</div>
-            </div>
-            <div>
-              <div class="vector-stat-title">Dimensões Vetoriais</div>
-              <div class="vector-stat-val">3.072 float32</div>
-            </div>
-            <div>
-              <div class="vector-stat-title">Métrica de Similaridade</div>
-              <div class="vector-stat-val">Cosine Similarity</div>
-            </div>
-            <div>
-              <div class="vector-stat-title">Chunks Indexados</div>
-              <div class="vector-stat-val">93 Documentos</div>
-            </div>
-          </div>
-
-          <div class="table-toolbar">
-            <input type="text" id="buscaVetores" class="search-input" placeholder="🔍 Buscar chunk vetorial..." oninput="filtrarVetores()">
-            <span id="counterVetores" class="counter-txt">Carregando chunks...</span>
-          </div>
-
-          <div id="gridVetores"></div>
-        </div>
-
-        <!-- 5. VIEW CODE / TEXT -->
-        <div id="viewCode" class="view-container">
-          <pre id="codeContent" class="code-wrapper"></pre>
-        </div>
-
-        <!-- 6. VIEW ZIP -->
-        <div id="viewZip" class="view-container">
-          <div class="zip-box">
-            <div class="zip-box-icon">📦</div>
-            <h2>Pacote Oficial de Entregáveis — Semana 02</h2>
-            <p>
-              Arquivo ZIP consolidado contendo toda a base curada (JSON/CSV), embeddings vetoriais (3072d), código do pipeline RAG, relatórios em PDF/Markdown e evidências de telemetria.
-            </p>
-            <div style="font-family:monospace; font-size:0.8rem; color:var(--text-muted); margin-bottom:20px; background:#161b22; padding:10px; border-radius:6px;">
-              Entregavel_Grupo7_Base_Conhecimento_e_RAG.zip &bull; ~3.7 MB &bull; SHA256 Verificado
-            </div>
-            <a href="/download/entregavel-zip" class="viewer-btn primary" style="font-size:1rem; padding:12px 24px;">
-              📥 Baixar Arquivo ZIP Agora
-            </a>
-          </div>
-        </div>
-
-        <!-- 7. VIEW TELEMETRIA -->
-        <div id="viewTelemetria" class="view-container">
-          <div class="telemetry-grid">
-            <div class="telemetry-box">
-              <div class="telemetry-label">Latência RAG (RNF-14)</div>
-              <div class="telemetry-val green">1.84s</div>
-              <div class="telemetry-desc">Meta: < 2.50s em 95% das consultas. Totalmente em conformidade.</div>
-            </div>
-            <div class="telemetry-box">
-              <div class="telemetry-label">Fidelidade RAG (RNF-03)</div>
-              <div class="telemetry-val purple">91.4%</div>
-              <div class="telemetry-desc">Meta: > 85.0% de precisão sem alucinação e com ancoragem nos dados do DF.</div>
-            </div>
-            <div class="telemetry-box">
-              <div class="telemetry-label">Custo por Consulta (RNF-15)</div>
-              <div class="telemetry-val blue">R$ 0.0035</div>
-              <div class="telemetry-desc">Otimização máxima de tokens com chunking semântico estruturado.</div>
-            </div>
-          </div>
-
-          <div style="background:#0d1117; border:1px solid var(--card-border); border-radius:10px; padding:20px;">
-            <h3 style="margin-bottom:10px; font-size:1.1rem; color:var(--blue);">🚀 Tracing em Produção — Langfuse Cloud</h3>
-            <p style="font-size:0.88rem; color:var(--text-muted); line-height:1.5; margin-bottom:16px;">
-              O Grupo 7 instrumentou 100% das chamadas com o SDK oficial da Langfuse. Cada busca registra scores de similaridade, latência de embeddings, tokens consumidos e metadados de sessão.
-            </p>
-            <div style="font-family:monospace; font-size:0.82rem; background:#161b22; padding:10px 14px; border-radius:6px; margin-bottom:16px; border:1px dashed var(--purple);">
-              Projeto Langfuse ID: <strong>cmw59be2y01d8ad0jqbgsjut6</strong> &bull; Host: https://cloud.langfuse.com
-            </div>
-            <div style="display:flex; gap:12px; flex-wrap:wrap;">
-              <a href="https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6" target="_blank" class="viewer-btn primary">
-                Abrir Dashboard do Langfuse ↗
-              </a>
-              <a href="/rag" class="viewer-btn">
-                Testar Busca com Telemetria ao Vivo &rarr;
-              </a>
-            </div>
-          </div>
-        </div>
+      <div class="toolbar">
+        <input type="text" id="buscaAprovados" class="input-busca" placeholder="🔍 Pesquisar por nome, RA, vibe ou palavras-chave..." oninput="filtrarAprovados()">
+        <select id="filtroCategoria" class="select-filtro" onchange="filtrarAprovados()">
+          <option value="">Todas as Categorias</option>
+          <option value="Cafeteria / Doceria">Cafeteria / Doceria</option>
+          <option value="Bar / Boteco / Pub">Bar / Boteco / Pub</option>
+          <option value="Restaurante / Gastronomia">Restaurante / Gastronomia</option>
+          <option value="Ao Ar Livre / Parque">Ao Ar Livre / Parque</option>
+          <option value="Experiência / Evento">Experiência / Evento</option>
+        </select>
+        <span id="counterAprovados" style="font-size:0.85rem; color:var(--text-muted); font-weight:600;">Carregando...</span>
       </div>
-    </section>
-  </main>
+
+      <div id="gridAprovados" class="cards-list"></div>
+    </div>
+
+    <!-- MODULO 3: QUARENTENA -->
+    <div id="moduloQuarentena" class="modulo-detalhe">
+      <div class="detalhe-header">
+        <button class="btn-voltar" onclick="fecharModulos()">&larr; Voltar aos Quadrados</button>
+        <a href="/api/entregaveis/arquivo?caminho=data/fila_quarentena_2fa.json" target="_blank" class="btn-action secondary">📥 Baixar JSON (71 Quarentenados)</a>
+      </div>
+
+      <div class="toolbar">
+        <input type="text" id="buscaQuarentena" class="input-busca" placeholder="🔍 Pesquisar por autor, vídeo ou motivo..." oninput="filtrarQuarentena()">
+        <select id="filtroMotivo" class="select-filtro" onchange="filtrarQuarentena()">
+          <option value="">Todos os Motivos</option>
+          <option value="Localização">Falta de Localização no DF</option>
+          <option value="Preço">Falta de Preço Comprovado</option>
+          <option value="propaganda">Propaganda Comercial / Pet</option>
+          <option value="áudio">Sem Conteúdo de Lazer / Comida</option>
+        </select>
+        <span id="counterQuarentena" style="font-size:0.85rem; color:var(--text-muted); font-weight:600;">Carregando...</span>
+      </div>
+
+      <div id="gridQuarentena" class="cards-list"></div>
+    </div>
+
+    <!-- MODULO 4: VETORES -->
+    <div id="moduloVetores" class="modulo-detalhe">
+      <div class="detalhe-header">
+        <button class="btn-voltar" onclick="fecharModulos()">&larr; Voltar aos Quadrados</button>
+        <div style="font-size:0.88rem; color:var(--purple); font-weight:600;">OpenAI text-embedding-3-large (3.072 dimensões)</div>
+      </div>
+
+      <div class="toolbar">
+        <input type="text" id="buscaVetores" class="input-busca" placeholder="🔍 Buscar chunk semântico..." oninput="filtrarVetores()">
+        <span id="counterVetores" style="font-size:0.85rem; color:var(--text-muted); font-weight:600;">Carregando...</span>
+      </div>
+
+      <div id="gridVetores" style="display:flex; flex-direction:column; gap:12px;"></div>
+    </div>
+
+    <!-- MODULO 5: LOGS DEMONSTRACAO -->
+    <div id="moduloLogs" class="modulo-detalhe">
+      <div class="detalhe-header">
+        <button class="btn-voltar" onclick="fecharModulos()">&larr; Voltar aos Quadrados</button>
+        <a href="/api/entregaveis/arquivo?caminho=docs/entregas/semana-02/DEMONSTRACAO_RAG_ENTREGAVEL.txt" target="_blank" class="btn-action secondary">↗ Abrir Arquivo TXT</a>
+      </div>
+      <pre id="logsText" class="code-container">Carregando evidências de teste...</pre>
+    </div>
+
+    <!-- MODULO 6: ZIP -->
+    <div id="moduloZip" class="modulo-detalhe">
+      <div class="detalhe-header">
+        <button class="btn-voltar" onclick="fecharModulos()">&larr; Voltar aos Quadrados</button>
+      </div>
+      <div style="text-align:center; padding:32px 16px;">
+        <div style="font-size:3rem; margin-bottom:12px;">📦</div>
+        <h2 style="margin-bottom:8px;">Entregavel_Grupo7_Base_Conhecimento_e_RAG.zip</h2>
+        <p style="color:var(--text-muted); max-width:550px; margin:0 auto 20px auto; font-size:0.92rem; line-height:1.5;">
+          Arquivo oficial de 3.5 MB consolidando o relatório técnico em PDF de 4 páginas, base de 93 rolês auditados (2FA), embeddings de 3072d e códigos do pipeline RAG.
+        </p>
+        <a href="/download/entregavel-zip" class="btn-action" style="font-size:1rem; padding:12px 28px;">
+          📥 Baixar Pacote ZIP Agora
+        </a>
+      </div>
+    </div>
+  </div>
 
   <footer>
-    Residência em IA — Instituto Eldorado & UnB • Challenge 2 (Grupo 7) • DevOps & LLMOps: Maria Eduarda
+    Residência em IA — Instituto Eldorado & UnB • Challenge 2 (Grupo 7) • Letícia Takahashi & Maria Eduarda
   </footer>
 
   <script>
-    // State
-    let dadosAprovadosCache = null;
-    let dadosQuarentenaCache = null;
-    let dadosVetoresCache = null;
-    let conteudoTextoCache = '';
+    let cacheAprovados = null;
+    let cacheQuarentena = null;
+    let cacheVetores = null;
 
-    function filtrarArvore(termo) {
-      const q = termo.toLowerCase().trim();
-      const items = document.querySelectorAll('#treeList .tree-item');
-      items.forEach(el => {
-        const text = el.innerText.toLowerCase();
-        el.style.display = text.includes(q) ? 'flex' : 'none';
-      });
+    function fecharModulos() {
+      document.querySelectorAll('.modulo-detalhe').forEach(el => el.classList.remove('active'));
+      document.getElementById('quadradosGrid').style.display = 'grid';
+      document.getElementById('pageHeader').style.display = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    function resetViews() {
-      document.querySelectorAll('.view-container').forEach(el => el.classList.remove('active'));
-      document.getElementById('btnCopy').style.display = 'none';
-    }
+    async function abrirModulo(tipo) {
+      document.getElementById('quadradosGrid').style.display = 'none';
+      document.getElementById('pageHeader').style.display = 'none';
+      document.querySelectorAll('.modulo-detalhe').forEach(el => el.classList.remove('active'));
 
-    function setActiveTreeItem(target) {
-      document.querySelectorAll('#treeList .tree-item').forEach(el => {
-        el.classList.remove('active');
-        el.classList.remove('special-active');
-      });
-      target.classList.add('active');
-    }
-
-    async function carregarArquivo(element) {
-      setActiveTreeItem(element);
-      const path = element.getAttribute('data-path');
-      const type = element.getAttribute('data-type');
-
-      document.getElementById('currentPathTxt').innerText = path;
-      const badgeEl = document.getElementById('currentBadge');
-      badgeEl.className = 'item-tag';
-
-      const btnDownload = document.getElementById('btnDownload');
-      const btnNewTab = document.getElementById('btnNewTab');
-
-      resetViews();
-
-      if (type === 'pdf') {
-        badgeEl.innerText = 'PDF Oficial (4 Páginas)';
-        badgeEl.classList.add('purple');
-        btnDownload.href = '/download/relatorio-pdf';
-        btnNewTab.href = '/download/relatorio-pdf';
-        document.getElementById('viewPdf').classList.add('active');
-      } 
-      else if (type === 'zip') {
-        badgeEl.innerText = 'Arquivo ZIP (3.7 MB)';
-        badgeEl.classList.add('green');
-        btnDownload.href = '/download/entregavel-zip';
-        btnNewTab.href = '/download/entregavel-zip';
-        document.getElementById('viewZip').classList.add('active');
+      if (tipo === 'pdf') {
+        const modulo = document.getElementById('moduloPdf');
+        const iframe = document.getElementById('iframePdf');
+        if (!iframe.src || iframe.src === 'about:blank') {
+          iframe.src = '/visualizar/relatorio-pdf#view=FitH';
+        }
+        modulo.classList.add('active');
       }
-      else if (type === 'telemetria') {
-        badgeEl.innerText = 'Live LLMOps';
-        badgeEl.classList.add('purple');
-        btnDownload.href = 'https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6';
-        btnNewTab.href = 'https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6';
-        document.getElementById('viewTelemetria').classList.add('active');
-      }
-      else if (type === 'aprovados') {
-        badgeEl.innerText = '93 Rolês DF (2FA)';
-        badgeEl.classList.add('green');
-        btnDownload.href = '/api/entregaveis/arquivo?caminho=' + encodeURIComponent(path);
-        btnNewTab.href = '/api/entregaveis/arquivo?caminho=' + encodeURIComponent(path);
-        document.getElementById('viewAprovados').classList.add('active');
-        if (!dadosAprovadosCache) {
+      else if (tipo === 'aprovados') {
+        const modulo = document.getElementById('moduloAprovados');
+        modulo.classList.add('active');
+        if (!cacheAprovados) {
           const res = await fetch('/api/entregaveis/dados?colecao=aprovados');
           const json = await res.json();
-          dadosAprovadosCache = json.dados || [];
+          cacheAprovados = json.dados || [];
         }
         filtrarAprovados();
       }
-      else if (type === 'quarentena') {
-        badgeEl.innerText = '71 Quarentenados';
-        badgeEl.classList.add('orange');
-        btnDownload.href = '/api/entregaveis/arquivo?caminho=' + encodeURIComponent(path);
-        btnNewTab.href = '/api/entregaveis/arquivo?caminho=' + encodeURIComponent(path);
-        document.getElementById('viewQuarentena').classList.add('active');
-        if (!dadosQuarentenaCache) {
+      else if (tipo === 'quarentena') {
+        const modulo = document.getElementById('moduloQuarentena');
+        modulo.classList.add('active');
+        if (!cacheQuarentena) {
           const res = await fetch('/api/entregaveis/dados?colecao=quarentena');
           const json = await res.json();
-          dadosQuarentenaCache = json.dados || [];
+          cacheQuarentena = json.dados || [];
         }
         filtrarQuarentena();
       }
-      else if (type === 'vetores') {
-        badgeEl.innerText = 'Embeddings 3072d';
-        badgeEl.classList.add('purple');
-        btnDownload.href = '/api/entregaveis/arquivo?caminho=' + encodeURIComponent(path);
-        btnNewTab.href = '/api/entregaveis/arquivo?caminho=' + encodeURIComponent(path);
-        document.getElementById('viewVetores').classList.add('active');
-        if (!dadosVetoresCache) {
+      else if (tipo === 'vetores') {
+        const modulo = document.getElementById('moduloVetores');
+        modulo.classList.add('active');
+        if (!cacheVetores) {
           const res = await fetch('/api/entregaveis/dados?colecao=vetores');
           const json = await res.json();
-          dadosVetoresCache = json.dados || [];
+          cacheVetores = json.dados || [];
         }
         filtrarVetores();
       }
-      else {
-        // Code / Markdown / Text / CSV
-        badgeEl.innerText = type.toUpperCase();
-        btnDownload.href = '/api/entregaveis/arquivo?caminho=' + encodeURIComponent(path);
-        btnNewTab.href = '/api/entregaveis/arquivo?caminho=' + encodeURIComponent(path);
-        document.getElementById('btnCopy').style.display = 'inline-flex';
-        document.getElementById('viewCode').classList.add('active');
-
-        document.getElementById('codeContent').innerText = 'Carregando arquivo...';
-        try {
-          const res = await fetch('/api/entregaveis/arquivo?caminho=' + encodeURIComponent(path));
-          const json = await res.json();
-          conteudoTextoCache = json.conteudo || JSON.stringify(json, null, 2);
-          document.getElementById('codeContent').innerText = conteudoTextoCache;
-        } catch (err) {
-          document.getElementById('codeContent').innerText = 'Erro ao ler arquivo: ' + err.message;
-        }
+      else if (tipo === 'logs') {
+        const modulo = document.getElementById('moduloLogs');
+        modulo.classList.add('active');
+        const res = await fetch('/api/entregaveis/arquivo?caminho=docs/entregas/semana-02/DEMONSTRACAO_RAG_ENTREGAVEL.txt');
+        const json = await res.json();
+        document.getElementById('logsText').innerText = json.conteudo || 'Erro ao carregar log.';
       }
+      else if (tipo === 'zip') {
+        document.getElementById('moduloZip').classList.add('active');
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function filtrarAprovados() {
-      if (!dadosAprovadosCache) return;
+      if (!cacheAprovados) return;
       const q = document.getElementById('buscaAprovados').value.toLowerCase().trim();
-      const cat = document.getElementById('filtroCategoriaAprovados').value;
-      const ra = document.getElementById('filtroRaAprovados').value;
+      const cat = document.getElementById('filtroCategoria').value;
 
-      const filtrados = dadosAprovadosCache.filter(item => {
-        const matchesQ = !q || 
+      const filtrados = cacheAprovados.filter(item => {
+        const matchQ = !q ||
           (item.nome || '').toLowerCase().includes(q) ||
-          (item.cidade_ra || item.regiao_administrativa || '').toLowerCase().includes(q) ||
+          (item.regiao_administrativa || '').toLowerCase().includes(q) ||
           (item.resumo_sensorial || '').toLowerCase().includes(q) ||
           (item.vibes || []).some(v => v.toLowerCase().includes(q));
 
-        const matchesCat = !cat || (item.tipo_de_role || '') === cat;
-        const matchesRa = !ra || (item.regiao_administrativa || '').includes(ra);
-
-        return matchesQ && matchesCat && matchesRa;
+        const matchCat = !cat || item.tipo_de_role === cat;
+        return matchQ && matchCat;
       });
 
-      document.getElementById('counterAprovados').innerText = `Mostrando ${filtrados.length} de ${dadosAprovadosCache.length} rolês auditados`;
+      document.getElementById('counterAprovados').innerText = `Exibindo ${filtrados.length} de ${cacheAprovados.length} rolês`;
 
       const grid = document.getElementById('gridAprovados');
       grid.innerHTML = '';
       filtrados.forEach(item => {
         const card = document.createElement('div');
-        card.className = 'data-card';
+        card.className = 'item-card';
         card.innerHTML = `
-          <div class="card-top">
-            <div class="card-name">
+          <div>
+            <div class="item-card-title">
               <span>${item.nome}</span>
-              <span class="item-tag green">✅ 2FA OK</span>
+              <span class="quadrado-badge green">✅ 2FA OK</span>
             </div>
-            <div class="card-meta">
+            <div class="item-card-meta">
               ${item.tipo_de_role} &bull; ${item.regiao_administrativa} &bull; ${item.faixa_de_preco} (R$ ${item.custo_medio_rs || 'N/A'})
             </div>
-            <div class="card-desc">
-              ${item.resumo_sensorial || ''}
-            </div>
+            <div class="item-card-desc">${item.resumo_sensorial || ''}</div>
             <div style="display:flex; flex-wrap:wrap; gap:4px; margin-bottom:8px;">
-              ${(item.vibes || []).map(v => `<span class="item-tag purple">${v}</span>`).join('')}
+              ${(item.vibes || []).map(v => `<span class="quadrado-badge purple">${v}</span>`).join('')}
             </div>
             <div style="font-size:0.75rem; color:var(--text-muted); margin-bottom:4px;">
-              ⏰ <strong>Horário:</strong> ${item.horario_funcionamento || 'Consulte o local'}
+              ⏰ <strong>Horário:</strong> ${item.horario_funcionamento || 'Consulte'}
             </div>
-            <div style="font-size:0.72rem; color:var(--text-muted);">
+            <div style="font-size:0.75rem; color:var(--text-muted);">
               📍 ${item.endereco || item.regiao_administrativa}
             </div>
           </div>
-          <div class="card-bottom">
-            <span style="font-size:0.72rem; color:var(--text-muted);">Validação: ${item.fonte_validacao_fator2 || 'Fator 1 + Fator 2'}</span>
-            ${item.tiktok_url ? `<a href="${item.tiktok_url}" target="_blank" class="tiktok-link">▶️ TikTok ↗</a>` : ''}
+          <div style="margin-top:12px; border-top:1px solid #21262d; padding-top:8px;">
+            ${item.tiktok_url ? `<a href="${item.tiktok_url}" target="_blank" style="color:#ff0050; font-weight:600; font-size:0.78rem; text-decoration:none;">▶️ Ver no TikTok ↗</a>` : ''}
           </div>
         `;
         grid.appendChild(card);
@@ -1918,48 +1503,47 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
     }
 
     function filtrarQuarentena() {
-      if (!dadosQuarentenaCache) return;
+      if (!cacheQuarentena) return;
       const q = document.getElementById('buscaQuarentena').value.toLowerCase().trim();
-      const mot = document.getElementById('filtroMotivoQuarentena').value.toLowerCase();
+      const mot = document.getElementById('filtroMotivo').value.toLowerCase();
 
-      const filtrados = dadosQuarentenaCache.filter(item => {
-        const matchesQ = !q || 
+      const filtrados = cacheQuarentena.filter(item => {
+        const matchQ = !q ||
           (item.nome || '').toLowerCase().includes(q) ||
           (item.video_id || '').toLowerCase().includes(q) ||
           (item.motivo || '').toLowerCase().includes(q) ||
           (item.autor_tiktok || '').toLowerCase().includes(q);
 
-        const matchesMot = !mot || (item.motivo || '').toLowerCase().includes(mot);
-        return matchesQ && matchesMot;
+        const matchMot = !mot || (item.motivo || '').toLowerCase().includes(mot);
+        return matchQ && matchMot;
       });
 
-      document.getElementById('counterQuarentena').innerText = `Mostrando ${filtrados.length} de ${dadosQuarentenaCache.length} vídeos quarentenados`;
+      document.getElementById('counterQuarentena').innerText = `Exibindo ${filtrados.length} de ${cacheQuarentena.length} vídeos`;
 
       const grid = document.getElementById('gridQuarentena');
       grid.innerHTML = '';
       filtrados.forEach(item => {
         const card = document.createElement('div');
-        card.className = 'data-card';
+        card.className = 'item-card';
         card.innerHTML = `
-          <div class="card-top">
-            <div class="card-name">
+          <div>
+            <div class="item-card-title">
               <span>Vídeo #${item.video_id}</span>
-              <span class="item-tag orange">⚠️ Retido pelo 2FA</span>
+              <span class="quadrado-badge orange">⚠️ Retido pelo 2FA</span>
             </div>
-            <div class="card-meta">
-              Autor: @${item.autor_tiktok || 'desconhecido'} &bull; Publicado: ${item.ano_mes || item.data_publicacao || '2026'}
+            <div class="item-card-meta">
+              Autor: @${item.autor_tiktok || 'desconhecido'} &bull; Safra: 2026
             </div>
-            <div class="card-quarantine-box">
+            <div class="item-card-quarentena">
               <strong>Motivo da Reprovação:</strong><br>
               ${item.motivo || 'Falta de evidência de preço ou localização exata'}
             </div>
             <div style="font-size:0.75rem; color:var(--text-muted); line-height:1.4;">
-              <em>"${(item.transcricao_audio_whisper || item.legenda_original || '').slice(0, 140)}..."</em>
+              <em>"${(item.transcricao_audio_whisper || item.legenda_original || '').slice(0, 130)}..."</em>
             </div>
           </div>
-          <div class="card-bottom">
-            <span style="font-size:0.72rem; color:var(--text-muted);">Auditoria Automática</span>
-            ${item.tiktok_url ? `<a href="${item.tiktok_url}" target="_blank" class="tiktok-link">▶️ Ver no TikTok ↗</a>` : ''}
+          <div style="margin-top:10px; border-top:1px solid #21262d; padding-top:8px;">
+            ${item.tiktok_url ? `<a href="${item.tiktok_url}" target="_blank" style="color:#ff0050; font-weight:600; font-size:0.78rem; text-decoration:none;">▶️ Ver no TikTok ↗</a>` : ''}
           </div>
         `;
         grid.appendChild(card);
@@ -1967,39 +1551,35 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
     }
 
     function filtrarVetores() {
-      if (!dadosVetoresCache) return;
+      if (!cacheVetores) return;
       const q = document.getElementById('buscaVetores').value.toLowerCase().trim();
 
-      const filtrados = dadosVetoresCache.filter(item => {
+      const filtrados = cacheVetores.filter(item => {
         return !q ||
           (item.nome || '').toLowerCase().includes(q) ||
           (item.documento_indexado || '').toLowerCase().includes(q);
       });
 
-      document.getElementById('counterVetores').innerText = `Mostrando ${filtrados.length} de ${dadosVetoresCache.length} chunks indexados`;
+      document.getElementById('counterVetores').innerText = `Exibindo ${filtrados.length} de ${cacheVetores.length} chunks`;
 
       const container = document.getElementById('gridVetores');
       container.innerHTML = '';
       filtrados.forEach(item => {
         const div = document.createElement('div');
-        div.className = 'vector-chunk-card';
+        div.style.cssText = 'background:#0d1117; border:1px solid var(--card-border); border-radius:8px; padding:14px;';
         div.innerHTML = `
-          <div class="vector-chunk-title">${item.nome} &bull; ${item.regiao_administrativa || ''}</div>
-          <div class="vector-chunk-text">${item.documento_indexado || ''}</div>
-          <div class="vector-preview-box">
-            <strong>Vetor (3.072 float32):</strong> [${(item.vetor_preview || []).map(n => typeof n === 'number' ? n.toFixed(5) : n).join(', ')}, ... +3067 dimensões]
+          <div style="font-weight:700; color:var(--blue); font-size:0.95rem; margin-bottom:4px;">
+            ${item.nome} &bull; ${item.regiao_administrativa || ''}
+          </div>
+          <div style="font-size:0.84rem; color:var(--text-muted); line-height:1.45; margin-bottom:8px;">
+            ${item.documento_indexado || ''}
+          </div>
+          <div style="background:#161b22; padding:6px 10px; border-radius:4px; font-family:monospace; font-size:0.75rem; color:#79c0ff;">
+            Vetor: [${(item.vetor_preview || []).map(n => typeof n === 'number' ? n.toFixed(5) : n).join(', ')}, ... +3067 dimensões]
           </div>
         `;
         container.appendChild(div);
       });
-    }
-
-    function copiarConteudoAtual() {
-      if (conteudoTextoCache) {
-        navigator.clipboard.writeText(conteudoTextoCache).then(() => {
-          alert('Conteúdo copiado para a área de transferência!');
-        });
-      }
     }
   </script>
 </body>

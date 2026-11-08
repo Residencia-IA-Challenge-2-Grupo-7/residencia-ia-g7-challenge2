@@ -117,6 +117,19 @@ def entregaveis_hub():
     return HTMLResponse(content=ENTREGAVEIS_PAGE)
 
 
+@app.get("/visualizar/relatorio-pdf")
+def visualizar_relatorio_pdf():
+    """Visualização inline do Relatório Técnico diretamente no navegador (sem forçar download)."""
+    pdf_path = os.path.join(BASE_DIR, "docs/entregas/semana-02/RELATORIO_TECNICO_RAG_GRUPO7.pdf")
+    if not os.path.isfile(pdf_path):
+        raise HTTPException(status_code=404, detail="Relatório PDF não encontrado.")
+    return FileResponse(
+        pdf_path,
+        media_type="application/pdf",
+        content_disposition_type="inline",
+    )
+
+
 @app.get("/download/relatorio-pdf")
 def download_relatorio_pdf():
     """Download do Relatório Técnico Oficial de RAG (4 páginas exatas ABNT/IEEE)."""
