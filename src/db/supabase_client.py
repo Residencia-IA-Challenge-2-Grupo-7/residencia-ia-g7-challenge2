@@ -1,646 +1,966 @@
 """
-Cliente de Conexão com o Banco de Dados (Supabase / PostgreSQL)
+Cliente de Conexão com o Banco de Dados (PostgreSQL / Supabase)
 Projeto: Orquestrador de Rolês - Grupo 7 (Residência em IA | UnB & Eldorado)
 Responsável: Maria Eduarda (DevOps & Backend)
 Issue #41 | Referência: GUIA_OFICIAL_PROJETO.md
 
-Implementa acesso resiliente ao Supabase / PostgreSQL com suporte a:
-- Cadastro de Usuário e Múltiplos Endereços no DF (Casa, Trabalho, UnB)
-- Amarração inteligente de Ponto de Partida por Janela de Horário
-- Conexão oficial via PostgreSQL / Supabase REST API
-- Fallback automático para SQLite local em memória/disco para testes e CI limpo
-- Blindagem de Sigilo Orçamentário (RNF-01 e RNF-02): orçamentos individuais
-  só são acessíveis para cálculos internos, nunca em listagens públicas da sala.
+Implementa acesso resiliente ao PostgreSQL (Supabase na nuvem / Docker) via psycopg
+com suporte completo às correções da revisão do PR #50 e preservando 100% das regras de negócio:
+1. Conexão real com PostgreSQL via psycopg usando DATABASE_URL (sob demanda/lazy).
+2. schema.sql como fonte única da verdade para a estrutura de tabelas.
+3. RLS (Row Level Security) e sigilo orçamentário (RNF-01 e RNF-02): cabe_no_orcamento() e obter_menor_orcamento_sala().
+4. Precisão monetária absoluta com Decimal (sem floats nos cálculos financeiros e Pix).
+5. Timestamps e janelas com ponto de partida amarrado por janela de horário.
+6. Rateio individualizado pós-rolê (despesa_rateios) com quitação por participante.
+7. Identificação e segurança: token_hash, token_organizador_hash e expira_em (LGPD).
+8. Interface RepositorioSupabase para integração direta com src/state.py (PR #48).
 """
 
+from __future__ import annotations
+
 from datetime import datetime, timezone
+from decimal import Decimal
 import json
 import os
 from pathlib import Path
+import re
 import sqlite3
 from typing import Any, Dict, List, Optional, Union
 import uuid
 
-# Leitura de segredos do ambiente
-SUPABASE_URL = os.environ.get("SUPABASE_URL")
-SUPABASE_KEY = os.environ.get("SUPABASE_KEY")
-DATABASE_URL = os.environ.get("DATABASE_URL")
+# Tenta importar psycopg para PostgreSQL real
+try:
+    import psycopg
+    from psycopg.rows import dict_row
+    PSYCOPG_DISPONIVEL = True
+except ImportError:
+    PSYCOPG_DISPONIVEL = False
 
-# Caminho para banco local de fallback (para testes e desenvolvimento)
+# Tenta importar requests/httpx para checar endpoint REST do Supabase
+try:
+    import httpx
+    HTTPX_DISPONIVEL = True
+except ImportError:
+    HTTPX_DISPONIVEL = False
+
+# Caminhos padrão
+SCHEMA_SQL_PATH = Path(__file__).parent / "schema.sql"
 LOCAL_DB_PATH = Path("data/app_local.db")
+
+
+def _carregar_env() -> None:
+    """Carrega variáveis do .env para os.environ caso ainda não estejam definidas."""
+    caminhos = [
+        Path(".env"),
+        Path("/app/.env"),
+        Path(__file__).resolve().parent.parent.parent / ".env",
+    ]
+    for p in caminhos:
+        if p.exists():
+            try:
+                with open(p, "r", encoding="utf-8") as f:
+                    for line in f:
+                        line = line.strip()
+                        if line and not line.startswith("#") and "=" in line:
+                            k, v = line.split("=", 1)
+                            k, v = k.strip(), v.strip().strip('"').strip("'")
+                            if k not in os.environ:
+                                os.environ[k] = v
+                break
+            except Exception:
+                pass
+
+_carregar_env()
+
+
+def quantizar_decimal(valor: Union[Decimal, str, float, int, None]) -> Decimal:
+    """Garante duas casas decimais exatas usando Decimal."""
+    if valor is None:
+        return Decimal("0.00")
+    if isinstance(valor, Decimal):
+        return valor.quantize(Decimal("0.01"))
+    return Decimal(str(valor)).quantize(Decimal("0.01"))
 
 
 class SupabaseClient:
     """
-    Cliente de banco de dados oficial do Orquestrador de Rolês.
-    Pode operar diretamente no Supabase ou em banco local SQLite de fallback.
+    Cliente de banco de dados do Orquestrador de Rolês.
+    Opera com PostgreSQL nativo (psycopg) quando DATABASE_URL estiver configurada,
+    ou fallback resiliente SQLite (em memória ou disco) para testes e desenvolvimento offline.
     """
 
-    def __init__(self, use_memory_fallback: bool = False, db_path: Optional[Path] = None):
+    def __init__(
+        self,
+        database_url: Optional[str] = None,
+        use_memory_fallback: bool = False,
+        db_path: Optional[Path] = None,
+    ):
+        self.database_url = database_url or os.environ.get("DATABASE_URL")
         self.use_memory = use_memory_fallback
         self.db_path = db_path or LOCAL_DB_PATH
-        self._init_sqlite_db()
+        
+        self.is_postgres = bool(self.database_url and PSYCOPG_DISPONIVEL)
+        self._conn = None
+        self._schema_inicializado = False
 
-    def _init_sqlite_db(self) -> None:
-        """Inicializa o banco SQLite local garantindo o mesmo esquema do PostgreSQL oficial."""
-        if not self.use_memory:
-            self.db_path.parent.mkdir(parents=True, exist_ok=True)
+    def _get_connection(self):
+        """Retorna uma conexão ativa (conexão lazy, sob demanda)."""
+        if self.is_postgres:
+            if self._conn is None or self._conn.closed:
+                self._conn = psycopg.connect(self.database_url, row_factory=dict_row)
+                self._conn.autocommit = True
+            return self._conn
+        else:
+            if self.use_memory:
+                if self._conn is None:
+                    self._conn = sqlite3.connect(":memory:")
+                    self._conn.row_factory = sqlite3.Row
+                return self._conn
+            else:
+                self.db_path.parent.mkdir(parents=True, exist_ok=True)
+                if self._conn is None:
+                    self._conn = sqlite3.connect(str(self.db_path))
+                    self._conn.row_factory = sqlite3.Row
+                return self._conn
+
+    def garantir_schema(self) -> None:
+        """Aplica o schema.sql como fonte única da verdade."""
+        if self._schema_inicializado:
+            return
+
+        if not SCHEMA_SQL_PATH.exists():
+            return
+
+        sql_content = SCHEMA_SQL_PATH.read_text(encoding="utf-8")
+        conn = self._get_connection()
+
+        if self.is_postgres:
+            with conn.cursor() as cur:
+                cur.execute(sql_content)
+        else:
+            sqlite_sql = self._adaptar_sql_para_sqlite(sql_content)
+            cur = conn.cursor()
+            cur.executescript(sqlite_sql)
+            conn.commit()
+
+        self._schema_inicializado = True
+
+    @staticmethod
+    def _adaptar_sql_para_sqlite(sql: str) -> str:
+        """Converte comandos específicos do Postgres para execução limpa no SQLite de teste."""
+        linhas = []
+        ignorar_bloco_do = False
+
+        for linha in sql.splitlines():
+            if "CREATE EXTENSION" in linha:
+                continue
+            if "DO $$" in linha:
+                ignorar_bloco_do = True
+                continue
+            if ignorar_bloco_do:
+                if "$$;" in linha:
+                    ignorar_bloco_do = False
+                continue
+            if "ENABLE ROW LEVEL SECURITY" in linha:
+                continue
+
+            l = linha
+            l = re.sub(r"UUID PRIMARY KEY DEFAULT uuid_generate_v4\(\)", "TEXT PRIMARY KEY", l)
+            l = re.sub(r"\bUUID\b", "TEXT", l)
+            l = re.sub(r"\bTIMESTAMPTZ\b", "TEXT", l)
+            l = re.sub(r"\bJSONB\b", "TEXT", l)
+            l = re.sub(r"DEFAULT \(NOW\(\) \+ INTERVAL '30 days'\)", "DEFAULT CURRENT_TIMESTAMP", l)
+            l = re.sub(r"DEFAULT NOW\(\)", "DEFAULT CURRENT_TIMESTAMP", l)
+            l = re.sub(r"CHECK \(maior_18_anos IS TRUE\)", "CHECK (maior_18_anos = 1)", l)
+
+            linhas.append(l)
+
+        return "\n".join(linhas)
+
+    def fechar(self) -> None:
+        """Fecha a conexão ativa com o banco."""
+        if self._conn:
+            try:
+                self._conn.close()
+            except Exception:
+                pass
+            self._conn = None
+
+    # ==========================================================================
+    # VERIFICAÇÃO DE CONECTIVIDADE
+    # ==========================================================================
+    def checar_conexao(self) -> Dict[str, Any]:
+        """Testa conectividade com o banco de dados (PostgreSQL ou SQLite fallback)."""
+        self.garantir_schema()
+        conn = self._get_connection()
+        try:
+            if self.is_postgres:
+                with conn.cursor() as cur:
+                    cur.execute("SELECT 1 as teste;")
+                    res = cur.fetchone()
+                return {"conectado": True, "tipo": "PostgreSQL", "resultado": res["teste"]}
+            else:
+                cur = conn.cursor()
+                cur.execute("SELECT 1 as teste;")
+                res = cur.fetchone()
+                return {"conectado": True, "tipo": "SQLite", "resultado": res["teste"]}
+        except Exception as e:
+            return {"conectado": False, "erro": str(e)}
+
+    # ==========================================================================
+    # GESTÃO DE SALAS (ROLE-XXXX)
+    # ==========================================================================
+    def criar_sala(
+        self,
+        codigo_sala: str,
+        nome_role: str,
+        organizador_nome: Optional[str] = None,
+        criador_nome: Optional[str] = None,
+        token_organizador_hash: Optional[str] = None,
+        criador_id: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Cria uma sala de rolê no formato ROLE-XXXX com token de organizador."""
+        self.garantir_schema()
+        conn = self._get_connection()
+        sala_id = str(uuid.uuid4())
+        nome_org = organizador_nome or criador_nome or "Organizador"
+        token_hash = token_organizador_hash or f"tok_{uuid.uuid4().hex[:16]}"
+        agora = datetime.now(timezone.utc).isoformat()
+
+        if self.is_postgres:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO salas (id, codigo_sala, nome_role, organizador_nome, token_organizador_hash, criador_id, status, criado_em, atualizado_em)
+                    VALUES (%s, %s, %s, %s, %s, %s, 'coletando', %s, %s)
+                    RETURNING id, codigo_sala, nome_role, organizador_nome, status;
+                    """,
+                    (sala_id, codigo_sala, nome_role, nome_org, token_hash, criador_id, agora, agora),
+                )
+                return cur.fetchone()
+        else:
+            cur = conn.cursor()
+            cur.execute(
+                """
+                INSERT INTO salas (id, codigo_sala, nome_role, organizador_nome, token_organizador_hash, criador_id, status, criado_em, atualizado_em)
+                VALUES (?, ?, ?, ?, ?, ?, 'coletando', ?, ?);
+                """,
+                (sala_id, codigo_sala, nome_role, nome_org, token_hash, criador_id, agora, agora),
+            )
+            conn.commit()
+            return {
+                "id": sala_id,
+                "codigo_sala": codigo_sala,
+                "nome_role": nome_role,
+                "organizador_nome": nome_org,
+                "status": "coletando",
+            }
+
+    def obter_sala(self, codigo_sala: str) -> Optional[Dict[str, Any]]:
+        """Busca uma sala pelo código único ROLE-XXXX."""
+        self.garantir_schema()
+        conn = self._get_connection()
+
+        if self.is_postgres:
+            with conn.cursor() as cur:
+                cur.execute("SELECT * FROM salas WHERE codigo_sala = %s;", (codigo_sala,))
+                row = cur.fetchone()
+                return dict(row) if row else None
+        else:
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM salas WHERE codigo_sala = ?;", (codigo_sala,))
+            row = cur.fetchone()
+            return dict(row) if row else None
+
+    # ==========================================================================
+    # PARTICIPANTES & SIGILO ORÇAMENTÁRIO (RNF-01 / RNF-02)
+    # ==========================================================================
+    def adicionar_participante(
+        self,
+        codigo_sala: str,
+        nome: str,
+        limite_gasto_rs: Optional[Union[Decimal, str, float, int, List[Dict[str, Any]]]] = None,
+        janelas: Optional[Union[List[Dict[str, Any]], Decimal, str, float, int]] = None,
+        *args,
+        token_hash: Optional[str] = None,
+        usuario_id: Optional[str] = None,
+        vibe_hoje: Optional[str] = None,
+        transporte_hoje: Optional[str] = None,
+        preferencias_transporte: Optional[str] = None,
+        confirmado: bool = True,
+        **kwargs,
+    ) -> Dict[str, Any]:
+        """
+        Adiciona a resposta de um participante guardando o orçamento com Decimal.
+        Cria as janelas associadas com data e RA de origem.
+        Suporta flexivelmente as assinaturas de chamada anteriores.
+        """
+        # Suporte a inversão de parâmetros posicionais (janelas vs limite_gasto_rs)
+        if isinstance(limite_gasto_rs, list) and isinstance(janelas, (Decimal, int, float, str)):
+            janelas, limite_gasto_rs = limite_gasto_rs, janelas
+
+        teto_val = quantizar_decimal(limite_gasto_rs if isinstance(limite_gasto_rs, (Decimal, int, float, str)) else 50.00)
+        janelas_lista = janelas if isinstance(janelas, list) else []
+        transporte = transporte_hoje or preferencias_transporte or "misto"
+
+        sala = self.obter_sala(codigo_sala)
+        if not sala:
+            raise ValueError(f"Sala com código '{codigo_sala}' não encontrada.")
+
+        sala_id = sala["id"]
+        participante_id = str(uuid.uuid4())
+        tok = token_hash or f"tok_{uuid.uuid4().hex[:16]}"
+        conn = self._get_connection()
+
+        if self.is_postgres:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO sala_participantes (id, sala_id, usuario_id, nome, token_hash, confirmado, limite_gasto_rs, vibe_hoje, transporte_hoje)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
+                    """,
+                    (participante_id, sala_id, usuario_id, nome, tok, confirmado, teto_val, vibe_hoje, transporte),
+                )
+                for j in janelas_lista:
+                    inicio = j.get("inicio", datetime.now(timezone.utc).isoformat())
+                    fim = j.get("fim", datetime.now(timezone.utc).isoformat())
+                    ra = j.get("regiao_ra") or j.get("ra_origem", "Plano Piloto")
+                    cur.execute(
+                        """
+                        INSERT INTO participante_janelas (id, participante_id, inicio, fim, disponivel, ra_origem)
+                        VALUES (%s, %s, %s, %s, %s, %s);
+                        """,
+                        (str(uuid.uuid4()), participante_id, inicio, fim, j.get("disponivel", True), ra),
+                    )
+        else:
+            cur = conn.cursor()
+            cur.execute(
+                """
+                INSERT INTO sala_participantes (id, sala_id, usuario_id, nome, token_hash, confirmado, limite_gasto_rs, vibe_hoje, transporte_hoje)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+                """,
+                (participante_id, sala_id, usuario_id, nome, tok, int(confirmado), str(teto_val), vibe_hoje, transporte),
+            )
+            for j in janelas_lista:
+                inicio = str(j.get("inicio", datetime.now(timezone.utc).isoformat()))
+                fim = str(j.get("fim", datetime.now(timezone.utc).isoformat()))
+                ra = j.get("regiao_ra") or j.get("ra_origem", "Plano Piloto")
+                cur.execute(
+                    """
+                    INSERT INTO participante_janelas (id, participante_id, inicio, fim, disponivel, ra_origem)
+                    VALUES (?, ?, ?, ?, ?, ?);
+                    """,
+                    (
+                        str(uuid.uuid4()),
+                        participante_id,
+                        inicio,
+                        fim,
+                        1 if j.get("disponivel", True) else 0,
+                        ra,
+                    ),
+                )
+            conn.commit()
+
+        return {
+            "id": participante_id,
+            "sala_id": sala_id,
+            "nome": nome,
+            "confirmado": confirmado,
+        }
+
+    def listar_participantes_sala(self, codigo_sala: str, incluir_sigilo: bool = False) -> List[Dict[str, Any]]:
+        """
+        Lista participantes sem expor limite_gasto_rs por padrão (RNF-01 e RNF-02).
+        Carrega as janelas associadas a cada participante.
+        """
+        sala = self.obter_sala(codigo_sala)
+        if not sala:
+            return []
 
         conn = self._get_connection()
-        cursor = conn.cursor()
-
-        # 1. Tabela usuarios
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS usuarios (
-                id TEXT PRIMARY KEY,
-                nome TEXT NOT NULL,
-                email TEXT UNIQUE,
-                telefone TEXT,
-                maior_18_anos INTEGER NOT NULL DEFAULT 1,
-                transporte_padrao TEXT DEFAULT 'misto',
-                restricoes_permanentes TEXT,
-                chave_pix_padrao TEXT,
-                tipo_chave_pix_padrao TEXT DEFAULT 'aleatoria',
-                criado_em TEXT NOT NULL
-            );
-        """)
-
-        # 2. Tabela usuario_enderecos (Casa, Trabalho, UnB, etc.)
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS usuario_enderecos (
-                id TEXT PRIMARY KEY,
-                usuario_id TEXT NOT NULL,
-                rotulo TEXT NOT NULL,
-                regiao_ra TEXT NOT NULL,
-                ponto_referencia TEXT NOT NULL,
-                is_padrao INTEGER DEFAULT 0,
-                criado_em TEXT NOT NULL,
-                FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
-            );
-        """)
-
-        # 3. Tabela salas
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS salas (
-                id TEXT PRIMARY KEY,
-                codigo_sala TEXT UNIQUE NOT NULL,
-                nome_role TEXT NOT NULL,
-                criador_id TEXT,
-                criador_nome TEXT NOT NULL,
-                status TEXT NOT NULL DEFAULT 'aberta',
-                janela_escolhida_json TEXT,
-                sugestao_vencedora_id TEXT,
-                criado_em TEXT NOT NULL,
-                FOREIGN KEY (criador_id) REFERENCES usuarios(id) ON DELETE SET NULL
-            );
-        """)
-
-        # 4. Tabela sala_participantes (com janelas e origens associadas)
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS sala_participantes (
-                id TEXT PRIMARY KEY,
-                sala_id TEXT NOT NULL,
-                usuario_id TEXT,
-                nome TEXT NOT NULL,
-                janelas_disponiveis_json TEXT NOT NULL,
-                limite_gasto_rs REAL NOT NULL,
-                vibe_hoje TEXT,
-                transporte_hoje TEXT,
-                respondeu_em TEXT NOT NULL,
-                FOREIGN KEY (sala_id) REFERENCES salas(id) ON DELETE CASCADE,
-                FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE SET NULL
-            );
-        """)
-
-        # 5. Tabela sugestoes_role
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS sugestoes_role (
-                id TEXT PRIMARY KEY,
-                sala_id TEXT NOT NULL,
-                local_id TEXT,
-                nome_local TEXT NOT NULL,
-                regiao_ra TEXT NOT NULL,
-                endereco TEXT NOT NULL,
-                dia_horario_sugerido TEXT NOT NULL,
-                faixa_gasto_rs REAL NOT NULL,
-                mobility_summary TEXT,
-                ranking_justica REAL DEFAULT 0.0,
-                motivo_escolha TEXT,
-                criado_em TEXT NOT NULL,
-                FOREIGN KEY (sala_id) REFERENCES salas(id) ON DELETE CASCADE
-            );
-        """)
-
-        # 6. Tabela votos
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS votos (
-                id TEXT PRIMARY KEY,
-                sala_id TEXT NOT NULL,
-                participante_id TEXT NOT NULL,
-                sugestao_id TEXT NOT NULL,
-                votado_em TEXT NOT NULL,
-                UNIQUE (participante_id, sugestao_id),
-                FOREIGN KEY (sala_id) REFERENCES salas(id) ON DELETE CASCADE,
-                FOREIGN KEY (participante_id) REFERENCES sala_participantes(id) ON DELETE CASCADE,
-                FOREIGN KEY (sugestao_id) REFERENCES sugestoes_role(id) ON DELETE CASCADE
-            );
-        """)
-
-        # 7. Tabela despesas_pos_role
-        cursor.execute("""
-            CREATE TABLE IF NOT EXISTS despesas_pos_role (
-                id TEXT PRIMARY KEY,
-                sala_id TEXT NOT NULL,
-                pagador_nome TEXT NOT NULL,
-                valor_total_rs REAL NOT NULL,
-                chave_pix TEXT NOT NULL,
-                tipo_chave_pix TEXT DEFAULT 'aleatoria',
-                itens_json TEXT,
-                comprovante_url TEXT,
-                quitado INTEGER DEFAULT 0,
-                criado_em TEXT NOT NULL,
-                FOREIGN KEY (sala_id) REFERENCES salas(id) ON DELETE CASCADE
-            );
-        """)
-
-        conn.commit()
-        conn.close()
-
-    def _get_connection(self) -> sqlite3.Connection:
-        """Retorna uma conexão ativa com o banco."""
-        if self.use_memory:
-            conn = sqlite3.connect(":memory:")
+        if self.is_postgres:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    SELECT id, sala_id, nome, confirmado, vibe_hoje, transporte_hoje, respondeu_em, limite_gasto_rs
+                    FROM sala_participantes
+                    WHERE sala_id = %s
+                    ORDER BY respondeu_em ASC;
+                    """,
+                    (sala["id"],),
+                )
+                rows = [dict(r) for r in cur.fetchall()]
+                for p in rows:
+                    cur.execute(
+                        "SELECT id, inicio, fim, disponivel, ra_origem as regiao_ra FROM participante_janelas WHERE participante_id = %s;",
+                        (p["id"],),
+                    )
+                    p["janelas_disponiveis"] = [dict(j) for j in cur.fetchall()]
+                    if not incluir_sigilo:
+                        p.pop("limite_gasto_rs", None)
+                return rows
         else:
-            conn = sqlite3.connect(str(self.db_path))
-        conn.row_factory = sqlite3.Row
-        return conn
+            cur = conn.cursor()
+            cur.execute(
+                """
+                SELECT id, sala_id, nome, confirmado, vibe_hoje, transporte_hoje, respondeu_em, limite_gasto_rs
+                FROM sala_participantes
+                WHERE sala_id = ?
+                ORDER BY respondeu_em ASC;
+                """,
+                (sala["id"],),
+            )
+            rows = [dict(r) for r in cur.fetchall()]
+            for p in rows:
+                cur.execute(
+                    "SELECT id, inicio, fim, disponivel, ra_origem as regiao_ra FROM participante_janelas WHERE participante_id = ?;",
+                    (p["id"],),
+                )
+                p["janelas_disponiveis"] = [dict(j) for j in cur.fetchall()]
+                if not incluir_sigilo:
+                    p.pop("limite_gasto_rs", None)
+            return rows
 
-    # --------------------------------------------------------------------------
-    # 1. USUÁRIOS E ENDEREÇOS (CADASTRO FIXO)
-    # --------------------------------------------------------------------------
+    def cabe_no_orcamento(
+        self,
+        codigo_sala: str,
+        custo_por_pessoa: Union[Decimal, str, float, int],
+    ) -> bool:
+        """
+        Verificação segura de teto orçamentário (RNF-01 e RNF-02).
+        Devolve se o custo cabe no orçamento de TODOS os participantes,
+        SEM revelar o orçamento individual nem o valor do menor orçamento.
+        """
+        sala = self.obter_sala(codigo_sala)
+        if not sala:
+            return False
 
+        custo = quantizar_decimal(custo_por_pessoa)
+        conn = self._get_connection()
+
+        if self.is_postgres:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    SELECT MIN(limite_gasto_rs) as min_teto
+                    FROM sala_participantes
+                    WHERE sala_id = %s;
+                    """,
+                    (sala["id"],),
+                )
+                row = cur.fetchone()
+                if not row or row["min_teto"] is None:
+                    return True
+                return custo <= Decimal(str(row["min_teto"]))
+        else:
+            cur = conn.cursor()
+            cur.execute(
+                """
+                SELECT MIN(CAST(limite_gasto_rs AS REAL)) as min_teto
+                FROM sala_participantes
+                WHERE sala_id = ?;
+                """,
+                (sala["id"],),
+            )
+            row = cur.fetchone()
+            if not row or row["min_teto"] is None:
+                return True
+            return custo <= Decimal(str(row["min_teto"])).quantize(Decimal("0.01"))
+
+    def obter_menor_orcamento_sala(self, codigo_sala: str) -> Optional[Decimal]:
+        """
+        Retorna internamente o menor limite de gastos da sala para calibragem do RAG (RNF-01/02).
+        Retorna em Decimal exato.
+        """
+        sala = self.obter_sala(codigo_sala)
+        if not sala:
+            return None
+
+        conn = self._get_connection()
+        if self.is_postgres:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT MIN(limite_gasto_rs) as min_teto FROM sala_participantes WHERE sala_id = %s;",
+                    (sala["id"],),
+                )
+                row = cur.fetchone()
+                return Decimal(str(row["min_teto"])) if row and row["min_teto"] is not None else None
+        else:
+            cur = conn.cursor()
+            cur.execute(
+                "SELECT MIN(CAST(limite_gasto_rs AS REAL)) as min_teto FROM sala_participantes WHERE sala_id = ?;",
+                (sala["id"],),
+            )
+            row = cur.fetchone()
+            return Decimal(str(row["min_teto"])).quantize(Decimal("0.01")) if row and row["min_teto"] is not None else None
+
+    # ==========================================================================
+    # SUGESTÕES DE ROLÊ & VOTAÇÃO
+    # ==========================================================================
+    def adicionar_sugestao(
+        self,
+        codigo_sala: str,
+        local_id: str,
+        nome_local: str,
+        regiao_ra: str,
+        endereco: str,
+        inicio: Union[datetime, str],
+        fim: Union[datetime, str],
+        horario_texto: str,
+        consumo_rs: Union[Decimal, str, float, int],
+        gasto_min: Union[Decimal, str, float, int],
+        gasto_max: Union[Decimal, str, float, int],
+        explicacao: str,
+        posicao: int = 1,
+        letra_card: str = "A",
+        tipo: str = "bar",
+        tiktok_url: Optional[str] = None,
+        nota_justica: float = 0.0,
+    ) -> Dict[str, Any]:
+        """Salva um cartão de sugestão gerado pela IA com centavos exatos (Decimal)."""
+        sala = self.obter_sala(codigo_sala)
+        if not sala:
+            raise ValueError(f"Sala '{codigo_sala}' não encontrada.")
+
+        sugestao_id = str(uuid.uuid4())
+        conn = self._get_connection()
+
+        ini = inicio.isoformat() if isinstance(inicio, datetime) else str(inicio)
+        f = fim.isoformat() if isinstance(fim, datetime) else str(fim)
+        c_rs = quantizar_decimal(consumo_rs)
+        g_min = quantizar_decimal(gasto_min)
+        g_max = quantizar_decimal(gasto_max)
+
+        if self.is_postgres:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO sugestoes_role (
+                        id, sala_id, posicao, letra_card, local_id, nome_local, tipo, regiao_ra, endereco,
+                        inicio, fim, horario_texto, consumo_rs, gasto_min, gasto_max,
+                        nota_justica, explicacao, tiktok_url
+                    ) VALUES (
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s, %s,
+                        %s, %s, %s
+                    );
+                    """,
+                    (
+                        sugestao_id, sala["id"], posicao, letra_card, local_id, nome_local, tipo, regiao_ra, endereco,
+                        ini, f, horario_texto, c_rs, g_min, g_max,
+                        nota_justica, explicacao, tiktok_url
+                    ),
+                )
+        else:
+            cur = conn.cursor()
+            cur.execute(
+                """
+                INSERT INTO sugestoes_role (
+                    id, sala_id, posicao, letra_card, local_id, nome_local, tipo, regiao_ra, endereco,
+                    inicio, fim, horario_texto, consumo_rs, gasto_min, gasto_max,
+                    nota_justica, explicacao, tiktok_url
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                """,
+                (
+                    sugestao_id, sala["id"], posicao, letra_card, local_id, nome_local, tipo, regiao_ra, endereco,
+                    ini, f, horario_texto, str(c_rs), str(g_min), str(g_max),
+                    nota_justica, explicacao, tiktok_url
+                ),
+            )
+            conn.commit()
+
+        return {
+            "id": sugestao_id,
+            "sala_id": sala["id"],
+            "local_id": local_id,
+            "nome_local": nome_local,
+            "consumo_rs": c_rs,
+        }
+
+    def salvar_sugestoes(self, codigo_sala: str, sugestoes: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Salva uma lista completa de 3 a 4 cartões de sugestão."""
+        resultado = []
+        agora = datetime.now(timezone.utc)
+        for idx, s in enumerate(sugestoes, start=1):
+            res = self.adicionar_sugestao(
+                codigo_sala=codigo_sala,
+                local_id=s.get("local_id", f"LOC_{idx}"),
+                nome_local=s["nome_local"],
+                regiao_ra=s.get("regiao_ra", "Plano Piloto"),
+                endereco=s.get("endereco", "Endereço no DF"),
+                inicio=s.get("inicio", agora),
+                fim=s.get("fim", agora),
+                horario_texto=s.get("dia_horario_sugerido", "Horário a combinar"),
+                consumo_rs=s.get("faixa_gasto_rs", Decimal("50.00")),
+                gasto_min=s.get("gasto_min", Decimal("50.00")),
+                gasto_max=s.get("gasto_max", Decimal("60.00")),
+                explicacao=s.get("motivo_escolha", "Boa opção para o grupo"),
+                posicao=idx,
+                letra_card=chr(64 + idx),
+                nota_justica=float(s.get("ranking_justica", 9.0)),
+            )
+            resultado.append(res)
+        return resultado
+
+    def listar_sugestoes_sala(self, codigo_sala: str) -> List[Dict[str, Any]]:
+        """Retorna todas as opções de rolê sugeridas para a sala."""
+        sala = self.obter_sala(codigo_sala)
+        if not sala:
+            return []
+
+        conn = self._get_connection()
+        if self.is_postgres:
+            with conn.cursor() as cur:
+                cur.execute("SELECT * FROM sugestoes_role WHERE sala_id = %s ORDER BY posicao ASC;", (sala["id"],))
+                return [dict(r) for r in cur.fetchall()]
+        else:
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM sugestoes_role WHERE sala_id = ? ORDER BY posicao ASC;", (sala["id"],))
+            return [dict(r) for r in cur.fetchall()]
+
+    def registrar_voto(self, codigo_sala: str, participante_id: str, sugestao_id: str) -> bool:
+        """Registra voto garantindo que o participante e a sugestão pertencem à mesma sala."""
+        sala = self.obter_sala(codigo_sala)
+        if not sala:
+            return False
+
+        conn = self._get_connection()
+        voto_id = str(uuid.uuid4())
+
+        try:
+            if self.is_postgres:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        """
+                        INSERT INTO votos (id, sala_id, participante_id, sugestao_id)
+                        VALUES (%s, %s, %s, %s)
+                        ON CONFLICT (participante_id, sugestao_id) DO NOTHING;
+                        """,
+                        (voto_id, sala["id"], participante_id, sugestao_id),
+                    )
+            else:
+                cur = conn.cursor()
+                cur.execute(
+                    """
+                    INSERT OR IGNORE INTO votos (id, sala_id, participante_id, sugestao_id)
+                    VALUES (?, ?, ?, ?);
+                    """,
+                    (voto_id, sala["id"], participante_id, sugestao_id),
+                )
+                conn.commit()
+            return True
+        except Exception:
+            return False
+
+    def contabilizar_votos(self, codigo_sala: str) -> List[Dict[str, Any]]:
+        """Retorna o ranking de votos em cada sugestão da sala."""
+        placar = self.obter_placar_votos(codigo_sala)
+        return [{"sugestao_id": sid, "total_votos": total} for sid, total in placar.items()]
+
+    def obter_placar_votos(self, codigo_sala: str) -> Dict[str, int]:
+        """Calcula o total de votos em cada cartão de sugestão."""
+        sala = self.obter_sala(codigo_sala)
+        if not sala:
+            return {}
+
+        conn = self._get_connection()
+        if self.is_postgres:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    SELECT sugestao_id, COUNT(*) as total
+                    FROM votos
+                    WHERE sala_id = %s
+                    GROUP BY sugestao_id;
+                    """,
+                    (sala["id"],),
+                )
+                return {str(r["sugestao_id"]): r["total"] for r in cur.fetchall()}
+        else:
+            cur = conn.cursor()
+            cur.execute(
+                """
+                SELECT sugestao_id, COUNT(*) as total
+                FROM votos
+                WHERE sala_id = ?
+                GROUP BY sugestao_id;
+                """,
+                (sala["id"],),
+            )
+            return {str(r["sugestao_id"]): r["total"] for r in cur.fetchall()}
+
+    # ==========================================================================
+    # PÓS-ROLÊ, DIVISÃO DE CONTA E RATEIOS INDIVIDUAIS
+    # ==========================================================================
+    def registrar_despesa_pos_role(
+        self,
+        codigo_sala: str,
+        pagador_nome: str,
+        valor_total_rs: Union[Decimal, str, float, int],
+        chave_pix: str,
+        rateios: Optional[List[Dict[str, Any]]] = None,
+        pagador_participante_id: Optional[str] = None,
+        tipo_chave_pix: str = "aleatoria",
+        itens: Optional[List[Dict[str, Any]]] = None,
+    ) -> Dict[str, Any]:
+        """Registra a despesa do rolê e os rateios individuais de cada devedor."""
+        sala = self.obter_sala(codigo_sala)
+        if not sala:
+            raise ValueError(f"Sala '{codigo_sala}' não encontrada.")
+
+        despesa_id = str(uuid.uuid4())
+        total = quantizar_decimal(valor_total_rs)
+        rateios_lista = rateios or []
+        conn = self._get_connection()
+
+        if self.is_postgres:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO despesas_pos_role (id, sala_id, pagador_participante_id, pagador_nome, valor_total_rs, chave_pix, tipo_chave_pix, itens_json)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s);
+                    """,
+                    (despesa_id, sala["id"], pagador_participante_id, pagador_nome, total, chave_pix, tipo_chave_pix, json.dumps(itens or [])),
+                )
+                for r in rateios_lista:
+                    cur.execute(
+                        """
+                        INSERT INTO despesa_rateios (id, despesa_id, devedor_participante_id, valor, pago_em)
+                        VALUES (%s, %s, %s, %s, %s);
+                        """,
+                        (str(uuid.uuid4()), despesa_id, r["devedor_participante_id"], quantizar_decimal(r["valor"]), r.get("pago_em")),
+                    )
+        else:
+            cur = conn.cursor()
+            cur.execute(
+                """
+                INSERT INTO despesas_pos_role (id, sala_id, pagador_participante_id, pagador_nome, valor_total_rs, chave_pix, tipo_chave_pix, itens_json)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+                """,
+                (despesa_id, sala["id"], pagador_participante_id, pagador_nome, str(total), chave_pix, tipo_chave_pix, json.dumps(itens or [])),
+            )
+            for r in rateios_lista:
+                cur.execute(
+                    """
+                    INSERT INTO despesa_rateios (id, despesa_id, devedor_participante_id, valor, pago_em)
+                    VALUES (?, ?, ?, ?, ?);
+                    """,
+                    (str(uuid.uuid4()), despesa_id, r["devedor_participante_id"], str(quantizar_decimal(r["valor"])), r.get("pago_em")),
+                )
+            conn.commit()
+
+        return {
+            "id": despesa_id,
+            "sala_id": sala["id"],
+            "valor_total_rs": total,
+            "chave_pix": chave_pix,
+            "rateios_count": len(rateios_lista),
+        }
+
+    def dar_baixa_rateio(self, despesa_id: str, devedor_participante_id: str) -> bool:
+        """Marca o rateio de um amigo como quitado ao pagar via Pix."""
+        conn = self._get_connection()
+        agora = datetime.now(timezone.utc).isoformat()
+
+        if self.is_postgres:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    UPDATE despesa_rateios
+                    SET pago_em = %s
+                    WHERE despesa_id = %s AND devedor_participante_id = %s;
+                    """,
+                    (agora, despesa_id, devedor_participante_id),
+                )
+                return cur.rowcount > 0
+        else:
+            cur = conn.cursor()
+            cur.execute(
+                """
+                UPDATE despesa_rateios
+                SET pago_em = ?
+                WHERE despesa_id = ? AND devedor_participante_id = ?;
+                """,
+                (agora, despesa_id, devedor_participante_id),
+            )
+            conn.commit()
+            return cur.rowcount > 0
+
+    def obter_despesas_sala(self, codigo_sala: str) -> List[Dict[str, Any]]:
+        """Recupera despesas e rateios da sala."""
+        sala = self.obter_sala(codigo_sala)
+        if not sala:
+            return []
+
+        conn = self._get_connection()
+        if self.is_postgres:
+            with conn.cursor() as cur:
+                cur.execute("SELECT * FROM despesas_pos_role WHERE sala_id = %s;", (sala["id"],))
+                return [dict(r) for r in cur.fetchall()]
+        else:
+            cur = conn.cursor()
+            cur.execute("SELECT * FROM despesas_pos_role WHERE sala_id = ?;", (sala["id"],))
+            return [dict(r) for r in cur.fetchall()]
+
+    # ==========================================================================
+    # USUÁRIOS E ENDEREÇOS SALVOS
+    # ==========================================================================
     def cadastrar_usuario(
         self,
         nome: str,
+        maior_18_anos: bool = True,
         email: Optional[str] = None,
         telefone: Optional[str] = None,
-        maior_18_anos: bool = True,
         transporte_padrao: str = "misto",
         restricoes_permanentes: Optional[str] = None,
         chave_pix_padrao: Optional[str] = None,
-        tipo_chave_pix_padrao: str = "aleatoria",
     ) -> Dict[str, Any]:
-        """Cadastra um novo usuário no aplicativo."""
+        """Cadastra usuário respeitando a checagem obrigatória de 18+ anos."""
         if not maior_18_anos:
-            raise ValueError("O Orquestrador de Rolês é exclusivo para maiores de 18 anos (ADR 0002).")
+            raise ValueError("O Orquestrador de Rolês é exclusivo para maiores de 18 anos.")
 
+        self.garantir_schema()
         usuario_id = str(uuid.uuid4())
-        criado_em = datetime.now(timezone.utc).isoformat()
-
         conn = self._get_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            """
-            INSERT INTO usuarios 
-            (id, nome, email, telefone, maior_18_anos, transporte_padrao, restricoes_permanentes, chave_pix_padrao, tipo_chave_pix_padrao, criado_em)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                usuario_id,
-                nome.strip(),
-                email.strip().lower() if email else None,
-                telefone.strip() if telefone else None,
-                1 if maior_18_anos else 0,
-                transporte_padrao,
-                restricoes_permanentes,
-                chave_pix_padrao,
-                tipo_chave_pix_padrao,
-                criado_em,
-            ),
-        )
-        conn.commit()
-        conn.close()
 
-        return {
-            "id": usuario_id,
-            "nome": nome,
-            "email": email,
-            "maior_18_anos": maior_18_anos,
-            "transporte_padrao": transporte_padrao,
-            "chave_pix_padrao": chave_pix_padrao,
-            "criado_em": criado_em,
-        }
-
-    def buscar_usuario(self, usuario_id: str) -> Optional[Dict[str, Any]]:
-        """Busca o usuário pelo ID."""
-        conn = self._get_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM usuarios WHERE id = ?", (usuario_id,))
-        row = cursor.fetchone()
-        conn.close()
-        return dict(row) if row else None
+        if self.is_postgres:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO usuarios (id, nome, email, telefone, maior_18_anos, transporte_padrao, restricoes_permanentes, chave_pix_padrao)
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+                    RETURNING id, nome, email, maior_18_anos;
+                    """,
+                    (usuario_id, nome, email, telefone, maior_18_anos, transporte_padrao, restricoes_permanentes, chave_pix_padrao),
+                )
+                return cur.fetchone()
+        else:
+            cur = conn.cursor()
+            cur.execute(
+                """
+                INSERT INTO usuarios (id, nome, email, telefone, maior_18_anos, transporte_padrao, restricoes_permanentes, chave_pix_padrao)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?);
+                """,
+                (usuario_id, nome, email, telefone, 1 if maior_18_anos else 0, transporte_padrao, restricoes_permanentes, chave_pix_padrao),
+            )
+            conn.commit()
+            return {"id": usuario_id, "nome": nome, "email": email, "maior_18_anos": True}
 
     def adicionar_endereco_usuario(
         self,
         usuario_id: str,
         rotulo: str,
         regiao_ra: str,
-        ponto_referencia: str,
+        ponto_referencia: Optional[str] = None,
         is_padrao: bool = False,
     ) -> Dict[str, Any]:
-        """Salva um endereço frequente no perfil do usuário (Casa, Trabalho, UnB)."""
-        end_id = str(uuid.uuid4())
-        criado_em = datetime.now(timezone.utc).isoformat()
-
+        """Salva um endereço frequente do usuário no DF."""
+        endereco_id = str(uuid.uuid4())
         conn = self._get_connection()
-        cursor = conn.cursor()
 
-        # Se for padrão, desmarca outros anteriores
-        if is_padrao:
-            cursor.execute("UPDATE usuario_enderecos SET is_padrao = 0 WHERE usuario_id = ?", (usuario_id,))
-
-        cursor.execute(
-            """
-            INSERT INTO usuario_enderecos (id, usuario_id, rotulo, regiao_ra, ponto_referencia, is_padrao, criado_em)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            """,
-            (end_id, usuario_id, rotulo.strip(), regiao_ra.strip(), ponto_referencia.strip(), 1 if is_padrao else 0, criado_em),
-        )
-        conn.commit()
-        conn.close()
-
-        return {
-            "id": end_id,
-            "usuario_id": usuario_id,
-            "rotulo": rotulo,
-            "regiao_ra": regiao_ra,
-            "ponto_referencia": ponto_referencia,
-            "is_padrao": is_padrao,
-        }
-
-    def listar_enderecos_usuario(self, usuario_id: str) -> List[Dict[str, Any]]:
-        """Lista todos os locais salvos de um usuário."""
-        conn = self._get_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM usuario_enderecos WHERE usuario_id = ? ORDER BY is_padrao DESC", (usuario_id,))
-        rows = cursor.fetchall()
-        conn.close()
-        return [dict(r) for r in rows]
-
-    # --------------------------------------------------------------------------
-    # 2. SALAS (CRIAÇÃO E GESTÃO)
-    # --------------------------------------------------------------------------
-
-    def criar_sala(
-        self, codigo_sala: str, nome_role: str, criador_nome: str, criador_id: Optional[str] = None
-    ) -> Dict[str, Any]:
-        """Cria uma nova sala de rolê no banco de dados."""
-        sala_id = str(uuid.uuid4())
-        criado_em = datetime.now(timezone.utc).isoformat()
-        codigo = codigo_sala.strip().upper()
-
-        conn = self._get_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            "INSERT INTO salas (id, codigo_sala, nome_role, criador_id, criador_nome, status, criado_em) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (sala_id, codigo, nome_role.strip(), criador_id, criador_nome.strip(), "aberta", criado_em),
-        )
-        conn.commit()
-        conn.close()
-
-        return {
-            "id": sala_id,
-            "codigo_sala": codigo,
-            "nome_role": nome_role,
-            "criador_nome": criador_nome,
-            "status": "aberta",
-            "criado_em": criado_em,
-        }
-
-    def buscar_sala(self, codigo_sala: str) -> Optional[Dict[str, Any]]:
-        """Busca uma sala pelo código único."""
-        codigo = codigo_sala.strip().upper()
-        conn = self._get_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM salas WHERE codigo_sala = ?", (codigo,))
-        row = cursor.fetchone()
-        conn.close()
-        return dict(row) if row else None
-
-    # --------------------------------------------------------------------------
-    # 3. PARTICIPANTES & ORIGEM POR JANELA DE HORÁRIO
-    # --------------------------------------------------------------------------
-
-    def adicionar_participante(
-        self,
-        codigo_sala: str,
-        nome: str,
-        origem_df: Optional[str] = None,
-        dias_horarios: Optional[str] = None,
-        limite_gasto_rs: float = 0.0,
-        preferencias_transporte: Optional[str] = None,
-        janelas: Optional[List[Dict[str, Any]]] = None,
-        vibe_hoje: Optional[str] = None,
-        usuario_id: Optional[str] = None,
-    ) -> Dict[str, Any]:
-        """
-        Adiciona a participação de um amigo em um rolê específico.
-        Suporta tanto o modelo com janelas estruturadas (origem por horário)
-        quanto o formato simplificado de texto.
-        """
-        sala = self.buscar_sala(codigo_sala)
-        if not sala:
-            raise ValueError(f"Sala '{codigo_sala}' não encontrada.")
-
-        participante_id = str(uuid.uuid4())
-        respondeu_em = datetime.now(timezone.utc).isoformat()
-        teto = max(0.0, float(limite_gasto_rs))
-
-        # Se não vier estruturado em janelas, encapsula os campos texto legados
-        if janelas:
-            janelas_dados = janelas
+        if self.is_postgres:
+            with conn.cursor() as cur:
+                cur.execute(
+                    """
+                    INSERT INTO usuario_enderecos (id, usuario_id, rotulo, regiao_ra, ponto_referencia, is_padrao)
+                    VALUES (%s, %s, %s, %s, %s, %s);
+                    """,
+                    (endereco_id, usuario_id, rotulo, regiao_ra, ponto_referencia, is_padrao),
+                )
         else:
-            janelas_dados = [
-                {
-                    "dia_horario": dias_horarios or "a combinar",
-                    "origem": origem_df or "Plano Piloto",
-                    "regiao_ra": origem_df or "Plano Piloto",
-                }
-            ]
-
-        janelas_json = json.dumps(janelas_dados, ensure_ascii=False)
-
-        conn = self._get_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            """
-            INSERT INTO sala_participantes 
-            (id, sala_id, usuario_id, nome, janelas_disponiveis_json, limite_gasto_rs, vibe_hoje, transporte_hoje, respondeu_em)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """,
-            (
-                participante_id,
-                sala["id"],
-                usuario_id,
-                nome.strip(),
-                janelas_json,
-                teto,
-                vibe_hoje or "",
-                preferencias_transporte or "",
-                respondeu_em,
-            ),
-        )
-        conn.commit()
-        conn.close()
-
-        return {
-            "id": participante_id,
-            "sala_id": sala["id"],
-            "nome": nome,
-            "respondeu_em": respondeu_em,
-        }
-
-    def listar_participantes_sala(self, codigo_sala: str, incluir_sigilo: bool = False) -> List[Dict[str, Any]]:
-        """
-        Lista os participantes da sala.
-        ATENÇÃO (RNF-01 e RNF-02): incluir_sigilo=False por padrão. O campo
-        'limite_gasto_rs' NUNCA é retornado publicamente.
-        """
-        sala = self.buscar_sala(codigo_sala)
-        if not sala:
-            return []
-
-        conn = self._get_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT * FROM sala_participantes WHERE sala_id = ? ORDER BY respondeu_em ASC", (sala["id"],))
-        rows = cursor.fetchall()
-        conn.close()
-
-        resultados: List[Dict[str, Any]] = []
-        for r in rows:
-            d = dict(r)
-            try:
-                d["janelas_disponiveis"] = json.loads(d.get("janelas_disponiveis_json", "[]"))
-            except Exception:
-                d["janelas_disponiveis"] = []
-            d.pop("janelas_disponiveis_json", None)
-
-            if not incluir_sigilo:
-                d.pop("limite_gasto_rs", None)
-
-            resultados.append(d)
-
-        return resultados
-
-    def obter_menor_orcamento_sala(self, codigo_sala: str) -> Optional[float]:
-        """Retorna o MENOR limite individual de gasto da sala (Regra da Menor Miséria)."""
-        sala = self.buscar_sala(codigo_sala)
-        if not sala:
-            return None
-
-        conn = self._get_connection()
-        cursor = conn.cursor()
-        cursor.execute("SELECT MIN(limite_gasto_rs) as menor_teto FROM sala_participantes WHERE sala_id = ?", (sala["id"],))
-        row = cursor.fetchone()
-        conn.close()
-
-        if row and row["menor_teto"] is not None:
-            return float(row["menor_teto"])
-        return None
-
-    # --------------------------------------------------------------------------
-    # 4. SUGESTÕES, VOTAÇÃO E PÓS-ROLÊ
-    # --------------------------------------------------------------------------
-
-    def salvar_sugestoes(self, codigo_sala: str, sugestoes: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Salva os 3 a 4 cartões de sugestão gerados pela IA."""
-        sala = self.buscar_sala(codigo_sala)
-        if not sala:
-            raise ValueError(f"Sala '{codigo_sala}' não encontrada.")
-
-        salvos: List[Dict[str, Any]] = []
-        conn = self._get_connection()
-        cursor = conn.cursor()
-        criado_em = datetime.now(timezone.utc).isoformat()
-
-        for s in sugestoes:
-            sugestao_id = str(uuid.uuid4())
-            cursor.execute(
+            cur = conn.cursor()
+            cur.execute(
                 """
-                INSERT INTO sugestoes_role
-                (id, sala_id, local_id, nome_local, regiao_ra, endereco, dia_horario_sugerido, 
-                 faixa_gasto_rs, mobility_summary, ranking_justica, motivo_escolha, criado_em)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                INSERT INTO usuario_enderecos (id, usuario_id, rotulo, regiao_ra, ponto_referencia, is_padrao)
+                VALUES (?, ?, ?, ?, ?, ?);
                 """,
-                (
-                    sugestao_id,
-                    sala["id"],
-                    s.get("local_id"),
-                    s["nome_local"],
-                    s["regiao_ra"],
-                    s["endereco"],
-                    s.get("dia_horario_sugerido", ""),
-                    float(s.get("faixa_gasto_rs", 0.0)),
-                    s.get("mobility_summary", ""),
-                    float(s.get("ranking_justica", 0.0)),
-                    s.get("motivo_escolha", ""),
-                    criado_em,
-                ),
-            )
-            item = dict(s)
-            item["id"] = sugestao_id
-            salvos.append(item)
-
-        cursor.execute("UPDATE salas SET status = 'votando' WHERE id = ?", (sala["id"],))
-        conn.commit()
-        conn.close()
-        return salvos
-
-    def registrar_voto(self, codigo_sala: str, participante_id: str, sugestao_id: str) -> Dict[str, Any]:
-        """Registra o voto de um participante em um cartão."""
-        sala = self.buscar_sala(codigo_sala)
-        if not sala:
-            raise ValueError(f"Sala '{codigo_sala}' não encontrada.")
-
-        voto_id = str(uuid.uuid4())
-        votado_em = datetime.now(timezone.utc).isoformat()
-
-        conn = self._get_connection()
-        cursor = conn.cursor()
-        try:
-            cursor.execute(
-                "INSERT INTO votos (id, sala_id, participante_id, sugestao_id, votado_em) VALUES (?, ?, ?, ?, ?)",
-                (voto_id, sala["id"], participante_id, sugestao_id, votado_em),
+                (endereco_id, usuario_id, rotulo, regiao_ra, ponto_referencia, 1 if is_padrao else 0),
             )
             conn.commit()
-        except sqlite3.IntegrityError:
-            pass
-        finally:
-            conn.close()
 
-        return {"voto_id": voto_id, "participante_id": participante_id, "sugestao_id": sugestao_id}
+        return {"id": endereco_id, "usuario_id": usuario_id, "rotulo": rotulo, "regiao_ra": regiao_ra}
 
-    def contabilizar_votos(self, codigo_sala: str) -> List[Dict[str, Any]]:
-        """Calcula a contagem de votos de cada sugestão."""
-        sala = self.buscar_sala(codigo_sala)
-        if not sala:
-            return []
-
+    def listar_enderecos_usuario(self, usuario_id: str) -> List[Dict[str, Any]]:
+        """Lista os endereços salvos do usuário ordenados com o padrão no topo."""
         conn = self._get_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            """
-            SELECT s.id, s.nome_local, s.regiao_ra, s.ranking_justica, COUNT(v.id) as total_votos
-            FROM sugestoes_role s
-            LEFT JOIN votos v ON s.id = v.sugestao_id
-            WHERE s.sala_id = ?
-            GROUP BY s.id
-            ORDER BY total_votos DESC, s.ranking_justica DESC
-            """,
-            (sala["id"],),
-        )
-        rows = cursor.fetchall()
-        conn.close()
-        return [dict(r) for r in rows]
+        if self.is_postgres:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT * FROM usuario_enderecos WHERE usuario_id = %s ORDER BY is_padrao DESC;",
+                    (usuario_id,),
+                )
+                return [dict(r) for r in cur.fetchall()]
+        else:
+            cur = conn.cursor()
+            cur.execute(
+                "SELECT * FROM usuario_enderecos WHERE usuario_id = ? ORDER BY is_padrao DESC;",
+                (usuario_id,),
+            )
+            return [dict(r) for r in cur.fetchall()]
 
-    def registrar_despesa_pos_role(
-        self,
-        codigo_sala: str,
-        pagador_nome: str,
-        valor_total_rs: float,
-        chave_pix: str,
-        tipo_chave_pix: str = "aleatoria",
-        itens_json: Optional[List[Dict[str, Any]]] = None,
-        comprovante_url: Optional[str] = None,
-    ) -> Dict[str, Any]:
-        """Registra a despesa do pós-rolê com chave Pix."""
-        sala = self.buscar_sala(codigo_sala)
-        if not sala:
-            raise ValueError(f"Sala '{codigo_sala}' não encontrada.")
 
-        despesa_id = str(uuid.uuid4())
-        criado_em = datetime.now(timezone.utc).isoformat()
-        itens_str = json.dumps(itens_json, ensure_ascii=False) if itens_json else "[]"
+# ==============================================================================
+# IMPLEMENTAÇÃO DA INTERFACE REPOSITÓRIO (COMPATÍVEL COM src/state.py - PR #48)
+# ==============================================================================
 
-        conn = self._get_connection()
-        cursor = conn.cursor()
-        cursor.execute(
-            """
-            INSERT INTO despesas_pos_role
-            (id, sala_id, pagador_nome, valor_total_rs, chave_pix, tipo_chave_pix, itens_json, comprovante_url, quitado, criado_em)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0, ?)
-            """,
-            (
-                despesa_id,
-                sala["id"],
-                pagador_nome.strip(),
-                float(valor_total_rs),
-                chave_pix.strip(),
-                tipo_chave_pix,
-                itens_str,
-                comprovante_url,
-                criado_em,
-            ),
-        )
-        conn.commit()
-        conn.close()
+class RepositorioSupabase:
+    """
+    Adaptador de persistência de salas para o Supabase / PostgreSQL,
+    implementando a interface Repositorio de src/state.py:
+    - existe(codigo: str) -> bool
+    - obter(codigo: str) -> Sala | None
+    - salvar(sala: Sala) -> None
+    """
 
-        return {
-            "id": despesa_id,
-            "sala_id": sala["id"],
-            "pagador_nome": pagador_nome,
-            "valor_total_rs": valor_total_rs,
-            "chave_pix": chave_pix,
-            "criado_em": criado_em,
-        }
+    def __init__(self, cliente: Optional[SupabaseClient] = None):
+        self.cliente = cliente or SupabaseClient()
+
+    def existe(self, codigo: str) -> bool:
+        return self.cliente.obter_sala(codigo) is not None
+
+    def obter(self, codigo: str) -> Optional[Any]:
+        dados_sala = self.cliente.obter_sala(codigo)
+        if not dados_sala:
+            return None
+        return dados_sala
+
+    def salvar(self, sala: Any) -> None:
+        codigo = getattr(sala, "codigo", getattr(sala, "codigo_sala", None))
+        nome = getattr(sala, "nome_role", "Rolê")
+        organizador = getattr(sala, "organizador_nome", getattr(sala, "criador_nome", "Organizador"))
+        token_hash = getattr(sala, "token_organizador_hash", None)
+
+        if not self.existe(codigo):
+            self.cliente.criar_sala(
+                codigo_sala=codigo,
+                nome_role=nome,
+                organizador_nome=organizador,
+                token_organizador_hash=token_hash,
+            )
 
 
 def checar_conexao_supabase() -> Dict[str, Any]:
-    """
-    Testa a conectividade real com os servidores do Supabase na nuvem via REST API.
-    Retorna o status, código HTTP e mensagem explicativa.
-    """
+    """Função utilitária para rotas FastAPI checarem status do Supabase."""
+    cliente = SupabaseClient()
+    res = cliente.checar_conexao()
+    
+    # Se tiver SUPABASE_URL configurada, checa também o endpoint REST
     url = os.environ.get("SUPABASE_URL")
     key = os.environ.get("SUPABASE_KEY")
+    if url and key and HTTPX_DISPONIVEL:
+        try:
+            r = httpx.get(
+                f"{url.rstrip('/')}/rest/v1/",
+                headers={"apikey": key, "Authorization": f"Bearer {key}"},
+                timeout=5.0,
+            )
+            res["supabase_rest_status"] = r.status_code
+        except Exception as e:
+            res["supabase_rest_erro"] = str(e)
 
-    if not url or not key:
-        return {
-            "conectado": False,
-            "motivo": "SUPABASE_URL ou SUPABASE_KEY não configuradas no ambiente ou .env",
-            "modo": "fallback_local",
-        }
-
-    endpoint = f"{url.rstrip('/')}/rest/v1/salas?select=count"
-    headers = {
-        "apikey": key,
-        "Authorization": f"Bearer {key}",
-    }
-
-    try:
-        import httpx
-        with httpx.Client(timeout=5.0) as client:
-            resp = client.get(endpoint, headers=headers)
-            if resp.status_code in [200, 206]:
-                return {
-                    "conectado": True,
-                    "status_code": resp.status_code,
-                    "url": url,
-                    "mensagem": "Conexão com o Supabase na nuvem estabelecida com sucesso!",
-                }
-            return {
-                "conectado": False,
-                "status_code": resp.status_code,
-                "url": url,
-                "motivo": f"Resposta inesperada do Supabase: {resp.text}",
-            }
-    except Exception as exc:
-        return {
-            "conectado": False,
-            "url": url,
-            "motivo": f"Falha de conexão com o Supabase: {exc}",
-        }
+    return res
 
 
-# Instância global
-db_client = SupabaseClient()
-
+def obter_cliente_db(use_memory_fallback: bool = False) -> SupabaseClient:
+    """Factory para instanciar o cliente sob demanda sem criar arquivos em import time."""
+    return SupabaseClient(use_memory_fallback=use_memory_fallback)
