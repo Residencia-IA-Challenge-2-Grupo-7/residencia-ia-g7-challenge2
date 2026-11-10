@@ -1,0 +1,8 @@
+# ==============================================================================
+# GOVERNANÇA DE CÓDIGO E REVISÃO OBRIGATÓRIA (CODEOWNERS)
+# Projeto: Orquestrador de Rolês - Grupo 7 (Residência em IA Eldorado / UnB)
+# ==============================================================================
+# Toda e qualquer alteração no repositório atribui automaticamente
+# a Maria Eduarda (@eduarda-ogomes) como revisora oficial do Pull Request.
+
+* @eduarda-ogomes
