@@ -18,7 +18,8 @@
   - `src/interpretador/campos.py`: os 4 campos viram RA (apelidos, quadras como SQN e QNM, estações de metrô), janelas pelo `tempo.py`, teto pelo `numeros.py` e tags com os rótulos da base. Tudo por regras; o LLM do ADR 0007 só entra se as regras não acharem nenhum dia ([ADR 0009](docs/decisoes/0009-entrada-pelos-4-campos-de-texto.md));
   - `src/state.py` (repositório em memória, pronto para trocar pelo Supabase) e `src/salas/` (gerenciador, cruzamento de horários, horário de funcionamento dos lugares, cartões, votação);
   - rotas em `/api/salas`: criar, painel, participantes (entrar, corrigir, confirmar, própria visão), gerar sugestões, votar e fechar votação. Contrato e exemplo em [src/salas/README.md](src/salas/README.md);
-  - **99 testes passam** (`python -m pytest tests`), entre eles uma varredura das respostas públicas atrás do teto de cada um; o CI passou a rodar todos os testes, não só o smoke.
+  - **110 testes passam** (`python -m pytest tests`), entre eles o fluxo de 3 participantes da issue #43 (`tests/test_salas_backend.py`) e uma varredura das respostas públicas atrás do teto de cada um; o CI e o `make test` passaram a rodar todos os testes;
+  - códigos de sala no formato `ROLE-7KQ2`; PR aberto para fechar a issue #43.
 - **Encaixes pendentes** (o código usa uma reserva simples até chegarem; assinaturas em [src/salas/README.md](src/salas/README.md#encaixe-das-peças-das-colegas)):
   - Eduarda: `teto_seguro_grupo` em `src/financas/` e um `Repositorio` do Supabase em `src/db/`;
   - Samara: `estimar_deslocamento` e `nota_menor_miseria` em `src/logistica/transporte_df.py` e `data/regioes_df_gps.json`;
@@ -39,7 +40,8 @@
 
 ## Próximos passos (Cauan, conforme o guia)
 
-- Quinta: abrir o PR da `feat/salas-backend`, ligar as peças da Eduarda, da Samara e da Letícia quando chegarem e apoiar a Maria Carolina na integração das telas.
+- Hoje: issue #33 (LLM pura e guardrails do RAG), que destrava a #34.
+- Quinta: ligar as peças da Eduarda, da Samara e da Letícia quando chegarem e apoiar a Maria Carolina na integração das telas.
 - Sexta: rodar o fluxo de uma sala inteira com as peças reais e o Supabase; revisar os ADRs 0008 e 0009 com o grupo.
 - Ainda faltam no back-end das salas: prazos de resposta (RF-12), confirmação de presença (RF-26), modo "palavra final do organizador" (RF-24) e regra de datas do organizador (RF-14).
 

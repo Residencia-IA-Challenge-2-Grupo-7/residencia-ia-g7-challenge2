@@ -24,7 +24,7 @@ Criar a sala devolve o `token_organizador`; entrar devolve o `token` do particip
 
 | Rota | Quem | O que faz |
 |---|---|---|
-| `POST /api/salas` | qualquer um | `{nome_role, organizador, maior_de_idade}` → código, link de convite e token do organizador |
+| `POST /api/salas` | qualquer um | `{nome_role, organizador, maior_de_idade}` → código (`ROLE-7KQ2`), link de convite e token do organizador |
 | `GET /api/salas/{codigo}` | qualquer um | Painel: quem preencheu, "x de y", cartões, placar, resultado. Nunca mostra teto, origem nem horários |
 | `POST /api/salas/{codigo}/participantes` | quem tem o link | `{nome, maior_de_idade, origem, horarios, teto, preferencias}` → token e resumo para confirmar |
 | `PUT /api/salas/{codigo}/participantes/{id}` | o participante | Reenvia os 4 campos (resumo errado ou pergunta pendente) |
@@ -39,7 +39,7 @@ Exemplo de ponta a ponta:
 ```bash
 curl -s -X POST localhost:8000/api/salas -H 'content-type: application/json' \
   -d '{"nome_role":"Aniversário da Galera","organizador":"Rafaela","maior_de_idade":true}'
-curl -s -X POST localhost:8000/api/salas/ABC234/participantes -H 'content-type: application/json' \
+curl -s -X POST localhost:8000/api/salas/ROLE-7KQ2/participantes -H 'content-type: application/json' \
   -d '{"nome":"Bia","maior_de_idade":true,"origem":"Águas Claras perto da estação","horarios":"sexta depois das 19h ou sábado à tarde","teto":"60","preferencias":"Barzinho ou café calmo, sou vegetariana, vou de metrô/Uber"}'
 ```
 
@@ -70,7 +70,7 @@ curl -s -X POST localhost:8000/api/salas/ABC234/participantes -H 'content-type: 
 ## Testes
 
 ```bash
-python -m pytest tests/test_campos.py tests/test_salas.py
+python -m pytest tests/test_campos.py tests/test_salas.py tests/test_salas_backend.py
 ```
 
 Cobrem os exemplos do guia, o cruzamento, o horário dos lugares, o orçamento por pessoa, 18+, limite de 20, tokens, votação múltipla com desempate e uma varredura das respostas públicas atrás do teto de cada um.

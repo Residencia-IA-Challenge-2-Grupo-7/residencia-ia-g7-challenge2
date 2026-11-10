@@ -32,6 +32,7 @@ from src.state import Repositorio, obter_repositorio
 
 FUSO = timezone(timedelta(hours=-3))  # America/Sao_Paulo, sem horário de verão desde 2019
 ALFABETO_CODIGO = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"  # sem 0/O e 1/I, para ditar o código sem erro
+PREFIXO_CODIGO = "ROLE-"  # formato da issue #43 e do guia: ROLE-7KQ2 (32^4 ≈ 1 milhão de códigos)
 MENSAGEM_SUCESSO = "🎉 Rolê orquestrado com sucesso!"
 
 
@@ -94,7 +95,7 @@ class GerenciadorSalas:
 
     def _novo_codigo(self) -> str:
         for _ in range(50):
-            codigo = "".join(secrets.choice(ALFABETO_CODIGO) for _ in range(6))
+            codigo = PREFIXO_CODIGO + "".join(secrets.choice(ALFABETO_CODIGO) for _ in range(4))
             if not self.repo.existe(codigo):
                 return codigo
         raise ErroSala(503, "Não foi possível gerar um código de sala agora. Tente de novo.")
