@@ -64,6 +64,9 @@ CREATE TABLE IF NOT EXISTS salas (
     janela_escolhida_inicio TIMESTAMPTZ NULL,
     janela_escolhida_fim TIMESTAMPTZ NULL,
     sugestao_vencedora_id UUID NULL,                   -- FK vinculada posteriormente
+    janelas_comuns_json JSONB NULL,                    -- Janelas comuns calculadas (JanelaComum)
+    resultado_json JSONB NULL,                         -- Metadados do resultado final (Resultado)
+    avisos_json JSONB NULL,                            -- Avisos da orquestração
     expira_em TIMESTAMPTZ DEFAULT (NOW() + INTERVAL '30 days'), -- Descarte LGPD (ADR 0008)
     criado_em TIMESTAMPTZ DEFAULT NOW(),
     atualizado_em TIMESTAMPTZ DEFAULT NOW(),
@@ -79,14 +82,16 @@ CREATE INDEX IF NOT EXISTS idx_salas_status ON salas(status);
 -- ------------------------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS sala_participantes (
     id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    codigo_participante VARCHAR(64) NULL,              -- Identificador de domínio (ex: token_hex de 12 chars)
     sala_id UUID NOT NULL REFERENCES salas(id) ON DELETE CASCADE,
     usuario_id UUID NULL REFERENCES usuarios(id) ON DELETE SET NULL,
     nome VARCHAR(80) NOT NULL,
     token_hash VARCHAR(64) NOT NULL,                   -- SHA-256 do token individual
     confirmado BOOLEAN NOT NULL DEFAULT FALSE,
-    limite_gasto_rs NUMERIC(10, 2) NOT NULL CHECK (limite_gasto_rs >= 0), -- 100% SIGILOSO
+    limite_gasto_rs NUMERIC(10, 2) NULL CHECK (limite_gasto_rs IS NULL OR limite_gasto_rs >= 0), -- 100% SIGILOSO
     vibe_hoje VARCHAR(200) NULL,
     transporte_hoje VARCHAR(40) NULL,
+    perfil_json JSONB NULL,                            -- PerfilInterpretado completo (sem expor no painel público)
     respondeu_em TIMESTAMPTZ DEFAULT NOW(),
     CONSTRAINT uq_participante_sala_id UNIQUE (sala_id, id)
 );
@@ -123,6 +128,7 @@ CREATE TABLE IF NOT EXISTS sugestoes_role (
     nome_local VARCHAR(120) NOT NULL,
     tipo VARCHAR(60) NOT NULL DEFAULT 'bar',
     regiao_ra VARCHAR(80) NOT NULL,
+    regiao_texto VARCHAR(120) NULL,
     endereco TEXT NOT NULL,
     inicio TIMESTAMPTZ NOT NULL,
     fim TIMESTAMPTZ NOT NULL,
@@ -139,13 +145,15 @@ CREATE TABLE IF NOT EXISTS sugestoes_role (
     explicacao TEXT NOT NULL,
     tiktok_url TEXT NULL,
     fonte VARCHAR(80) DEFAULT '2fa',
+    vibes_json JSONB NULL,
+    por_participante_json JSONB NULL,                  -- Custo e tempo por participante (RF-15)
     criado_em TIMESTAMPTZ DEFAULT NOW(),
     CONSTRAINT uq_sugestao_sala_id UNIQUE (sala_id, id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_sugestoes_sala ON sugestoes_role(sala_id);
 
--- Adiciona a FK da sugestão vencedora na tabela salas após sugestoes_role existir
+-- Adiciona a FK da sugestão vencedora e garante migração idempotente de colunas em bancos já existentes
 DO $$
 BEGIN
     IF NOT EXISTS (
@@ -154,6 +162,18 @@ BEGIN
         ALTER TABLE salas ADD CONSTRAINT fk_salas_sugestao_vencedora
         FOREIGN KEY (sugestao_vencedora_id) REFERENCES sugestoes_role(id) ON DELETE SET NULL;
     END IF;
+
+    ALTER TABLE salas ADD COLUMN IF NOT EXISTS janelas_comuns_json JSONB NULL;
+    ALTER TABLE salas ADD COLUMN IF NOT EXISTS resultado_json JSONB NULL;
+    ALTER TABLE salas ADD COLUMN IF NOT EXISTS avisos_json JSONB NULL;
+
+    ALTER TABLE sala_participantes ADD COLUMN IF NOT EXISTS codigo_participante VARCHAR(64) NULL;
+    ALTER TABLE sala_participantes ADD COLUMN IF NOT EXISTS perfil_json JSONB NULL;
+    ALTER TABLE sala_participantes ALTER COLUMN limite_gasto_rs DROP NOT NULL;
+
+    ALTER TABLE sugestoes_role ADD COLUMN IF NOT EXISTS regiao_texto VARCHAR(120) NULL;
+    ALTER TABLE sugestoes_role ADD COLUMN IF NOT EXISTS vibes_json JSONB NULL;
+    ALTER TABLE sugestoes_role ADD COLUMN IF NOT EXISTS por_participante_json JSONB NULL;
 END $$;
 
 -- ------------------------------------------------------------------------------

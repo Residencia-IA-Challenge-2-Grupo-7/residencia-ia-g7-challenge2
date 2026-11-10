@@ -7,18 +7,20 @@ Issue #41 | Referência: GUIA_OFICIAL_PROJETO.md
 Implementa acesso resiliente ao PostgreSQL (Supabase na nuvem / Docker) via psycopg
 com suporte completo às correções da revisão do PR #50 e preservando 100% das regras de negócio:
 1. Conexão real com PostgreSQL via psycopg usando DATABASE_URL (sob demanda/lazy).
-2. schema.sql como fonte única da verdade para a estrutura de tabelas.
-3. RLS (Row Level Security) e sigilo orçamentário (RNF-01 e RNF-02): cabe_no_orcamento() e obter_menor_orcamento_sala().
+2. schema.sql como fonte única da verdade para a estrutura de 9 tabelas normalizadas.
+3. RLS (Row Level Security) e sigilo orçamentário (RNF-01 e RNF-02): cabe_no_orcamento() booleano.
 4. Precisão monetária absoluta com Decimal (sem floats nos cálculos financeiros e Pix).
 5. Timestamps e janelas com ponto de partida amarrado por janela de horário.
 6. Rateio individualizado pós-rolê (despesa_rateios) com quitação por participante.
-7. Identificação e segurança: token_hash, token_organizador_hash e expira_em (LGPD).
-8. Interface RepositorioSupabase para integração direta com src/state.py (PR #48).
+   Nota de escopo (Issue #45): A criptografia da chave Pix em repouso (pgcrypto/Vault)
+   será implementada na entrega da Tela 4 / Finanças.
+7. Identificação, segurança e LGPD: token_hash, token_organizador_hash e apagar_salas_expiradas().
+8. Interface RepositorioSupabase que persiste e reconstrói o objeto Sala completo (src/salas/modelos.py).
 """
 
 from __future__ import annotations
 
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 import json
 import os
@@ -28,6 +30,12 @@ import sqlite3
 from typing import Any, Dict, List, Optional, Union
 import uuid
 
+from src.interpretador.campos import PerfilInterpretado, Preferencias
+from src.interpretador.tempo import JanelaResolvida
+from src.salas.janelas import JanelaComum
+from src.salas.modelos import COLETANDO, Participante, Resultado, Sala, Sugestao
+from src.state import Repositorio
+
 # Tenta importar psycopg para PostgreSQL real
 try:
     import psycopg
@@ -36,16 +44,17 @@ try:
 except ImportError:
     PSYCOPG_DISPONIVEL = False
 
-# Tenta importar requests/httpx para checar endpoint REST do Supabase
+# Tenta importar httpx para checar endpoint REST do Supabase
 try:
     import httpx
     HTTPX_DISPONIVEL = True
 except ImportError:
     HTTPX_DISPONIVEL = False
 
-# Caminhos padrão
+# Caminhos padrão e fuso de Brasília (America/Sao_Paulo)
 SCHEMA_SQL_PATH = Path(__file__).parent / "schema.sql"
 LOCAL_DB_PATH = Path("data/app_local.db")
+FUSO_BRASILIA = timezone(timedelta(hours=-3))
 
 
 def _carregar_env() -> None:
@@ -70,6 +79,7 @@ def _carregar_env() -> None:
             except Exception:
                 pass
 
+
 _carregar_env()
 
 
@@ -82,11 +92,64 @@ def quantizar_decimal(valor: Union[Decimal, str, float, int, None]) -> Decimal:
     return Decimal(str(valor)).quantize(Decimal("0.01"))
 
 
+def _uuid_deterministico(prefixo: str, sala_id: str, identificador: str) -> str:
+    """Converte um ID curto de domínio (ex: token_hex de 12 chars ou letra 'A') em UUID válido."""
+    try:
+        return str(uuid.UUID(str(identificador)))
+    except (ValueError, TypeError):
+        return str(uuid.uuid5(uuid.NAMESPACE_OID, f"{prefixo}:{sala_id}:{identificador}"))
+
+
+def _iso_com_fuso(dt: Union[datetime, str, None]) -> Optional[str]:
+    """Serializa datetime para ISO-8601 preservando o fuso de Brasília (-03:00) quando naive."""
+    if dt is None:
+        return None
+    if isinstance(dt, str):
+        return dt
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=FUSO_BRASILIA).isoformat()
+    return dt.isoformat()
+
+
+def _para_datetime_local(valor: Union[datetime, str, None]) -> datetime:
+    """Converte timestamp do banco (TIMESTAMPTZ ou texto ISO) para datetime local naive (America/Sao_Paulo)."""
+    if valor is None:
+        return datetime.now(FUSO_BRASILIA).replace(tzinfo=None)
+    if isinstance(valor, datetime):
+        if valor.tzinfo is not None:
+            return valor.astimezone(FUSO_BRASILIA).replace(tzinfo=None)
+        return valor
+    texto = str(valor).strip()
+    if texto.endswith("Z"):
+        texto = texto[:-1] + "+00:00"
+    try:
+        dt = datetime.fromisoformat(texto)
+        if dt.tzinfo is not None:
+            return dt.astimezone(FUSO_BRASILIA).replace(tzinfo=None)
+        return dt
+    except ValueError:
+        return datetime.now(FUSO_BRASILIA).replace(tzinfo=None)
+
+
+def _decodificar_json(valor: Any, padrao: Any) -> Any:
+    """Decodifica coluna JSONB (já dict/list no psycopg) ou TEXT (string JSON no SQLite)."""
+    if valor is None:
+        return padrao
+    if isinstance(valor, (dict, list)):
+        return valor
+    if isinstance(valor, str):
+        try:
+            return json.loads(valor)
+        except Exception:
+            return padrao
+    return padrao
+
+
 class SupabaseClient:
     """
     Cliente de banco de dados do Orquestrador de Rolês.
-    Opera com PostgreSQL nativo (psycopg) quando DATABASE_URL estiver configurada,
-    ou fallback resiliente SQLite (em memória ou disco) para testes e desenvolvimento offline.
+    Opera com PostgreSQL nativo (psycopg) quando DATABASE_URL estiver configurada.
+    O fallback em SQLite só é permitido em ambiente de teste ou desenvolvimento local.
     """
 
     def __init__(
@@ -95,11 +158,25 @@ class SupabaseClient:
         use_memory_fallback: bool = False,
         db_path: Optional[Path] = None,
     ):
-        self.database_url = database_url or os.environ.get("DATABASE_URL")
+        self.database_url = database_url if database_url is not None else os.environ.get("DATABASE_URL")
         self.use_memory = use_memory_fallback
         self.db_path = db_path or LOCAL_DB_PATH
-        
-        self.is_postgres = bool(self.database_url and PSYCOPG_DISPONIVEL)
+        self._explicit_fallback = bool(use_memory_fallback or db_path is not None)
+
+        # Se solicitou explicitamente memória ou db_path isolado para teste unitário, usa SQLite
+        if self._explicit_fallback and database_url is None:
+            self.is_postgres = False
+        else:
+            self.is_postgres = bool(self.database_url and PSYCOPG_DISPONIVEL)
+
+        if not self.is_postgres and not self._explicit_fallback:
+            ambiente = os.environ.get("ENVIRONMENT", "desenvolvimento").strip().lower()
+            if ambiente in ("producao", "production"):
+                raise RuntimeError(
+                    "DATABASE_URL do PostgreSQL/Supabase é obrigatória em ambiente de produção "
+                    "(ENVIRONMENT=producao). Fallback SQLite desativado em produção."
+                )
+
         self._conn = None
         self._schema_inicializado = False
 
@@ -113,14 +190,16 @@ class SupabaseClient:
         else:
             if self.use_memory:
                 if self._conn is None:
-                    self._conn = sqlite3.connect(":memory:")
+                    self._conn = sqlite3.connect(":memory:", check_same_thread=False)
                     self._conn.row_factory = sqlite3.Row
+                    self._conn.execute("PRAGMA foreign_keys = ON;")
                 return self._conn
             else:
                 self.db_path.parent.mkdir(parents=True, exist_ok=True)
                 if self._conn is None:
-                    self._conn = sqlite3.connect(str(self.db_path))
+                    self._conn = sqlite3.connect(str(self.db_path), check_same_thread=False)
                     self._conn.row_factory = sqlite3.Row
+                    self._conn.execute("PRAGMA foreign_keys = ON;")
                 return self._conn
 
     def garantir_schema(self) -> None:
@@ -147,7 +226,7 @@ class SupabaseClient:
 
     @staticmethod
     def _adaptar_sql_para_sqlite(sql: str) -> str:
-        """Converte comandos específicos do Postgres para execução limpa no SQLite de teste."""
+        """Converte comandos específicos do Postgres para execução limpa no SQLite de teste/dev."""
         linhas = []
         ignorar_bloco_do = False
 
@@ -169,7 +248,7 @@ class SupabaseClient:
             l = re.sub(r"\bUUID\b", "TEXT", l)
             l = re.sub(r"\bTIMESTAMPTZ\b", "TEXT", l)
             l = re.sub(r"\bJSONB\b", "TEXT", l)
-            l = re.sub(r"DEFAULT \(NOW\(\) \+ INTERVAL '30 days'\)", "DEFAULT CURRENT_TIMESTAMP", l)
+            l = re.sub(r"DEFAULT \(NOW\(\) \+ INTERVAL '30 days'\)", "DEFAULT (datetime('now', '+30 days'))", l)
             l = re.sub(r"DEFAULT NOW\(\)", "DEFAULT CURRENT_TIMESTAMP", l)
             l = re.sub(r"CHECK \(maior_18_anos IS TRUE\)", "CHECK (maior_18_anos = 1)", l)
 
@@ -190,7 +269,7 @@ class SupabaseClient:
     # VERIFICAÇÃO DE CONECTIVIDADE
     # ==========================================================================
     def checar_conexao(self) -> Dict[str, Any]:
-        """Testa conectividade com o banco de dados (PostgreSQL ou SQLite fallback)."""
+        """Testa conectividade com o banco de dados (PostgreSQL ou SQLite de teste/dev)."""
         self.garantir_schema()
         conn = self._get_connection()
         try:
@@ -208,7 +287,7 @@ class SupabaseClient:
             return {"conectado": False, "erro": str(e)}
 
     # ==========================================================================
-    # GESTÃO DE SALAS (ROLE-XXXX)
+    # GESTÃO DE SALAS (ROLE-XXXX) & EXPIRAÇÃO LGPD
     # ==========================================================================
     def criar_sala(
         self,
@@ -226,26 +305,27 @@ class SupabaseClient:
         nome_org = organizador_nome or criador_nome or "Organizador"
         token_hash = token_organizador_hash or f"tok_{uuid.uuid4().hex[:16]}"
         agora = datetime.now(timezone.utc).isoformat()
+        expira_em = (datetime.now(timezone.utc) + timedelta(days=30)).isoformat()
 
         if self.is_postgres:
             with conn.cursor() as cur:
                 cur.execute(
                     """
-                    INSERT INTO salas (id, codigo_sala, nome_role, organizador_nome, token_organizador_hash, criador_id, status, criado_em, atualizado_em)
-                    VALUES (%s, %s, %s, %s, %s, %s, 'coletando', %s, %s)
+                    INSERT INTO salas (id, codigo_sala, nome_role, organizador_nome, token_organizador_hash, criador_id, status, expira_em, criado_em, atualizado_em)
+                    VALUES (%s, %s, %s, %s, %s, %s, 'coletando', %s, %s, %s)
                     RETURNING id, codigo_sala, nome_role, organizador_nome, status;
                     """,
-                    (sala_id, codigo_sala, nome_role, nome_org, token_hash, criador_id, agora, agora),
+                    (sala_id, codigo_sala, nome_role, nome_org, token_hash, criador_id, expira_em, agora, agora),
                 )
                 return cur.fetchone()
         else:
             cur = conn.cursor()
             cur.execute(
                 """
-                INSERT INTO salas (id, codigo_sala, nome_role, organizador_nome, token_organizador_hash, criador_id, status, criado_em, atualizado_em)
-                VALUES (?, ?, ?, ?, ?, ?, 'coletando', ?, ?);
+                INSERT INTO salas (id, codigo_sala, nome_role, organizador_nome, token_organizador_hash, criador_id, status, expira_em, criado_em, atualizado_em)
+                VALUES (?, ?, ?, ?, ?, ?, 'coletando', ?, ?, ?);
                 """,
-                (sala_id, codigo_sala, nome_role, nome_org, token_hash, criador_id, agora, agora),
+                (sala_id, codigo_sala, nome_role, nome_org, token_hash, criador_id, expira_em, agora, agora),
             )
             conn.commit()
             return {
@@ -257,20 +337,42 @@ class SupabaseClient:
             }
 
     def obter_sala(self, codigo_sala: str) -> Optional[Dict[str, Any]]:
-        """Busca uma sala pelo código único ROLE-XXXX."""
+        """Busca os dados brutos da linha da tabela `salas` pelo código único ROLE-XXXX."""
         self.garantir_schema()
         conn = self._get_connection()
+        codigo = (codigo_sala or "").strip().upper()
 
         if self.is_postgres:
             with conn.cursor() as cur:
-                cur.execute("SELECT * FROM salas WHERE codigo_sala = %s;", (codigo_sala,))
+                cur.execute("SELECT * FROM salas WHERE codigo_sala = %s;", (codigo,))
                 row = cur.fetchone()
                 return dict(row) if row else None
         else:
             cur = conn.cursor()
-            cur.execute("SELECT * FROM salas WHERE codigo_sala = ?;", (codigo_sala,))
+            cur.execute("SELECT * FROM salas WHERE codigo_sala = ?;", (codigo,))
             row = cur.fetchone()
             return dict(row) if row else None
+
+    def apagar_salas_expiradas(self) -> int:
+        """
+        Remove salas cujo prazo de retenção LGPD de 30 dias (`expira_em`) já venceu (ADR 0008).
+        Graças ao ON DELETE CASCADE, apaga automaticamente participantes, janelas, sugestões e votos.
+        Retorna a quantidade de salas removidas.
+        """
+        self.garantir_schema()
+        conn = self._get_connection()
+        agora_iso = datetime.now(timezone.utc).isoformat()
+
+        if self.is_postgres:
+            with conn.cursor() as cur:
+                cur.execute("DELETE FROM salas WHERE expira_em < NOW();")
+                return cur.rowcount or 0
+        else:
+            cur = conn.cursor()
+            cur.execute("DELETE FROM salas WHERE expira_em < ?;", (agora_iso,))
+            removidas = cur.rowcount or 0
+            conn.commit()
+            return removidas
 
     # ==========================================================================
     # PARTICIPANTES & SIGILO ORÇAMENTÁRIO (RNF-01 / RNF-02)
@@ -279,29 +381,57 @@ class SupabaseClient:
         self,
         codigo_sala: str,
         nome: str,
-        limite_gasto_rs: Optional[Union[Decimal, str, float, int, List[Dict[str, Any]]]] = None,
-        janelas: Optional[Union[List[Dict[str, Any]], Decimal, str, float, int]] = None,
-        *args,
-        token_hash: Optional[str] = None,
+        *,
+        limite_gasto_rs: Union[Decimal, str, int],
+        janelas: List[Dict[str, Any]],
+        token_hash: str,
+        confirmado: bool = False,
         usuario_id: Optional[str] = None,
         vibe_hoje: Optional[str] = None,
         transporte_hoje: Optional[str] = None,
-        preferencias_transporte: Optional[str] = None,
-        confirmado: bool = True,
-        **kwargs,
+        codigo_participante: Optional[str] = None,
+        perfil_json: Optional[Union[Dict[str, Any], str]] = None,
     ) -> Dict[str, Any]:
         """
-        Adiciona a resposta de um participante guardando o orçamento com Decimal.
-        Cria as janelas associadas com data e RA de origem.
-        Suporta flexivelmente as assinaturas de chamada anteriores.
+        Adiciona um participante validando estritamente os campos obrigatórios (sem inventar dados).
+        Argumentos após `nome` são obrigatoriamente nomeados (keyword-only).
         """
-        # Suporte a inversão de parâmetros posicionais (janelas vs limite_gasto_rs)
-        if isinstance(limite_gasto_rs, list) and isinstance(janelas, (Decimal, int, float, str)):
-            janelas, limite_gasto_rs = limite_gasto_rs, janelas
+        if not nome or not str(nome).strip():
+            raise ValueError("O nome do participante é obrigatório.")
+        if limite_gasto_rs is None or isinstance(limite_gasto_rs, (bool, list, dict)):
+            raise ValueError("O teto de gastos (limite_gasto_rs) é obrigatório.")
+        try:
+            teto_val = quantizar_decimal(limite_gasto_rs)
+        except Exception as e:
+            raise ValueError(f"Valor inválido para limite_gasto_rs: {limite_gasto_rs}") from e
+        if teto_val < Decimal("0.00"):
+            raise ValueError("O limite_gasto_rs não pode ser negativo.")
 
-        teto_val = quantizar_decimal(limite_gasto_rs if isinstance(limite_gasto_rs, (Decimal, int, float, str)) else 50.00)
-        janelas_lista = janelas if isinstance(janelas, list) else []
-        transporte = transporte_hoje or preferencias_transporte or "misto"
+        if not token_hash or not str(token_hash).strip():
+            raise ValueError("O hash de autenticação (token_hash) é obrigatório.")
+
+        if not isinstance(janelas, list) or len(janelas) == 0:
+            raise ValueError("É obrigatório informar pelo menos uma janela de horário em `janelas`.")
+
+        janelas_validadas = []
+        for idx, j in enumerate(janelas):
+            if not isinstance(j, dict):
+                raise ValueError(f"Janela na posição {idx} deve ser um dicionário.")
+            inicio = j.get("inicio")
+            fim = j.get("fim")
+            ra = j.get("ra_origem") or j.get("regiao_ra")
+            if not inicio or not fim or not ra:
+                raise ValueError(
+                    f"Janela na posição {idx} incompleta: 'inicio', 'fim' e 'ra_origem' são obrigatórios."
+                )
+            janelas_validadas.append(
+                {
+                    "inicio": _iso_com_fuso(inicio),
+                    "fim": _iso_com_fuso(fim),
+                    "disponivel": bool(j.get("disponivel", True)),
+                    "ra_origem": str(ra).strip(),
+                }
+            )
 
         sala = self.obter_sala(codigo_sala)
         if not sala:
@@ -309,42 +439,67 @@ class SupabaseClient:
 
         sala_id = sala["id"]
         participante_id = str(uuid.uuid4())
-        tok = token_hash or f"tok_{uuid.uuid4().hex[:16]}"
+        cod_part = codigo_participante or participante_id
+        perfil_str = json.dumps(perfil_json, ensure_ascii=False) if isinstance(perfil_json, dict) else perfil_json
         conn = self._get_connection()
 
         if self.is_postgres:
             with conn.cursor() as cur:
                 cur.execute(
                     """
-                    INSERT INTO sala_participantes (id, sala_id, usuario_id, nome, token_hash, confirmado, limite_gasto_rs, vibe_hoje, transporte_hoje)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s);
+                    INSERT INTO sala_participantes (
+                        id, codigo_participante, sala_id, usuario_id, nome, token_hash,
+                        confirmado, limite_gasto_rs, vibe_hoje, transporte_hoje, perfil_json
+                    )
+                    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
                     """,
-                    (participante_id, sala_id, usuario_id, nome, tok, confirmado, teto_val, vibe_hoje, transporte),
+                    (
+                        participante_id,
+                        cod_part,
+                        sala_id,
+                        usuario_id,
+                        nome.strip(),
+                        token_hash.strip(),
+                        bool(confirmado),
+                        teto_val,
+                        vibe_hoje,
+                        transporte_hoje,
+                        perfil_str,
+                    ),
                 )
-                for j in janelas_lista:
-                    inicio = j.get("inicio", datetime.now(timezone.utc).isoformat())
-                    fim = j.get("fim", datetime.now(timezone.utc).isoformat())
-                    ra = j.get("regiao_ra") or j.get("ra_origem", "Plano Piloto")
+                for j in janelas_validadas:
                     cur.execute(
                         """
                         INSERT INTO participante_janelas (id, participante_id, inicio, fim, disponivel, ra_origem)
                         VALUES (%s, %s, %s, %s, %s, %s);
                         """,
-                        (str(uuid.uuid4()), participante_id, inicio, fim, j.get("disponivel", True), ra),
+                        (str(uuid.uuid4()), participante_id, j["inicio"], j["fim"], j["disponivel"], j["ra_origem"]),
                     )
         else:
             cur = conn.cursor()
             cur.execute(
                 """
-                INSERT INTO sala_participantes (id, sala_id, usuario_id, nome, token_hash, confirmado, limite_gasto_rs, vibe_hoje, transporte_hoje)
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+                INSERT INTO sala_participantes (
+                    id, codigo_participante, sala_id, usuario_id, nome, token_hash,
+                    confirmado, limite_gasto_rs, vibe_hoje, transporte_hoje, perfil_json
+                )
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
                 """,
-                (participante_id, sala_id, usuario_id, nome, tok, int(confirmado), str(teto_val), vibe_hoje, transporte),
+                (
+                    participante_id,
+                    cod_part,
+                    sala_id,
+                    usuario_id,
+                    nome.strip(),
+                    token_hash.strip(),
+                    1 if confirmado else 0,
+                    str(teto_val),
+                    vibe_hoje,
+                    transporte_hoje,
+                    perfil_str,
+                ),
             )
-            for j in janelas_lista:
-                inicio = str(j.get("inicio", datetime.now(timezone.utc).isoformat()))
-                fim = str(j.get("fim", datetime.now(timezone.utc).isoformat()))
-                ra = j.get("regiao_ra") or j.get("ra_origem", "Plano Piloto")
+            for j in janelas_validadas:
                 cur.execute(
                     """
                     INSERT INTO participante_janelas (id, participante_id, inicio, fim, disponivel, ra_origem)
@@ -353,19 +508,20 @@ class SupabaseClient:
                     (
                         str(uuid.uuid4()),
                         participante_id,
-                        inicio,
-                        fim,
-                        1 if j.get("disponivel", True) else 0,
-                        ra,
+                        j["inicio"],
+                        j["fim"],
+                        1 if j["disponivel"] else 0,
+                        j["ra_origem"],
                     ),
                 )
             conn.commit()
 
         return {
             "id": participante_id,
+            "codigo_participante": cod_part,
             "sala_id": sala_id,
-            "nome": nome,
-            "confirmado": confirmado,
+            "nome": nome.strip(),
+            "confirmado": bool(confirmado),
         }
 
     def listar_participantes_sala(self, codigo_sala: str, incluir_sigilo: bool = False) -> List[Dict[str, Any]]:
@@ -382,7 +538,7 @@ class SupabaseClient:
             with conn.cursor() as cur:
                 cur.execute(
                     """
-                    SELECT id, sala_id, nome, confirmado, vibe_hoje, transporte_hoje, respondeu_em, limite_gasto_rs
+                    SELECT id, codigo_participante, sala_id, nome, confirmado, vibe_hoje, transporte_hoje, respondeu_em, limite_gasto_rs
                     FROM sala_participantes
                     WHERE sala_id = %s
                     ORDER BY respondeu_em ASC;
@@ -403,7 +559,7 @@ class SupabaseClient:
             cur = conn.cursor()
             cur.execute(
                 """
-                SELECT id, sala_id, nome, confirmado, vibe_hoje, transporte_hoje, respondeu_em, limite_gasto_rs
+                SELECT id, codigo_participante, sala_id, nome, confirmado, vibe_hoje, transporte_hoje, respondeu_em, limite_gasto_rs
                 FROM sala_participantes
                 WHERE sala_id = ?
                 ORDER BY respondeu_em ASC;
@@ -431,46 +587,16 @@ class SupabaseClient:
         Devolve se o custo cabe no orçamento de TODOS os participantes,
         SEM revelar o orçamento individual nem o valor do menor orçamento.
         """
-        sala = self.obter_sala(codigo_sala)
-        if not sala:
-            return False
-
+        min_teto = self._obter_menor_orcamento_sala(codigo_sala)
+        if min_teto is None:
+            return False if self.obter_sala(codigo_sala) is None else True
         custo = quantizar_decimal(custo_por_pessoa)
-        conn = self._get_connection()
+        return custo <= min_teto
 
-        if self.is_postgres:
-            with conn.cursor() as cur:
-                cur.execute(
-                    """
-                    SELECT MIN(limite_gasto_rs) as min_teto
-                    FROM sala_participantes
-                    WHERE sala_id = %s;
-                    """,
-                    (sala["id"],),
-                )
-                row = cur.fetchone()
-                if not row or row["min_teto"] is None:
-                    return True
-                return custo <= Decimal(str(row["min_teto"]))
-        else:
-            cur = conn.cursor()
-            cur.execute(
-                """
-                SELECT MIN(CAST(limite_gasto_rs AS REAL)) as min_teto
-                FROM sala_participantes
-                WHERE sala_id = ?;
-                """,
-                (sala["id"],),
-            )
-            row = cur.fetchone()
-            if not row or row["min_teto"] is None:
-                return True
-            return custo <= Decimal(str(row["min_teto"])).quantize(Decimal("0.01"))
-
-    def obter_menor_orcamento_sala(self, codigo_sala: str) -> Optional[Decimal]:
+    def _obter_menor_orcamento_sala(self, codigo_sala: str) -> Optional[Decimal]:
         """
-        Retorna internamente o menor limite de gastos da sala para calibragem do RAG (RNF-01/02).
-        Retorna em Decimal exato.
+        Método estritamente interno (privado) para cálculo de `cabe_no_orcamento` (RNF-01/02).
+        Nunca deve ser exposto em rotas ou painéis públicos.
         """
         sala = self.obter_sala(codigo_sala)
         if not sala:
@@ -480,15 +606,15 @@ class SupabaseClient:
         if self.is_postgres:
             with conn.cursor() as cur:
                 cur.execute(
-                    "SELECT MIN(limite_gasto_rs) as min_teto FROM sala_participantes WHERE sala_id = %s;",
+                    "SELECT MIN(limite_gasto_rs) as min_teto FROM sala_participantes WHERE sala_id = %s AND limite_gasto_rs IS NOT NULL;",
                     (sala["id"],),
                 )
                 row = cur.fetchone()
-                return Decimal(str(row["min_teto"])) if row and row["min_teto"] is not None else None
+                return Decimal(str(row["min_teto"])).quantize(Decimal("0.01")) if row and row["min_teto"] is not None else None
         else:
             cur = conn.cursor()
             cur.execute(
-                "SELECT MIN(CAST(limite_gasto_rs AS REAL)) as min_teto FROM sala_participantes WHERE sala_id = ?;",
+                "SELECT MIN(CAST(limite_gasto_rs AS REAL)) as min_teto FROM sala_participantes WHERE sala_id = ? AND limite_gasto_rs IS NOT NULL;",
                 (sala["id"],),
             )
             row = cur.fetchone()
@@ -516,6 +642,15 @@ class SupabaseClient:
         tipo: str = "bar",
         tiktok_url: Optional[str] = None,
         nota_justica: float = 0.0,
+        regiao_texto: Optional[str] = None,
+        horario_situacao: str = "aberto",
+        contagem: str = "todos podem",
+        tempo_medio_min: Optional[int] = None,
+        tempo_max_min: Optional[int] = None,
+        pontuacao: float = 0.0,
+        fonte: str = "2fa",
+        vibes: Optional[List[str]] = None,
+        por_participante: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
         """Salva um cartão de sugestão gerado pela IA com centavos exatos (Decimal)."""
         sala = self.obter_sala(codigo_sala)
@@ -525,30 +660,36 @@ class SupabaseClient:
         sugestao_id = str(uuid.uuid4())
         conn = self._get_connection()
 
-        ini = inicio.isoformat() if isinstance(inicio, datetime) else str(inicio)
-        f = fim.isoformat() if isinstance(fim, datetime) else str(fim)
+        ini = _iso_com_fuso(inicio)
+        f = _iso_com_fuso(fim)
         c_rs = quantizar_decimal(consumo_rs)
         g_min = quantizar_decimal(gasto_min)
         g_max = quantizar_decimal(gasto_max)
+        reg_txt = regiao_texto or regiao_ra
+        vibes_str = json.dumps(vibes or [], ensure_ascii=False)
+        por_part_str = json.dumps(por_participante or {}, ensure_ascii=False)
 
         if self.is_postgres:
             with conn.cursor() as cur:
                 cur.execute(
                     """
                     INSERT INTO sugestoes_role (
-                        id, sala_id, posicao, letra_card, local_id, nome_local, tipo, regiao_ra, endereco,
-                        inicio, fim, horario_texto, consumo_rs, gasto_min, gasto_max,
-                        nota_justica, explicacao, tiktok_url
+                        id, sala_id, posicao, letra_card, local_id, nome_local, tipo, regiao_ra, regiao_texto, endereco,
+                        inicio, fim, horario_texto, horario_situacao, contagem, consumo_rs, gasto_min, gasto_max,
+                        tempo_medio_min, tempo_max_min, nota_justica, pontuacao, explicacao, tiktok_url, fonte,
+                        vibes_json, por_participante_json
                     ) VALUES (
-                        %s, %s, %s, %s, %s, %s, %s, %s, %s,
-                        %s, %s, %s, %s, %s, %s,
-                        %s, %s, %s
+                        %s, %s, %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s, %s, %s, %s, %s, %s,
+                        %s, %s
                     );
                     """,
                     (
-                        sugestao_id, sala["id"], posicao, letra_card, local_id, nome_local, tipo, regiao_ra, endereco,
-                        ini, f, horario_texto, c_rs, g_min, g_max,
-                        nota_justica, explicacao, tiktok_url
+                        sugestao_id, sala["id"], posicao, letra_card, local_id, nome_local, tipo, regiao_ra, reg_txt, endereco,
+                        ini, f, horario_texto, horario_situacao, contagem, c_rs, g_min, g_max,
+                        tempo_medio_min, tempo_max_min, nota_justica, pontuacao, explicacao, tiktok_url, fonte,
+                        vibes_str, por_part_str,
                     ),
                 )
         else:
@@ -556,15 +697,17 @@ class SupabaseClient:
             cur.execute(
                 """
                 INSERT INTO sugestoes_role (
-                    id, sala_id, posicao, letra_card, local_id, nome_local, tipo, regiao_ra, endereco,
-                    inicio, fim, horario_texto, consumo_rs, gasto_min, gasto_max,
-                    nota_justica, explicacao, tiktok_url
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
+                    id, sala_id, posicao, letra_card, local_id, nome_local, tipo, regiao_ra, regiao_texto, endereco,
+                    inicio, fim, horario_texto, horario_situacao, contagem, consumo_rs, gasto_min, gasto_max,
+                    tempo_medio_min, tempo_max_min, nota_justica, pontuacao, explicacao, tiktok_url, fonte,
+                    vibes_json, por_participante_json
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
                 """,
                 (
-                    sugestao_id, sala["id"], posicao, letra_card, local_id, nome_local, tipo, regiao_ra, endereco,
-                    ini, f, horario_texto, str(c_rs), str(g_min), str(g_max),
-                    nota_justica, explicacao, tiktok_url
+                    sugestao_id, sala["id"], posicao, letra_card, local_id, nome_local, tipo, regiao_ra, reg_txt, endereco,
+                    ini, f, horario_texto, horario_situacao, contagem, str(c_rs), str(g_min), str(g_max),
+                    tempo_medio_min, tempo_max_min, nota_justica, pontuacao, explicacao, tiktok_url, fonte,
+                    vibes_str, por_part_str,
                 ),
             )
             conn.commit()
@@ -703,7 +846,11 @@ class SupabaseClient:
         tipo_chave_pix: str = "aleatoria",
         itens: Optional[List[Dict[str, Any]]] = None,
     ) -> Dict[str, Any]:
-        """Registra a despesa do rolê e os rateios individuais de cada devedor."""
+        """
+        Registra a despesa do rolê e os rateios individuais de cada devedor.
+        Nota (Issue #45): A criptografia da chave_pix em repouso (pgcrypto/Vault)
+        está planejada para a PR da Tela 4 / Finanças.
+        """
         sala = self.obter_sala(codigo_sala)
         if not sala:
             raise ValueError(f"Sala '{codigo_sala}' não encontrada.")
@@ -903,48 +1050,652 @@ class SupabaseClient:
 # IMPLEMENTAÇÃO DA INTERFACE REPOSITÓRIO (COMPATÍVEL COM src/state.py - PR #48)
 # ==============================================================================
 
-class RepositorioSupabase:
+class RepositorioSupabase(Repositorio):
     """
     Adaptador de persistência de salas para o Supabase / PostgreSQL,
-    implementando a interface Repositorio de src/state.py:
+    implementando integralmente a interface Repositorio de src/state.py:
     - existe(codigo: str) -> bool
     - obter(codigo: str) -> Sala | None
     - salvar(sala: Sala) -> None
+
+    Persiste e reconstrói de forma transacional o agregado completo `Sala`:
+    participantes (com PerfilInterpretado e token_hash), janelas_comuns,
+    cartões de sugestão (`sugestoes_role`), votos (`votos`), status e resultado.
     """
 
     def __init__(self, cliente: Optional[SupabaseClient] = None):
         self.cliente = cliente or SupabaseClient()
 
     def existe(self, codigo: str) -> bool:
-        return self.cliente.obter_sala(codigo) is not None
+        if not codigo:
+            return False
+        return self.cliente.obter_sala(codigo.strip().upper()) is not None
 
-    def obter(self, codigo: str) -> Optional[Any]:
-        dados_sala = self.cliente.obter_sala(codigo)
+    def salvar(self, sala: Sala) -> None:
+        """Grava o estado completo da Sala nas tabelas normalizadas de forma transacional."""
+        if not isinstance(sala, Sala):
+            raise TypeError(f"RepositorioSupabase.salvar espera um objeto Sala, recebeu {type(sala).__name__}.")
+
+        self.cliente.garantir_schema()
+        conn = self.cliente._get_connection()
+        codigo = sala.codigo.strip().upper()
+
+        existente = self.cliente.obter_sala(codigo)
+        sala_id = str(existente["id"]) if existente else _uuid_deterministico("sala", codigo, codigo)
+
+        criado_iso = _iso_com_fuso(sala.criado_em)
+        agora_iso = _iso_com_fuso(datetime.now(FUSO_BRASILIA))
+        expira_iso = _iso_com_fuso(sala.criado_em + timedelta(days=30))
+
+        janela_ini_iso = _iso_com_fuso(sala.janelas_comuns[0].inicio) if sala.janelas_comuns else None
+        janela_fim_iso = _iso_com_fuso(sala.janelas_comuns[0].fim) if sala.janelas_comuns else None
+
+        janelas_comuns_str = json.dumps(
+            [
+                {
+                    "inicio": jc.inicio.isoformat(),
+                    "fim": jc.fim.isoformat(),
+                    "presentes": sorted(jc.presentes),
+                    "total": jc.total,
+                }
+                for jc in sala.janelas_comuns
+            ],
+            ensure_ascii=False,
+        )
+
+        resultado_str = (
+            json.dumps(
+                {
+                    "sugestao_id": sala.resultado.sugestao_id,
+                    "votos": sala.resultado.votos,
+                    "desempate_por_justica": sala.resultado.desempate_por_justica,
+                    "mensagem": sala.resultado.mensagem,
+                    "resumo_whatsapp": sala.resultado.resumo_whatsapp,
+                    "fechado_em": sala.resultado.fechado_em.isoformat(),
+                },
+                ensure_ascii=False,
+            )
+            if sala.resultado is not None
+            else None
+        )
+        avisos_str = json.dumps(list(sala.avisos), ensure_ascii=False)
+
+        # Mapeamento determinístico de IDs de domínio (pid e s.id) para UUIDs relacionais
+        mapa_part_uuid: Dict[str, str] = {
+            pid: _uuid_deterministico("part", sala_id, pid) for pid in sala.participantes
+        }
+        mapa_sug_uuid: Dict[str, str] = {
+            s.id: _uuid_deterministico("sug", sala_id, s.id) for s in sala.sugestoes
+        }
+        vencedora_uuid = (
+            mapa_sug_uuid.get(sala.resultado.sugestao_id) if sala.resultado is not None else None
+        )
+
+        if self.cliente.is_postgres:
+            with conn.transaction():
+                with conn.cursor() as cur:
+                    # 1. Upsert da sala (zera sugestao_vencedora_id temporariamente para atualizar sugestões sem conflito FK)
+                    cur.execute(
+                        """
+                        INSERT INTO salas (
+                            id, codigo_sala, nome_role, organizador_nome, token_organizador_hash,
+                            status, janela_escolhida_inicio, janela_escolhida_fim, sugestao_vencedora_id,
+                            janelas_comuns_json, resultado_json, avisos_json, expira_em, criado_em, atualizado_em
+                        )
+                        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, NULL, %s, %s, %s, %s, %s, %s)
+                        ON CONFLICT (codigo_sala) DO UPDATE SET
+                            nome_role = EXCLUDED.nome_role,
+                            organizador_nome = EXCLUDED.organizador_nome,
+                            token_organizador_hash = EXCLUDED.token_organizador_hash,
+                            status = EXCLUDED.status,
+                            janela_escolhida_inicio = EXCLUDED.janela_escolhida_inicio,
+                            janela_escolhida_fim = EXCLUDED.janela_escolhida_fim,
+                            sugestao_vencedora_id = NULL,
+                            janelas_comuns_json = EXCLUDED.janelas_comuns_json,
+                            resultado_json = EXCLUDED.resultado_json,
+                            avisos_json = EXCLUDED.avisos_json,
+                            atualizado_em = EXCLUDED.atualizado_em;
+                        """,
+                        (
+                            sala_id, codigo, sala.nome_role, sala.organizador_nome, sala.token_organizador_hash,
+                            sala.status, janela_ini_iso, janela_fim_iso,
+                            janelas_comuns_str, resultado_str, avisos_str, expira_iso, criado_iso, agora_iso,
+                        ),
+                    )
+
+                    # 2. Limpa votos anteriores da sala (serão reinseridos com o estado atual)
+                    cur.execute("DELETE FROM votos WHERE sala_id = %s;", (sala_id,))
+
+                    # 3. Sincroniza participantes e janelas individuais
+                    uuids_atuais_part = list(mapa_part_uuid.values())
+                    if uuids_atuais_part:
+                        cur.execute(
+                            "DELETE FROM sala_participantes WHERE sala_id = %s AND NOT (id = ANY(%s::uuid[]));",
+                            (sala_id, uuids_atuais_part),
+                        )
+                    else:
+                        cur.execute("DELETE FROM sala_participantes WHERE sala_id = %s;", (sala_id,))
+
+                    for pid, p in sala.participantes.items():
+                        p_uuid = mapa_part_uuid[pid]
+                        pf = p.perfil
+                        teto_val = quantizar_decimal(pf.teto) if (pf and pf.teto is not None) else None
+                        vibe_str = ", ".join(pf.preferencias.tipos + pf.preferencias.vibes)[:200] if pf else None
+                        transp_str = "/".join(pf.preferencias.transporte)[:40] if pf else None
+                        perfil_str = self._serializar_perfil(pf) if pf else None
+                        resp_iso = _iso_com_fuso(p.criado_em or sala.criado_em)
+
+                        cur.execute(
+                            """
+                            INSERT INTO sala_participantes (
+                                id, codigo_participante, sala_id, nome, token_hash,
+                                confirmado, limite_gasto_rs, vibe_hoje, transporte_hoje, perfil_json, respondeu_em
+                            )
+                            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                            ON CONFLICT (id) DO UPDATE SET
+                                codigo_participante = EXCLUDED.codigo_participante,
+                                nome = EXCLUDED.nome,
+                                token_hash = EXCLUDED.token_hash,
+                                confirmado = EXCLUDED.confirmado,
+                                limite_gasto_rs = EXCLUDED.limite_gasto_rs,
+                                vibe_hoje = EXCLUDED.vibe_hoje,
+                                transporte_hoje = EXCLUDED.transporte_hoje,
+                                perfil_json = EXCLUDED.perfil_json,
+                                respondeu_em = EXCLUDED.respondeu_em;
+                            """,
+                            (
+                                p_uuid, pid, sala_id, p.nome, p.token_hash,
+                                bool(p.confirmado), teto_val, vibe_str, transp_str, perfil_str, resp_iso,
+                            ),
+                        )
+
+                        cur.execute("DELETE FROM participante_janelas WHERE participante_id = %s;", (p_uuid,))
+                        if pf and pf.janelas:
+                            ra_orig = pf.ra or "Não informada"
+                            for j in pf.janelas:
+                                cur.execute(
+                                    """
+                                    INSERT INTO participante_janelas (id, participante_id, inicio, fim, disponivel, ra_origem)
+                                    VALUES (%s, %s, %s, %s, %s, %s);
+                                    """,
+                                    (
+                                        str(uuid.uuid4()),
+                                        p_uuid,
+                                        _iso_com_fuso(j.inicio),
+                                        _iso_com_fuso(j.fim),
+                                        bool(j.disponivel),
+                                        ra_orig,
+                                    ),
+                                )
+
+                    # 4. Sincroniza sugestões de rolê
+                    cur.execute("DELETE FROM sugestoes_role WHERE sala_id = %s;", (sala_id,))
+                    for s in sala.sugestoes:
+                        s_uuid = mapa_sug_uuid[s.id]
+                        cur.execute(
+                            """
+                            INSERT INTO sugestoes_role (
+                                id, sala_id, posicao, letra_card, local_id, nome_local, tipo,
+                                regiao_ra, regiao_texto, endereco, inicio, fim, horario_texto,
+                                horario_situacao, contagem, consumo_rs, gasto_min, gasto_max,
+                                tempo_medio_min, tempo_max_min, nota_justica, pontuacao,
+                                explicacao, tiktok_url, fonte, vibes_json, por_participante_json
+                            ) VALUES (
+                                %s, %s, %s, %s, %s, %s, %s,
+                                %s, %s, %s, %s, %s, %s,
+                                %s, %s, %s, %s, %s,
+                                %s, %s, %s, %s,
+                                %s, %s, %s, %s, %s
+                            );
+                            """,
+                            (
+                                s_uuid, sala_id, s.posicao, s.id, s.lugar_id, s.nome, s.tipo,
+                                s.ra or s.regiao_texto, s.regiao_texto, s.endereco,
+                                _iso_com_fuso(s.inicio), _iso_com_fuso(s.fim), s.horario_texto,
+                                s.horario_situacao, s.contagem,
+                                quantizar_decimal(s.consumo_rs), quantizar_decimal(s.gasto_min), quantizar_decimal(s.gasto_max),
+                                s.tempo_medio_min, s.tempo_max_min, float(s.nota_justica), float(s.pontuacao),
+                                s.explicacao, s.tiktok_url, s.fonte,
+                                json.dumps(s.vibes, ensure_ascii=False),
+                                json.dumps(s.por_participante, ensure_ascii=False),
+                            ),
+                        )
+
+                    # 5. Insere votos atuais
+                    for pid, opcoes in sala.votos.items():
+                        p_uuid = mapa_part_uuid.get(pid)
+                        if not p_uuid:
+                            continue
+                        for letra in opcoes:
+                            s_uuid = mapa_sug_uuid.get(letra)
+                            if not s_uuid:
+                                continue
+                            cur.execute(
+                                """
+                                INSERT INTO votos (id, sala_id, participante_id, sugestao_id)
+                                VALUES (%s, %s, %s, %s)
+                                ON CONFLICT (participante_id, sugestao_id) DO NOTHING;
+                                """,
+                                (str(uuid.uuid4()), sala_id, p_uuid, s_uuid),
+                            )
+
+                    # 6. Atualiza sugestao_vencedora_id se houver resultado
+                    if vencedora_uuid:
+                        cur.execute(
+                            "UPDATE salas SET sugestao_vencedora_id = %s WHERE id = %s;",
+                            (vencedora_uuid, sala_id),
+                        )
+        else:
+            cur = conn.cursor()
+            try:
+                cur.execute(
+                    """
+                    INSERT INTO salas (
+                        id, codigo_sala, nome_role, organizador_nome, token_organizador_hash,
+                        status, janela_escolhida_inicio, janela_escolhida_fim, sugestao_vencedora_id,
+                        janelas_comuns_json, resultado_json, avisos_json, expira_em, criado_em, atualizado_em
+                    )
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, NULL, ?, ?, ?, ?, ?, ?)
+                    ON CONFLICT (codigo_sala) DO UPDATE SET
+                        nome_role = excluded.nome_role,
+                        organizador_nome = excluded.organizador_nome,
+                        token_organizador_hash = excluded.token_organizador_hash,
+                        status = excluded.status,
+                        janela_escolhida_inicio = excluded.janela_escolhida_inicio,
+                        janela_escolhida_fim = excluded.janela_escolhida_fim,
+                        sugestao_vencedora_id = NULL,
+                        janelas_comuns_json = excluded.janelas_comuns_json,
+                        resultado_json = excluded.resultado_json,
+                        avisos_json = excluded.avisos_json,
+                        atualizado_em = excluded.atualizado_em;
+                    """,
+                    (
+                        sala_id, codigo, sala.nome_role, sala.organizador_nome, sala.token_organizador_hash,
+                        sala.status, janela_ini_iso, janela_fim_iso,
+                        janelas_comuns_str, resultado_str, avisos_str, expira_iso, criado_iso, agora_iso,
+                    ),
+                )
+
+                cur.execute("DELETE FROM votos WHERE sala_id = ?;", (sala_id,))
+
+                uuids_atuais_part = list(mapa_part_uuid.values())
+                if uuids_atuais_part:
+                    placeholders = ",".join("?" for _ in uuids_atuais_part)
+                    cur.execute(
+                        f"DELETE FROM sala_participantes WHERE sala_id = ? AND id NOT IN ({placeholders});",
+                        [sala_id, *uuids_atuais_part],
+                    )
+                else:
+                    cur.execute("DELETE FROM sala_participantes WHERE sala_id = ?;", (sala_id,))
+
+                for pid, p in sala.participantes.items():
+                    p_uuid = mapa_part_uuid[pid]
+                    pf = p.perfil
+                    teto_val = str(quantizar_decimal(pf.teto)) if (pf and pf.teto is not None) else None
+                    vibe_str = ", ".join(pf.preferencias.tipos + pf.preferencias.vibes)[:200] if pf else None
+                    transp_str = "/".join(pf.preferencias.transporte)[:40] if pf else None
+                    perfil_str = self._serializar_perfil(pf) if pf else None
+                    resp_iso = _iso_com_fuso(p.criado_em or sala.criado_em)
+
+                    cur.execute(
+                        """
+                        INSERT INTO sala_participantes (
+                            id, codigo_participante, sala_id, nome, token_hash,
+                            confirmado, limite_gasto_rs, vibe_hoje, transporte_hoje, perfil_json, respondeu_em
+                        )
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                        ON CONFLICT (id) DO UPDATE SET
+                            codigo_participante = excluded.codigo_participante,
+                            nome = excluded.nome,
+                            token_hash = excluded.token_hash,
+                            confirmado = excluded.confirmado,
+                            limite_gasto_rs = excluded.limite_gasto_rs,
+                            vibe_hoje = excluded.vibe_hoje,
+                            transporte_hoje = excluded.transporte_hoje,
+                            perfil_json = excluded.perfil_json,
+                            respondeu_em = excluded.respondeu_em;
+                        """,
+                        (
+                            p_uuid, pid, sala_id, p.nome, p.token_hash,
+                            1 if p.confirmado else 0, teto_val, vibe_str, transp_str, perfil_str, resp_iso,
+                        ),
+                    )
+
+                    cur.execute("DELETE FROM participante_janelas WHERE participante_id = ?;", (p_uuid,))
+                    if pf and pf.janelas:
+                        ra_orig = pf.ra or "Não informada"
+                        for j in pf.janelas:
+                            cur.execute(
+                                """
+                                INSERT INTO participante_janelas (id, participante_id, inicio, fim, disponivel, ra_origem)
+                                VALUES (?, ?, ?, ?, ?, ?);
+                                """,
+                                (
+                                    str(uuid.uuid4()),
+                                    p_uuid,
+                                    _iso_com_fuso(j.inicio),
+                                    _iso_com_fuso(j.fim),
+                                    1 if j.disponivel else 0,
+                                    ra_orig,
+                                ),
+                            )
+
+                cur.execute("DELETE FROM sugestoes_role WHERE sala_id = ?;", (sala_id,))
+                for s in sala.sugestoes:
+                    s_uuid = mapa_sug_uuid[s.id]
+                    cur.execute(
+                        """
+                        INSERT INTO sugestoes_role (
+                            id, sala_id, posicao, letra_card, local_id, nome_local, tipo,
+                            regiao_ra, regiao_texto, endereco, inicio, fim, horario_texto,
+                            horario_situacao, contagem, consumo_rs, gasto_min, gasto_max,
+                            tempo_medio_min, tempo_max_min, nota_justica, pontuacao,
+                            explicacao, tiktok_url, fonte, vibes_json, por_participante_json
+                        ) VALUES (
+                            ?, ?, ?, ?, ?, ?, ?,
+                            ?, ?, ?, ?, ?, ?,
+                            ?, ?, ?, ?, ?,
+                            ?, ?, ?, ?,
+                            ?, ?, ?, ?, ?
+                        );
+                        """,
+                        (
+                            s_uuid, sala_id, s.posicao, s.id, s.lugar_id, s.nome, s.tipo,
+                            s.ra or s.regiao_texto, s.regiao_texto, s.endereco,
+                            _iso_com_fuso(s.inicio), _iso_com_fuso(s.fim), s.horario_texto,
+                            s.horario_situacao, s.contagem,
+                            str(quantizar_decimal(s.consumo_rs)),
+                            str(quantizar_decimal(s.gasto_min)),
+                            str(quantizar_decimal(s.gasto_max)),
+                            s.tempo_medio_min, s.tempo_max_min, float(s.nota_justica), float(s.pontuacao),
+                            s.explicacao, s.tiktok_url, s.fonte,
+                            json.dumps(s.vibes, ensure_ascii=False),
+                            json.dumps(s.por_participante, ensure_ascii=False),
+                        ),
+                    )
+
+                for pid, opcoes in sala.votos.items():
+                    p_uuid = mapa_part_uuid.get(pid)
+                    if not p_uuid:
+                        continue
+                    for letra in opcoes:
+                        s_uuid = mapa_sug_uuid.get(letra)
+                        if not s_uuid:
+                            continue
+                        cur.execute(
+                            """
+                            INSERT OR IGNORE INTO votos (id, sala_id, participante_id, sugestao_id)
+                            VALUES (?, ?, ?, ?);
+                            """,
+                            (str(uuid.uuid4()), sala_id, p_uuid, s_uuid),
+                        )
+
+                if vencedora_uuid:
+                    cur.execute(
+                        "UPDATE salas SET sugestao_vencedora_id = ? WHERE id = ?;",
+                        (vencedora_uuid, sala_id),
+                    )
+                conn.commit()
+            except Exception:
+                conn.rollback()
+                raise
+
+    def obter(self, codigo: str) -> Sala | None:
+        """Reconstrói e devolve o objeto Sala completo a partir das tabelas normalizadas."""
+        if not codigo:
+            return None
+        dados_sala = self.cliente.obter_sala(codigo.strip().upper())
         if not dados_sala:
             return None
-        return dados_sala
 
-    def salvar(self, sala: Any) -> None:
-        codigo = getattr(sala, "codigo", getattr(sala, "codigo_sala", None))
-        nome = getattr(sala, "nome_role", "Rolê")
-        organizador = getattr(sala, "organizador_nome", getattr(sala, "criador_nome", "Organizador"))
-        token_hash = getattr(sala, "token_organizador_hash", None)
+        sala_id = dados_sala["id"]
+        conn = self.cliente._get_connection()
 
-        if not self.existe(codigo):
-            self.cliente.criar_sala(
-                codigo_sala=codigo,
-                nome_role=nome,
-                organizador_nome=organizador,
-                token_organizador_hash=token_hash,
+        if self.cliente.is_postgres:
+            with conn.cursor() as cur:
+                cur.execute(
+                    "SELECT * FROM sala_participantes WHERE sala_id = %s ORDER BY respondeu_em ASC;",
+                    (sala_id,),
+                )
+                rows_part = [dict(r) for r in cur.fetchall()]
+                janelas_por_part: Dict[str, List[Dict[str, Any]]] = {}
+                for rp in rows_part:
+                    cur.execute(
+                        "SELECT * FROM participante_janelas WHERE participante_id = %s ORDER BY inicio ASC;",
+                        (rp["id"],),
+                    )
+                    janelas_por_part[str(rp["id"])] = [dict(j) for j in cur.fetchall()]
+
+                cur.execute(
+                    "SELECT * FROM sugestoes_role WHERE sala_id = %s ORDER BY posicao ASC;",
+                    (sala_id,),
+                )
+                rows_sug = [dict(r) for r in cur.fetchall()]
+
+                cur.execute(
+                    "SELECT participante_id, sugestao_id FROM votos WHERE sala_id = %s ORDER BY votado_em ASC;",
+                    (sala_id,),
+                )
+                rows_votos = [dict(r) for r in cur.fetchall()]
+        else:
+            cur = conn.cursor()
+            cur.execute(
+                "SELECT * FROM sala_participantes WHERE sala_id = ? ORDER BY respondeu_em ASC;",
+                (sala_id,),
             )
+            rows_part = [dict(r) for r in cur.fetchall()]
+            janelas_por_part = {}
+            for rp in rows_part:
+                cur.execute(
+                    "SELECT * FROM participante_janelas WHERE participante_id = ? ORDER BY inicio ASC;",
+                    (rp["id"],),
+                )
+                janelas_por_part[str(rp["id"])] = [dict(j) for j in cur.fetchall()]
+
+            cur.execute(
+                "SELECT * FROM sugestoes_role WHERE sala_id = ? ORDER BY posicao ASC;",
+                (sala_id,),
+            )
+            rows_sug = [dict(r) for r in cur.fetchall()]
+
+            cur.execute(
+                "SELECT participante_id, sugestao_id FROM votos WHERE sala_id = ? ORDER BY votado_em ASC;",
+                (sala_id,),
+            )
+            rows_votos = [dict(r) for r in cur.fetchall()]
+
+        # 1. Reconstrói participantes e mapa UUID -> pid
+        participantes: Dict[str, Participante] = {}
+        uuid_para_pid: Dict[str, str] = {}
+        for rp in rows_part:
+            p_uuid = str(rp["id"])
+            pid = str(rp.get("codigo_participante") or p_uuid)
+            uuid_para_pid[p_uuid] = pid
+
+            janelas_db = janelas_por_part.get(p_uuid, [])
+            perfil = self._deserializar_perfil(rp, janelas_db)
+            participantes[pid] = Participante(
+                id=pid,
+                nome=rp["nome"],
+                token_hash=rp["token_hash"],
+                perfil=perfil,
+                confirmado=bool(rp["confirmado"]),
+                criado_em=_para_datetime_local(rp.get("respondeu_em")),
+            )
+
+        # 2. Reconstrói sugestões e mapa UUID -> letra_card
+        sugestoes: List[Sugestao] = []
+        uuid_para_letra: Dict[str, str] = {}
+        for rs in rows_sug:
+            s_uuid = str(rs["id"])
+            letra = str(rs.get("letra_card") or "A")
+            uuid_para_letra[s_uuid] = letra
+            vibes = _decodificar_json(rs.get("vibes_json"), [])
+            por_part = _decodificar_json(rs.get("por_participante_json"), {})
+            ra_val = rs.get("regiao_ra")
+            reg_txt = rs.get("regiao_texto") or ra_val or ""
+            sugestoes.append(
+                Sugestao(
+                    id=letra,
+                    posicao=int(rs.get("posicao") or 1),
+                    lugar_id=str(rs["local_id"]),
+                    nome=str(rs["nome_local"]),
+                    tipo=str(rs.get("tipo") or "bar"),
+                    ra=None if ra_val == reg_txt and "(" in str(reg_txt) else ra_val,
+                    regiao_texto=str(reg_txt),
+                    endereco=str(rs["endereco"]),
+                    inicio=_para_datetime_local(rs["inicio"]),
+                    fim=_para_datetime_local(rs["fim"]),
+                    horario_texto=str(rs["horario_texto"]),
+                    horario_situacao=str(rs.get("horario_situacao") or "aberto"),
+                    contagem=str(rs.get("contagem") or "todos podem"),
+                    consumo_rs=quantizar_decimal(rs["consumo_rs"]),
+                    gasto_min=quantizar_decimal(rs["gasto_min"]),
+                    gasto_max=quantizar_decimal(rs["gasto_max"]),
+                    tempo_medio_min=int(rs["tempo_medio_min"]) if rs.get("tempo_medio_min") is not None else None,
+                    tempo_max_min=int(rs["tempo_max_min"]) if rs.get("tempo_max_min") is not None else None,
+                    nota_justica=float(rs.get("nota_justica") or 0.0),
+                    pontuacao=float(rs.get("pontuacao") or 0.0),
+                    explicacao=str(rs["explicacao"]),
+                    tiktok_url=rs.get("tiktok_url"),
+                    fonte=str(rs.get("fonte") or "2fa"),
+                    vibes=list(vibes),
+                    por_participante=dict(por_part),
+                )
+            )
+
+        # 3. Reconstrói votos (pid -> [letra_card, ...])
+        votos: Dict[str, List[str]] = {}
+        for rv in rows_votos:
+            pid = uuid_para_pid.get(str(rv["participante_id"]))
+            letra = uuid_para_letra.get(str(rv["sugestao_id"]))
+            if pid and letra:
+                votos.setdefault(pid, [])
+                if letra not in votos[pid]:
+                    votos[pid].append(letra)
+
+        # 4. Reconstrói janelas_comuns, resultado e avisos
+        jc_raw = _decodificar_json(dados_sala.get("janelas_comuns_json"), [])
+        janelas_comuns = [
+            JanelaComum(
+                inicio=_para_datetime_local(jc["inicio"]),
+                fim=_para_datetime_local(jc["fim"]),
+                presentes=frozenset(jc.get("presentes", [])),
+                total=int(jc.get("total", len(participantes))),
+            )
+            for jc in jc_raw
+        ]
+
+        res_raw = _decodificar_json(dados_sala.get("resultado_json"), None)
+        resultado = (
+            Resultado(
+                sugestao_id=str(res_raw["sugestao_id"]),
+                votos=int(res_raw["votos"]),
+                desempate_por_justica=bool(res_raw["desempate_por_justica"]),
+                mensagem=str(res_raw["mensagem"]),
+                resumo_whatsapp=str(res_raw["resumo_whatsapp"]),
+                fechado_em=_para_datetime_local(res_raw["fechado_em"]),
+            )
+            if isinstance(res_raw, dict) and "sugestao_id" in res_raw
+            else None
+        )
+
+        avisos = list(_decodificar_json(dados_sala.get("avisos_json"), []))
+
+        return Sala(
+            codigo=str(dados_sala["codigo_sala"]),
+            nome_role=str(dados_sala["nome_role"]),
+            organizador_nome=str(dados_sala["organizador_nome"]),
+            token_organizador_hash=str(dados_sala["token_organizador_hash"]),
+            criado_em=_para_datetime_local(dados_sala.get("criado_em")),
+            status=str(dados_sala.get("status") or COLETANDO),
+            participantes=participantes,
+            janelas_comuns=janelas_comuns,
+            sugestoes=sugestoes,
+            votos=votos,
+            resultado=resultado,
+            avisos=avisos,
+        )
+
+    @staticmethod
+    def _serializar_perfil(pf: PerfilInterpretado) -> str:
+        p = pf.preferencias
+        return json.dumps(
+            {
+                "ra": pf.ra,
+                "regiao": pf.regiao,
+                "preferencias": {
+                    "tipos": p.tipos,
+                    "vibes": p.vibes,
+                    "restricoes": p.restricoes,
+                    "transporte": p.transporte,
+                    "pet": p.pet,
+                    "texto_busca": p.texto_busca,
+                },
+                "pendencias": pf.pendencias,
+                "resumo": pf.resumo,
+            },
+            ensure_ascii=False,
+        )
+
+    @staticmethod
+    def _deserializar_perfil(rp: Dict[str, Any], janelas_db: List[Dict[str, Any]]) -> PerfilInterpretado:
+        janelas = [
+            JanelaResolvida(
+                inicio=_para_datetime_local(j["inicio"]),
+                fim=_para_datetime_local(j["fim"]),
+                disponivel=bool(j.get("disponivel", True)),
+            )
+            for j in janelas_db
+        ]
+        teto = (
+            quantizar_decimal(rp["limite_gasto_rs"])
+            if rp.get("limite_gasto_rs") is not None
+            else None
+        )
+        meta = _decodificar_json(rp.get("perfil_json"), None)
+        if isinstance(meta, dict):
+            pm = meta.get("preferencias", {})
+            prefs = Preferencias(
+                tipos=list(pm.get("tipos", [])),
+                vibes=list(pm.get("vibes", [])),
+                restricoes=list(pm.get("restricoes", [])),
+                transporte=list(pm.get("transporte", [])),
+                pet=bool(pm.get("pet", False)),
+                texto_busca=str(pm.get("texto_busca", "")),
+            )
+            return PerfilInterpretado(
+                ra=meta.get("ra"),
+                regiao=meta.get("regiao"),
+                janelas=janelas,
+                teto=teto,
+                preferencias=prefs,
+                pendencias=dict(meta.get("pendencias", {})),
+                resumo=str(meta.get("resumo", "")),
+            )
+
+        # Fallback caso o participante tenha sido inserido direto via SupabaseClient.adicionar_participante
+        ra_fallback = janelas_db[0].get("ra_origem") if janelas_db else None
+        transp = [t.strip() for t in str(rp.get("transporte_hoje") or "").split("/") if t.strip()]
+        return PerfilInterpretado(
+            ra=ra_fallback,
+            regiao=ra_fallback,
+            janelas=janelas,
+            teto=teto,
+            preferencias=Preferencias(
+                transporte=transp,
+                texto_busca=str(rp.get("vibe_hoje") or ""),
+            ),
+            pendencias={},
+            resumo=str(rp.get("vibe_hoje") or ""),
+        )
 
 
 def checar_conexao_supabase() -> Dict[str, Any]:
     """Função utilitária para rotas FastAPI checarem status do Supabase."""
     cliente = SupabaseClient()
     res = cliente.checar_conexao()
-    
-    # Se tiver SUPABASE_URL configurada, checa também o endpoint REST
+
     url = os.environ.get("SUPABASE_URL")
     key = os.environ.get("SUPABASE_KEY")
     if url and key and HTTPX_DISPONIVEL:

@@ -140,9 +140,9 @@ def test_precisao_centavos_decimal_sem_float(db):
 
 
 def test_sigilo_absoluto_na_listagem_publica(db):
-    """Garante que a listagem pública de participantes NÃO expõe o limite_gasto_rs."""
+    """Garante que a listagem pública de participantes NÃO expõe o limite_gasto_rs e confirmado nasce False."""
     db.criar_sala(codigo_sala="ROLE-SEC1", nome_role="Sigilo Total", organizador_nome="Samara")
-    db.adicionar_participante(
+    part = db.adicionar_participante(
         codigo_sala="ROLE-SEC1",
         nome="Amigo Discreto",
         limite_gasto_rs=Decimal("45.50"),
@@ -153,12 +153,54 @@ def test_sigilo_absoluto_na_listagem_publica(db):
                 "ra_origem": "Taguatinga",
             }
         ],
+        token_hash="sha256_token_discreto",
     )
+    assert part["confirmado"] is False
 
     lista = db.listar_participantes_sala("ROLE-SEC1")
     assert len(lista) == 1
     assert "limite_gasto_rs" not in lista[0], "O limite orçamentário JAMAIS pode estar na listagem pública!"
     assert lista[0]["nome"] == "Amigo Discreto"
+    assert not hasattr(db, "obter_menor_orcamento_sala"), "Apenas cabe_no_orcamento() deve ser público."
+
+
+def test_validacao_estrita_adicionar_participante_sem_inventar_dados(db):
+    """Garante que adicionar_participante exige argumentos nomeados e recusa dados incompletos (Item 2 da revisão)."""
+    db.criar_sala(codigo_sala="ROLE-VAL1", nome_role="Validação Estrita", organizador_nome="Duda")
+
+    # 1. Argumentos posicionais após 'nome' devem falhar com TypeError
+    with pytest.raises(TypeError):
+        db.adicionar_participante("ROLE-VAL1", "Rafaela", Decimal("80.00"), [])
+
+    # 2. Sem limite_gasto_rs deve levantar ValueError
+    with pytest.raises(ValueError):
+        db.adicionar_participante(
+            "ROLE-VAL1",
+            "Rafaela",
+            limite_gasto_rs=None,
+            janelas=[{"inicio": "2026-11-14T19:00:00Z", "fim": "2026-11-14T23:00:00Z", "ra_origem": "Plano Piloto"}],
+            token_hash="hash_1",
+        )
+
+    # 3. Sem token_hash deve levantar ValueError
+    with pytest.raises(ValueError):
+        db.adicionar_participante(
+            "ROLE-VAL1",
+            "Rafaela",
+            limite_gasto_rs=Decimal("80.00"),
+            janelas=[{"inicio": "2026-11-14T19:00:00Z", "fim": "2026-11-14T23:00:00Z", "ra_origem": "Plano Piloto"}],
+            token_hash="",
+        )
+
+    # 4. Janela sem inicio, fim ou ra_origem deve levantar ValueError
+    with pytest.raises(ValueError):
+        db.adicionar_participante(
+            "ROLE-VAL1",
+            "Rafaela",
+            limite_gasto_rs=Decimal("80.00"),
+            janelas=[{"inicio": "2026-11-14T19:00:00Z"}],
+            token_hash="hash_1",
+        )
 
 
 # ==============================================================================
@@ -178,12 +220,16 @@ def test_ciclo_sugestoes_votos_e_rateio_individual(db):
         nome="Duda",
         limite_gasto_rs=Decimal("80.00"),
         janelas=[{"inicio": "2026-11-13T20:00:00Z", "fim": "2026-11-14T00:00:00Z", "ra_origem": "Asa Norte"}],
+        token_hash="hash_duda",
+        confirmado=True,
     )
     part_b = db.adicionar_participante(
         codigo_sala="ROLE-V001",
         nome="Carol",
         limite_gasto_rs=Decimal("100.00"),
         janelas=[{"inicio": "2026-11-13T20:00:00Z", "fim": "2026-11-14T00:00:00Z", "ra_origem": "Águas Claras"}],
+        token_hash="hash_carol",
+        confirmado=True,
     )
 
     # 1. Sugestão da IA (RF-16: catálogo de 93 lugares)
@@ -235,24 +281,76 @@ def test_ciclo_sugestoes_votos_e_rateio_individual(db):
 
 
 # ==============================================================================
-# 5. TESTE DE INTEGRAÇÃO COM REPOSITORIO (src/state.py - PR #48)
+# 5. TESTE DE INTEGRAÇÃO COM REPOSITORIO E GERENCIADORSALAS (PR #48 / ITEM 1)
 # ==============================================================================
 
-def test_integracao_repositorio_supabase(db):
-    """Valida que RepositorioSupabase implementa existe(), obter() e salvar() de src/state.py."""
+def test_integracao_repositorio_supabase_com_gerenciador_salas(db):
+    """
+    Reproduz exatamente o cenário do item 1 da revisão do PR #50:
+    GerenciadorSalas + RepositorioSupabase(db) salvando e reconstruindo Sala completa.
+    """
+    from src.salas.gerenciador_salas import GerenciadorSalas
+    from src.salas.modelos import Sala
+
     repo = RepositorioSupabase(cliente=db)
+    g = GerenciadorSalas(repo, relogio=lambda: datetime(2026, 11, 10, 14, 0))
 
-    # Cria sala
-    class ObjetoSalaTeste:
-        codigo = "ROLE-T099"
-        nome_role = "Integração State"
-        organizador_nome = "Cauan"
-        token_organizador_hash = "sha_teste"
+    sala, tok_org = g.criar_sala("Aniversário", "Rafaela", True)
+    assert repo.existe(sala.codigo) is True
 
-    assert repo.existe("ROLE-T099") is False
-    repo.salvar(ObjetoSalaTeste())
-    assert repo.existe("ROLE-T099") is True
+    p1, tok_p1 = g.entrar(
+        sala.codigo, "Rafaela", True, "Asa Norte", "sábado à noite", "80", "bar animado, vou de carro"
+    )
+    p2, tok_p2 = g.entrar(
+        sala.codigo, "Bia", True, "Águas Claras", "sábado à noite", "60", "barzinho calmo, vou de metrô"
+    )
+    g.confirmar(sala.codigo, p1.id, tok_p1)
+    g.confirmar(sala.codigo, p2.id, tok_p2)
 
-    sala_carregada = repo.obter("ROLE-T099")
-    assert sala_carregada is not None
-    assert sala_carregada["codigo_sala"] == "ROLE-T099"
+    painel = g.gerar_sugestoes(sala.codigo, tok_org)
+    assert painel["status"] == "votacao"
+    assert len(painel["sugestoes"]) >= 3
+
+    g.votar(sala.codigo, p1.id, tok_p1, ["A"])
+    painel_final = g.votar(sala.codigo, p2.id, tok_p2, ["A"])
+    assert painel_final["status"] == "orquestrado"
+    assert painel_final["resultado"]["sugestao_id"] == "A"
+
+    # Verifica que repo.obter devolve uma instância genuína de Sala com todos os dados
+    sala_carregada = repo.obter(sala.codigo)
+    assert isinstance(sala_carregada, Sala)
+    assert sala_carregada.status == "orquestrado"
+    assert len(sala_carregada.participantes) == 2
+    assert sala_carregada.participantes[p1.id].perfil.teto == Decimal("80.00")
+    assert sala_carregada.resultado is not None
+    assert sala_carregada.resultado.sugestao_id == "A"
+
+
+def test_bloqueio_fallback_sqlite_em_producao(monkeypatch):
+    """Garante que sem DATABASE_URL em ENVIRONMENT=producao um RuntimeError explícito é lançado (Item 4)."""
+    monkeypatch.setenv("ENVIRONMENT", "producao")
+    monkeypatch.delenv("DATABASE_URL", raising=False)
+    with pytest.raises(RuntimeError, match="DATABASE_URL"):
+        SupabaseClient(database_url="")
+
+
+def test_apagar_salas_expiradas_lgpd(db):
+    """Valida a rotina de descarte automático de salas vencidas após 30 dias (LGPD - Item 5)."""
+    db.criar_sala(codigo_sala="ROLE-VENC", nome_role="Sala Antiga", organizador_nome="Duda")
+    db.criar_sala(codigo_sala="ROLE-NOVA", nome_role="Sala Recente", organizador_nome="Duda")
+
+    # Força a data de expiração de ROLE-VENC para o passado
+    conn = db._get_connection()
+    passado = "2020-01-01T00:00:00+00:00"
+    if db.is_postgres:
+        with conn.cursor() as cur:
+            cur.execute("UPDATE salas SET expira_em = %s WHERE codigo_sala = %s;", (passado, "ROLE-VENC"))
+    else:
+        cur = conn.cursor()
+        cur.execute("UPDATE salas SET expira_em = ? WHERE codigo_sala = ?;", (passado, "ROLE-VENC"))
+        conn.commit()
+
+    removidas = db.apagar_salas_expiradas()
+    assert removidas >= 1
+    assert db.obter_sala("ROLE-VENC") is None
+    assert db.obter_sala("ROLE-NOVA") is not None

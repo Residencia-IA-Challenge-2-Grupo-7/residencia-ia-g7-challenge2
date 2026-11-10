@@ -10,6 +10,7 @@ from datetime import datetime
 import pytest
 from fastapi.testclient import TestClient
 
+from src.db.supabase_client import RepositorioSupabase, SupabaseClient
 from src.main import app
 from src.salas.gerenciador_salas import MENSAGEM_SUCESSO, GerenciadorSalas
 from src.salas.integracoes import carregar_lugares
@@ -30,12 +31,21 @@ PARTICIPANTES = [
 RA_ESPERADA = {"Rafaela": "Plano Piloto", "Bia": "Águas Claras", "Cadu": "Ceilândia"}
 
 
-@pytest.fixture
-def cliente():
-    g = GerenciadorSalas(RepositorioMemoria(), relogio=lambda: TER)  # base real: data/banco_aprovado_2fa.json
+@pytest.fixture(params=["memoria", "supabase"])
+def cliente(request):
+    if request.param == "supabase":
+        cli_db = SupabaseClient(use_memory_fallback=True)
+        cli_db.garantir_schema()
+        repo = RepositorioSupabase(cli_db)
+    else:
+        cli_db = None
+        repo = RepositorioMemoria()
+    g = GerenciadorSalas(repo, relogio=lambda: TER)  # base real: data/banco_aprovado_2fa.json
     app.dependency_overrides[obter_gerenciador] = lambda: g
     yield TestClient(app)
     app.dependency_overrides.clear()
+    if cli_db is not None:
+        cli_db.fechar()
 
 
 def _sala_com_tres(cliente):

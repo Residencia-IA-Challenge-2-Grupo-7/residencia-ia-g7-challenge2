@@ -13,10 +13,9 @@ from abc import ABC, abstractmethod
 import copy
 import os
 import threading
-from typing import Any, Optional
+from typing import Optional
 
 from src.salas.modelos import Sala
-from src.db.supabase_client import RepositorioSupabase
 
 
 class Repositorio(ABC):
@@ -24,32 +23,30 @@ class Repositorio(ABC):
     def existe(self, codigo: str) -> bool: ...
 
     @abstractmethod
-    def obter(self, codigo: str) -> Sala | Any | None:
+    def obter(self, codigo: str) -> Sala | None:
         """Uma cópia da sala; mudanças só valem depois de `salvar`."""
 
     @abstractmethod
-    def salvar(self, sala: Sala | Any) -> None: ...
+    def salvar(self, sala: Sala) -> None: ...
 
 
 class RepositorioMemoria(Repositorio):
     def __init__(self):
-        self._salas: dict[str, Any] = {}
+        self._salas: dict[str, Sala] = {}
         self._trava = threading.Lock()
 
     def existe(self, codigo: str) -> bool:
         with self._trava:
             return codigo in self._salas
 
-    def obter(self, codigo: str) -> Any | None:
+    def obter(self, codigo: str) -> Sala | None:
         with self._trava:
             s = self._salas.get(codigo)
             return copy.deepcopy(s) if s else None
 
-    def salvar(self, sala: Any) -> None:
+    def salvar(self, sala: Sala) -> None:
         with self._trava:
-            codigo = getattr(sala, "codigo", getattr(sala, "codigo_sala", None))
-            if codigo:
-                self._salas[codigo] = copy.deepcopy(sala)
+            self._salas[sala.codigo] = copy.deepcopy(sala)
 
 
 _repositorio: Repositorio | None = None
@@ -63,6 +60,7 @@ def obter_repositorio() -> Repositorio:
         if _repositorio is None:
             tipo = os.environ.get("ROLES_REPOSITORIO", "memoria").lower()
             if tipo == "supabase":
+                from src.db.supabase_client import RepositorioSupabase
                 _repositorio = RepositorioSupabase()
             else:
                 _repositorio = RepositorioMemoria()

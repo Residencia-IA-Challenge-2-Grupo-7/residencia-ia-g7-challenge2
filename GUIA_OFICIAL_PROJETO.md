@@ -49,21 +49,21 @@ Durante a modelagem e implementação da camada de dados na nuvem (Supabase / Po
   - *Exemplo real:* Na sexta-feira após o expediente, o usuário sai do **Trabalho (Setor Comercial Sul)**; no sábado à tarde, sai de **Casa (Águas Claras)**.
   - Isso permite que o algoritmo de mobilidade e a regra da **"Menor Miséria"** calculem o tempo de deslocamento real com base no dia eleito pelo grupo, sem distorcer o trajeto de ninguém.
 
-### 2.3 Blindagem Absoluta do Sigilo Orçamentário (RNF-01 e RNF-02)
-- O valor informado em `limite_gasto_rs` é **100% confidencial**.
-- **Regra de ouro:** Nenhuma rota de API pública, nem a listagem de membros da sala, nem o banco devolvem o valor individual de ninguém.
-- O sistema apenas calcula internamente o menor valor (ou a interseção orçamentária justa) para calibrar a busca dos 93 lugares aprovados, garantindo que ninguém passe vergonha nem fique de fora por questão financeira.
+### 2.3 Blindagem Absoluta do Sigilo Orçamentário (RNF-01 e RNF-02) e LGPD
+- O valor informado em `limite_gasto_rs` é **100% confidencial** (armazenado como `NUMERIC(10, 2)` com `Decimal` para evitar erros de ponto flutuante).
+- **Regra de ouro:** Nenhuma rota de API pública, nem a listagem de membros da sala, nem o banco devolvem o valor individual ou o menor teto da sala. A verificação pública ocorre exclusivamente pela função booleana `cabe_no_orcamento(codigo_sala, custo_por_pessoa) -> bool`.
+- **Descarte LGPD (30 dias):** Toda sala possui coluna `expira_em` (padrão `NOW() + INTERVAL '30 days'`) e rotina `apagar_salas_expiradas()` que remove em cascata participantes, janelas, sugestões e votos vencidos.
 
-### 2.4 Pós-Rolê Justo e Integração Pix BACEN
-- Na finalização do rolê (`despesas_pos_role`), a pessoa que pagou a conta cadastra os dados ou envia a foto da nota fiscal (`itens_json`).
+### 2.4 Pós-Rolê Justo, Rateios Individuais e Integração Pix BACEN
+- Na finalização do rolê (`despesas_pos_role`), a pessoa que pagou a conta cadastra os dados ou envia a foto da nota fiscal (`itens_json`), gerando os registros individuais de cada devedor na tabela `despesa_rateios` (com baixa individual via `pago_em`).
 - O sistema permite **desmarcar itens específicos** (ex: quem não bebe álcool não paga o chopp, quem é vegetariano não paga o prato de carne).
-- O módulo financeiro gera o **payload oficial Pix Copia e Cola (padrão EMV Banco Central)** com o valor exato e a chave Pix do pagador, facilitando o acerto imediato.
+- O módulo financeiro gera o **payload oficial Pix Copia e Cola (padrão EMV Banco Central)** com o valor exato e a chave Pix do pagador, facilitando o acerto imediato. *(Nota de escopo: a criptografia da chave Pix em repouso via `pgcrypto`/Vault será implementada na Issue #45 — Tela 4 / Finanças).*
 
-### 2.5 Resiliência: Banco na Nuvem com Fallback Local Automático
-- **Produção:** Instância Supabase PostgreSQL em São Paulo (`sa-east-1`), com 7 tabelas normalizadas, índices de performance e integridade referencial com deleção em cascata.
-- **Desenvolvimento Offline:** O cliente de banco (`src/db/supabase_client.py`) detecta automaticamente a ausência de conexão ou de credenciais na máquina do desenvolvedor e ativa um **fallback transparente em SQLite local (`data/app_local.db`)**, garantindo que toda a suíte de testes (`make test`) e o Docker funcionem sem falhas em qualquer ambiente.
+### 2.5 Resiliência: Banco na Nuvem com Fallback Restrito a Teste/Desenvolvimento
+- **Produção (`ENVIRONMENT=producao`):** Instância Supabase PostgreSQL em São Paulo (`sa-east-1`), com **9 tabelas normalizadas**, Row Level Security (RLS) habilitado em 100% das tabelas, índices de performance e integridade referencial com deleção em cascata. Em produção, a ausência de `DATABASE_URL` interrompe a inicialização com `RuntimeError` explícito (sem fallback silencioso).
+- **Teste e Desenvolvimento Local (`ENVIRONMENT=teste` ou `desenvolvimento`):** O cliente de banco (`src/db/supabase_client.py`) permite fallback em SQLite local ou em memória exclusivamente para execução da suíte de testes automatizados (`make test-local`) e desenvolvimento offline.
 
-### 2.6 Diagrama Entidade-Relacionamento (ERD) Oficial
+### 2.6 Diagrama Entidade-Relacionamento (ERD) Oficial (9 Tabelas)
 
 ```mermaid
 erDiagram
@@ -71,9 +71,12 @@ erDiagram
     USUARIOS ||--o{ SALAS : "cria / administra"
     USUARIOS ||--o{ SALA_PARTICIPANTES : "pode vincular perfil a"
     SALAS ||--|{ SALA_PARTICIPANTES : "contém (2 a 20 membros)"
+    SALA_PARTICIPANTES ||--|{ PARTICIPANTE_JANELAS : "declara horários e RA de saída"
     SALAS ||--|{ SUGESTOES_ROLE : "gera 3 a 4 opções de IA"
     SALAS ||--o{ VOTOS : "agrega votação"
     SALAS ||--o{ DESPESAS_POS_ROLE : "registra divisão de conta"
+    DESPESAS_POS_ROLE ||--|{ DESPESA_RATEIOS : "divide por devedor"
+    SALA_PARTICIPANTES ||--o{ DESPESA_RATEIOS : "quita cota via Pix"
     SALA_PARTICIPANTES ||--o{ VOTOS : "vota em"
     SUGESTOES_ROLE ||--o{ VOTOS : "recebe voto de"
 
@@ -100,9 +103,10 @@ erDiagram
         uuid id PK
         string codigo_sala "Ex: ROLE-A1B2"
         string nome_role
-        uuid criador_id FK
-        string status "aberta, votando, finalizada"
-        jsonb janela_escolhida_json
+        string organizador_nome
+        string token_organizador_hash "SHA-256"
+        string status "coletando, votacao, orquestrado"
+        timestamptz expira_em "Retenção 30 dias LGPD"
     }
 
     SALA_PARTICIPANTES {
@@ -110,20 +114,33 @@ erDiagram
         uuid sala_id FK
         uuid usuario_id FK
         string nome
-        jsonb janelas_disponiveis_json "Janelas + Origens"
-        numeric limite_gasto_rs "Sigiloso (RNF-01/02)"
+        string token_hash "SHA-256"
+        boolean confirmado
+        numeric limite_gasto_rs "Sigiloso NUMERIC(10,2)"
         string vibe_hoje
+        string transporte_hoje
+    }
+
+    PARTICIPANTE_JANELAS {
+        uuid id PK
+        uuid participante_id FK
+        timestamptz inicio
+        timestamptz fim
+        boolean disponivel
+        string ra_origem "RA de saída nesta janela"
     }
 
     SUGESTOES_ROLE {
         uuid id PK
         uuid sala_id FK
-        string local_id "Catálogo 2FA"
+        string letra_card "A, B, C, D"
+        string local_id "Catálogo 2FA (93 lugares)"
         string nome_local
         string regiao_ra
-        numeric faixa_gasto_rs
-        text mobility_summary
-        numeric ranking_justica "Menor Miséria"
+        numeric consumo_rs "NUMERIC(10,2)"
+        numeric gasto_min "NUMERIC(10,2)"
+        numeric gasto_max "NUMERIC(10,2)"
+        numeric nota_justica "Menor Miséria"
     }
 
     VOTOS {
@@ -131,17 +148,26 @@ erDiagram
         uuid sala_id FK
         uuid participante_id FK
         uuid sugestao_id FK
-        timestamp votado_em
+        timestamptz votado_em
     }
 
     DESPESAS_POS_ROLE {
         uuid id PK
         uuid sala_id FK
+        uuid pagador_participante_id FK
         string pagador_nome
-        numeric valor_total_rs
+        numeric valor_total_rs "NUMERIC(10,2)"
         string chave_pix "BACEN"
         jsonb itens_json "Nota Fiscal OCR"
         boolean quitado
+    }
+
+    DESPESA_RATEIOS {
+        uuid id PK
+        uuid despesa_id FK
+        uuid devedor_participante_id FK
+        numeric valor "NUMERIC(10,2)"
+        timestamptz pago_em "Quitação individual"
     }
 ```
 
