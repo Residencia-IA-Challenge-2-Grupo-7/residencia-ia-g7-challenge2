@@ -50,10 +50,10 @@ jobs:
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       # 5. Executa os testes automatizados com Pytest.
-      # Injetamos PYTHONPATH=src e credenciais de teste para isolar a telemetria.
+      # Injetamos PYTHONPATH=. e credenciais de teste para isolar a telemetria.
       - name: 5. Executar Smoke Tests e Validações
         env:
-          PYTHONPATH: src
+          PYTHONPATH: .
           ENVIRONMENT: teste
           LANGFUSE_PUBLIC_KEY: pk-lf-dummy-test-key
           LANGFUSE_SECRET_KEY: sk-lf-dummy-test-key
