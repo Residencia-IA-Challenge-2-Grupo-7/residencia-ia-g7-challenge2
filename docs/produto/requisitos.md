@@ -1,8 +1,18 @@
 # Requisitos do MVP: Orquestrador de Rolês
 
-- **Versão:** 0.3.1, 2026-11-03
+- **Versão:** 0.4, 2026-11-10 (mudanças do [guia oficial](../../GUIA_OFICIAL_PROJETO.md) na seção [Mudanças da v0.4](#mudanças-da-v04))
 - **Status:** para revisão do grupo. As escolhas de comportamento foram feitas na sessão de requisitos de 29/10 e ainda precisam ser validadas com o grupo, as personas e o resultado do formulário. O fechamento do MVP estava previsto para 30/10/2026 (premissa P04).
 - **Base:** [visão do produto](visao.md) · recorte do MVP no [ADR 0002](../decisoes/0002-recorte-do-mvp.md) · canal no [ADR 0003](../decisoes/0003-canal-app-web.md)
+
+## Mudanças da v0.4
+
+O grupo fechou em 10/11 o [guia oficial](../../GUIA_OFICIAL_PROJETO.md), que passa a ser a fonte da verdade sobre o app. Nesta versão, só o que ele mudou nos requisitos; a revisão completa continua pendente.
+
+- **Voz removida:** RF-39 e RF-40 ficam marcados como removidos ([ADR 0009](../decisoes/0009-entrada-pelos-4-campos-de-texto.md)). A multimodalidade da semana 5 é a foto da nota fiscal (RF-31).
+- **4 campos de texto no lugar da conversa privada:** a coleta do RF-07 e do RF-08 (e o orçamento do RF-11) acontece na Tela 2, em 4 campos secretos (de onde sai, dias e horários, teto em R$, o que quer fazer e como vai), com resumo para confirmar ([ADR 0009](../decisoes/0009-entrada-pelos-4-campos-de-texto.md)).
+- **Base oficial de 93 lugares** ([ADR 0008](../decisoes/0008-base-2fa-de-93-lugares-e-lgpd.md)): o RF-16 passa a valer sobre ela.
+- **Votação múltipla (RF-25)** e **3 a 4 cartões** de sugestão no lugar de 2 ou 3 planos (RF-15).
+- **Status de preenchimento (RF-45):** o painel do guia mostra quem já preencheu ("Já preencheu" ou "Falta preencher"), o que contraria o "sem mostrar quem ainda não respondeu" do RF-45. Fica para o grupo decidir.
 
 ## Como ler
 
@@ -20,7 +30,7 @@
 - App web, pensado primeiro para o celular. A exportação do plano fechado para o WhatsApp e para a agenda entra se couber (Should, RF-27 e RF-28).
 - Distrito Federal inteiro; adultos (18+) de qualquer idade.
 - Quatro tipos de rolê: comer e beber fora, eventos com data marcada, ao ar livre ou gratuitos e, se couber, em casa de alguém (Should, RF-20).
-- Conversa por texto e por voz.
+- Entrada por texto, nos 4 campos secretos da Tela 2, e por foto da nota fiscal depois do rolê. Sem voz (v0.4, ADR 0009).
 
 **Fora** (ver [Extensões futuras](#7-extensões-futuras))
 
@@ -99,8 +109,8 @@
 | RF-36 | Confirmação de que o encontro aconteceu | Must | R-06 | | |
 | RF-37 | Avaliação opcional por item | Should | | Rafaela | |
 | RF-38 | Aprendizado com as avaliações | Should | | | |
-| RF-39 | Entrada por voz | Must | R-09 | Márcio | |
-| RF-40 | Resposta em voz | Should | R-09 | Márcio | |
+| RF-39 | ~~Entrada por voz~~ (removido na v0.4) | — | R-09 | Márcio | |
+| RF-40 | ~~Resposta em voz~~ (removido na v0.4) | — | R-09 | Márcio | |
 | RF-41 | Notificações agrupadas | Must | R-04 | Márcio, Rafaela | |
 | RF-42 | Login sem senha | Must | R-01 | Márcio | |
 | RF-43 | Disponibilidade recorrente | Should | | Cadu | |
@@ -196,6 +206,8 @@ O sistema DEVE sugerir um rolê no chat da sala quando ela passar um período co
 
 #### RF-07 · Conversa privada com cada participante (Must)
 
+> **v0.4:** no app, a coleta privada é feita pelos 4 campos secretos da Tela 2, com resumo para confirmar ([ADR 0009](../decisoes/0009-entrada-pelos-4-campos-de-texto.md)).
+
 O sistema DEVE abrir uma conversa privada entre a IA e cada participante do rolê para coletar disponibilidade, preferências para aquele rolê, orçamento, ponto de partida e meio de transporte, reaproveitando o que já está no perfil e perguntando só o que falta.
 
 **Cenário: dados já no perfil**
@@ -207,6 +219,8 @@ O sistema DEVE abrir uma conversa privada entre a IA e cada participante do rol�
 - **ENTÃO** a IA se recusa a revelar
 
 #### RF-08 · Disponibilidade por conversa livre (Must)
+
+> **v0.4:** a frase livre vem do campo "Quais dias e horários você pode?" e é interpretada por regras, com o LLM só de reserva.
 
 O sistema DEVE extrair janelas de disponibilidade de frases livres, ditas por texto ou voz, e mostrar a interpretação para confirmação antes de usá-la.
 
@@ -420,6 +434,8 @@ O sistema DEVE oferecer dois modos de decisão, escolhidos pelo organizador: vot
 
 #### RF-25 · Votação (Must)
 
+> **v0.4:** a votação é múltipla (cada participante pode votar em mais de um cartão), e a votação fecha sozinha quando todos os confirmados votam ou quando o organizador a fecha. O desempate continua sendo o ranking de justiça.
+
 O sistema DEVE permitir que cada participante vote em um plano até o prazo. Vence o plano mais votado; em empate, vence o plano mais bem colocado no ranking de justiça. Quem não vota não trava o resultado.
 
 **Cenário: empate**
@@ -566,7 +582,9 @@ O sistema DEVE usar as avaliações e escolhas anteriores da sala para ajustar a
 
 ### 4.11 Voz e notificações
 
-#### RF-39 · Entrada por voz (Must)
+#### RF-39 · Entrada por voz (removido)
+
+> **Removido em 2026-11-10** pelo guia oficial: o app não usa entrada nem saída por voz ([ADR 0009](../decisoes/0009-entrada-pelos-4-campos-de-texto.md)). O texto abaixo fica só como registro.
 
 O sistema DEVE aceitar voz em toda conversa com a IA, mostrando a transcrição para confirmação antes de qualquer ação que envolva datas, valores ou confirmação de presença.
 
@@ -574,7 +592,9 @@ O sistema DEVE aceitar voz em toda conversa com a IA, mostrando a transcrição 
 - **QUANDO** a transcrição sai errada
 - **ENTÃO** a pessoa corrige por texto ou fala de novo, e nada é registrado antes da confirmação
 
-#### RF-40 · Resposta em voz (Should)
+#### RF-40 · Resposta em voz (removido)
+
+> **Removido em 2026-11-10**, junto com o RF-39.
 
 O sistema DEVE oferecer leitura em voz alta das mensagens da IA, que cada pessoa liga ou desliga.
 
@@ -606,7 +626,6 @@ Sugestão de 12 capacidades que resumem os Must no pacote de definição:
 | Decisão do grupo e presença | RF-24 a RF-26 |
 | Divisão de custos | RF-30, RF-32 |
 | Confirmação de que o encontro aconteceu | RF-36 |
-| Voz | RF-39 |
 | Notificações | RF-41 |
 
 ## 5. Requisitos não funcionais
