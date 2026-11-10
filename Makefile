@@ -23,11 +23,11 @@ VENV_PYTEST := $(shell which pytest 2>/dev/null || echo ./.venv/bin/pytest)
 
 # Executa testes dentro do container Docker oficial
 test:
-	docker compose run --rm app pytest -v tests/test_smoke.py tests/test_logger_e_cache.py tests/test_db_schema.py tests/test_fluxo_completo_dois_amigos.py tests/test_interpretador.py
+	docker compose run --rm app pytest -v tests
 
 # Executa testes direto na máquina local (detecta venv automaticamente)
 test-local:
-	PYTHONPATH=. $(VENV_PYTEST) -v tests/test_smoke.py tests/test_logger_e_cache.py tests/test_db_schema.py tests/test_fluxo_completo_dois_amigos.py tests/test_interpretador.py
+	PYTHONPATH=. $(VENV_PYTEST) -v tests
 
 # Sobe os containers (Postgres com pgvector e App)
 up:
