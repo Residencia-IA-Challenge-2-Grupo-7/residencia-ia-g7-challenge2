@@ -1,1 +1,62 @@
-# Pipeline de CI/CD do GitHub Actions: automacao de testes, linters e checagens a cada push e pull request.
+name: CI/CD Pipeline - Testes Automatizados e Qualidade
+
+# ==============================================================================
+# GATILHOS (TRIGGERS / EVENTS)
+# Define quando a esteira deve ser disparada automaticamente pelo GitHub
+# ==============================================================================
+on:
+  push:
+    branches:
+      - main
+      - feat/*
+      - fix/*
+  pull_request:
+    branches:
+      - main
+
+# ==============================================================================
+# JOBS (TRABALHOS)
+# Tarefas que serão executadas em máquinas virtuais limpas e isoladas na nuvem
+# ==============================================================================
+jobs:
+  test:
+    name: Smoke Tests e Validação de Rotas (Ubuntu + Python 3.12)
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Clona o código do repositório para dentro da máquina virtual limpa
+      - name: 1. Checkout do Repositório
+        uses: actions/checkout@v4
+
+      # 2. Instala o interpretador Python 3.12 e ativa o cache inteligente do pip
+      - name: 2. Configurar Python 3.12
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      # 3. Pulo do gato em DevOps: Instalação do PyTorch somente para CPU.
+      # Evita que o pip baixe a versão pesada com drivers CUDA (>4GB),
+      # acelerando a esteira em mais de 5 vezes.
+      - name: 3. Instalar PyTorch CPU-Only (Otimizado)
+        run: |
+          pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu
+
+      # 4. Instala as ferramentas de teste (pytest, httpx) e o requirements do projeto
+      - name: 4. Instalar Dependências e Ferramentas de Teste
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest httpx
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+
+      # 5. Executa os testes automatizados com Pytest.
+      # Injetamos PYTHONPATH=. e credenciais de teste para isolar a telemetria.
+      - name: 5. Executar Smoke Tests e Validações
+        env:
+          PYTHONPATH: .
+          ENVIRONMENT: teste
+          LANGFUSE_PUBLIC_KEY: pk-lf-dummy-test-key
+          LANGFUSE_SECRET_KEY: sk-lf-dummy-test-key
+          LANGFUSE_BASE_URL: https://cloud.langfuse.com
+        run: |
+          pytest -v tests/test_smoke.py
