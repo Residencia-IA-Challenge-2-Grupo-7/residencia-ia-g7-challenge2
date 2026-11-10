@@ -86,5 +86,27 @@
     "horario_gabarito": "Domingo a partir das 16h (quarta a sábado a partir das 18h)",
     "evidencia_id_tiktok": "tiktok_7628371621136452882",
     "armadilha_llm_pura": "Prometer karaokê (só às quartas) ou o dado da conta grátis (só às quintas) no domingo, ou dizer que abre às 18h"
+  },
+  {
+    "id": "golden_09",
+    "pergunta": "Quais são os melhores bares em Copacabana, no Rio de Janeiro, para ir com amigos numa sexta à noite?",
+    "categoria": "fora_de_escopo_df",
+    "ra_esperada": null,
+    "locais_gabarito": [],
+    "preco_maximo_gabarito": null,
+    "horario_gabarito": null,
+    "evidencia_id_tiktok": null,
+    "armadilha_llm_pura": "A LLM pura lista bares do Rio sem avisar que o app só cobre o DF; o RAG pode recuperar The Coffee Talk ou Fábrica de Bolos Valzira, que os vídeos citam como famosas no Rio, mas cujas unidades da base ficam no DF"
+  },
+  {
+    "id": "golden_10",
+    "pergunta": "Onde comer hambúrguer artesanal em Pinheiros, São Paulo, gastando até R$ 50?",
+    "categoria": "fora_de_escopo_df",
+    "ra_esperada": null,
+    "locais_gabarito": [],
+    "preco_maximo_gabarito": null,
+    "horario_gabarito": null,
+    "evidencia_id_tiktok": null,
+    "armadilha_llm_pura": "A LLM pura inventa hamburguerias em Pinheiros; o RAG, guiado por 'hambúrguer até R$ 50', pode devolver hamburguerias do DF (ex.: Mr. John, Cabiburger) sem perceber que a cidade pedida é SP"
   }
 ]
