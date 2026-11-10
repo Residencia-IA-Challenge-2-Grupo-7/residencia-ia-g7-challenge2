@@ -1,13 +1,54 @@
 """Casa os lugares citados ("Asa Sul", "lá pros lados de Ceilândia") com as RAs e regiões da base."""
 import re
 
-from base.contrato import ras_validas
-
 from .config import CFG
 from .numeros import canon
 
 REGIOES = {"centro": "centro", "oeste proximo": "oeste_proximo", "oeste": "oeste", "sul": "sul",
            "norte": "norte", "leste": "leste"}
+
+RAS_DF: dict[str, str] = {
+    "Arapoanga": "norte",
+    "Arniqueira": "oeste_proximo",
+    "Brazlândia": "oeste",
+    "Candangolândia": "centro",
+    "Ceilândia": "oeste",
+    "Cruzeiro": "centro",
+    "Fercal": "norte",
+    "Gama": "sul",
+    "Guará": "oeste_proximo",
+    "Itapoã": "leste",
+    "Jardim Botânico": "leste",
+    "Lago Norte": "centro",
+    "Lago Sul": "centro",
+    "Núcleo Bandeirante": "oeste_proximo",
+    "Paranoá": "leste",
+    "Park Way": "centro",
+    "Planaltina": "norte",
+    "Plano Piloto": "centro",
+    "Recanto das Emas": "sul",
+    "Riacho Fundo": "oeste_proximo",
+    "Riacho Fundo II": "oeste_proximo",
+    "SCIA/Estrutural": "oeste_proximo",
+    "SIA": "centro",
+    "Samambaia": "oeste",
+    "Santa Maria": "sul",
+    "Sobradinho": "norte",
+    "Sobradinho II": "norte",
+    "Sol Nascente/Pôr do Sol": "oeste",
+    "Sudoeste/Octogonal": "centro",
+    "São Sebastião": "leste",
+    "Taguatinga": "oeste_proximo",
+    "Varjão": "centro",
+    "Vicente Pires": "oeste_proximo",
+    "Água Quente": "sul",
+    "Águas Claras": "oeste_proximo",
+}
+
+
+def ras_validas() -> dict[str, str]:
+    """Retorna o mapa das 35 Regiões Administrativas do DF para sua macrorregião."""
+    return RAS_DF
 
 
 def _indice() -> list[tuple[str, str]]:

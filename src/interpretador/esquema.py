@@ -10,7 +10,7 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from base.contrato import Atributo, ConsultaBusca
+from .contrato import Atributo, ConsultaBusca
 
 from .tempo import FICHAS_DIA, JanelaResolvida
 

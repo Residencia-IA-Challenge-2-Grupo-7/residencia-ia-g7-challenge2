@@ -1,34 +1,27 @@
-"""Contrato da busca usada pelos agentes (ADR 0007, seção 5).
-
-Quem preenche a ConsultaBusca é código: o interpretador ou o planejador, com as restrições já resolvidas.
-O LLM nunca escreve SQL; quando ganhar ferramentas, recebe o JSON Schema destes modelos e os argumentos
-passam pela mesma validação. Mudança incompatível neste arquivo pede ADR novo.
-"""
-import csv
+"""Contrato tipado de busca e janelas usado pelo interpretador."""
 from datetime import date, datetime
 from decimal import Decimal
-from functools import cache
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from .config import BASE
+from .lugares import ras_validas
 
 CONTRATO_VERSAO = "1.0"
 
 TipoRole = Literal["comer_beber", "ar_livre_gratuito", "local_evento"]
 Regiao = Literal["centro", "oeste_proximo", "oeste", "sul", "norte", "leste"]
 Colecao = Literal["lugares", "eventos"]
-# Atributos do esquema da base que podem ser exigidos como "sim" (docs/dados/esquema-base.md)
-Atributo = Literal["ar_livre", "coberto", "acess_entrada_sem_degrau", "acess_banheiro_adaptado",
-                   "alim_vegetariano", "alim_vegano", "alim_sem_gluten", "alim_sem_lactose"]
-
-
-@cache
-def ras_validas() -> dict[str, str]:
-    """RA -> região, de data/base/regioes.csv (as 35 RAs)."""
-    with open(BASE / "regioes.csv", encoding="utf-8") as f:
-        return {l["ra"]: l["regiao"] for l in csv.DictReader(f)}
+Atributo = Literal[
+    "ar_livre",
+    "coberto",
+    "acess_entrada_sem_degrau",
+    "acess_banheiro_adaptado",
+    "alim_vegetariano",
+    "alim_vegano",
+    "alim_sem_gluten",
+    "alim_sem_lactose",
+]
 
 
 class Janela(BaseModel):

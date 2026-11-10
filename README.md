@@ -26,6 +26,7 @@ Programa de Residência em IA do Instituto Eldorado em parceria com a UnB (metod
 
 ## Onde está cada coisa
 
+- **[GUIA_OFICIAL_PROJETO.md](GUIA_OFICIAL_PROJETO.md): GUIA OFICIAL ÚNICO DO PROJETO (arquitetura fechada, telas, banco na nuvem e divisão de tarefas)**
 - [STATUS.md](STATUS.md): em que pé o projeto está agora
 - [AGENTS.md](AGENTS.md): contexto e regras para agentes de IA (e humanos)
 - [docs/desafio/](docs/desafio/): enunciado original do Challenge 2

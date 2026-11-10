@@ -10,7 +10,7 @@ from decimal import Decimal
 
 from pydantic import ValidationError
 
-from base.contrato import ConsultaBusca, Janela
+from .contrato import ConsultaBusca, Janela
 
 from .config import CFG, PROMPTS
 from .esquema import IntencaoLLM, Intencao, Interpretacao, SaidaLLM
