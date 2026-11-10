@@ -53,5 +53,38 @@
     "horario_gabarito": "Noite (rodízio com reposição a noite toda)",
     "evidencia_id_tiktok": "tiktok_7678112514009304338",
     "armadilha_llm_pura": "Mandar o grupo para rodízios do Plano Piloto ou inventar endereço em Samambaia"
+  },
+  {
+    "id": "golden_06",
+    "pergunta": "Onde dá para comer e beber com os amigos depois da 1h da manhã num sábado?",
+    "categoria": "janela_horario",
+    "ra_esperada": "Plano Piloto (Asa Sul)",
+    "locais_gabarito": ["New Mercadito"],
+    "preco_maximo_gabarito": 54.99,
+    "horario_gabarito": "Sexta a domingo até 01h30; segunda a quinta só até 00h",
+    "evidencia_id_tiktok": "tiktok_7621221602457390354",
+    "armadilha_llm_pura": "Inventar bares 24h ou dizer que fecha às 4h; indicar o lugar numa segunda a quinta depois da meia-noite. Obs.: o preço da base é o do buffet de almoço"
+  },
+  {
+    "id": "golden_07",
+    "pergunta": "Onde tem buffet de almoço à vontade por menos de R$ 30 no domingo em Taguatinga?",
+    "categoria": "janela_horario",
+    "ra_esperada": "Taguatinga",
+    "locais_gabarito": ["Casa Bar"],
+    "preco_maximo_gabarito": 29.99,
+    "horario_gabarito": "Somente aos domingos, no almoço",
+    "evidencia_id_tiktok": "tiktok_7681780069928324370",
+    "armadilha_llm_pura": "Sugerir lugar fechado no domingo (a Casa Caipira, em Taguatinga, fecha domingos e feriados) ou dizer que o buffet funciona em outros dias"
+  },
+  {
+    "id": "golden_08",
+    "pergunta": "Quero ir num pizza bar com drinks no domingo à tarde. Qual abre e a partir de que horas?",
+    "categoria": "janela_horario",
+    "ra_esperada": "Plano Piloto (Asa Sul)",
+    "locais_gabarito": ["Spelunca DF"],
+    "preco_maximo_gabarito": 65.5,
+    "horario_gabarito": "Domingo a partir das 16h (quarta a sábado a partir das 18h)",
+    "evidencia_id_tiktok": "tiktok_7628371621136452882",
+    "armadilha_llm_pura": "Prometer karaokê (só às quartas) ou o dado da conta grátis (só às quintas) no domingo, ou dizer que abre às 18h"
   }
 ]
