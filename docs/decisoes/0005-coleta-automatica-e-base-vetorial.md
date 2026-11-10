@@ -1,6 +1,6 @@
 # 0005 — Coleta automática e base vetorial de lugares e eventos
 
-- **Status:** proposta
+- **Status:** substituída pelo [ADR 0008](0008-base-2fa-de-93-lugares-e-lgpd.md) em 2026-11-10 (base oficial de 93 lugares do TikTok; `src/base/` removido)
 - **Data:** 2026-11-03
 - **Semana do roadmap:** 2 — Base de conhecimento e recuperação
 - **Substitui do [ADR 0004](0004-fonte-e-manutencao-da-base.md):** a curadoria humana (Pergunta 1, fontes primárias lidas por pessoas), as rotinas manuais da Pergunta 3, o orçamento de horas da Pergunta 4 e o [guia de curadoria](../dados/guia-curadoria.md) como procedimento

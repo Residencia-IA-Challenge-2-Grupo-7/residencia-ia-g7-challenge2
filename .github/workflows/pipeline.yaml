@@ -47,8 +47,9 @@ jobs:
           pip install pytest httpx
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      # 5. Executa os testes automatizados com Pytest.
-      # Injetamos PYTHONPATH=. e credenciais de teste para isolar a telemetria.
+      # 5. Executa todos os testes automatizados com Pytest (smoke, interpretador, 4 campos e salas).
+      # Injetamos PYTHONPATH=. e credenciais de teste para isolar a telemetria;
+      # o tests/conftest.py acrescenta src/ ao caminho para os módulos que importam `interpretador`.
       - name: 5. Executar Smoke Tests e Validações
         env:
           PYTHONPATH: .
@@ -57,4 +58,4 @@ jobs:
           LANGFUSE_SECRET_KEY: sk-lf-dummy-test-key
           LANGFUSE_BASE_URL: https://cloud.langfuse.com
         run: |
-          pytest -v tests/test_smoke.py tests/test_logger_e_cache.py tests/test_guardrails_e_baseline.py
+          pytest -v tests

@@ -6,6 +6,7 @@ from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from pydantic import BaseModel
 
 from src.interface import ENTREGAVEIS_PAGE, HTML_PAGE, LANDING_PAGE
+from src.salas.rotas import router as salas_router
 from src.telemetria.telemetria import (
     checar_conexao_langfuse,
     disparar_primeiro_trace,
@@ -20,6 +21,7 @@ app = FastAPI(
     description="API do Orquestrador de Roles com Telemetria Langfuse (Grupo 7 - Challenge 2)",
     version="0.2.0",
 )
+app.include_router(salas_router)
 
 
 class ConsultaRAGRequest(BaseModel):
