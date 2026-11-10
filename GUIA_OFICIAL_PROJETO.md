@@ -30,11 +30,124 @@ O **Orquestrador de Rolês** é um aplicativo web pensado para celular e computa
    - Calculamos a distância (km), o tempo estimado (carro vs. ônibus/metrô) e o custo de passagem cruzando as **35 Regiões Administrativas do DF** com o **GPS dos 93 lugares da Miti**, sem depender de chave paga ou cartão de crédito no Google Maps.
    - Usamos a regra da **"Menor Miséria"**: o sistema protege quem tem menos dinheiro e quem mora mais longe do Plano Piloto.
 6. **Banco de Dados Oficial na Nuvem (Supabase / PostgreSQL):**
-   - Todas as salas criadas, participantes, respostas secretas dos 4 campos, votos e contas divididas ficam salvos em um banco **PostgreSQL gratuito na nuvem (Supabase)**, acessível por toda a equipe via `.env`.
+   - Todas as salas criadas, participantes, respostas secretas dos 4 campos, votos e contas divididas ficam salvos em um banco **PostgreSQL na nuvem (Supabase)** em São Paulo (`sa-east-1`), estruturado em **7 tabelas normalizadas** e com fallback automático para SQLite local offline.
 
 ---
 
-## 2. As 4 Telas do Aplicativo Completo (O Que Vamos Construir)
+## 2. Decisões de Negócio e Arquitetura de Dados (Banco Supabase e Domínio)
+
+Durante a modelagem e implementação da camada de dados na nuvem (Supabase / PostgreSQL), foram consolidadas regras de negócio e de proteção ao usuário fundamentais para o sucesso do aplicativo:
+
+### 2.1 Desacoplamento: Perfil Permanente vs. Sessão do Rolê
+- **Usuário Permanente (`usuarios`):** O usuário preenche apenas uma vez no cadastro seus dados base (`nome`, `email`, `chave_pix_padrao`, `transporte_padrao`, `restricoes_permanentes`) e a confirmação obrigatória de **Maioridade (18+ anos)** (guardrail essencial para segurança jurídica e regras de bares/eventos do MVP).
+- **Múltiplos Endereços Salvos (`usuario_enderecos`):** Um morador do DF raramente sai sempre do mesmo lugar. O usuário pode salvar seus pontos frequentes (ex: *Casa* [padrão residencial em Águas Claras], *Trabalho* [Plano Piloto], *Faculdade/UnB* [Asa Norte]).
+- **Participante da Sala (`sala_participantes`):** Guarda exclusivamente as respostas para *aquele encontro específico* (vibe do dia, limite financeiro e disponibilidade de horário).
+
+### 2.2 Ponto de Partida Inteligente: Amarrado à Janela de Horário
+- **Problema de Negócio:** Quando um grupo cria uma sala para combinar um rolê, o dia e o horário do encontro **ainda não estão decididos**. Se a pessoa disser que está livre na "Sexta às 19h" e no "Sábado às 15h", de onde ela sairá?
+- **Decisão:** O ponto de partida de cada participante é **amarrado diretamente a cada janela de horário** declarada:
+  - *Exemplo real:* Na sexta-feira após o expediente, o usuário sai do **Trabalho (Setor Comercial Sul)**; no sábado à tarde, sai de **Casa (Águas Claras)**.
+  - Isso permite que o algoritmo de mobilidade e a regra da **"Menor Miséria"** calculem o tempo de deslocamento real com base no dia eleito pelo grupo, sem distorcer o trajeto de ninguém.
+
+### 2.3 Blindagem Absoluta do Sigilo Orçamentário (RNF-01 e RNF-02)
+- O valor informado em `limite_gasto_rs` é **100% confidencial**.
+- **Regra de ouro:** Nenhuma rota de API pública, nem a listagem de membros da sala, nem o banco devolvem o valor individual de ninguém.
+- O sistema apenas calcula internamente o menor valor (ou a interseção orçamentária justa) para calibrar a busca dos 93 lugares aprovados, garantindo que ninguém passe vergonha nem fique de fora por questão financeira.
+
+### 2.4 Pós-Rolê Justo e Integração Pix BACEN
+- Na finalização do rolê (`despesas_pos_role`), a pessoa que pagou a conta cadastra os dados ou envia a foto da nota fiscal (`itens_json`).
+- O sistema permite **desmarcar itens específicos** (ex: quem não bebe álcool não paga o chopp, quem é vegetariano não paga o prato de carne).
+- O módulo financeiro gera o **payload oficial Pix Copia e Cola (padrão EMV Banco Central)** com o valor exato e a chave Pix do pagador, facilitando o acerto imediato.
+
+### 2.5 Resiliência: Banco na Nuvem com Fallback Local Automático
+- **Produção:** Instância Supabase PostgreSQL em São Paulo (`sa-east-1`), com 7 tabelas normalizadas, índices de performance e integridade referencial com deleção em cascata.
+- **Desenvolvimento Offline:** O cliente de banco (`src/db/supabase_client.py`) detecta automaticamente a ausência de conexão ou de credenciais na máquina do desenvolvedor e ativa um **fallback transparente em SQLite local (`data/app_local.db`)**, garantindo que toda a suíte de testes (`make test`) e o Docker funcionem sem falhas em qualquer ambiente.
+
+### 2.6 Diagrama Entidade-Relacionamento (ERD) Oficial
+
+```mermaid
+erDiagram
+    USUARIOS ||--o{ USUARIO_ENDERECOS : "possui (Casa, Trabalho, UnB)"
+    USUARIOS ||--o{ SALAS : "cria / administra"
+    USUARIOS ||--o{ SALA_PARTICIPANTES : "pode vincular perfil a"
+    SALAS ||--|{ SALA_PARTICIPANTES : "contém (2 a 20 membros)"
+    SALAS ||--|{ SUGESTOES_ROLE : "gera 3 a 4 opções de IA"
+    SALAS ||--o{ VOTOS : "agrega votação"
+    SALAS ||--o{ DESPESAS_POS_ROLE : "registra divisão de conta"
+    SALA_PARTICIPANTES ||--o{ VOTOS : "vota em"
+    SUGESTOES_ROLE ||--o{ VOTOS : "recebe voto de"
+
+    USUARIOS {
+        uuid id PK
+        string nome
+        string email
+        boolean maior_18_anos "Guardrail 18+"
+        string transporte_padrao
+        text restricoes_permanentes
+        string chave_pix_padrao
+    }
+
+    USUARIO_ENDERECOS {
+        uuid id PK
+        uuid usuario_id FK
+        string rotulo "Casa, Trabalho, UnB"
+        string regiao_ra "RA do DF"
+        string ponto_referencia
+        boolean is_padrao
+    }
+
+    SALAS {
+        uuid id PK
+        string codigo_sala "Ex: ROLE-A1B2"
+        string nome_role
+        uuid criador_id FK
+        string status "aberta, votando, finalizada"
+        jsonb janela_escolhida_json
+    }
+
+    SALA_PARTICIPANTES {
+        uuid id PK
+        uuid sala_id FK
+        uuid usuario_id FK
+        string nome
+        jsonb janelas_disponiveis_json "Janelas + Origens"
+        numeric limite_gasto_rs "Sigiloso (RNF-01/02)"
+        string vibe_hoje
+    }
+
+    SUGESTOES_ROLE {
+        uuid id PK
+        uuid sala_id FK
+        string local_id "Catálogo 2FA"
+        string nome_local
+        string regiao_ra
+        numeric faixa_gasto_rs
+        text mobility_summary
+        numeric ranking_justica "Menor Miséria"
+    }
+
+    VOTOS {
+        uuid id PK
+        uuid sala_id FK
+        uuid participante_id FK
+        uuid sugestao_id FK
+        timestamp votado_em
+    }
+
+    DESPESAS_POS_ROLE {
+        uuid id PK
+        uuid sala_id FK
+        string pagador_nome
+        numeric valor_total_rs
+        string chave_pix "BACEN"
+        jsonb itens_json "Nota Fiscal OCR"
+        boolean quitado
+    }
+```
+
+---
+
+## 3. As 4 Telas do Aplicativo Completo (O Que Vamos Construir)
 
 Para o aplicativo estar 100% pronto e funcional até a Semana 6, o sistema terá **4 telas principais** (além da página `/rag` e `/entregaveis` que já mostramos aos monitores):
 
@@ -60,7 +173,7 @@ Para o aplicativo estar 100% pronto e funcional até a Semana 6, o sistema terá
 
 ---
 
-## 3. Como Cada Semana do Curso Se Encaixa no Nosso Projeto
+## 4. Como Cada Semana do Curso Se Encaixa no Nosso Projeto
 
 | Semana | Entregável para os Monitores | O Que Construímos do Nosso Aplicativo |
 | :--- | :--- | :--- |
@@ -74,7 +187,7 @@ Para o aplicativo estar 100% pronto e funcional até a Semana 6, o sistema terá
 
 ---
 
-## 4. Plano Completo da Semana 3 (92 Horas de Trabalho da Equipe)
+## 5. Plano Completo da Semana 3 (92 Horas de Trabalho da Equipe)
 
 **Carga horária da semana:**
 - **Terça-feira (Hoje):** 8h *(Cauan, Carol, Duda e Samara presentes; Miti ausente)*
@@ -192,7 +305,7 @@ Para não sobrar tempo ocioso e garantirmos tanto a **nota máxima na entrega da
 
 ---
 
-## 5. Resumo Rápido das Regras de Ouro da Equipe
+## 6. Resumo Rápido das Regras de Ouro da Equipe
 
 1. **Fonte Única da Verdade:** Qualquer dúvida sobre como o app funciona deve seguir **este documento (`GUIA_OFICIAL_PROJETO.md`)**.
 2. **Nada de Subir Arquivos Soltos pelo Site do GitHub:** Sempre usar `git pull`, criar sua branch ou commitar organizado para não bagunçar as pastas `data/`, `src/` e `docs/`.
@@ -201,7 +314,7 @@ Para não sobrar tempo ocioso e garantirmos tanto a **nota máxima na entrega da
 
 ---
 
-## 6. Atalhos Rápidos Multiplataforma (DevOps) e Guia de Pull Requests
+## 7. Atalhos Rápidos Multiplataforma (DevOps) e Guia de Pull Requests
 
 Para que ninguém da equipe perca tempo decorando comandos longos do Docker, foram configurados atalhos automáticos compatíveis com qualquer computador (Mac, Linux e Windows):
 
