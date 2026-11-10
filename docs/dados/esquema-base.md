@@ -93,3 +93,105 @@ Os filtros (região, tipo, horário, preço, restrições) usam os campos estrut
 | PostgreSQL com pgvector | Fora do git | Tabelas, vetores e índices, recriáveis a partir dos CSVs (ADR 0005) |
 
 A versão usada na comparação LLM × RAG da semana 3 é marcada com uma tag no git (`base-semana-03`).
+
+---
+
+## Modelo de Dados Relacional da Aplicação (Supabase / PostgreSQL) — Semana 3
+
+Para viabilizar as 4 telas do aplicativo final, foi estruturado o esquema relacional oficial em `src/db/schema.sql` suportado pelo cliente `src/db/supabase_client.py` e modelos Pydantic em `src/db/models.py`.
+
+### Regras de Negócio Fundamentais:
+1. **Cadastro Fixo vs. Participação Dinâmica:** O usuário cadastra uma vez seu perfil e seus múltiplos locais frequentes no DF (Casa, Trabalho, UnB).
+2. **Origem Amarrada à Janela de Horário:** Como o dia do rolê ainda não foi definido, o usuário pode indicar de onde sairá em cada dia (ex: na sexta sai do Trabalho no Plano Piloto; no sábado sai de Casa em Águas Claras).
+3. **Blindagem de Sigilo Orçamentário (RNF-01 e RNF-02):** O teto financeiro (`limite_gasto_rs`) nunca é exposto nas listagens públicas da sala, sendo usado apenas pelo mediador para calcular a *Menor Miséria*.
+
+### Diagrama Entidade-Relacionamento (DER):
+
+```mermaid
+erDiagram
+    USUARIOS ||--o{ USUARIO_ENDERECOS : "possui locais salvos"
+    USUARIOS ||--o{ SALAS : "cria (administra)"
+    USUARIOS ||--o{ SALA_PARTICIPANTES : "participa"
+    SALAS ||--|{ SALA_PARTICIPANTES : "possui amigos"
+    SALAS ||--o{ SUGESTOES_ROLE : "recebe 3 a 4 opcoes"
+    SUGESTOES_ROLE ||--o{ VOTOS : "recebe votos"
+    SALA_PARTICIPANTES ||--o{ VOTOS : "vota em multiplas opcoes"
+    SALAS ||--o{ DESPESAS_POS_ROLE : "tem acerto de conta"
+    USUARIOS ||--o{ DESPESAS_POS_ROLE : "paga a comanda"
+
+    USUARIOS {
+        uuid id PK
+        string nome
+        string email UK
+        string telefone
+        boolean maior_18_anos "Exclusivo 18+ (ADR 0002)"
+        string transporte_padrao "carro, metro_onibus, uber, misto"
+        string restricoes_permanentes "Ex: vegetariano"
+        string chave_pix_padrao
+        timestamp criado_em
+    }
+
+    USUARIO_ENDERECOS {
+        uuid id PK
+        uuid usuario_id FK
+        string rotulo "Casa, Trabalho, Faculdade/UnB"
+        string regiao_ra "Qual das 35 RAs do DF"
+        string ponto_referencia "Perto do metrô, quadra"
+        boolean is_padrao "Marca local principal"
+    }
+
+    SALAS {
+        uuid id PK
+        string codigo_sala UK "Ex: ROLE123"
+        string nome_role "Ex: Aniversário Cadu"
+        uuid criador_id FK
+        string criador_nome
+        string status "aberta, votando, fechada"
+        timestamp criado_em
+    }
+
+    SALA_PARTICIPANTES {
+        uuid id PK
+        uuid sala_id FK
+        uuid usuario_id FK
+        string nome
+        jsonb janelas_disponiveis_json "Horário com Ponto de Partida associado"
+        decimal limite_gasto_rs "100% SIGILOSO (RNF-01/02)"
+        string vibe_hoje
+        string transporte_hoje
+        timestamp respondeu_em
+    }
+
+    SUGESTOES_ROLE {
+        uuid id PK
+        uuid sala_id FK
+        string local_id "Ref 93 locais do TikTok"
+        string nome_local
+        string regiao_ra
+        string endereco
+        string dia_horario_sugerido
+        decimal faixa_gasto_rs "Consumo + transporte"
+        string mobility_summary "Estimativa de tempo e rota"
+        decimal ranking_justica "Score Menor Miséria"
+        text motivo_escolha
+    }
+
+    VOTOS {
+        uuid id PK
+        uuid sala_id FK
+        uuid participante_id FK
+        uuid sugestao_id FK
+        timestamp votado_em
+    }
+
+    DESPESAS_POS_ROLE {
+        uuid id PK
+        uuid sala_id FK
+        string pagador_nome
+        decimal valor_total_rs
+        string chave_pix
+        jsonb itens_json "Discriminação da nota fiscal"
+        boolean quitado
+    }
+```
+

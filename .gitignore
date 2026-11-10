@@ -15,6 +15,7 @@ venv/
 data/raw/
 data/processed/
 data/telemetria/
+*.db
 *.faiss
 chroma*/
 vectorstore/
