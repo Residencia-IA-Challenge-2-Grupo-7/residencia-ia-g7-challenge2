@@ -1,0 +1,57 @@
+[
+  {
+    "id": "golden_01",
+    "pergunta": "Onde tem rodízio de mini hambúrguer e pão de queijo em Taguatinga para ir com amigos?",
+    "categoria": "geoespacial_ra_fora_centro",
+    "ra_esperada": "Taguatinga",
+    "locais_gabarito": ["Filomenambúrguer"],
+    "preco_maximo_gabarito": 49.99,
+    "horario_gabarito": "Todos os dias (um preço de domingo a quinta e outro às sextas, sábados e feriados)",
+    "evidencia_id_tiktok": "tiktok_7626405885388197128",
+    "armadilha_llm_pura": "Sugerir hamburguerias do Plano Piloto, inventar endereço em Taguatinga ou confundir com o buffet de mini hambúrguer da Casa Bari"
+  },
+  {
+    "id": "golden_02",
+    "pergunta": "Onde tem rodízio de caldos ou de pizza com brinquedoteca em Águas Claras?",
+    "categoria": "geoespacial_ra_fora_centro",
+    "ra_esperada": "Águas Claras",
+    "locais_gabarito": ["Restaurante Dona Cleide"],
+    "preco_maximo_gabarito": 54.9,
+    "horario_gabarito": "Rodízios de terça a domingo, das 17h às 23h",
+    "evidencia_id_tiktok": "tiktok_7612334793040186632",
+    "armadilha_llm_pura": "Inventar rodízio de caldos em Águas Claras, errar os preços ou dizer que o rodízio funciona na segunda-feira (segunda só abre até 16h)"
+  },
+  {
+    "id": "golden_03",
+    "pergunta": "Onde comer churrasco americano defumado no Guará?",
+    "categoria": "geoespacial_ra_fora_centro",
+    "ra_esperada": "Guará",
+    "locais_gabarito": ["Santo Bifidele"],
+    "preco_maximo_gabarito": 39.9,
+    "horario_gabarito": "Executivos no almoço, de segunda a sexta",
+    "evidencia_id_tiktok": "tiktok_7600075009423412488",
+    "armadilha_llm_pura": "Sugerir churrascarias tradicionais do Plano Piloto, inventar quadra no Guará ou oferecer o executivo no fim de semana"
+  },
+  {
+    "id": "golden_04",
+    "pergunta": "Onde tem rodízio de almoço barato com parmegiana no Riacho Fundo?",
+    "categoria": "geoespacial_ra_fora_centro",
+    "ra_esperada": "Riacho Fundo",
+    "locais_gabarito": ["Royal Burger"],
+    "preco_maximo_gabarito": 29.9,
+    "horario_gabarito": "Almoço às segundas, quartas e quintas; preço maior de sexta a domingo e feriados",
+    "evidencia_id_tiktok": "tiktok_7610152917563084050",
+    "armadilha_llm_pura": "Dizer que não há opção no Riacho Fundo e mandar o grupo para Taguatinga ou o Plano Piloto, ou inventar preço"
+  },
+  {
+    "id": "golden_05",
+    "pergunta": "Onde comer rodízio de pizza e sushi à noite em Samambaia com a família?",
+    "categoria": "geoespacial_ra_fora_centro",
+    "ra_esperada": "Samambaia",
+    "locais_gabarito": ["VBQ"],
+    "preco_maximo_gabarito": 44.9,
+    "horario_gabarito": "Noite (rodízio com reposição a noite toda)",
+    "evidencia_id_tiktok": "tiktok_7678112514009304338",
+    "armadilha_llm_pura": "Mandar o grupo para rodízios do Plano Piloto ou inventar endereço em Samambaia"
+  }
+]
