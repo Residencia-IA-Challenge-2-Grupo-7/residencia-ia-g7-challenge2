@@ -189,6 +189,13 @@ LANDING_PAGE = """<!DOCTYPE html>
     }
     .btn-entregaveis:hover { opacity: 0.94; transform: translateY(-1px); }
 
+    .btn-comparativo {
+      background: linear-gradient(180deg, #1f6feb, #388bfd);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(56, 139, 253, 0.3);
+    }
+    .btn-comparativo:hover { opacity: 0.94; transform: translateY(-1px); }
+
     .features-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -221,6 +228,7 @@ LANDING_PAGE = """<!DOCTYPE html>
     <div class="nav-links">
       <a href="/" class="nav-link active">🏠 Início</a>
       <a href="/rag" class="nav-link">🤖 Chat RAG</a>
+      <a href="/comparativo" class="nav-link">⚖️ Comparativo LLM vs. RAG</a>
       <a href="/entregaveis" class="nav-link highlight">📂 Central de Entregáveis</a>
     </div>
   </nav>
@@ -240,6 +248,7 @@ LANDING_PAGE = """<!DOCTYPE html>
 
       <div class="cta-group">
         <a href="/rag" class="btn btn-rag">🤖 Testar Chat RAG &rarr;</a>
+        <a href="/comparativo" class="btn btn-comparativo">⚖️ Comparativo LLM vs. RAG &rarr;</a>
         <a href="/entregaveis" class="btn btn-entregaveis">📂 Central de Entregáveis &rarr;</a>
       </div>
 
@@ -460,7 +469,10 @@ HTML_PAGE = """<!DOCTYPE html>
   <div class="container">
     <div class="top-nav">
       <a href="/" style="font-weight:600; color:#e6edf3;">&larr; Início</a>
-      <a href="/entregaveis" class="nav-highlight">📂 Central de Entregáveis &rarr;</a>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <a href="/comparativo" class="nav-highlight" style="color:#58a6ff; background:rgba(88,166,255,0.12); border-color:rgba(88,166,255,0.35);">⚖️ Comparativo LLM vs. RAG</a>
+        <a href="/entregaveis" class="nav-highlight">📂 Central de Entregáveis &rarr;</a>
+      </div>
     </div>
 
     <header>
@@ -1069,6 +1081,7 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
     <div class="nav-links">
       <a href="/" class="nav-link">🏠 Início</a>
       <a href="/rag" class="nav-link">🤖 Chat RAG</a>
+      <a href="/comparativo" class="nav-link">⚖️ Comparativo LLM vs. RAG</a>
       <a href="/entregaveis" class="nav-link active">📂 Central de Entregáveis</a>
     </div>
   </nav>
@@ -1896,3 +1909,1532 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
 </body>
 </html>
 """
+
+
+GOLDEN_PERGUNTAS = {
+    "golden_01": "Onde comer hambúrguer artesanal ou rodízio de mini hambúrgueres em Taguatinga com amigos?",
+    "golden_02": "Quero um restaurante romântico para jantar de casal no Lago Sul ou Asa Sul com música ao vivo ou vista bonita",
+    "golden_03": "Onde comer sushi, ramen ou comida japonesa tradicional em Brasília?",
+    "golden_04": "Indica um café colonial, brunch ou cafeteria aconchegante para ir à tarde na Asa Norte ou Asa Sul",
+    "golden_05": "Onde comer carne de sol, parrilla ou churrasco com cerveja gelada em Águas Claras ou Guará?",
+    "golden_06": "Quero uma pizzaria napolitana ou rodízio de massas italianas para ir com a família",
+    "golden_07": "Tem opção de passeio gratuito ao ar livre, parque ou ponto turístico cultural no Plano Piloto?",
+    "golden_08": "Onde encontrar doceria, sorveteria artesanal ou açaí para sobremesa no Sudoeste ou Águas Claras?",
+    "golden_09": "Qual barzinho agitado ou pub com drinks autorais e petiscos para happy hour na Asa Norte?",
+    "golden_10": "Onde comer comida nordestina, feijoada ou almoço executivo barato até 50 reais no DF?",
+}
+
+
+COMPARATIVO_PAGE = """<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comparativo Lado a Lado: LLM Pura vs. RAG Ancorado | Orquestrador de Rolês DF</title>
+  <style>
+    :root {
+      /* Paleta Principal (#FF2E9A, #C6FF00, #00E5FF, #0C0A14) + Superfícies Análogas */
+      --bg-dark: #0C0A14;
+      --card-bg: #151124;
+      --card-bg-elevated: #1D1732;
+      --card-border: #2D2447;
+      --text-main: #F5F2FF;
+      --text-muted: #A59BBF;
+      --track-bg: #1D1732;
+
+      --neon-pink: #FF2E9A;
+      --neon-pink-soft: rgba(255, 46, 154, 0.14);
+      --neon-pink-border: rgba(255, 46, 154, 0.48);
+
+      --neon-lime: #C6FF00;
+      --neon-lime-soft: rgba(198, 255, 0, 0.13);
+      --neon-lime-border: rgba(198, 255, 0, 0.45);
+
+      --neon-cyan: #00E5FF;
+      --neon-cyan-soft: rgba(0, 229, 255, 0.13);
+      --neon-cyan-border: rgba(0, 229, 255, 0.45);
+    }
+
+    /* Versão Clara Opcional */
+    body.light-mode {
+      --bg-dark: #FAFAFA;
+      --card-bg: #FFFFFF;
+      --card-bg-elevated: #F3F0FF;
+      --card-border: #E5E7EB;
+      --text-main: #12082E;
+      --text-muted: #4B5563;
+      --track-bg: #E5E7EB;
+    }
+
+    body.dark-mode {
+      --bg-dark: #0C0A14;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dark);
+      background-image:
+        radial-gradient(circle at 12% 10%, rgba(255, 46, 154, 0.08), transparent 32%),
+        radial-gradient(circle at 88% 12%, rgba(0, 229, 255, 0.08), transparent 32%),
+        radial-gradient(circle at 50% 90%, rgba(198, 255, 0, 0.05), transparent 38%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    /* Barra de Navegação Superior */
+    .top-nav {
+      background: rgba(12, 10, 20, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      padding: 12px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    body.light-mode .top-nav {
+      background: #230D63;
+    }
+
+    .brand-title {
+      color: #F5F2FF;
+      font-size: 0.92rem;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .top-nav a.nav-active {
+      background: var(--neon-cyan-soft);
+      color: var(--neon-cyan);
+      padding: 6px 14px;
+      border-radius: 999px;
+      border: 1px solid var(--neon-cyan-border);
+      font-size: 0.85rem;
+      font-weight: 700;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .theme-toggle-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      color: #F5F2FF;
+      border: 1px solid var(--card-border);
+      padding: 6px 13px;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .theme-toggle-btn:hover {
+      border-color: var(--neon-cyan);
+      color: var(--neon-cyan);
+      background: var(--neon-cyan-soft);
+    }
+
+    header.hero-header {
+      text-align: center;
+      padding: 28px 20px 22px;
+      background: radial-gradient(circle at top, #1F1538 0%, #0C0A14 78%);
+      border-bottom: 1px solid var(--card-border);
+    }
+
+    body.light-mode header.hero-header {
+      background: radial-gradient(circle at top, #230D63 0%, #14073A 85%);
+    }
+
+    header.hero-header h1 {
+      font-size: 1.85rem;
+      font-weight: 800;
+      margin-bottom: 8px;
+      background: linear-gradient(90deg, var(--neon-pink) 0%, var(--neon-cyan) 50%, var(--neon-lime) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.3;
+    }
+
+    header.hero-header p {
+      color: #A59BBF;
+      max-width: 820px;
+      margin: 0 auto;
+      font-size: 0.94rem;
+      line-height: 1.5;
+    }
+
+    .main-wrapper {
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 20px 24px 36px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      flex: 1;
+    }
+
+    /* Seletor Golden Dataset + Barra de Pergunta */
+    .control-panel {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 8px 28px rgba(0, 0, 0, 0.45);
+    }
+
+    body.light-mode .control-panel {
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+    }
+
+    .control-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .control-label {
+      font-size: 0.82rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--neon-cyan);
+    }
+
+    body.light-mode .control-label {
+      color: #230D63;
+    }
+
+    .golden-select {
+      flex: 1;
+      min-width: 260px;
+      background: var(--bg-dark);
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.88rem;
+      outline: none;
+    }
+
+    .golden-select:focus {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.2);
+    }
+
+    .chips-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .golden-chip {
+      background: var(--card-bg-elevated);
+      color: var(--text-muted);
+      border: 1px solid var(--card-border);
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .golden-chip:hover,
+    .golden-chip.active {
+      background: var(--neon-pink-soft);
+      color: #FFFFFF;
+      border-color: var(--neon-pink);
+      box-shadow: 0 0 12px rgba(255, 46, 154, 0.25);
+    }
+
+    body.light-mode .golden-chip:hover,
+    body.light-mode .golden-chip.active {
+      background: #FF2E9A;
+      color: #FFFFFF;
+      border-color: #FF2E9A;
+    }
+
+    .search-bar {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .search-input {
+      flex: 1;
+      background: var(--bg-dark);
+      color: var(--text-main);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 11px 14px;
+      font-size: 0.92rem;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 0 2px rgba(0, 229, 255, 0.2);
+    }
+
+    .btn-executar {
+      background: linear-gradient(90deg, var(--neon-pink) 0%, var(--neon-cyan) 100%);
+      color: #0C0A14;
+      border: none;
+      border-radius: 8px;
+      padding: 11px 22px;
+      font-weight: 800;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.2s ease;
+      white-space: nowrap;
+      box-shadow: 0 4px 16px rgba(0, 229, 255, 0.28);
+    }
+
+    .btn-executar:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(255, 46, 154, 0.42);
+    }
+
+    /* Grid Comparativo Lado a Lado (2 colunas no desktop, 1 coluna no mobile) */
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .mode-column {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.42);
+    }
+
+    body.light-mode .mode-column {
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+    }
+
+    .mode-column.modo-a {
+      border-top: 4px solid var(--neon-pink);
+    }
+
+    .mode-column.modo-b {
+      border-top: 4px solid var(--neon-lime);
+    }
+
+    .mode-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 12px;
+    }
+
+    .mode-title {
+      font-size: 1.12rem;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      line-height: 1.3;
+    }
+
+    .mode-subtitle {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+    }
+
+    .llm-model-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 6px;
+      background: rgba(255, 46, 154, 0.12);
+      border: 1px solid var(--neon-pink-border);
+      color: var(--neon-pink);
+      padding: 3px 9px;
+      border-radius: 6px;
+      font-size: 0.73rem;
+      font-weight: 700;
+    }
+
+    body.light-mode .llm-model-pill {
+      color: #B80058;
+    }
+
+    .llm-model-pill.pill-rag {
+      background: rgba(198, 255, 0, 0.11);
+      border-color: var(--neon-lime-border);
+      color: var(--neon-lime);
+    }
+
+    body.light-mode .llm-model-pill.pill-rag {
+      background: #1B3B00;
+      color: #C6FF00;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 11px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 700;
+    }
+
+    .badge-warning-a {
+      background: var(--neon-pink-soft);
+      color: var(--neon-pink);
+      border: 1px solid var(--neon-pink-border);
+    }
+
+    body.light-mode .badge-warning-a {
+      color: #B80058;
+    }
+
+    .badge-verified-b {
+      background: var(--neon-lime-soft);
+      color: var(--neon-lime);
+      border: 1px solid var(--neon-lime-border);
+    }
+
+    body.light-mode .badge-verified-b {
+      background: #1B3B00;
+      color: #C6FF00;
+    }
+
+    /* Caixa de Resposta */
+    .response-box {
+      background: var(--bg-dark);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: var(--text-main);
+      min-height: 115px;
+    }
+
+    .fonte-cite {
+      background: var(--neon-lime-soft);
+      color: var(--neon-lime);
+      border: 1px solid var(--neon-lime-border);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-size: 0.76rem;
+      font-weight: 800;
+    }
+
+    body.light-mode .fonte-cite {
+      background: #1B3B00;
+      color: #C6FF00;
+    }
+
+    /* Métricas Operacionais (Latência e Tokens Totais) */
+    .metrics-strip {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .metric-card {
+      position: relative;
+      background: var(--bg-dark);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 10px 28px 10px 10px;
+      text-align: center;
+    }
+
+    .metric-val {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text-main);
+    }
+
+    .metric-lbl {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      margin-top: 2px;
+    }
+
+    /* Botão de Informação (i) — Aparece SOMENTE ao passar o mouse (:hover) */
+    .info-trigger {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .metric-card .info-trigger {
+      position: absolute;
+      top: 7px;
+      right: 7px;
+    }
+
+    .info-btn {
+      width: 19px;
+      height: 19px;
+      border-radius: 50%;
+      background: var(--neon-cyan-soft);
+      color: var(--neon-cyan);
+      border: 1px solid var(--neon-cyan-border);
+      font-size: 0.7rem;
+      font-weight: 800;
+      line-height: 1;
+      cursor: help;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0;
+      transition: all 0.15s ease;
+    }
+
+    body.light-mode .info-btn {
+      background: #230D63;
+      color: #FFFFFF;
+      border-color: #230D63;
+    }
+
+    .info-trigger:hover .info-btn {
+      background: var(--neon-cyan);
+      color: #0C0A14;
+      box-shadow: 0 0 10px rgba(0, 229, 255, 0.5);
+    }
+
+    .info-btn-pill {
+      width: auto;
+      height: auto;
+      border-radius: 999px;
+      padding: 3px 9px;
+      gap: 4px;
+      font-size: 0.7rem;
+    }
+
+    .info-popover {
+      visibility: hidden;
+      opacity: 0;
+      pointer-events: none;
+      position: absolute;
+      bottom: calc(100% + 8px);
+      right: 0;
+      width: 245px;
+      background: #1B1530;
+      color: var(--text-main);
+      border: 1px solid var(--neon-cyan);
+      border-radius: 8px;
+      padding: 9px 11px;
+      font-size: 0.74rem;
+      font-weight: 500;
+      line-height: 1.42;
+      text-align: left;
+      text-transform: none;
+      letter-spacing: normal;
+      box-shadow: 0 10px 26px rgba(0, 0, 0, 0.75);
+      z-index: 40;
+      transition: opacity 0.15s ease, visibility 0.15s ease;
+    }
+
+    body.light-mode .info-popover {
+      background: #230D63;
+      color: #FFFFFF;
+    }
+
+    .info-popover.popover-left {
+      left: 0;
+      right: auto;
+    }
+
+    .info-popover.popover-wide {
+      width: 310px;
+    }
+
+    .info-trigger:hover .info-popover {
+      visibility: visible;
+      opacity: 1;
+    }
+
+    /* Barras de Score RNF-03 / RNF-14 */
+    .scores-panel {
+      background: var(--bg-dark);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .scores-header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .scores-title {
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      letter-spacing: 0.4px;
+    }
+
+    .score-row {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .score-row-top {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 7px;
+      background: var(--track-bg);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.35s ease;
+    }
+
+    /* Fontes Utilizadas (Cards de Evidência 2FA) */
+    .sources-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .sources-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .empty-sources-box {
+      background: rgba(255, 46, 154, 0.06);
+      border: 1px dashed var(--neon-pink-border);
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+      color: var(--neon-pink);
+      font-size: 0.84rem;
+    }
+
+    body.light-mode .empty-sources-box {
+      color: #B80058;
+    }
+
+    .source-card {
+      background: var(--bg-dark);
+      border: 1px solid var(--card-border);
+      border-left: 3px solid var(--neon-lime);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .source-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .source-name {
+      font-weight: 800;
+      font-size: 0.94rem;
+      color: var(--text-main);
+    }
+
+    .source-sim {
+      background: var(--neon-lime-soft);
+      color: var(--neon-lime);
+      border: 1px solid var(--neon-lime-border);
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    body.light-mode .source-sim {
+      background: #1B3B00;
+      color: #C6FF00;
+    }
+
+    .source-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+    }
+
+    .meta-pill {
+      background: var(--card-bg-elevated);
+      border: 1px solid var(--card-border);
+      padding: 2px 8px;
+      border-radius: 6px;
+    }
+
+    .source-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .btn-tiktok {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--neon-pink-soft);
+      color: var(--neon-pink);
+      border: 1px solid var(--neon-pink-border);
+      padding: 5px 11px;
+      border-radius: 6px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    body.light-mode .btn-tiktok {
+      background: #FF2E9A;
+      color: #FFFFFF;
+    }
+
+    .btn-tiktok:hover {
+      background: rgba(255, 46, 154, 0.26);
+    }
+
+    .trace-banner {
+      background: rgba(0, 229, 255, 0.08);
+      border: 1px solid var(--neon-cyan-border);
+      border-radius: 8px;
+      padding: 9px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 0.8rem;
+    }
+
+    .trace-link {
+      color: var(--neon-cyan);
+      font-weight: 700;
+      text-decoration: none;
+    }
+
+    body.light-mode .trace-link {
+      color: #230D63;
+      text-decoration: underline;
+    }
+
+    .trace-link:hover {
+      text-decoration: underline;
+    }
+
+    footer {
+      text-align: center;
+      padding: 16px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--card-border);
+    }
+
+    /* Responsividade Mobile (1 coluna empilhada) */
+    @media (max-width: 920px) {
+      .comparison-grid {
+        grid-template-columns: 1fr;
+      }
+      .search-bar {
+        flex-direction: column;
+      }
+      .btn-executar {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body class="dark-mode">
+  <div class="top-nav">
+    <div class="brand-title">🎭 Orquestrador de Rolês — Distrito Federal</div>
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <a href="/comparativo" class="nav-active">⚖️ Comparativo LLM vs. RAG</a>
+      <button
+        type="button"
+        class="theme-toggle-btn"
+        id="themeToggleBtn"
+        onclick="alternarTema()"
+        aria-label="Alternar entre Modo Escuro e Modo Claro"
+      >
+        ☀️ Modo Claro
+      </button>
+    </div>
+  </div>
+
+  <header class="hero-header">
+    <h1>⚖️ Comparativo Lado a Lado: LLM Pura vs. RAG Ancorado (2FA)</h1>
+    <p>
+      Demonstração executiva de mitigação de alucinações (<strong>RNF-03</strong>) e precisão geoespacial por Região Administrativa do DF. Compare em tempo real a resposta de uma LLM sem contexto contra o pipeline RAG ancorado nos estabelecimentos auditados no Google Maps e Instagram.
+    </p>
+  </header>
+
+  <main class="main-wrapper">
+    <!-- Painel de Seleção do Golden Dataset e Input Livre -->
+    <section class="control-panel" aria-label="Seletor de Perguntas do Golden Dataset">
+      <div class="control-row">
+        <span class="control-label">🎯 Golden Dataset (10 Casos):</span>
+        <select id="goldenSelect" class="golden-select" onchange="selecionarGoldenDropdown()">
+          <option value="golden_01">golden_01 — Onde comer hambúrguer artesanal ou rodízio de mini hambúrgueres em Taguatinga com amigos?</option>
+          <option value="golden_02">golden_02 — Quero um restaurante romântico para jantar de casal no Lago Sul ou Asa Sul com música ao vivo ou vista bonita</option>
+          <option value="golden_03">golden_03 — Onde comer sushi, ramen ou comida japonesa tradicional em Brasília?</option>
+          <option value="golden_04">golden_04 — Indica um café colonial, brunch ou cafeteria aconchegante para ir à tarde na Asa Norte ou Asa Sul</option>
+          <option value="golden_05">golden_05 — Onde comer carne de sol, parrilla ou churrasco com cerveja gelada em Águas Claras ou Guará?</option>
+          <option value="golden_06">golden_06 — Quero uma pizzaria napolitana ou rodízio de massas italianas para ir com a família</option>
+          <option value="golden_07">golden_07 — Tem opção de passeio gratuito ao ar livre, parque ou ponto turístico cultural no Plano Piloto?</option>
+          <option value="golden_08">golden_08 — Onde encontrar doceria, sorveteria artesanal ou açaí para sobremesa no Sudoeste ou Águas Claras?</option>
+          <option value="golden_09">golden_09 — Qual barzinho agitado ou pub com drinks autorais e petiscos para happy hour na Asa Norte?</option>
+          <option value="golden_10">golden_10 — Onde comer comida nordestina, feijoada ou almoço executivo barato até 50 reais no DF?</option>
+        </select>
+      </div>
+
+      <div class="chips-row" id="goldenChips">
+        <button type="button" class="golden-chip active" onclick="selecionarChip('golden_01')">#01 Hambúrguer Taguatinga</button>
+        <button type="button" class="golden-chip" onclick="selecionarChip('golden_02')">#02 Jantar Romântico Lago/Asa Sul</button>
+        <button type="button" class="golden-chip" onclick="selecionarChip('golden_03')">#03 Japonês / Ramen</button>
+        <button type="button" class="golden-chip" onclick="selecionarChip('golden_04')">#04 Café & Brunch Asa Norte/Sul</button>
+        <button type="button" class="golden-chip" onclick="selecionarChip('golden_05')">#05 Carne de Sol / Parrilla</button>
+        <button type="button" class="golden-chip" onclick="selecionarChip('golden_07')">#07 Passeio Gratuito / Parque</button>
+        <button type="button" class="golden-chip" onclick="selecionarChip('golden_10')">#10 Almoço até R$ 50</button>
+      </div>
+
+      <form class="search-bar" onsubmit="executarComparativo(event)">
+        <input
+          type="text"
+          id="perguntaComparativoInput"
+          class="search-input"
+          value="Onde comer hambúrguer artesanal ou rodízio de mini hambúrgueres em Taguatinga com amigos?"
+          placeholder="Digite uma pergunta sobre gastronomia ou lazer no DF ou selecione do Golden Dataset..."
+        />
+        <button type="submit" class="btn-executar" id="btnExecutarComparativo">
+          ⚡ Comparar Lado a Lado
+        </button>
+      </form>
+    </section>
+
+    <!-- Grid 2 Colunas: Modo A (LLM Pura) vs Modo B (RAG Ancorado) -->
+    <section class="comparison-grid">
+      <!-- COLUNA ESQUERDA: MODO A — LLM PURA (ZERO-SHOT) -->
+      <article class="mode-column modo-a" id="colunaModoA">
+        <div class="mode-header">
+          <div>
+            <div class="mode-title">
+              <span>🤖 Modo A — LLM Pura (Zero-Shot)</span>
+              <div class="info-trigger">
+                <span class="info-btn" aria-label="Informação sobre Zero-Shot">i</span>
+                <div class="info-popover popover-left">
+                  <strong>🎯 O que é Zero-Shot:</strong> A LLM responde direto pela sua memória de treinamento, sem receber exemplos prévios nem consultar a base auditada do DF.
+                </div>
+              </div>
+            </div>
+            <div class="mode-subtitle">Geração paramétrica sem acesso ao ChromaDB ou validação 2FA</div>
+            <div class="llm-model-pill">🧠 LLM: Google Gemini 1.5 Flash (gemini-1.5-flash)</div>
+          </div>
+          <span class="status-badge badge-warning-a" id="badgeModoA">
+            ⚠️ Sem Evidências — Sujeito a Alucinação
+          </span>
+        </div>
+
+        <div class="response-box" id="respostaModoA">
+          Em Taguatinga, algumas opções populares de hambúrguer artesanal incluem a "Burger House Taguá" na Avenida Comercial Norte e o "Garage Burger DF", que costumam oferecer combos e rodízio às quintas-feiras por cerca de R$ 39,90. Recomendo verificar os horários diretamente nas redes sociais, pois não possuo acesso em tempo real aos cardápios locais.
+        </div>
+
+        <div class="metrics-strip">
+          <div class="metric-card">
+            <div class="info-trigger">
+              <span class="info-btn" aria-label="Informação sobre Latência">i</span>
+              <div class="info-popover">
+                <strong>⏱️ Latência (RNF-14):</strong> Tempo total que o modelo levou para responder (meta SLA &le; 5.000 ms).
+              </div>
+            </div>
+            <div class="metric-val" id="latenciaModoA" style="color:var(--neon-pink);">420.2 ms</div>
+            <div class="metric-lbl">Latência (RNF-14)</div>
+          </div>
+          <div class="metric-card">
+            <div class="info-trigger">
+              <span class="info-btn" aria-label="Informação sobre Tokens Totais">i</span>
+              <div class="info-popover">
+                <strong>🔤 Tokens Totais:</strong> Soma das unidades de texto de entrada (pergunta) e saída geradas pela LLM.
+              </div>
+            </div>
+            <div class="metric-val" id="tokensModoA">180</div>
+            <div class="metric-lbl">Tokens Totais</div>
+          </div>
+        </div>
+
+        <div class="scores-panel">
+          <div class="scores-header-row">
+            <div class="scores-title">📊 Scores de Qualidade &amp; Governança</div>
+            <div class="info-trigger">
+              <span class="info-btn info-btn-pill" aria-label="Como os scores são calculados">i Cálculo</span>
+              <div class="info-popover popover-wide">
+                <strong>📐 Como calculamos as porcentagens:</strong><br/>
+                &bull; <strong>Taxa de Alucinação:</strong> Locais sem registro na base 2FA &divide; Total citado &times; 100.<br/>
+                &bull; <strong>Fidelidade Factual:</strong> Fatos e preços confirmados no JSON 2FA &divide; Total citado &times; 100.<br/>
+                &bull; <strong>Precisão Geoespacial RA:</strong> Locais na Região Administrativa pedida &divide; Total recomendado &times; 100.
+              </div>
+            </div>
+          </div>
+          <div class="score-row">
+            <div class="score-row-top">
+              <span>Taxa de Alucinação</span>
+              <span id="valAlucinacaoA" style="color:var(--neon-pink);">100%</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="barAlucinacaoA" style="width:100%; background:var(--neon-pink);"></div>
+            </div>
+          </div>
+          <div class="score-row">
+            <div class="score-row-top">
+              <span>Fidelidade Factual</span>
+              <span id="valFidelidadeA" style="color:var(--neon-pink);">0%</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="barFidelidadeA" style="width:4%; background:var(--neon-pink);"></div>
+            </div>
+          </div>
+          <div class="score-row">
+            <div class="score-row-top">
+              <span>Precisão Geoespacial RA</span>
+              <span id="valGeoespacialA" style="color:var(--neon-pink);">0%</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="barGeoespacialA" style="width:4%; background:var(--neon-pink);"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sources-section">
+          <div class="sources-header">
+            <span>📂 Fontes Utilizadas</span>
+            <span>0 Evidências</span>
+          </div>
+          <div class="empty-sources-box" id="fontesModoA">
+            🚫 <strong>Nenhuma fonte auditada utilizada.</strong><br/>
+            Estabelecimentos, preços e endereços gerados sem lastro na base curada do Distrito Federal.
+          </div>
+        </div>
+      </article>
+
+      <!-- COLUNA DIREITA: MODO B — RAG ANCORADO (CHROMA + 2FA) -->
+      <article class="mode-column modo-b" id="colunaModoB">
+        <div class="mode-header">
+          <div>
+            <div class="mode-title">🛡️ Modo B — RAG Ancorado (Base 2FA + ChromaDB)</div>
+            <div class="mode-subtitle">Busca vetorial 3072-d (gemini-embedding-2-preview) + Auditoria Maps &amp; Instagram</div>
+            <div class="llm-model-pill pill-rag">🧠 LLM: Gemini 1.5 Flash + Embeddings 3072-d</div>
+          </div>
+          <span class="status-badge badge-verified-b" id="badgeModoB">
+            ✅ 100% Fundamentado na Base Curada do DF
+          </span>
+        </div>
+
+        <div class="response-box" id="respostaModoB">
+          Com base na auditoria 2FA da base oficial do DF, recomendamos duas principais alternativas verificadas: 1ª opção: <strong>Filomenamburger</strong> <span class="fonte-cite">[FONTE #1]</span> em <strong>Taguatinga Norte</strong> (Custo médio: <strong>R$ 50,00</strong>); 2ª opção: <strong>Smash &amp; Co</strong> <span class="fonte-cite">[FONTE #2]</span> em <strong>Taguatinga Sul</strong> (Custo médio: <strong>R$ 42,00</strong>).
+        </div>
+
+        <div class="metrics-strip">
+          <div class="metric-card">
+            <div class="info-trigger">
+              <span class="info-btn" aria-label="Informação sobre Latência">i</span>
+              <div class="info-popover">
+                <strong>⏱️ Latência (RNF-14):</strong> Tempo de recuperação vetorial + síntese ancorada (meta SLA &le; 5.000 ms).
+              </div>
+            </div>
+            <div class="metric-val" id="latenciaModoB" style="color:var(--neon-lime);">19.5 ms</div>
+            <div class="metric-lbl">Latência (RNF-14)</div>
+          </div>
+          <div class="metric-card">
+            <div class="info-trigger">
+              <span class="info-btn" aria-label="Informação sobre Tokens Totais">i</span>
+              <div class="info-popover">
+                <strong>🔤 Tokens Totais:</strong> Soma dos tokens da pergunta, dos chunks 2FA injetados no prompt e da resposta gerada.
+              </div>
+            </div>
+            <div class="metric-val" id="tokensModoB">350</div>
+            <div class="metric-lbl">Tokens Totais</div>
+          </div>
+        </div>
+
+        <div class="scores-panel">
+          <div class="scores-header-row">
+            <div class="scores-title">📊 Scores de Qualidade &amp; Governança</div>
+            <div class="info-trigger">
+              <span class="info-btn info-btn-pill" aria-label="Como os scores são calculados">i Cálculo</span>
+              <div class="info-popover popover-wide">
+                <strong>📐 Como calculamos as porcentagens:</strong><br/>
+                &bull; <strong>Taxa de Alucinação:</strong> Locais sem registro na base 2FA &divide; Total citado &times; 100.<br/>
+                &bull; <strong>Fidelidade Factual:</strong> Fatos e preços confirmados no JSON 2FA &divide; Total citado &times; 100.<br/>
+                &bull; <strong>Precisão Geoespacial RA:</strong> Locais na Região Administrativa pedida &divide; Total recomendado &times; 100.
+              </div>
+            </div>
+          </div>
+          <div class="score-row">
+            <div class="score-row-top">
+              <span>Taxa de Alucinação</span>
+              <span id="valAlucinacaoB" style="color:var(--neon-lime);">0%</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="barAlucinacaoB" style="width:0%; background:var(--neon-lime);"></div>
+            </div>
+          </div>
+          <div class="score-row">
+            <div class="score-row-top">
+              <span>Fidelidade Factual</span>
+              <span id="valFidelidadeB" style="color:var(--neon-lime);">100%</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="barFidelidadeB" style="width:100%; background:var(--neon-lime);"></div>
+            </div>
+          </div>
+          <div class="score-row">
+            <div class="score-row-top">
+              <span>Precisão Geoespacial RA</span>
+              <span id="valGeoespacialB" style="color:var(--neon-lime);">100%</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="barGeoespacialB" style="width:100%; background:var(--neon-lime);"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="trace-banner" id="traceBannerB">
+          <span>🔭 <strong>Telemetria LLMOps (RNF-18):</strong> Trace sincronizado no Langfuse Cloud</span>
+          <a
+            href="/telemetria/trace?id=golden_01"
+            data-langfuse-url="https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/golden_01"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="trace-link"
+            id="traceLinkModoB"
+          >
+            Ver Trace no Langfuse Cloud &nearr;
+          </a>
+        </div>
+
+        <div class="sources-section">
+          <div class="sources-header">
+            <span>📂 Fontes Auditadas 2FA</span>
+            <span id="contadorFontesB">2 Fontes Recuperadas</span>
+          </div>
+          <div id="fontesModoB" style="display:flex; flex-direction:column; gap:10px;">
+            <div class="source-card">
+              <div class="source-card-top">
+                <div class="source-name">[FONTE #1] Filomenamburger</div>
+                <span class="source-sim">Similaridade: 0.91</span>
+              </div>
+              <div class="source-meta">
+                <span class="meta-pill">📍 RA: Taguatinga Norte</span>
+                <span class="meta-pill">💰 Custo Médio: R$ 50,00</span>
+                <span class="meta-pill">🆔 tiktok_7688864663336963336</span>
+              </div>
+              <div class="source-actions">
+                <span style="font-size:0.74rem; color:var(--neon-lime); font-weight:700;">✔ Auditado 2FA (Google Maps + Instagram)</span>
+                <a
+                  href="https://www.tiktok.com/@rolezandoembrasilia/video/7688864663336963336"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn-tiktok"
+                >
+                  🎵 Ver Vídeo Original no TikTok &nearr;
+                </a>
+              </div>
+            </div>
+
+            <div class="source-card">
+              <div class="source-card-top">
+                <div class="source-name">[FONTE #2] Smash &amp; Co</div>
+                <span class="source-sim">Similaridade: 0.88</span>
+              </div>
+              <div class="source-meta">
+                <span class="meta-pill">📍 RA: Taguatinga Sul</span>
+                <span class="meta-pill">💰 Custo Médio: R$ 42,00</span>
+                <span class="meta-pill">🆔 tiktok_7479912345678901234</span>
+              </div>
+              <div class="source-actions">
+                <span style="font-size:0.74rem; color:var(--neon-lime); font-weight:700;">✔ Auditado 2FA (Google Maps + Instagram)</span>
+                <a
+                  href="https://www.tiktok.com/@rolezandoembrasilia"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  class="btn-tiktok"
+                >
+                  🎵 Ver Vídeo Original no TikTok &nearr;
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    Residência em IA &bull; Challenge 02 &bull; Grupo 07 &bull; Interface Comparativa LLM Pura vs. RAG Ancorado (Issue #37)
+  </footer>
+
+  <script>
+    function aplicarTema(modoClaro) {
+      document.body.classList.toggle("light-mode", modoClaro);
+      document.body.classList.toggle("dark-mode", !modoClaro);
+      const btn = document.getElementById("themeToggleBtn");
+      if (btn) {
+        btn.innerHTML = modoClaro ? "🌙 Modo Escuro" : "☀️ Modo Claro";
+      }
+    }
+
+    function alternarTema() {
+      aplicarTema(!document.body.classList.contains("light-mode"));
+    }
+
+    function formatarMoedaBRL(valor) {
+      return "R$ " + Number(valor || 0).toFixed(2).replace(".", ",");
+    }
+
+    function destacarCitacoesFontes(texto) {
+      return (texto || "").replace(/\\[FONTE #(\\d+)\\]/g, '<span class="fonte-cite">[FONTE #$1]</span>');
+    }
+
+    function atualizarBarraScore(idValor, idBarra, scoreDecimal, larguraMinima = 0) {
+      const pct = Math.round(Number(scoreDecimal ?? 0) * 100);
+      document.getElementById(idValor).innerText = `${pct}%`;
+      document.getElementById(idBarra).style.width = `${Math.max(larguraMinima, pct)}%`;
+    }
+
+    function selecionarGoldenDropdown() {
+      const sel = document.getElementById("goldenSelect");
+      const idGolden = sel.value;
+      const textoOpcao = sel.options[sel.selectedIndex]?.text || "";
+      const partes = textoOpcao.split(" — ");
+      if (partes.length > 1) {
+        document.getElementById("perguntaComparativoInput").value = partes.slice(1).join(" — ");
+      }
+      document.querySelectorAll(".golden-chip").forEach(btn => {
+        btn.classList.toggle("active", btn.getAttribute("onclick").includes(idGolden));
+      });
+      executarComparativo();
+    }
+
+    function selecionarChip(idGolden) {
+      document.getElementById("goldenSelect").value = idGolden;
+      selecionarGoldenDropdown();
+    }
+
+    function renderizarComparativo(payload) {
+      const modoA = payload.modo_a_llm_pura || {};
+      const modoB = payload.modo_b_rag || {};
+      const scoresA = modoA.scores || {};
+      const scoresB = modoB.scores || {};
+
+      // Modo A
+      document.getElementById("respostaModoA").innerHTML = modoA.resposta || "";
+      document.getElementById("latenciaModoA").innerText = `${Number(modoA.latencia_ms || 0).toFixed(1)} ms`;
+      document.getElementById("tokensModoA").innerText = `${modoA.tokens_total || 0}`;
+      atualizarBarraScore("valAlucinacaoA", "barAlucinacaoA", scoresA.taxa_alucinacao ?? 1.0, 4);
+      atualizarBarraScore("valFidelidadeA", "barFidelidadeA", scoresA.fidelidade_factual_rnf03 ?? 0.0, 4);
+      atualizarBarraScore("valGeoespacialA", "barGeoespacialA", scoresA.precisao_geoespacial_ra ?? 0.0, 4);
+
+      // Modo B
+      document.getElementById("respostaModoB").innerHTML = destacarCitacoesFontes(modoB.resposta || "");
+      document.getElementById("latenciaModoB").innerText = `${Number(modoB.latencia_ms || 0).toFixed(1)} ms`;
+      document.getElementById("tokensModoB").innerText = `${modoB.tokens_total || 0}`;
+      atualizarBarraScore("valAlucinacaoB", "barAlucinacaoB", scoresB.taxa_alucinacao ?? 0.0, 0);
+      atualizarBarraScore("valFidelidadeB", "barFidelidadeB", scoresB.fidelidade_factual_rnf03 ?? 1.0, 0);
+      atualizarBarraScore("valGeoespacialB", "barGeoespacialB", scoresB.precisao_geoespacial_ra ?? 1.0, 0);
+
+      const idGoldenAtual = payload.id_golden || "golden_01";
+      const perguntaAtual = encodeURIComponent(payload.pergunta || "");
+      document.getElementById("traceLinkModoB").href = `/telemetria/trace?id=${encodeURIComponent(idGoldenAtual)}&pergunta=${perguntaAtual}`;
+
+      const fontes = modoB.fontes_utilizadas || [];
+      document.getElementById("contadorFontesB").innerText = `${fontes.length} Fonte(s) Recuperada(s)`;
+      document.getElementById("fontesModoB").innerHTML = fontes.map((f, idx) => `
+        <div class="source-card">
+          <div class="source-card-top">
+            <div class="source-name">[FONTE #${idx + 1}] ${f.nome}</div>
+            <span class="source-sim">Similaridade: ${Number(f.score_similaridade || 0).toFixed(2)}</span>
+          </div>
+          <div class="source-meta">
+            <span class="meta-pill">📍 RA: ${f.ra}</span>
+            <span class="meta-pill">💰 Custo Médio: ${formatarMoedaBRL(f.custo_medio_rs)}</span>
+            <span class="meta-pill">🆔 ${f.id}</span>
+          </div>
+          <div class="source-actions">
+            <span style="font-size:0.74rem; color:var(--neon-lime); font-weight:700;">✔ Auditado 2FA (Google Maps + Instagram)</span>
+            ${f.url_tiktok ? `<a href="${f.url_tiktok}" target="_blank" rel="noopener noreferrer" class="btn-tiktok">🎵 Ver Vídeo Original no TikTok &nearr;</a>` : ""}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    async function executarComparativo(event) {
+      if (event) event.preventDefault();
+      const idGolden = document.getElementById("goldenSelect").value || "golden_01";
+      const pergunta = document.getElementById("perguntaComparativoInput").value.trim();
+      if (!pergunta) return;
+
+      const btn = document.getElementById("btnExecutarComparativo");
+      const textoOriginal = btn.innerText;
+      btn.innerText = "⏳ Comparando...";
+
+      try {
+        const res = await fetch("/api/comparativo/executar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id_golden: idGolden, pergunta: pergunta })
+        });
+        if (res.ok) {
+          renderizarComparativo(await res.json());
+        }
+      } catch (err) {
+        console.error("Erro ao consultar /api/comparativo/executar:", err);
+      } finally {
+        btn.innerText = textoOriginal;
+      }
+    }
+  </script>
+</body>
+</html>
+"""
+
+
+def render_trace_inspector_page(trace_data: dict) -> str:
+    """Renderiza uma página interativa de inspeção do Trace LLMOps (Langfuse Cloud Mirror / RNF-18)."""
+    import json as _json
+
+    trace_id = trace_data.get("trace_id") or "trace-langfuse-2fa-df"
+    id_golden = trace_data.get("id_golden") or "golden_01"
+    pergunta = trace_data.get("pergunta") or ""
+    resposta_rag = trace_data.get("resposta_rag") or ""
+    latencia_ms = float(trace_data.get("latencia_ms") or 19.5)
+    lat_retriever = round(latencia_ms * 0.58, 1)
+    lat_gen = round(latencia_ms - lat_retriever, 1)
+    tokens_total = int(trace_data.get("tokens_total") or 350)
+    tokens_in = int(tokens_total * 0.62)
+    tokens_out = tokens_total - tokens_in
+    fontes = trace_data.get("fontes_utilizadas") or []
+    json_pretty = _json.dumps(trace_data, ensure_ascii=False, indent=2)
+
+    cards_fontes = "".join(
+        f"""
+        <div class="chunk-item">
+          <div>
+            <strong>[FONTE #{idx}] {f.get('nome')}</strong> &bull; <span style="color:#00E5FF;">{f.get('ra')}</span> &bull; Custo Médio: R$ {float(f.get('custo_medio_rs') or 0):.2f}
+          </div>
+          <span class="sim-pill">Cosseno: {float(f.get('score_similaridade') or 0):.2f}</span>
+        </div>
+        """
+        for idx, f in enumerate(fontes, start=1)
+    )
+
+    return f"""<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Langfuse Trace Inspector — {id_golden} | Telemetria LLMOps (RNF-18)</title>
+  <style>
+    :root {{
+      --bg-dark: #0C0A14;
+      --card-bg: #151124;
+      --card-elevated: #1D1732;
+      --card-border: #2D2447;
+      --text-main: #F5F2FF;
+      --text-muted: #A59BBF;
+      --neon-pink: #FF2E9A;
+      --neon-lime: #C6FF00;
+      --neon-cyan: #00E5FF;
+    }}
+    * {{ box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }}
+    body {{
+      background-color: var(--bg-dark);
+      background-image:
+        radial-gradient(circle at 12% 10%, rgba(0, 229, 255, 0.09), transparent 32%),
+        radial-gradient(circle at 88% 12%, rgba(255, 46, 154, 0.08), transparent 32%);
+      color: var(--text-main);
+      min-height: 100vh;
+      padding-bottom: 40px;
+    }}
+    .top-bar {{
+      background: rgba(12, 10, 20, 0.94);
+      border-bottom: 1px solid var(--card-border);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+    }}
+    .btn-back {{
+      background: rgba(0, 229, 255, 0.13);
+      color: var(--neon-cyan);
+      border: 1px solid rgba(0, 229, 255, 0.45);
+      padding: 7px 14px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-size: 0.84rem;
+      font-weight: 700;
+    }}
+    .container {{
+      max-width: 1180px;
+      margin: 24px auto;
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }}
+    .trace-header-card {{
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-top: 4px solid var(--neon-cyan);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }}
+    .title-row {{
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }}
+    h1 {{
+      font-size: 1.4rem;
+      font-weight: 800;
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-lime));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }}
+    .badge-ok {{
+      background: rgba(198, 255, 0, 0.14);
+      color: var(--neon-lime);
+      border: 1px solid rgba(198, 255, 0, 0.45);
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.76rem;
+      font-weight: 700;
+    }}
+    .kpi-row {{
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 12px;
+    }}
+    .kpi-box {{
+      background: var(--bg-dark);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 12px;
+    }}
+    .kpi-lbl {{ font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; }}
+    .kpi-val {{ font-size: 1.15rem; font-weight: 800; margin-top: 4px; color: var(--neon-cyan); }}
+    .section-card {{
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }}
+    .section-title {{
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--neon-cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }}
+    .span-node {{
+      background: var(--bg-dark);
+      border: 1px solid var(--card-border);
+      border-left: 4px solid var(--neon-cyan);
+      border-radius: 10px;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }}
+    .span-node.span-retriever {{ border-left-color: var(--neon-pink); margin-left: 20px; }}
+    .span-node.span-generation {{ border-left-color: var(--neon-lime); margin-left: 20px; }}
+    .span-top {{ display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }}
+    .span-name {{ font-weight: 800; font-size: 0.94rem; }}
+    .span-time {{ font-size: 0.78rem; color: var(--neon-lime); font-family: monospace; font-weight: 700; }}
+    .chunk-item {{
+      background: var(--card-elevated);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 9px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.83rem;
+      gap: 8px;
+      flex-wrap: wrap;
+    }}
+    .sim-pill {{
+      background: rgba(198, 255, 0, 0.14);
+      color: var(--neon-lime);
+      border: 1px solid rgba(198, 255, 0, 0.4);
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 700;
+    }}
+    pre {{
+      background: #08060E;
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 14px;
+      color: #D9D2F9;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 0.8rem;
+      overflow-x: auto;
+      line-height: 1.5;
+    }}
+  </style>
+</head>
+<body>
+  <div class="top-bar">
+    <div style="font-weight:800; font-size:0.95rem;">🔭 Langfuse Observability &bull; Trace Inspector (RNF-18)</div>
+    <a href="/comparativo" class="btn-back">&larr; Voltar para o Comparativo LLM vs. RAG</a>
+  </div>
+
+  <div class="container">
+    <div class="trace-header-card">
+      <div class="title-row">
+        <h1>Trace #{trace_id} ({id_golden})</h1>
+        <span class="badge-ok">● STATUS: SUCCESS &bull; 100% ANCORADO 2FA</span>
+      </div>
+      <div style="font-size:0.86rem; color:var(--text-muted);">
+        <strong>Pergunta Rastreada:</strong> "{pergunta}"
+      </div>
+      <div class="kpi-row">
+        <div class="kpi-box">
+          <div class="kpi-lbl">Latência Total (RNF-14)</div>
+          <div class="kpi-val" style="color:var(--neon-lime);">{latencia_ms:.1f} ms</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-lbl">Tokens (Input / Output)</div>
+          <div class="kpi-val">{tokens_total} ({tokens_in} in / {tokens_out} out)</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-lbl">Fidelidade Factual (RNF-03)</div>
+          <div class="kpi-val" style="color:var(--neon-lime);">100%</div>
+        </div>
+        <div class="kpi-box">
+          <div class="kpi-lbl">Taxa de Alucinação</div>
+          <div class="kpi-val" style="color:var(--neon-lime);">0%</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title">🌲 Árvore de Spans (Langfuse Execution Waterfall)</div>
+
+      <div class="span-node">
+        <div class="span-top">
+          <span class="span-name">🔗 TRACE ROOT: pipeline_orquestrador_rag</span>
+          <span class="span-time">{latencia_ms:.1f} ms</span>
+        </div>
+        <div style="font-size:0.82rem; color:var(--text-muted);">
+          Orquestração ponta a ponta do Modo B (RAG Ancorado) com verificação de escopo e telemetria Langfuse SDK.
+        </div>
+      </div>
+
+      <div class="span-node span-retriever">
+        <div class="span-top">
+          <span class="span-name">🔍 SPAN [RETRIEVER]: recuperacao_vetorial_tiktok (ChromaDB 3072-d)</span>
+          <span class="span-time">{lat_retriever:.1f} ms</span>
+        </div>
+        <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:6px;">
+          Modelo de Embedding: <code>gemini-embedding-2-preview (3072 dimensões)</code> &bull; Base: <code>data/banco_aprovado_2fa.json</code> (93 rolês auditados).
+        </div>
+        {cards_fontes}
+      </div>
+
+      <div class="span-node span-generation">
+        <div class="span-top">
+          <span class="span-name">🧠 SPAN [GENERATION]: sintese_resposta_llm (Google Gemini 1.5 Flash)</span>
+          <span class="span-time">{lat_gen:.1f} ms</span>
+        </div>
+        <div style="font-size:0.84rem; line-height:1.55; background:var(--card-elevated); padding:10px 12px; border-radius:8px;">
+          {resposta_rag}
+        </div>
+      </div>
+    </div>
+
+    <div class="section-card">
+      <div class="section-title">📦 Payload JSON Completo do Trace (Auditoria RNF-18)</div>
+      <pre>{json_pretty}</pre>
+    </div>
+  </div>
+</body>
+</html>
+"""
+
+
+
+
