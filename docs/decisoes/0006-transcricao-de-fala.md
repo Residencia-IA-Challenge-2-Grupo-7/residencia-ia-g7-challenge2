@@ -1,6 +1,6 @@
 # 0006 — Transcrição de fala (entrada por voz)
 
-- **Status:** proposta, com o padrão escolhido em 05/11: **Groq** (`whisper-large-v3-turbo`, com retenção zero). Falta a revisão do grupo e a voz dos demais integrantes
+- **Status:** substituída pelo [ADR 0009](0009-entrada-pelos-4-campos-de-texto.md) em 2026-11-10 (o grupo tirou a voz do app; `src/voz/` removido). Antes: proposta, com o padrão escolhido em 05/11: **Groq** (`whisper-large-v3-turbo`, com retenção zero). Falta a revisão do grupo e a voz dos demais integrantes
 - **Data:** 2026-11-05
 - **Semana do roadmap:** 2 (preparação). A entrada multimodal é entrega da semana 5 (RNF-12)
 - **Requisitos:** RF-39, RF-40 (fora deste ADR), RNF-01, RNF-07, RNF-08, RNF-12, RNF-14, RNF-15

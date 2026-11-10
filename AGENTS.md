@@ -25,19 +25,20 @@ Programa de Residência em IA (Instituto Eldorado + UnB), metodologia CBL (Chall
 | `docs/desafio/` | Enunciado do Challenge 2 (PDF original + versão em Markdown) |
 | `docs/produto/` | Visão do produto escolhido (Orquestrador de Rolês) e requisitos do MVP |
 | `docs/decisoes/` | ADRs: decisões técnicas e suas justificativas; críticas e respostas em `revisoes/` |
-| `docs/dados/` | Esquema da base de lugares e eventos e regras de extração (ADRs 0004 e 0005) |
+| `docs/dados/` | Esquema da base de lugares e regras de curadoria e validação em 2 fatores (ADR 0008) |
 | `docs/arquitetura/` | Mapa navegável da arquitetura (HTML único), publicado num repositório público à parte; guia de edição no `AGENTS.md` da pasta |
 | `docs/entregas/` | Entregáveis semanais (relatórios .docx) e o plano de cada um, uma pasta por semana |
 | `docs/semanas/` | Registro semanal alinhado ao roadmap (alimenta o relatório final) |
 | `docs/experimentos/` | Relatos de experimentos (o que foi medido, resultados, impactos), um por data e tema (`AAAA-MM-DD-tema.md`) |
 | `docs/atas/` | Atas das reuniões do grupo, uma por data (`AAAA-MM-DD.md`) |
-| `src/base/` | Pipeline de população da base (ADR 0005): `python -m base <etapa>`; como rodar no `README.md` da pasta |
-| `data/base/` | CSVs aprovados da base e relatório da rodada (versionados); `data/raw/` e `data/processed/` ficam fora do git |
-| `src/interpretador/` | Interpretador de mensagens (ADR 0007): texto → intenções estruturadas, destino e confirmação; `python -m interpretador` |
-| `src/voz/` | Transcrição de fala (ADR 0006), com provedor trocável; `python -m voz` |
-| `src/base/contrato.py` | Contrato da busca usada pelos agentes (ADR 0007): `buscar(ConsultaBusca) → ResultadoBusca` |
+| `GUIA_OFICIAL_PROJETO.md` | Guia oficial do grupo (10/11): o que é o app, as 4 telas e as tarefas da semana de cada um. Em dúvida sobre o app, ele vale |
+| `data/` | Base oficial de 93 lugares (`banco_aprovado_2fa.json`, ADR 0008), vetores, quarentena e catálogo de vídeos; `data/raw/` e `data/processed/` ficam fora do git |
+| `src/rag/`, `src/telemetria/` | Coleta 2FA do TikTok, busca vetorial e telemetria Langfuse (semana 2) |
+| `src/interpretador/` | Os 4 campos da Tela 2 (`campos.py`, ADR 0009) e o interpretador de mensagens livres (ADR 0007), com o contrato da busca em `contrato.py` |
+| `src/main.py`, `src/state.py` | API FastAPI (rotas de RAG, entregáveis e salas) e onde as salas ficam guardadas |
+| `src/salas/` | Salas, cruzamento de horários, cartões de sugestão e votação; rotas em `/api/salas`; encaixe das peças de finanças, transporte e busca no `README.md` da pasta |
 | `eval/` | Conjuntos de teste com gabarito (50 frases), roteiro de gravação e resultados das medições; os áudios ficam em `data/raw/voz/` |
-| `tests/` | Testes do pipeline, do interpretador, do contrato e da voz (`PYTHONPATH=src python -m pytest tests`) |
+| `tests/` | Testes da API, do interpretador, dos 4 campos e das salas (`python -m pytest tests`; o `conftest.py` ajusta o caminho) |
 | `docs/pesquisa/` | Instrumentos de pesquisa com usuários (questionários, roteiros de entrevista) e o script que gera o Google Forms |
 
 Atualize esta tabela ao criar pastas novas (ex.: `src/`, `data/`, `notebooks/`, `eval/`).
