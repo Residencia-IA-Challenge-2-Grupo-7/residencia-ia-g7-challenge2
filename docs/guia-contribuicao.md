@@ -49,7 +49,7 @@ Todas as mensagens de commit devem seguir a convenção internacional:
 ## 3. Checklist Obrigatório para Pull Requests (PRs)
 
 Antes de solicitar a revisão de um colega de equipe:
-1. **Rode os testes:** Verifique se `pytest` executa 100% verde.
+1. **Rode os testes:** Verifique se os testes passam 100% verde usando `make test` (Mac/Linux) ou `scripts\testar.bat` (Windows).
 2. **Segurança de Segredos:** Certifique-se de que nenhuma chave (`.env`) entrou no commit.
 3. **Template preenchido:** Preencha todos os campos do template automático de PR do repositório.
 4. **Vínculo com a Issue:** Insira `Closes #XX` na descrição para fechar a issue automaticamente após o merge.

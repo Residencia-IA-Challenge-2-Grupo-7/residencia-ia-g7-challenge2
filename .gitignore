@@ -14,6 +14,7 @@ venv/
 # Dados e índices (versionar só amostras pequenas; documentar a origem)
 data/raw/
 data/processed/
+data/telemetria/
 *.faiss
 chroma*/
 vectorstore/
