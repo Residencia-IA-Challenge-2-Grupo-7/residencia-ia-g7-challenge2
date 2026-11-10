@@ -69,6 +69,17 @@ def test_llm_pura_nao_recebe_nada_da_base_e_usa_roteamento_sem_retencao(com_chav
     assert corpo["reasoning"] == {"enabled": False} and corpo["temperature"] == 0
 
 
+def test_raciocinio_alto_e_opcional_e_sem_max(com_chave):
+    sessao = SessaoFalsa()
+    r = gerar_resposta_llm_pura("Onde jantar na Asa Norte?", usar_cache=False, registrar=False, sessao=sessao,
+                                raciocinio="high")
+    assert sessao.enviado["reasoning"] == {"effort": "high", "exclude": True}
+    assert sessao.enviado["max_tokens"] == llm_pura.MAX_TOKENS_COM_RACIOCINIO and r["raciocinio"] == "high"
+    with pytest.raises(ValueError):
+        gerar_resposta_llm_pura("Onde jantar na Asa Norte?", usar_cache=False, registrar=False, sessao=sessao,
+                                raciocinio="xhigh")
+
+
 def test_llm_pura_sem_chave_devolve_reserva_deterministica(monkeypatch):
     monkeypatch.setattr(llm_pura, "segredo", lambda nome: None)
     r = gerar_resposta_llm_pura("Onde jantar na Asa Norte?", usar_cache=False, registrar=False)

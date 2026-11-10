@@ -50,6 +50,7 @@ Pontos levantados ao implementar:
 
 - **Comparação com outro modelo do que o planejado:** os resultados não valem para o Gemini. O relatório deve citar o modelo, a data e a versão do prompt (`VERSAO_PROMPT`).
 - **A regra de não inventar no Modo A reduz a alucinação medida.** Ela foi mantida porque o Modo B tem a mesma regra; sem ela, a comparação mediria o prompt, e não a base.
+- **Raciocínio do modelo:** o resultado do Modo A depende dele. Com raciocínio alto, numa prévia de 8 perguntas, o modelo deixou de afirmar endereços, mas não indicou nenhum lugar em 13 de 16 respostas, com p90 de 11,9 s e custo 3 vezes maior ([experimento de 10/11](../experimentos/2026-11-10-llm-pura-raciocinio.md)). Decidido em 10/11: o relatório mostra as duas, com a sem raciocínio como Modo A principal (mais útil, dentro do RNF-14 e mais barata), e a com raciocínio alto como comparação secundária.
 - **Latência:** o p90 do Modo A pode passar dos 5 s do RNF-14. O cache evita repetir chamadas no benchmark, mas não na primeira execução.
 - **Guardrail 1a por lista:** cidades fora da lista passam pelo escopo e dependem do limiar 1b. Nomes ambíguos (Paris 6, Natal, Santos) ficaram de fora de propósito.
 - **Limiar sobre pontuação léxica:** se o Modo B passar a usar cosseno de vetores (issue #34), o 0,65 precisa ser medido de novo, porque as escalas não são comparáveis.

@@ -32,6 +32,8 @@ COTACAO_USD_BRL = 5.80                        # mesma cotação usada em src/tel
 TIMEOUT_S = 20
 TENTATIVAS = 2
 MAX_TOKENS = 700
+MAX_TOKENS_COM_RACIOCINIO = 8000  # os tokens de raciocínio contam no limite
+NIVEIS_RACIOCINIO = ("low", "medium", "high")  # "xhigh" (máximo) fica de fora de propósito
 
 PROMPT_SISTEMA = (
     "Você é um assistente que recomenda rolês (bares, restaurantes, cafés, eventos e passeios) no Distrito "
@@ -46,10 +48,21 @@ def _modelo() -> str:
     return os.environ.get("LLM_PURA_MODELO") or MODELO_PADRAO
 
 
+def _nivel(raciocinio: str | None) -> str | None:
+    """None ou "desligado" = sem raciocínio (padrão); "low", "medium" ou "high" = esforço pedido à OpenRouter."""
+    nivel = (raciocinio if raciocinio is not None else os.environ.get("LLM_PURA_RACIOCINIO") or "").strip().lower()
+    if nivel in ("", "desligado", "off", "none"):
+        return None
+    if nivel not in NIVEIS_RACIOCINIO:
+        raise ValueError(f"raciocínio deve ser desligado ou um de {NIVEIS_RACIOCINIO}, não {nivel!r}")
+    return nivel
+
+
 def _resultado(pergunta: str, **campos: Any) -> dict:
     base = {
         "pergunta": pergunta, "resposta": "", "modelo": _modelo(), "provedor": None, "modo": MODO,
-        "fontes_utilizadas": [], "latencia_ms": 0.0, "tokens_entrada": 0, "tokens_saida": 0, "tokens_total": 0,
+        "fontes_utilizadas": [], "latencia_ms": 0.0, "tokens_entrada": 0, "tokens_saida": 0,
+        "tokens_raciocinio": 0, "tokens_total": 0, "raciocinio": None,
         "custo_estimado_usd": 0.0, "custo_estimado_brl": 0.0, "disponivel": True, "cache_hit": False, "erro": None,
     }
     base.update(campos)
@@ -63,14 +76,15 @@ def _reserva(pergunta: str, motivo: str) -> dict:
                                 f"({motivo}). Nenhum lugar foi recomendado."))
 
 
-def _chamar(pergunta: str, chave: str, sessao) -> dict:
+def _chamar(pergunta: str, chave: str, sessao, nivel: str | None = None) -> dict:
     corpo = {
         "model": _modelo(),
         "messages": [{"role": "system", "content": PROMPT_SISTEMA}, {"role": "user", "content": pergunta}],
         "temperature": 0,
-        "max_tokens": MAX_TOKENS,
+        "max_tokens": MAX_TOKENS_COM_RACIOCINIO if nivel else MAX_TOKENS,
         "provider": ROTEAMENTO,
-        "reasoning": {"enabled": False},  # medido em 05/11: com raciocínio, p90 de 6,4 s e respostas vazias
+        # Padrão sem raciocínio: medido em 05/11 no interpretador, com raciocínio o p90 foi a 6,4 s
+        "reasoning": {"effort": nivel, "exclude": True} if nivel else {"enabled": False},
         "usage": {"include": True},
     }
     erros = []
@@ -95,7 +109,9 @@ def _chamar(pergunta: str, chave: str, sessao) -> dict:
             custo_usd = float(u.get("cost") or 0.0)
             return _resultado(pergunta, resposta=texto, modelo=d.get("model", _modelo()), provedor=d.get("provider"),
                               latencia_ms=round(ms, 1), tokens_entrada=u.get("prompt_tokens") or 0,
-                              tokens_saida=u.get("completion_tokens") or 0, tokens_total=u.get("total_tokens") or 0,
+                              tokens_saida=u.get("completion_tokens") or 0, raciocinio=nivel,
+                              tokens_raciocinio=(u.get("completion_tokens_details") or {}).get("reasoning_tokens") or 0,
+                              tokens_total=u.get("total_tokens") or 0,
                               custo_estimado_usd=round(custo_usd, 8),
                               custo_estimado_brl=round(custo_usd * COTACAO_USD_BRL, 6))
         except (requests.RequestException, ValueError, KeyError, IndexError, TypeError) as e:
@@ -118,26 +134,28 @@ def _registrar_langfuse(r: dict) -> None:
 
 
 def gerar_resposta_llm_pura(pergunta: str, *, usar_cache: bool = True, registrar: bool = True,
-                            sessao=None) -> dict:
+                            sessao=None, raciocinio: str | None = None) -> dict:
     """Pergunta -> resposta do LLM sem nenhum documento da base (`fontes_utilizadas` é sempre `[]`).
 
     `usar_cache`: reaproveita a resposta de uma pergunta idêntica (cache da telemetria, RNF-15), para o
     benchmark não pagar duas vezes. `registrar`: grava a métrica sem PII em data/telemetria/ (RNF-10).
     `sessao`: objeto com `.post` (para testes); por padrão, `requests`.
+    `raciocinio`: "low", "medium" ou "high" liga o raciocínio do modelo; padrão desligado (ou `LLM_PURA_RACIOCINIO`).
     """
     pergunta = (pergunta or "").strip()
     if not pergunta:
         return _reserva(pergunta, "pergunta vazia")
     from src.telemetria import logger_metricas as lm
 
-    parametros = {"modelo": _modelo(), "prompt": VERSAO_PROMPT}
+    nivel = _nivel(raciocinio)
+    parametros = {"modelo": _modelo(), "prompt": VERSAO_PROMPT, "raciocinio": nivel}
     if usar_cache:
         item = lm.obter_cache_avaliacao(pergunta, MODO, parametros)
         if item and isinstance(item.get("resposta"), dict):
             return {**item["resposta"], "cache_hit": True, "latencia_ms": 0.0}
 
     chave = segredo(CHAVE_ENV)
-    r = _chamar(pergunta, chave, sessao or requests.Session()) if chave else _reserva(pergunta, f"sem {CHAVE_ENV}")
+    r = _chamar(pergunta, chave, sessao or requests.Session(), nivel) if chave else _reserva(pergunta, f"sem {CHAVE_ENV}")
     _registrar_langfuse(r)
     if r["disponivel"]:
         if usar_cache:
