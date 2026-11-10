@@ -198,3 +198,36 @@ Para não sobrar tempo ocioso e garantirmos tanto a **nota máxima na entrega da
 2. **Nada de Subir Arquivos Soltos pelo Site do GitHub:** Sempre usar `git pull`, criar sua branch ou commitar organizado para não bagunçar as pastas `data/`, `src/` e `docs/`.
 3. **Sem Voz, Sem Overture:** Nosso foco é **Texto nos 4 campos + Base de 93 lugares da Miti + Transporte nas 35 RAs + Votação em 3 a 4 Cards + Foto da Nota Fiscal e Pix no Pós-Rolê**.
 4. **Foco Duplo Toda Semana:** Toda semana entregamos o que o monitor pede na sexta-feira, mas construímos as peças reais do aplicativo em paralelo para chegarmos na Semana 6 com tudo pronto!
+
+---
+
+## 6. Atalhos Rápidos Multiplataforma (DevOps) e Guia de Pull Requests
+
+Para que ninguém da equipe perca tempo decorando comandos longos do Docker, foram configurados atalhos automáticos compatíveis com qualquer computador (Mac, Linux e Windows):
+
+### ⚡ Atalhos Rápidos de 1 Palavra:
+
+| O que você quer fazer? | Mac / Linux / WSL (Terminal) | Windows Nativo (CMD / PowerShell) |
+| :--- | :--- | :--- |
+| **Rodar todos os testes no Docker** | `make test` *(ou `./scripts/testar.sh`)* | `scripts\testar.bat` |
+| **Subir os containers (Postgres + App)** | `make up` | `docker compose up -d` |
+| **Parar os containers** | `make down` | `docker compose down` |
+| **Ver logs dos containers** | `make logs` | `docker compose logs -f` |
+| **Rodar testes no Python local (venv)** | `make test-local` | `pytest` *(com `.venv` ativo)* |
+
+---
+
+### 🛡️ Regra de Ouro para Abertura e Fechamento de Pull Requests (PRs)
+
+1. **Antes de Abrir o PR (Validação Obrigatória):**
+   - Execute sempre os testes no seu terminal usando `make test` (ou `scripts\testar.bat`).
+   - Se os testes passarem 100% verde localmente, seu código está seguro para ser enviado.
+2. **Ao Abrir o PR no GitHub:**
+   - Crie a branch sempre com prefixo: `feat/` (novidade), `fix/` (correção) ou `docs/` (documentação).
+   - O template de PR carregará automaticamente o checklist de qualidade e segurança.
+   - Insira `Closes #NUMERO_DA_ISSUE` na descrição para que a issue seja encerrada automaticamente.
+3. **Aprovação e Merge (Fechamento do PR):**
+   - Todo PR exige que os testes do GitHub Actions fiquem verdinhos (✅).
+   - O arquivo `.github/CODEOWNERS` atribui automaticamente a revisão para a Maria Eduarda (DevOps).
+   - Com os testes passando e a revisão aprovada, o merge é realizado com segurança na `main`!
+
