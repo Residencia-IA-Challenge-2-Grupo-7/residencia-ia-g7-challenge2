@@ -16,7 +16,8 @@ def test_api_rotas_carregadas():
     from src.main import app
 
     assert app.title == "Orquestrador de Roles - RAG API"
-    rotas = [route.path for route in app.routes]
+    # FastAPI recente lista o APIRouter incluído como um objeto sem .path; as rotas dele aparecem no OpenAPI
+    rotas = [getattr(route, "path", None) for route in app.routes]
     assert "/" in rotas
     assert "/rag" in rotas
     assert "/demo" in rotas
@@ -30,6 +31,12 @@ def test_api_rotas_carregadas():
     assert "/download/entregavel-zip" in rotas
     assert "/api/entregaveis/arquivo" in rotas
     assert "/api/entregaveis/dados" in rotas
+
+    # Rotas das salas (guia oficial, semana 3)
+    caminhos = app.openapi()["paths"]
+    for rota in ("/api/salas", "/api/salas/{codigo}", "/api/salas/{codigo}/participantes",
+                 "/api/salas/{codigo}/gerar-sugestoes", "/api/salas/{codigo}/votar"):
+        assert rota in caminhos
 
 
 def test_entregaveis_endpoints():
