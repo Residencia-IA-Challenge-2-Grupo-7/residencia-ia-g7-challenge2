@@ -57,4 +57,4 @@ jobs:
           LANGFUSE_SECRET_KEY: sk-lf-dummy-test-key
           LANGFUSE_BASE_URL: https://cloud.langfuse.com
         run: |
-          pytest -v tests/test_smoke.py tests/test_logger_e_cache.py
+          pytest -v tests/test_smoke.py tests/test_logger_e_cache.py tests/test_guardrails_e_baseline.py
