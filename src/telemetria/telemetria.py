@@ -15,6 +15,8 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 from langfuse import get_client, observe
 
+from src.rag import guardrails as gr
+
 
 def _carregar_env() -> None:
     """Carrega variáveis do .env para os.environ caso ainda não estejam definidas."""
@@ -207,10 +209,15 @@ def calcular_similaridade_leticia(pergunta: str, role: Dict[str, Any], categoria
 
 
 @observe(name="recuperacao_vetorial_tiktok", as_type="retriever")
-def _etapa_retriever(pergunta: str, top_k: int = 3, categoria: Optional[str] = None) -> List[Dict[str, Any]]:
-    """Span de recuperação: busca semântica real sobre os 93 rolês auditados da Letícia."""
+def _etapa_retriever(pergunta: str, top_k: int = 3, categoria: Optional[str] = None,
+                     guard: Optional[gr.Guardrails] = None) -> List[Dict[str, Any]]:
+    """Span de recuperação: busca semântica real sobre os 93 rolês auditados da Letícia.
+
+    Com `guard`, aplica antes o filtro duro de teto em reais (guardrail 2, RNF-04)."""
     client = obter_cliente()
     banco_real = carregar_base_oficial_leticia()
+    if guard is not None:
+        banco_real = gr.aplicar_teto(guard, banco_real)
 
     candidatos = []
     for role in banco_real:
@@ -315,8 +322,20 @@ def simular_recuperacao_rag(
     client = obter_cliente()
     trace_id = client.get_current_trace_id()
 
-    roles = _etapa_retriever(pergunta_usuario, top_k=top_k, categoria=categoria)
-    resposta = _etapa_generation(pergunta_usuario, roles)
+    # Guardrails determinísticos (issue #33): escopo do DF, teto em reais e aderência mínima
+    guard = gr.avaliar_pergunta(pergunta_usuario)
+    roles: List[Dict[str, Any]] = []
+    if guard.permitido:
+        roles = _etapa_retriever(pergunta_usuario, top_k=top_k, categoria=categoria, guard=guard)
+        if guard.permitido:
+            gr.avaliar_recuperacao(guard, [r["score_similaridade"] for r in roles])
+    if guard.permitido:
+        resposta = _etapa_generation(pergunta_usuario, roles)
+        if guard.avisos:
+            resposta = " ".join(guard.avisos) + " " + resposta
+    else:
+        roles = []  # nada é recomendado quando um guardrail bloqueia (RNF-03)
+        resposta = " ".join(guard.avisos)
 
     duracao_ms = round((time.time() - inicio) * 1000, 2)
     score_medio_recuperacao = round(
@@ -376,6 +395,7 @@ def simular_recuperacao_rag(
         "langfuse_trace_id": trace_id or "trace-2fa-audit",
         "trace_url": trace_url or f"https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/{trace_id or ''}",
         "status_sla": "conforme_rnf_14" if duracao_ms < 2500 else "atencao",
+        "guardrails": guard.para_json(),
     }
 
 
