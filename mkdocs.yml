@@ -1,0 +1,57 @@
+site_name: Orquestrador de Rolês — Docs
+site_description: Documentação Oficial de Engenharia, DevOps e Arquitetura do Grupo 7 (Residência em IA Eldorado/UnB)
+site_author: Grupo 7
+site_url: https://residencia-ia-challenge-2-grupo-7.github.io/residencia-ia-g7-challenge2/
+
+repo_name: Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+repo_url: https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+
+theme:
+  name: material
+  language: pt-BR
+  palette:
+    - scheme: default
+      primary: deep purple
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Mudar para modo escuro
+    - scheme: slate
+      primary: deep purple
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Mudar para modo claro
+  features:
+    - navigation.instant
+    - navigation.tracking
+    - navigation.sections
+    - navigation.expand
+    - content.code.copy
+
+nav:
+  - Início: index.md
+  - Guia de Contribuição: guia-contribuicao.md
+  - Arquitetura & Decisões:
+      - Visão do Produto: produto/visao.md
+      - Requisitos: produto/requisitos.md
+      - Decisões Técnicas (ADRs): decisoes/README.md
+  - Dados & RAG:
+      - Esquema da Base: dados/esquema-base.md
+      - Guia de Curadoria: dados/guia-curadoria.md
+  - Semanas & Entregas:
+      - Semana 01: semanas/semana-01.md
+      - Semana 02: semanas/semana-02.md
+      - Relatório Semana 2: entregas/semana-02/RELATORIO_TECNICO_RAG_SEMANA_02.md
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.tabbed:
+      alternate_style: true
+  - tables
+  - toc:
+      permalink: true

@@ -4,14 +4,14 @@ from decimal import Decimal
 
 import pytest
 
-from interpretador.avaliar import comparar, comparavel, limite_inferior
-from interpretador.esquema import schema_llm
-from interpretador.interpretar import interpretar, reais
-from interpretador.llm import ErroLLM, Meta
-from interpretador.lugares import casar
-from interpretador.numeros import extenso_para_digitos, trecho_na_mensagem, valor_em_reais
-from interpretador.pseudonimo import Pseudonimos
-from interpretador.tempo import ErroTempo, resolver_dias, resolver_horario, resolver_janelas
+from src.interpretador.avaliar import comparar, comparavel, limite_inferior
+from src.interpretador.esquema import schema_llm
+from src.interpretador.interpretar import interpretar, reais
+from src.interpretador.llm import ErroLLM, Meta
+from src.interpretador.lugares import casar
+from src.interpretador.numeros import extenso_para_digitos, trecho_na_mensagem, valor_em_reais
+from src.interpretador.pseudonimo import Pseudonimos
+from src.interpretador.tempo import ErroTempo, resolver_dias, resolver_horario, resolver_janelas
 
 QUI = datetime(2026, 11, 5, 10, 0)  # quinta-feira
 SALA = ["Rafaela", "Cadu", "Bia", "Márcio", "Caio", "Ana"]

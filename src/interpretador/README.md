@@ -1,5 +1,15 @@
 # Interpretador de mensagens
 
+> **Desde 10/11 (guia oficial):** o app não tem voz nem conversa privada. A Tela 2 usa os **4 campos de texto** em `campos.py` ([ADR 0009](../../docs/decisoes/0009-entrada-pelos-4-campos-de-texto.md)), resolvidos por regras; este interpretador de mensagens livres fica como reserva do campo de horários e para os agentes da semana 4. A opção `--audio` dependia de `src/voz/`, que saiu do repositório.
+>
+> ```python
+> from src.interpretador.campos import interpretar_campos
+> p = interpretar_campos("Águas Claras perto da estação", "sexta depois das 19h ou sábado à tarde", "60",
+>                        "Barzinho ou café calmo, sou vegetariana, vou de metrô/Uber", agora=datetime.now())
+> p.resumo      # "sex 13/11, 19h–24h; sáb 14/11, 13h–18h; saindo de Águas Claras; teto de R$ 60,00 (só você vê); ..."
+> p.pendencias  # {} ou {"origem": "Não reconheci essa região do DF...", ...}
+> ```
+
 Implementação do [ADR 0007](../../docs/decisoes/0007-interpretador-e-contrato-de-busca.md): texto digitado ou transcrito vira uma lista de intenções estruturadas (`pedido_role`, `disponibilidade`, `orcamento`, `gasto`, `busca_lugar`, `outra`), cada uma com destino, confirmação ou pergunta.
 
 O fluxo:
@@ -8,13 +18,15 @@ O fluxo:
 2. O LLM preenche um JSON Schema estrito, com fichas de dia, período, `HH:MM` e o **trecho literal** dos valores.
 3. O Pydantic valida a saída.
 4. O código resolve as datas a partir da hora da mensagem, converte os valores e confere se o trecho está na mensagem.
-5. O código casa as RAs, monta a `ConsultaBusca` do [contrato](../base/contrato.py) e decide confirmação, pergunta e destino.
+5. O código casa as RAs, monta a `ConsultaBusca` do [contrato](contrato.py) e decide confirmação, pergunta e destino.
 
 O LLM não vê a data de hoje, não calcula nem escreve SQL.
 
 | Módulo | Papel |
 |---|---|
-| `config.toml` | Modelo, roteamento da OpenRouter (retenção zero, sem fp4), tabela de horários, apelidos de RAs |
+| `campos.py` | Os 4 campos da Tela 2 → RA, janelas, teto, tags e resumo, por regras ([ADR 0009](../../docs/decisoes/0009-entrada-pelos-4-campos-de-texto.md)) |
+| `contrato.py` | Contrato tipado da busca (`ConsultaBusca`, `ResultadoBusca`) |
+| `config.toml` | Modelo, roteamento da OpenRouter (retenção zero, sem fp4), tabela de horários, apelidos de RAs, pontos de referência e estações |
 | `prompts/interpretar.md` | Prompt fixo (sem data nem nomes, para cache e privacidade) |
 | `esquema.py` | Esquema do LLM e resultado (`Intencao`, `Interpretacao`) |
 | `tempo.py` | Fichas de dia e período → janelas com data e hora |

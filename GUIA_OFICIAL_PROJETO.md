@@ -30,11 +30,150 @@ O **Orquestrador de Rolês** é um aplicativo web pensado para celular e computa
    - Calculamos a distância (km), o tempo estimado (carro vs. ônibus/metrô) e o custo de passagem cruzando as **35 Regiões Administrativas do DF** com o **GPS dos 93 lugares da Miti**, sem depender de chave paga ou cartão de crédito no Google Maps.
    - Usamos a regra da **"Menor Miséria"**: o sistema protege quem tem menos dinheiro e quem mora mais longe do Plano Piloto.
 6. **Banco de Dados Oficial na Nuvem (Supabase / PostgreSQL):**
-   - Todas as salas criadas, participantes, respostas secretas dos 4 campos, votos e contas divididas ficam salvos em um banco **PostgreSQL gratuito na nuvem (Supabase)**, acessível por toda a equipe via `.env`.
+   - Todas as salas criadas, participantes, respostas secretas dos 4 campos, votos e contas divididas ficam salvos em um banco **PostgreSQL na nuvem (Supabase)** em São Paulo (`sa-east-1`), estruturado em **7 tabelas normalizadas** e com fallback automático para SQLite local offline.
 
 ---
 
-## 2. As 4 Telas do Aplicativo Completo (O Que Vamos Construir)
+## 2. Decisões de Negócio e Arquitetura de Dados (Banco Supabase e Domínio)
+
+Durante a modelagem e implementação da camada de dados na nuvem (Supabase / PostgreSQL), foram consolidadas regras de negócio e de proteção ao usuário fundamentais para o sucesso do aplicativo:
+
+### 2.1 Desacoplamento: Perfil Permanente vs. Sessão do Rolê
+- **Usuário Permanente (`usuarios`):** O usuário preenche apenas uma vez no cadastro seus dados base (`nome`, `email`, `chave_pix_padrao`, `transporte_padrao`, `restricoes_permanentes`) e a confirmação obrigatória de **Maioridade (18+ anos)** (guardrail essencial para segurança jurídica e regras de bares/eventos do MVP).
+- **Múltiplos Endereços Salvos (`usuario_enderecos`):** Um morador do DF raramente sai sempre do mesmo lugar. O usuário pode salvar seus pontos frequentes (ex: *Casa* [padrão residencial em Águas Claras], *Trabalho* [Plano Piloto], *Faculdade/UnB* [Asa Norte]).
+- **Participante da Sala (`sala_participantes`):** Guarda exclusivamente as respostas para *aquele encontro específico* (vibe do dia, limite financeiro e disponibilidade de horário).
+
+### 2.2 Ponto de Partida Inteligente: Amarrado à Janela de Horário
+- **Problema de Negócio:** Quando um grupo cria uma sala para combinar um rolê, o dia e o horário do encontro **ainda não estão decididos**. Se a pessoa disser que está livre na "Sexta às 19h" e no "Sábado às 15h", de onde ela sairá?
+- **Decisão:** O ponto de partida de cada participante é **amarrado diretamente a cada janela de horário** declarada:
+  - *Exemplo real:* Na sexta-feira após o expediente, o usuário sai do **Trabalho (Setor Comercial Sul)**; no sábado à tarde, sai de **Casa (Águas Claras)**.
+  - Isso permite que o algoritmo de mobilidade e a regra da **"Menor Miséria"** calculem o tempo de deslocamento real com base no dia eleito pelo grupo, sem distorcer o trajeto de ninguém.
+
+### 2.3 Blindagem Absoluta do Sigilo Orçamentário (RNF-01 e RNF-02) e LGPD
+- O valor informado em `limite_gasto_rs` é **100% confidencial** (armazenado como `NUMERIC(10, 2)` com `Decimal` para evitar erros de ponto flutuante).
+- **Regra de ouro:** Nenhuma rota de API pública, nem a listagem de membros da sala, nem o banco devolvem o valor individual ou o menor teto da sala. A verificação pública ocorre exclusivamente pela função booleana `cabe_no_orcamento(codigo_sala, custo_por_pessoa) -> bool`.
+- **Descarte LGPD (30 dias):** Toda sala possui coluna `expira_em` (padrão `NOW() + INTERVAL '30 days'`) e rotina `apagar_salas_expiradas()` que remove em cascata participantes, janelas, sugestões e votos vencidos.
+
+### 2.4 Pós-Rolê Justo, Rateios Individuais e Integração Pix BACEN
+- Na finalização do rolê (`despesas_pos_role`), a pessoa que pagou a conta cadastra os dados ou envia a foto da nota fiscal (`itens_json`), gerando os registros individuais de cada devedor na tabela `despesa_rateios` (com baixa individual via `pago_em`).
+- O sistema permite **desmarcar itens específicos** (ex: quem não bebe álcool não paga o chopp, quem é vegetariano não paga o prato de carne).
+- O módulo financeiro gera o **payload oficial Pix Copia e Cola (padrão EMV Banco Central)** com o valor exato e a chave Pix do pagador, facilitando o acerto imediato. *(Nota de escopo: a criptografia da chave Pix em repouso via `pgcrypto`/Vault será implementada na Issue #45 — Tela 4 / Finanças).*
+
+### 2.5 Resiliência: Banco na Nuvem com Fallback Restrito a Teste/Desenvolvimento
+- **Produção (`ENVIRONMENT=producao`):** Instância Supabase PostgreSQL em São Paulo (`sa-east-1`), com **9 tabelas normalizadas**, Row Level Security (RLS) habilitado em 100% das tabelas, índices de performance e integridade referencial com deleção em cascata. Em produção, a ausência de `DATABASE_URL` interrompe a inicialização com `RuntimeError` explícito (sem fallback silencioso).
+- **Teste e Desenvolvimento Local (`ENVIRONMENT=teste` ou `desenvolvimento`):** O cliente de banco (`src/db/supabase_client.py`) permite fallback em SQLite local ou em memória exclusivamente para execução da suíte de testes automatizados (`make test-local`) e desenvolvimento offline.
+
+### 2.6 Diagrama Entidade-Relacionamento (ERD) Oficial (9 Tabelas)
+
+```mermaid
+erDiagram
+    USUARIOS ||--o{ USUARIO_ENDERECOS : "possui (Casa, Trabalho, UnB)"
+    USUARIOS ||--o{ SALAS : "cria / administra"
+    USUARIOS ||--o{ SALA_PARTICIPANTES : "pode vincular perfil a"
+    SALAS ||--|{ SALA_PARTICIPANTES : "contém (2 a 20 membros)"
+    SALA_PARTICIPANTES ||--|{ PARTICIPANTE_JANELAS : "declara horários e RA de saída"
+    SALAS ||--|{ SUGESTOES_ROLE : "gera 3 a 4 opções de IA"
+    SALAS ||--o{ VOTOS : "agrega votação"
+    SALAS ||--o{ DESPESAS_POS_ROLE : "registra divisão de conta"
+    DESPESAS_POS_ROLE ||--|{ DESPESA_RATEIOS : "divide por devedor"
+    SALA_PARTICIPANTES ||--o{ DESPESA_RATEIOS : "quita cota via Pix"
+    SALA_PARTICIPANTES ||--o{ VOTOS : "vota em"
+    SUGESTOES_ROLE ||--o{ VOTOS : "recebe voto de"
+
+    USUARIOS {
+        uuid id PK
+        string nome
+        string email
+        boolean maior_18_anos "Guardrail 18+"
+        string transporte_padrao
+        text restricoes_permanentes
+        string chave_pix_padrao
+    }
+
+    USUARIO_ENDERECOS {
+        uuid id PK
+        uuid usuario_id FK
+        string rotulo "Casa, Trabalho, UnB"
+        string regiao_ra "RA do DF"
+        string ponto_referencia
+        boolean is_padrao
+    }
+
+    SALAS {
+        uuid id PK
+        string codigo_sala "Ex: ROLE-A1B2"
+        string nome_role
+        string organizador_nome
+        string token_organizador_hash "SHA-256"
+        string status "coletando, votacao, orquestrado"
+        timestamptz expira_em "Retenção 30 dias LGPD"
+    }
+
+    SALA_PARTICIPANTES {
+        uuid id PK
+        uuid sala_id FK
+        uuid usuario_id FK
+        string nome
+        string token_hash "SHA-256"
+        boolean confirmado
+        numeric limite_gasto_rs "Sigiloso NUMERIC(10,2)"
+        string vibe_hoje
+        string transporte_hoje
+    }
+
+    PARTICIPANTE_JANELAS {
+        uuid id PK
+        uuid participante_id FK
+        timestamptz inicio
+        timestamptz fim
+        boolean disponivel
+        string ra_origem "RA de saída nesta janela"
+    }
+
+    SUGESTOES_ROLE {
+        uuid id PK
+        uuid sala_id FK
+        string letra_card "A, B, C, D"
+        string local_id "Catálogo 2FA (93 lugares)"
+        string nome_local
+        string regiao_ra
+        numeric consumo_rs "NUMERIC(10,2)"
+        numeric gasto_min "NUMERIC(10,2)"
+        numeric gasto_max "NUMERIC(10,2)"
+        numeric nota_justica "Menor Miséria"
+    }
+
+    VOTOS {
+        uuid id PK
+        uuid sala_id FK
+        uuid participante_id FK
+        uuid sugestao_id FK
+        timestamptz votado_em
+    }
+
+    DESPESAS_POS_ROLE {
+        uuid id PK
+        uuid sala_id FK
+        uuid pagador_participante_id FK
+        string pagador_nome
+        numeric valor_total_rs "NUMERIC(10,2)"
+        string chave_pix "BACEN"
+        jsonb itens_json "Nota Fiscal OCR"
+        boolean quitado
+    }
+
+    DESPESA_RATEIOS {
+        uuid id PK
+        uuid despesa_id FK
+        uuid devedor_participante_id FK
+        numeric valor "NUMERIC(10,2)"
+        timestamptz pago_em "Quitação individual"
+    }
+```
+
+---
+
+## 3. As 4 Telas do Aplicativo Completo (O Que Vamos Construir)
 
 Para o aplicativo estar 100% pronto e funcional até a Semana 6, o sistema terá **4 telas principais** (além da página `/rag` e `/entregaveis` que já mostramos aos monitores):
 
@@ -60,7 +199,7 @@ Para o aplicativo estar 100% pronto e funcional até a Semana 6, o sistema terá
 
 ---
 
-## 3. Como Cada Semana do Curso Se Encaixa no Nosso Projeto
+## 4. Como Cada Semana do Curso Se Encaixa no Nosso Projeto
 
 | Semana | Entregável para os Monitores | O Que Construímos do Nosso Aplicativo |
 | :--- | :--- | :--- |
@@ -74,7 +213,7 @@ Para o aplicativo estar 100% pronto e funcional até a Semana 6, o sistema terá
 
 ---
 
-## 4. Plano Completo da Semana 3 (92 Horas de Trabalho da Equipe)
+## 5. Plano Completo da Semana 3 (92 Horas de Trabalho da Equipe)
 
 **Carga horária da semana:**
 - **Terça-feira (Hoje):** 8h *(Cauan, Carol, Duda e Samara presentes; Miti ausente)*
@@ -192,9 +331,42 @@ Para não sobrar tempo ocioso e garantirmos tanto a **nota máxima na entrega da
 
 ---
 
-## 5. Resumo Rápido das Regras de Ouro da Equipe
+## 6. Resumo Rápido das Regras de Ouro da Equipe
 
 1. **Fonte Única da Verdade:** Qualquer dúvida sobre como o app funciona deve seguir **este documento (`GUIA_OFICIAL_PROJETO.md`)**.
 2. **Nada de Subir Arquivos Soltos pelo Site do GitHub:** Sempre usar `git pull`, criar sua branch ou commitar organizado para não bagunçar as pastas `data/`, `src/` e `docs/`.
 3. **Sem Voz, Sem Overture:** Nosso foco é **Texto nos 4 campos + Base de 93 lugares da Miti + Transporte nas 35 RAs + Votação em 3 a 4 Cards + Foto da Nota Fiscal e Pix no Pós-Rolê**.
 4. **Foco Duplo Toda Semana:** Toda semana entregamos o que o monitor pede na sexta-feira, mas construímos as peças reais do aplicativo em paralelo para chegarmos na Semana 6 com tudo pronto!
+
+---
+
+## 7. Atalhos Rápidos Multiplataforma (DevOps) e Guia de Pull Requests
+
+Para que ninguém da equipe perca tempo decorando comandos longos do Docker, foram configurados atalhos automáticos compatíveis com qualquer computador (Mac, Linux e Windows):
+
+### ⚡ Atalhos Rápidos de 1 Palavra:
+
+| O que você quer fazer? | Mac / Linux / WSL (Terminal) | Windows Nativo (CMD / PowerShell) |
+| :--- | :--- | :--- |
+| **Rodar todos os testes no Docker** | `make test` *(ou `./scripts/testar.sh`)* | `scripts\testar.bat` |
+| **Subir os containers (Postgres + App)** | `make up` | `docker compose up -d` |
+| **Parar os containers** | `make down` | `docker compose down` |
+| **Ver logs dos containers** | `make logs` | `docker compose logs -f` |
+| **Rodar testes no Python local (venv)** | `make test-local` | `pytest` *(com `.venv` ativo)* |
+
+---
+
+### 🛡️ Regra de Ouro para Abertura e Fechamento de Pull Requests (PRs)
+
+1. **Antes de Abrir o PR (Validação Obrigatória):**
+   - Execute sempre os testes no seu terminal usando `make test` (ou `scripts\testar.bat`).
+   - Se os testes passarem 100% verde localmente, seu código está seguro para ser enviado.
+2. **Ao Abrir o PR no GitHub:**
+   - Crie a branch sempre com prefixo: `feat/` (novidade), `fix/` (correção) ou `docs/` (documentação).
+   - O template de PR carregará automaticamente o checklist de qualidade e segurança.
+   - Insira `Closes #NUMERO_DA_ISSUE` na descrição para que a issue seja encerrada automaticamente.
+3. **Aprovação e Merge (Fechamento do PR):**
+   - Todo PR exige que os testes do GitHub Actions fiquem verdinhos (✅).
+   - O arquivo `.github/CODEOWNERS` atribui automaticamente a revisão para a Maria Eduarda (DevOps).
+   - Com os testes passando e a revisão aprovada, o merge é realizado com segurança na `main`!
+

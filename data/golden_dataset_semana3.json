@@ -1,0 +1,112 @@
+[
+  {
+    "id": "golden_01",
+    "pergunta": "Onde tem rodízio de mini hambúrguer e pão de queijo em Taguatinga para ir com amigos?",
+    "categoria": "geoespacial_ra_fora_centro",
+    "ra_esperada": "Taguatinga",
+    "locais_gabarito": ["Filomenambúrguer"],
+    "preco_maximo_gabarito": 49.99,
+    "horario_gabarito": "Todos os dias (um preço de domingo a quinta e outro às sextas, sábados e feriados)",
+    "evidencia_id_tiktok": "tiktok_7626405885388197128",
+    "armadilha_llm_pura": "Sugerir hamburguerias do Plano Piloto, inventar endereço em Taguatinga ou confundir com o buffet de mini hambúrguer da Casa Bari"
+  },
+  {
+    "id": "golden_02",
+    "pergunta": "Onde tem rodízio de caldos ou de pizza com brinquedoteca em Águas Claras?",
+    "categoria": "geoespacial_ra_fora_centro",
+    "ra_esperada": "Águas Claras",
+    "locais_gabarito": ["Restaurante Dona Cleide"],
+    "preco_maximo_gabarito": 54.9,
+    "horario_gabarito": "Rodízios de terça a domingo, das 17h às 23h",
+    "evidencia_id_tiktok": "tiktok_7612334793040186632",
+    "armadilha_llm_pura": "Inventar rodízio de caldos em Águas Claras, errar os preços ou dizer que o rodízio funciona na segunda-feira (segunda só abre até 16h)"
+  },
+  {
+    "id": "golden_03",
+    "pergunta": "Onde comer churrasco americano defumado no Guará?",
+    "categoria": "geoespacial_ra_fora_centro",
+    "ra_esperada": "Guará",
+    "locais_gabarito": ["Santo Bifidele"],
+    "preco_maximo_gabarito": 39.9,
+    "horario_gabarito": "Executivos no almoço, de segunda a sexta",
+    "evidencia_id_tiktok": "tiktok_7600075009423412488",
+    "armadilha_llm_pura": "Sugerir churrascarias tradicionais do Plano Piloto, inventar quadra no Guará ou oferecer o executivo no fim de semana"
+  },
+  {
+    "id": "golden_04",
+    "pergunta": "Onde tem rodízio de almoço barato com parmegiana no Riacho Fundo?",
+    "categoria": "geoespacial_ra_fora_centro",
+    "ra_esperada": "Riacho Fundo",
+    "locais_gabarito": ["Royal Burger"],
+    "preco_maximo_gabarito": 29.9,
+    "horario_gabarito": "Almoço às segundas, quartas e quintas; preço maior de sexta a domingo e feriados",
+    "evidencia_id_tiktok": "tiktok_7610152917563084050",
+    "armadilha_llm_pura": "Dizer que não há opção no Riacho Fundo e mandar o grupo para Taguatinga ou o Plano Piloto, ou inventar preço"
+  },
+  {
+    "id": "golden_05",
+    "pergunta": "Onde comer rodízio de pizza e sushi à noite em Samambaia com a família?",
+    "categoria": "geoespacial_ra_fora_centro",
+    "ra_esperada": "Samambaia",
+    "locais_gabarito": ["VBQ"],
+    "preco_maximo_gabarito": 44.9,
+    "horario_gabarito": "Noite (rodízio com reposição a noite toda)",
+    "evidencia_id_tiktok": "tiktok_7678112514009304338",
+    "armadilha_llm_pura": "Mandar o grupo para rodízios do Plano Piloto ou inventar endereço em Samambaia"
+  },
+  {
+    "id": "golden_06",
+    "pergunta": "Onde dá para comer e beber com os amigos depois da 1h da manhã num sábado?",
+    "categoria": "janela_horario",
+    "ra_esperada": "Plano Piloto (Asa Sul)",
+    "locais_gabarito": ["New Mercadito"],
+    "preco_maximo_gabarito": 54.99,
+    "horario_gabarito": "Sexta a domingo até 01h30; segunda a quinta só até 00h",
+    "evidencia_id_tiktok": "tiktok_7621221602457390354",
+    "armadilha_llm_pura": "Inventar bares 24h ou dizer que fecha às 4h; indicar o lugar numa segunda a quinta depois da meia-noite. Obs.: o preço da base é o do buffet de almoço"
+  },
+  {
+    "id": "golden_07",
+    "pergunta": "Onde tem buffet de almoço à vontade por menos de R$ 30 no domingo em Taguatinga?",
+    "categoria": "janela_horario",
+    "ra_esperada": "Taguatinga",
+    "locais_gabarito": ["Casa Bar"],
+    "preco_maximo_gabarito": 29.99,
+    "horario_gabarito": "Somente aos domingos, no almoço",
+    "evidencia_id_tiktok": "tiktok_7681780069928324370",
+    "armadilha_llm_pura": "Sugerir lugar fechado no domingo (a Casa Caipira, em Taguatinga, fecha domingos e feriados) ou dizer que o buffet funciona em outros dias"
+  },
+  {
+    "id": "golden_08",
+    "pergunta": "Quero ir num pizza bar com drinks no domingo à tarde. Qual abre e a partir de que horas?",
+    "categoria": "janela_horario",
+    "ra_esperada": "Plano Piloto (Asa Sul)",
+    "locais_gabarito": ["Spelunca DF"],
+    "preco_maximo_gabarito": 65.5,
+    "horario_gabarito": "Domingo a partir das 16h (quarta a sábado a partir das 18h)",
+    "evidencia_id_tiktok": "tiktok_7628371621136452882",
+    "armadilha_llm_pura": "Prometer karaokê (só às quartas) ou o dado da conta grátis (só às quintas) no domingo, ou dizer que abre às 18h"
+  },
+  {
+    "id": "golden_09",
+    "pergunta": "Quais são os melhores bares em Copacabana, no Rio de Janeiro, para ir com amigos numa sexta à noite?",
+    "categoria": "fora_de_escopo_df",
+    "ra_esperada": null,
+    "locais_gabarito": [],
+    "preco_maximo_gabarito": null,
+    "horario_gabarito": null,
+    "evidencia_id_tiktok": null,
+    "armadilha_llm_pura": "A LLM pura lista bares do Rio sem avisar que o app só cobre o DF; o RAG pode recuperar The Coffee Talk ou Fábrica de Bolos Valzira, que os vídeos citam como famosas no Rio, mas cujas unidades da base ficam no DF"
+  },
+  {
+    "id": "golden_10",
+    "pergunta": "Onde comer hambúrguer artesanal em Pinheiros, São Paulo, gastando até R$ 50?",
+    "categoria": "fora_de_escopo_df",
+    "ra_esperada": null,
+    "locais_gabarito": [],
+    "preco_maximo_gabarito": null,
+    "horario_gabarito": null,
+    "evidencia_id_tiktok": null,
+    "armadilha_llm_pura": "A LLM pura inventa hamburguerias em Pinheiros; o RAG, guiado por 'hambúrguer até R$ 50', pode devolver hamburguerias do DF (ex.: Mr. John, Cabiburger) sem perceber que a cidade pedida é SP"
+  }
+]

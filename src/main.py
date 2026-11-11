@@ -26,6 +26,7 @@ app = FastAPI(
     description="API do Orquestrador de Roles com Telemetria Langfuse (Grupo 7 - Challenge 2)",
     version="0.2.0",
 )
+app.include_router(salas_router)
 
 
 class ConsultaRAGRequest(BaseModel):

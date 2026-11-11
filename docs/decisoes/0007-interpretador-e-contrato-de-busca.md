@@ -1,6 +1,6 @@
 # 0007 — Interpretador de mensagens e contrato da busca usada pelos agentes
 
-- **Status:** proposta
+- **Status:** proposta. Em 2026-11-10 a conversa privada deu lugar aos 4 campos da Tela 2 ([ADR 0009](0009-entrada-pelos-4-campos-de-texto.md)); o contrato da busca agora fica em `src/interpretador/contrato.py`
 - **Data:** 2026-11-05
 - **Semana do roadmap:** 2 (preparação). Os agentes são entrega da semana 4 (RNF-12)
 - **Requisitos:** RF-05, RF-07, RF-08, RF-11, RF-18, RF-30, RF-39 · RNF-01, RNF-02, RNF-04, RNF-08, RNF-11, RNF-12, RNF-14

@@ -1,0 +1,154 @@
+name: Auto-Desbloqueio de Issues (Semana 3+)
+
+on:
+  issues:
+    types: [closed]
+
+permissions:
+  issues: write
+
+jobs:
+  unlock-dependent-issues:
+    name: Verificar e Desbloquear Issues Dependentes
+    runs-on: ubuntu-latest
+    steps:
+      - name: Desbloquear issues cujas dependencias foram concluidas
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const closedIssue = context.payload.issue;
+            console.log(`Issue fechada: #${closedIssue.number} - ${closedIssue.title}`);
+
+            // Busca todas as issues abertas com a label 'status:bloqueada'
+            const blockedIssues = await github.paginate(github.rest.issues.listForRepo, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              labels: 'status:bloqueada',
+              per_page: 100
+            });
+
+            console.log(`Encontradas ${blockedIssues.length} issues com 'status:bloqueada'.`);
+
+            for (const issue of blockedIssues) {
+              const body = issue.body || '';
+
+              // Extrai a secao de bloqueio no topo da issue (linhas de citacao '>' logo apos STATUS: BLOQUEADA)
+              const lines = body.split('\n');
+              const blockerNumbers = new Set();
+              let inBlockerSection = false;
+
+              for (const line of lines) {
+                if (line.includes('STATUS: BLOQUEADA')) {
+                  inBlockerSection = true;
+                  continue;
+                }
+                if (inBlockerSection) {
+                  if (line.trim().startsWith('>')) {
+                    // Procura padroes como '- [ ] #28' ou '- [x] #28'
+                    const matches = [...line.matchAll(/#(\d+)/g)];
+                    for (const m of matches) {
+                      blockerNumbers.add(parseInt(m[1], 10));
+                    }
+                  } else if (line.trim() !== '') {
+                    // Saiu do bloco '>' de status
+                    break;
+                  }
+                }
+              }
+
+              if (blockerNumbers.size === 0) {
+                console.log(`Issue #${issue.number} nao possui referencias #XX no bloco STATUS: BLOQUEADA.`);
+                continue;
+              }
+
+              // Verifica se a issue recem-fechada faz parte das dependencias desta issue
+              if (!blockerNumbers.has(closedIssue.number)) {
+                continue;
+              }
+
+              // Marca o checkbox da issue recem-fechada no corpo da issue dependente
+              let updatedBody = body.replace(
+                new RegExp(`(>\\s*-\\s*)\\[ \\](\\s*#${closedIssue.number}\\b)`, 'g'),
+                `$1[x]$2`
+              );
+
+              // Verifica no GitHub o status de TODAS as issues bloqueadoras
+              let allClosed = true;
+              const stillOpen = [];
+
+              for (const num of blockerNumbers) {
+                if (num === closedIssue.number) continue;
+                const { data: depIssue } = await github.rest.issues.get({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: num
+                });
+                if (depIssue.state !== 'closed') {
+                  allClosed = false;
+                  stillOpen.push(`#${num}`);
+                } else {
+                  updatedBody = updatedBody.replace(
+                    new RegExp(`(>\\s*-\\s*)\\[ \\](\\s*#${num}\\b)`, 'g'),
+                    `$1[x]$2`
+                  );
+                }
+              }
+
+              if (allClosed) {
+                // Substitui o banner de BLOQUEADA por LIBERADA
+                updatedBody = updatedBody.replace(
+                  /> \[!CAUTION\]\n> ### ⛔ STATUS: BLOQUEADA[\s\S]*?(?=\n\n|\n## )/,
+                  `> [!TIP]\n> ### 🟢 STATUS: LIBERADA (Desbloqueada automaticamente via GitHub Actions)\n> Todas as dependências anteriores (${[...blockerNumbers].map(n => '#' + n).join(', ')}) foram concluídas e fechadas! Você já pode fazer o merge/integração final e abrir seu Pull Request.`
+                );
+
+                await github.rest.issues.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  body: updatedBody
+                });
+
+                // Remove 'status:bloqueada' e adiciona 'status:liberada'
+                try {
+                  await github.rest.issues.removeLabel({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issue.number,
+                    name: 'status:bloqueada'
+                  });
+                } catch (e) {
+                  console.log(`Aviso ao remover label: ${e.message}`);
+                }
+
+                await github.rest.issues.addLabels({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  labels: ['status:liberada']
+                });
+
+                const assigneesMention = (issue.assignees || []).map(a => `@${a.login}`).join(' ');
+                const blockerList = [...blockerNumbers].map(n => `#${n}`).join(', ');
+
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: issue.number,
+                  body: `🎉 **Issue Desbloqueada Automaticamente!**\n\nOlá ${assigneesMention || 'equipe'}, a última dependência pendente (#${closedIssue.number}) acaba de ser concluída (todas as travas ${blockerList} estão fechadas).\n\n- Label atualizada: \`status:bloqueada\` ➡️ \`status:liberada\`\n- O contrato/código base já está disponível para integração final e abertura do seu Pull Request!`
+                });
+
+                console.log(`Issue #${issue.number} desbloqueada com sucesso!`);
+              } else {
+                // Apenas atualiza o checkbox da dependencia que fechou, mantendo bloqueada pelas demais
+                if (updatedBody !== body) {
+                  await github.rest.issues.update({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    issue_number: issue.number,
+                    body: updatedBody
+                  });
+                }
+                console.log(`Issue #${issue.number} teve #${closedIssue.number} marcada como concluida, mas ainda aguarda: ${stillOpen.join(', ')}`);
+              }
+            }
