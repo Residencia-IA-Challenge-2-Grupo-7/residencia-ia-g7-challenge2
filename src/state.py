@@ -60,6 +60,9 @@ def obter_repositorio() -> Repositorio:
             tipo = os.environ.get("ROLES_REPOSITORIO", "memoria").lower()
             if tipo == "memoria":
                 _repositorio = RepositorioMemoria()
+            elif tipo == "supabase":
+                from src.db.supabase_client import RepositorioSupabase
+                _repositorio = RepositorioSupabase()
             else:
                 raise RuntimeError(
                     f"ROLES_REPOSITORIO={tipo!r} ainda não existe. Implemente um Repositorio em src/db/ "
