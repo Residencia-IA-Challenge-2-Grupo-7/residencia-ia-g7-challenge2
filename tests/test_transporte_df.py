@@ -13,7 +13,13 @@ from pathlib import Path
 import pytest
 
 from src.interpretador.lugares import ras_validas
-from src.logistica.transporte_df import RAIO_TERRA_KM, haversine_km
+from src.logistica.transporte_df import (
+    RAIO_TERRA_KM,
+    calcular_distancia_km,
+    haversine_km,
+    ponto_da_ra,
+    resolver_ra,
+)
 from src.rag.coletor_tiktok_2fa import COORDENADAS_RAS_DF
 from src.salas import integracoes
 
@@ -165,3 +171,105 @@ def test_da_o_mesmo_numero_que_a_reserva_das_salas():
 def test_coordenada_invalida_levanta_erro(ponto):
     with pytest.raises(ValueError):
         haversine_km(ponto, PLANO)
+
+
+# ---------------------------------------------------------------- nome da RA de origem
+
+
+@pytest.mark.parametrize("nome", sorted(ras_validas()))
+def test_cada_ra_oficial_se_resolve_nela_mesma(nome):
+    assert resolver_ra(nome) == nome
+
+
+@pytest.mark.parametrize(
+    "texto, esperado",
+    [
+        ("aguas claras", "Águas Claras"),
+        ("ÁGUAS CLARAS", "Águas Claras"),
+        ("ceilandia", "Ceilândia"),
+        ("Asa Sul", "Plano Piloto"),
+        ("Plano Piloto (Asa Sul)", "Plano Piloto"),
+        ("Taguá", "Taguatinga"),
+        ("estação Arniqueiras", "Arniqueira"),
+        ("sol nascente", "Sol Nascente/Pôr do Sol"),
+    ],
+)
+def test_resolve_sem_acento_em_maiusculas_e_por_apelido(texto, esperado):
+    assert resolver_ra(texto) == esperado
+
+
+@pytest.mark.parametrize("texto", ["Goiânia", "zona oeste", "", None])
+def test_nome_que_nao_e_ra_levanta_erro(texto):
+    with pytest.raises(ValueError, match="nenhuma"):
+        resolver_ra(texto)
+
+
+def test_nome_com_duas_ras_levanta_erro():
+    with pytest.raises(ValueError, match="2 RAs"):
+        resolver_ra("Sudoeste / Cruzeiro")
+
+
+def test_erro_nao_repete_o_que_a_pessoa_digitou():
+    """A origem é um campo secreto: o texto não pode vazar para log pela mensagem de erro."""
+    with pytest.raises(ValueError) as erro:
+        resolver_ra("Rua das Flores 123, Goiânia")
+    assert "Flores" not in str(erro.value)
+
+
+# ---------------------------------------------------------------- distância da RA até o lugar
+
+BASE_2FA = {
+    registro["id"]: registro
+    for registro in json.loads(
+        (RAIZ / "data" / "banco_aprovado_2fa.json").read_text(encoding="utf-8")
+    )
+}
+DONA_CLEIDE = BASE_2FA["tiktok_7612334793040186632"]  # no centro de Águas Claras
+TRADICIONAL = BASE_2FA["tiktok_7688862229533445383"]  # Planaltina, sem coordenadas
+
+
+def test_ponto_da_ra_vem_do_catalogo():
+    assert ponto_da_ra("samambaia") == SAMAMBAIA
+
+
+@pytest.mark.parametrize(
+    "origem, destino, esperado",
+    [
+        ("Samambaia", "Plano Piloto", 23.495),
+        ("Águas Claras", "Plano Piloto", 16.041),
+        ("Samambaia", "Águas Claras", 7.721),
+    ],
+)
+def test_distancia_entre_as_ras_da_issue(origem, destino, esperado):
+    assert calcular_distancia_km(origem, _ponto(destino)) == pytest.approx(
+        esperado, abs=0.001
+    )
+
+
+def test_aceita_um_registro_da_base():
+    assert calcular_distancia_km("Samambaia", DONA_CLEIDE) == pytest.approx(
+        7.721, abs=0.001
+    )
+
+
+def test_lugar_no_centro_da_propria_ra_da_zero_km():
+    """O valor honesto é 0; o mínimo realista dentro da RA entra no cálculo do tempo."""
+    assert calcular_distancia_km("Águas Claras", DONA_CLEIDE) == 0.0
+
+
+def test_lugar_sem_coordenadas_levanta_erro_com_o_nome_do_lugar():
+    with pytest.raises(ValueError, match="Tradicional Restaurante"):
+        calcular_distancia_km("Planaltina", TRADICIONAL)
+
+
+def test_toda_ra_chega_a_todo_lugar_da_base_com_coordenadas():
+    lugares = [
+        lugar
+        for lugar in BASE_2FA.values()
+        if lugar.get("lat") is not None and lugar.get("lng") is not None
+    ]
+    assert lugares
+    for ra in ras_validas():
+        for lugar in lugares:
+            km = calcular_distancia_km(ra, lugar)
+            assert 0 <= km < 100, (ra, lugar["nome"])
