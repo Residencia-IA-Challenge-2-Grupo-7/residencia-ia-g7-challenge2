@@ -87,8 +87,8 @@ O que já existia:
 - **Calibração:** medir de 5 a 10 trajetos reais da equipe (RA de origem, lugar, meio, minutos) e ajustar `VELOCIDADE_KMH` e `ESPERA_MIN` até o erro mediano ficar abaixo de 25%. Mudar os dois lados juntos: o teste `test_usa_os_mesmos_numeros_da_reserva_das_salas` trava a igualdade.
 - **Justiça:** os testes do cenário da issue (Águas Claras acima dos extremos), do grupo espalhado (nota nunca zera e segue o pior trajeto) e da periferia (Ceilândia + Samambaia + Plano não ficam com o Plano) precisam continuar verdes.
 - **Continuações propostas:**
-  1. nota por tempo com a curva que não zera (Cauan e grupo);
-  2. data no contrato do deslocamento, para o Vai de Graça (Cauan);
+  1. ~~nota por tempo com a curva que não zera~~: **feito em 12/11** (Cauan). `nota_menor_miseria` e a reserva das salas usam `100 × 100 / (100 + penalidade)`; grupos espalhados deixam de empatar em 0;
+  2. ~~data no contrato do deslocamento, para o Vai de Graça~~: **feito em 12/11** (Cauan). `estimar_deslocamento(..., quando=)` recebe o início do rolê, e ônibus e metrô custam zero aos domingos e nos feriados nacionais e do DF (`tarifa_zero`; Carnaval e Corpus Christi, pontos facultativos, ficam de fora);
   3. sub-áreas do Plano Piloto (Asa Sul, Asa Norte, Noroeste), se o interpretador passar a devolvê-las (Cauan);
-  4. `ra_do_lugar` em `integracoes.py` lê "Plano Piloto (Sudoeste)" como Plano Piloto; o Raio-X diz Sudoeste/Octogonal (Cauan);
+  4. ~~`ra_do_lugar` lê "Plano Piloto (Sudoeste)" como Plano Piloto~~: **feito em 12/11** (Cauan). O texto entre parênteses vale quando corresponde a uma RA só;
   5. calibração das velocidades (Samara).
