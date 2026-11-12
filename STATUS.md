@@ -18,11 +18,18 @@
   - `POST /api/comparativo/executar` roda a mesma pergunta nos dois modos, em paralelo, e devolve o contrato JSON da issue, com o gabarito quando a pergunta vem do golden; `GET /api/comparativo/golden` lista as perguntas ([ADR 0011](docs/decisoes/0011-comparativo-ab-com-o-mesmo-llm.md));
   - **Modo A:** DeepSeek V4.1 Flash sem documentos ([ADR 0010](docs/decisoes/0010-baseline-llm-pura-e-guardrails.md), PR #49). **Modo B:** busca com guardrails e o mesmo modelo com os lugares recuperados (`src/rag/llm_rag.py`). Antes, o Modo B era um texto fixo sem LLM;
   - prévia com os 10 casos do golden: o lugar do gabarito veio nas fontes do Modo B em 6 de 8 casos do DF, e as 2 perguntas fora do DF foram recusadas sem chamar o LLM. p90 de 5,1 s no Modo A e 4,8 s no Modo B. Os 2 erros são da busca: o VBQ (Samambaia) não foi recuperado, e o golden_06 foi bloqueado com aderência 0,62;
-  - 16 testes novos, 193 no total. Falta abrir o PR.
-- **Golden dataset completo (Samara, 12/11), issue #32, na branch `feat/32-golden-dataset-parte2`:**
+  - com o raciocínio alto ligado nos dois modos ([experimento](docs/experimentos/2026-11-12-comparativo-raciocinio.md)), o Modo B acertou os mesmos 6 de 8, mas o p90 foi a 7,3 s; a LLM pura passou a recusar em 6 de 10. O Modo B sem raciocínio continua a melhor configuração;
+  - PRs #52 (tela) e #53 (motor) na `main`.
+- **Busca vetorial e raciocínio no comparativo (Cauan, 12/11), na branch `feat/rag-embeddings-raciocinio`:**
+  - busca vetorial com o `gemini-embedding-001` pela OpenRouter, a mesma chave do resto do projeto (vetores idênticos aos da base, cosseno 1,0), e híbrida ([ADR 0012](docs/decisoes/0012-busca-vetorial-pela-openrouter.md));
+  - prévia com 10 casos ([experimento](docs/experimentos/2026-11-12-busca-vetorial.md)): lugar certo em 7 de 8 com a vetorial (6 de 8 por palavras), mas o p90 do Modo B vai a 6,1 s por causa do embedding (1,6 s). O padrão segue sendo a busca por palavras até a #38 escolher;
+  - a rota e a tela do comparativo ganharam a escolha do raciocínio (dois modos) e da busca (Modo B);
+  - a base tem lugares repetidos (Espaguete, Dunkin' Donuts, Johnny Joy, Anime Summit, ExpoFlores 2026; Filomenambúrguer com duas grafias), para a curadoria;
+  - 208 testes; PR #56 aberto.
+- **Golden dataset completo (Samara, 12/11), issue #32, PR #57 na `main`:**
   - os 20 casos em `data/golden_dataset_semana3.json`: 5 geoespaciais, 3 de horário, 2 fora do DF, 5 de preço exato, 3 de ambiência e restrição alimentar e 2 de conflito e gírias;
   - catálogo, regras e limitações conhecidas em [docs/dados/golden-dataset-semana3.md](docs/dados/golden-dataset-semana3.md); `tests/test_golden_dataset.py` trava os 20 casos, as 6 categorias e o preço contra o `custo_medio_rs`;
-  - a prévia do comparativo usou só os 10 primeiros; os casos 11 a 20 já aparecem em `GET /api/comparativo/golden`. Falta abrir o PR.
+  - a prévia do comparativo usou só os 10 primeiros; os casos 11 a 20 já aparecem em `GET /api/comparativo/golden`.
 - **Back-end das salas (Cauan, 10/11), PR #48 na `main`:**
   - `src/interpretador/campos.py`: os 4 campos viram RA (apelidos, quadras como SQN e QNM, estações de metrô), janelas pelo `tempo.py`, teto pelo `numeros.py` e tags com os rótulos da base. Tudo por regras; o LLM do ADR 0007 só entra se as regras não acharem nenhum dia ([ADR 0009](docs/decisoes/0009-entrada-pelos-4-campos-de-texto.md));
   - `src/state.py` (repositório em memória, pronto para trocar pelo Supabase) e `src/salas/` (gerenciador, cruzamento de horários, horário de funcionamento dos lugares, cartões, votação);

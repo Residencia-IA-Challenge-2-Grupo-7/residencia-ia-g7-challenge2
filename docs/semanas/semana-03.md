@@ -13,6 +13,8 @@
   - ADR 0008 (base de 93 lugares e LGPD) e ADR 0009 (4 campos, sem voz); requisitos v0.4 com a voz removida.
 - 2026-11-10 (Cauan): issue #33, PR #49. Modo A da comparação com o DeepSeek V4.1 Flash pela OpenRouter, no lugar do Gemini 1.5 Flash, que foi descontinuado ([ADR 0010](../decisoes/0010-baseline-llm-pura-e-guardrails.md)). Guardrails do RAG em código: pergunta fora do DF, aderência abaixo de 0,65 e teto em reais. Com raciocínio alto, o modelo quase não inventou endereços, mas não indicou nenhum lugar em 13 de 16 respostas, com p90 de 11,9 s ([experimento](../experimentos/2026-11-10-llm-pura-raciocinio.md)); o relatório usa o modo sem raciocínio como principal.
 - 2026-11-12 (Cauan): issue #34. Motor da comparação A/B e rotas `/api/comparativo`. O Modo B passou a gerar a resposta com o mesmo LLM do Modo A, recebendo os lugares recuperados ([ADR 0011](../decisoes/0011-comparativo-ab-com-o-mesmo-llm.md)). Prévia com os 10 casos do golden: o lugar certo veio nas fontes do Modo B em 6 de 8 casos do DF, e as 2 perguntas fora do DF foram recusadas sem chamar o LLM ([resultados](../../eval/resultados/comparativo-ab-previa-golden-01-10-2026-11-12.json)).
+- 2026-11-12 (Cauan): raciocínio alto ligado nos dois modos do comparativo ([experimento](../experimentos/2026-11-12-comparativo-raciocinio.md)). O acerto do Modo B não mudou (6 de 8), e o p90 subiu de 4,8 s para 7,3 s. Os erros que sobram são da busca, não do modelo.
+- 2026-11-12 (Cauan): busca vetorial no Modo B, com o `gemini-embedding-001` pela OpenRouter ([ADR 0012](../decisoes/0012-busca-vetorial-pela-openrouter.md), [experimento](../experimentos/2026-11-12-busca-vetorial.md)). Lugar certo na resposta em 7 de 8 casos (6 de 8 por palavras), mas o embedding da pergunta leva cerca de 1,6 s e o p90 do Modo B vai a 6,1 s. A tela `/comparativo` ganhou os seletores de raciocínio e de busca.
 - 2026-11-12 (Samara): issue #32. O golden dataset fechou em 20 casos. Os 10 novos cobrem preço exato (rodízio, ingresso de parque infantil, teto estrito de R$ 30), ambiência e restrição alimentar (Kid Friendly, sem trigo, lactose e açúcar refinado, jantar romântico) e conflito e gírias candangas. Nome, RA e preço foram copiados da base; são 18 lugares diferentes para 20 perguntas, e um teste trava a contagem, as 6 categorias e o preço contra o `custo_medio_rs` ([catálogo e regras](../dados/golden-dataset-semana3.md)).
 - 2026-11-10: a leitura do horário de funcionamento dos 93 lugares, num sábado à noite, deu 32 abertos, 5 prováveis, 23 incertos, 19 fechados e 14 encerrados (eventos e promoções com datas passadas). Os 2 eventos do Gama têm coordenadas no Plano Piloto, e o lugar de Planaltina não tem coordenadas.
 
@@ -22,6 +24,7 @@
 - [ADR 0009](../decisoes/0009-entrada-pelos-4-campos-de-texto.md): entrada pelos 4 campos de texto, interpretados por regras, sem voz (substitui o ADR 0006).
 - [ADR 0010](../decisoes/0010-baseline-llm-pura-e-guardrails.md): Modo A com o DeepSeek V4.1 Flash e guardrails determinísticos no RAG.
 - [ADR 0011](../decisoes/0011-comparativo-ab-com-o-mesmo-llm.md): no comparativo, o Modo B gera a resposta com o mesmo LLM do Modo A.
+- [ADR 0012](../decisoes/0012-busca-vetorial-pela-openrouter.md): busca vetorial do Modo B pela OpenRouter, com o mesmo modelo de embedding da base.
 
 ## Aprendizados e dúvidas
 
