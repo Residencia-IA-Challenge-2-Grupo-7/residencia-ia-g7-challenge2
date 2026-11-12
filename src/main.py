@@ -5,7 +5,7 @@ from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from pydantic import BaseModel, ConfigDict
 
-from src.interface import ENTREGAVEIS_PAGE, HTML_PAGE, LANDING_PAGE
+from src.interface import COMPARATIVO_PAGE, ENTREGAVEIS_PAGE, HTML_PAGE, LANDING_PAGE
 from src.rag.comparador_ab import ErroComparativo, executar_comparacao_ab, listar_golden
 from src.salas.rotas import router as salas_router
 from src.telemetria.telemetria import (
@@ -34,20 +34,12 @@ class ConsultaRAGRequest(BaseModel):
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
     """
-    Entrega a pagina inicial do Orquestrador de Roles com botao para /rag.
+    Entrega a pagina inicial do Orquestrador de Roles com botao para /rag e /comparativo.
     Se o cliente pedir explicitamente application/json (ex: curl/testes), retorna JSON.
     """
     accept = request.headers.get("accept", "")
     if "application/json" in accept and "text/html" not in accept:
-        langfuse_ok = checar_conexao_langfuse()
-        return {
-            "projeto": "Orquestrador de Roles",
-            "status": "online",
-            "ambiente": os.environ.get("ENVIRONMENT", "desenvolvimento"),
-            "responsavel_devops": "Maria Eduarda",
-            "telemetria_langfuse": "conectado" if langfuse_ok else "desconectado",
-            "doc": "/docs",
-        }
+        return status_api()
     return HTMLResponse(content=LANDING_PAGE)
 
 
@@ -56,6 +48,13 @@ def home(request: Request):
 def demo_interface():
     """Rota direta para a interface web do RAG."""
     return HTMLResponse(content=HTML_PAGE)
+
+
+@app.get("/comparativo", response_class=HTMLResponse)
+@app.get("/comparacao", response_class=HTMLResponse)
+def comparativo_interface():
+    """Rota da Interface Web de Comparação Lado a Lado: LLM Pura vs. RAG Ancorado (Issue #37)."""
+    return HTMLResponse(content=COMPARATIVO_PAGE)
 
 
 @app.get("/status")
