@@ -58,7 +58,7 @@ curl -s -X POST localhost:8000/api/salas/ROLE-7KQ2/participantes -H 'content-typ
 
 | Peça | Dona | Função esperada | Reserva atual |
 |---|---|---|---|
-| Teto seguro do grupo | Eduarda | `src/financas/__init__.py`: `teto_seguro_grupo(tetos: list[Decimal]) -> Decimal` | o menor teto |
+| Teto seguro do grupo | Cauan (issue #45) | `src/financas/__init__.py`: `teto_seguro_grupo(tetos: list[Decimal]) -> Decimal` (**pronto**) | o menor teto |
 | Deslocamento | Samara | `src/logistica/transporte_df.py`: `estimar_deslocamento(ra_origem: str, lat: float, lng: float, modo: str) -> dict` com `km`, `minutos`, `custo_ida_volta` | linha reta entre centroides × 1,3; ônibus/metrô a 18 km/h + 15 min, carro e app a 30 km/h + 5 min; R$ 5,50 a passagem |
 | Nota de justiça | Samara | `src/logistica/transporte_df.py`: `nota_menor_miseria(deslocamentos: list[dict]) -> float` (0 a 100) | 100 − 0,8 × (pior tempo − 20) − 0,3 × (pior − melhor); 30 sem dado |
 | Centroides das RAs | Samara | `data/regioes_df_gps.json`, `{ra: {lat, lng}}` ou lista com `ra`, `lat`, `lng` | média das coordenadas da base por RA |
