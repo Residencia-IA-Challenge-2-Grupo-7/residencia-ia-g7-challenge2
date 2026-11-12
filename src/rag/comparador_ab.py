@@ -104,16 +104,18 @@ def _resumo_modo(r: dict) -> dict:
 
 
 def _executar_modo_b(pergunta: str, *, top_k: int, usar_cache: bool, registrar: bool, sessao,
-                     raciocinio: str | None = None) -> dict:
+                     raciocinio: str | None = None, busca: str = "lexica") -> dict:
     from src.telemetria.telemetria import recuperar_com_guardrails
 
     t0 = time.perf_counter()
-    guard, lugares = recuperar_com_guardrails(pergunta, top_k=top_k)
-    ms_recuperacao = (time.perf_counter() - t0) * 1000
+    guard, lugares = recuperar_com_guardrails(pergunta, top_k=top_k, busca=busca)
+    ms_recuperacao = (time.perf_counter() - t0) * 1000  # inclui o embedding da pergunta, se houver
     r = llm_rag.gerar_resposta_rag(pergunta, lugares, avisos=guard.avisos, usar_cache=usar_cache, registrar=registrar,
                                    sessao=sessao, raciocinio=raciocinio)
     resumo = _resumo_modo(r)
     resumo["latencia_ms"] = round(ms_recuperacao + r["latencia_ms"], 1)  # recuperação + geração
+    resumo["custo_estimado_brl"] = round(r["custo_estimado_brl"] + guard.embedding_custo_usd * llm_pura.COTACAO_USD_BRL, 6)
+    resumo["busca"] = guard.busca
     resumo["guardrails"] = guard.para_json()
     return resumo
 
@@ -136,16 +138,26 @@ def _url_trace() -> str | None:
 
 def executar_comparacao_ab(pergunta: str | None, id_golden: str | None = None, *, top_k: int = TOP_K,
                            usar_cache: bool = True, registrar: bool = True, sessao=None,
-                           raciocinio: str | None = None) -> dict:
+                           raciocinio: str | None = None, busca: str = "lexica") -> dict:
     """Roda a pergunta nos dois modos e devolve o contrato JSON da issue #34.
 
     Com `id_golden`, a pergunta vem do golden dataset e o resultado traz o `gabarito`; sem ele, `gabarito` é
     None. Lança `ErroComparativo` para entrada inválida (sem pergunta, caso inexistente, pergunta diferente da
     do caso). `usar_cache`, `registrar`, `sessao` e `raciocinio` são repassados aos dois modos (ver
     `gerar_resposta_llm_pura`); `raciocinio="high"` liga o raciocínio do modelo nos dois, para a comparação
-    continuar com o mesmo modelo e a mesma configuração dos dois lados.
+    continuar com o mesmo modelo e a mesma configuração dos dois lados. `busca` ("lexica", "vetorial" ou
+    "hibrida") vale só para o Modo B; sem embedding disponível, ele volta para a léxica e `modo_b_rag.busca`
+    diz qual rodou.
     """
     pergunta, caso = _resolver_pergunta(pergunta, id_golden)
+    from src.telemetria.telemetria import BUSCAS
+
+    if busca not in BUSCAS:
+        raise ErroComparativo(f"busca deve ser um de {BUSCAS}.")
+    try:
+        llm_pura._nivel(raciocinio)
+    except ValueError as e:
+        raise ErroComparativo(str(e)) from None
     sessao_a = sessao_b = sessao
     if sessao is None:
         import requests
@@ -157,7 +169,8 @@ def executar_comparacao_ab(pergunta: str | None, id_golden: str | None = None, *
         futuro_a = executor.submit(contextvars.copy_context().run, gerar_resposta_llm_pura, pergunta,
                                    usar_cache=usar_cache, registrar=registrar, sessao=sessao_a, raciocinio=raciocinio)
         futuro_b = executor.submit(contextvars.copy_context().run, _executar_modo_b, pergunta, top_k=top_k,
-                                   usar_cache=usar_cache, registrar=registrar, sessao=sessao_b, raciocinio=raciocinio)
+                                   usar_cache=usar_cache, registrar=registrar, sessao=sessao_b, raciocinio=raciocinio,
+                                   busca=busca)
         modo_a, modo_b = _resumo_modo(futuro_a.result()), futuro_b.result()
 
     modo_b["trace_url"] = _url_trace()
@@ -166,6 +179,7 @@ def executar_comparacao_ab(pergunta: str | None, id_golden: str | None = None, *
         "pergunta": pergunta,
         "gabarito": _gabarito(caso),
         "modelo": llm_pura._modelo(),
+        "configuracao": {"raciocinio": llm_pura._nivel(raciocinio) or "desligado", "busca": busca},
         "versao_prompt": {"modo_a": llm_pura.VERSAO_PROMPT, "modo_b": llm_rag.VERSAO_PROMPT},
         "modo_a_llm_pura": modo_a,
         "modo_b_rag": modo_b,

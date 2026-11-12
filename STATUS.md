@@ -19,8 +19,13 @@
   - **Modo A:** DeepSeek V4.1 Flash sem documentos ([ADR 0010](docs/decisoes/0010-baseline-llm-pura-e-guardrails.md), PR #49). **Modo B:** busca com guardrails e o mesmo modelo com os lugares recuperados (`src/rag/llm_rag.py`). Antes, o Modo B era um texto fixo sem LLM;
   - prévia com os 10 casos do golden: o lugar do gabarito veio nas fontes do Modo B em 6 de 8 casos do DF, e as 2 perguntas fora do DF foram recusadas sem chamar o LLM. p90 de 5,1 s no Modo A e 4,8 s no Modo B. Os 2 erros são da busca: o VBQ (Samambaia) não foi recuperado, e o golden_06 foi bloqueado com aderência 0,62;
   - com o raciocínio alto ligado nos dois modos ([experimento](docs/experimentos/2026-11-12-comparativo-raciocinio.md)), o Modo B acertou os mesmos 6 de 8, mas o p90 foi a 7,3 s; a LLM pura passou a recusar em 6 de 10. O Modo B sem raciocínio continua a melhor configuração;
-  - a busca vetorial é viável sem chave nova: a OpenRouter devolve o `gemini-embedding-001` idêntico aos vetores da base (cosseno 1,0);
-  - PR #53 aberto; 195 testes.
+  - PRs #52 (tela) e #53 (motor) na `main`.
+- **Busca vetorial e raciocínio no comparativo (Cauan, 12/11), na branch `feat/rag-embeddings-raciocinio`:**
+  - busca vetorial com o `gemini-embedding-001` pela OpenRouter, a mesma chave do resto do projeto (vetores idênticos aos da base, cosseno 1,0), e híbrida ([ADR 0012](docs/decisoes/0012-busca-vetorial-pela-openrouter.md));
+  - prévia com 10 casos ([experimento](docs/experimentos/2026-11-12-busca-vetorial.md)): lugar certo em 7 de 8 com a vetorial (6 de 8 por palavras), mas o p90 do Modo B vai a 6,1 s por causa do embedding (1,6 s). O padrão segue sendo a busca por palavras até a #38 escolher;
+  - a rota e a tela do comparativo ganharam a escolha do raciocínio (dois modos) e da busca (Modo B);
+  - a base tem lugares repetidos (Espaguete, Dunkin' Donuts, Johnny Joy, Anime Summit, ExpoFlores 2026; Filomenambúrguer com duas grafias), para a curadoria;
+  - 208 testes. Falta abrir o PR.
 - **Back-end das salas (Cauan, 10/11), PR #48 na `main`:**
   - `src/interpretador/campos.py`: os 4 campos viram RA (apelidos, quadras como SQN e QNM, estações de metrô), janelas pelo `tempo.py`, teto pelo `numeros.py` e tags com os rótulos da base. Tudo por regras; o LLM do ADR 0007 só entra se as regras não acharem nenhum dia ([ADR 0009](docs/decisoes/0009-entrada-pelos-4-campos-de-texto.md));
   - `src/state.py` (repositório em memória, pronto para trocar pelo Supabase) e `src/salas/` (gerenciador, cruzamento de horários, horário de funcionamento dos lugares, cartões, votação);

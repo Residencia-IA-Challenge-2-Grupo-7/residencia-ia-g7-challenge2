@@ -19,5 +19,6 @@ Não apague nem reescreva uma decisão antiga: se ela mudar, crie uma nova e mar
 | [0009](0009-entrada-pelos-4-campos-de-texto.md) | Entrada pelos 4 campos de texto, interpretados por regras (sem voz) | aceita (escopo); interpretação por regras em proposta |
 | [0010](0010-baseline-llm-pura-e-guardrails.md) | Baseline LLM pura (DeepSeek V4.1 Flash) e guardrails determinísticos do RAG | proposta |
 | [0011](0011-comparativo-ab-com-o-mesmo-llm.md) | Comparativo A/B: o Modo B gera a resposta com o mesmo LLM do Modo A | proposta |
+| [0012](0012-busca-vetorial-pela-openrouter.md) | Busca vetorial do Modo B com o gemini-embedding-001 pela OpenRouter | proposta |
 
 A pasta [revisoes/](revisoes/) guarda as críticas feitas por outros agentes ou pessoas a um ADR (`NNNN-critica.md`), as respostas do autor e o prompt usado para pedir a crítica.

@@ -4,9 +4,10 @@ Sem cache e sem registrar métricas, para medir latência e custo de verdade. Pr
 .env; sem ela, os dois modos saem marcados com `disponivel: false`. A avaliação (alucinação, fidelidade, acerto
 de RA e preço) é das issues #36 e #38, sobre este arquivo.
 
-    PYTHONPATH=. python eval/comparativo_ab.py eval/resultados/comparativo-ab-<data>.json [low|medium|high]
+    PYTHONPATH=. python eval/comparativo_ab.py eval/resultados/comparativo-ab-<data>.json [raciocínio] [busca]
 
-O terceiro argumento, opcional, liga o raciocínio do modelo nos dois modos (padrão: desligado).
+Opcionais: o raciocínio dos dois modos (desligado, low, medium ou high; padrão: desligado) e a busca do Modo B
+(lexica, vetorial ou hibrida; padrão: lexica).
 """
 import json
 import statistics
@@ -25,10 +26,11 @@ def p90(valores):
 
 saida = sys.argv[1]
 raciocinio = sys.argv[2] if len(sys.argv) > 2 else None
+busca = sys.argv[3] if len(sys.argv) > 3 else "lexica"
 resultados = []
 for caso in listar_golden():
     t0 = time.perf_counter()
-    r = executar_comparacao_ab("", caso["id"], usar_cache=False, registrar=False, raciocinio=raciocinio)
+    r = executar_comparacao_ab("", caso["id"], usar_cache=False, registrar=False, raciocinio=raciocinio, busca=busca)
     r["latencia_total_ms"] = round((time.perf_counter() - t0) * 1000, 1)
     resultados.append(r)
     b = r["modo_b_rag"]
