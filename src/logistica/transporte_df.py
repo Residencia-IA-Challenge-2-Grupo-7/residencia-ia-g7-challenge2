@@ -12,14 +12,18 @@ Peças, na ordem em que uma depende da outra:
    registro da base de 93).
 4. `distancia_por_rua_km`, `estimar_tempo_ida_min` e `tempos_de_ida_min`: o
    caminho por rua e o tempo de ida em cada meio de transporte.
+5. `estimar_custo_ida_volta`: quanto a pessoa gasta para ir e voltar.
+6. `estimar_deslocamento`: o encaixe com as salas (src/salas/integracoes.py),
+   que junta distância, tempo e custo de uma pessoa num dicionário só.
 
-Custo e a nota de justiça (Menor Miséria) se apoiam nelas.
+A nota de justiça (Menor Miséria) se apoia nelas.
 """
 from __future__ import annotations
 
 import json
 import math
 from collections.abc import Mapping
+from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
 
@@ -68,6 +72,7 @@ def _regioes() -> dict[str, Ponto]:
     return {r["nome"]: (float(r["lat"]), float(r["lng"])) for r in dados}
 
 
+@lru_cache(maxsize=64)
 def resolver_ra(nome: str) -> str:
     """Nome de RA como vier ("aguas claras", "Asa Sul", "Plano Piloto (Asa Sul)") -> nome oficial.
 
@@ -77,6 +82,9 @@ def resolver_ra(nome: str) -> str:
 
     A mensagem de erro não repete o que foi digitado: a origem é um dos 4 campos secretos
     e não deve parar em log.
+
+    Fica em cache porque as salas chamam esta função milhares de vezes por sala (cada pessoa
+    x cada lugar x cada meio), sempre com os mesmos poucos nomes. Erros não entram no cache.
     """
     ras, _, _ = casar([str(nome or "")])
     if not ras:
@@ -164,3 +172,62 @@ def tempos_de_ida_min(origem_ra: str, local_gps: Ponto | Mapping) -> dict[str, f
     """Tempo de ida da RA até o lugar em cada meio, para comparar carro/app com ônibus/metrô."""
     km = distancia_por_rua_km(calcular_distancia_km(origem_ra, local_gps))
     return {modo: estimar_tempo_ida_min(km, modo) for modo in MODOS}
+
+
+# ---------------------------------------------------------------- custo de ida e volta
+
+# Mesmos valores da reserva de src/salas/integracoes.py. São estimativas por pessoa.
+
+TARIFA_PUBLICO = Decimal("5.50")
+"""Passagem de ônibus/metrô por trecho. É a tarifa do metrô e o teto da integração (até 3
+embarques em 3 h); trechos curtos custam R$ 2,70 ou R$ 3,80, então é um teto, não a média.
+Congelada até 31/12/2026. Aos domingos e feriados o programa Vai de Graça zera a tarifa,
+o que este cálculo não sabe: o contrato com as salas não recebe a data."""
+
+APP_BANDEIRADA = Decimal("5")
+APP_POR_KM = Decimal("2.20")
+"""Corrida de app (Uber/99): bandeirada mais preço por km."""
+
+CARRO_POR_KM = Decimal("0.90")
+"""Gasto do carro próprio por km rodado (combustível e desgaste)."""
+
+# Carona, a pé e bike não têm custo para a pessoa.
+
+
+def estimar_custo_ida_volta(km_por_rua: float, modo: str) -> Decimal:
+    """Reais para ir e voltar pelo meio escolhido, com 2 casas decimais.
+
+    Recebe o caminho por rua (`distancia_por_rua_km`). Dinheiro em Decimal, nunca float:
+    0.1 + 0.2 em float dá 0.30000000000000004, e conta de dinheiro não pode ter isso.
+    """
+    _checar_modo(modo)
+    km = Decimal(str(round(km_por_rua, 1)))
+    por_trecho = {
+        "publico": TARIFA_PUBLICO,
+        "app": APP_BANDEIRADA + APP_POR_KM * km,
+        "carro": CARRO_POR_KM * km,
+    }.get(modo, Decimal("0"))
+    return (por_trecho * 2).quantize(Decimal("0.01"))
+
+
+# ---------------------------------------------------------------- encaixe com as salas
+
+
+def estimar_deslocamento(ra_origem: str, lat: float, lng: float, modo: str) -> dict | None:
+    """Distância, tempo e custo de uma pessoa até um lugar, no formato que as salas esperam.
+
+    É a função que src/salas/integracoes.py procura pelo nome (contrato no README das salas):
+    devolve {'km', 'minutos', 'custo_ida_volta'}, com o caminho por rua arredondado a 1 casa
+    e os minutos inteiros, como a reserva de lá.
+
+    Devolve None quando não dá para estimar (RA, coordenada ou meio inválidos). Aí as salas
+    usam a reserva delas em vez de cair (RNF-15). As funções de baixo continuam levantando
+    ValueError para quem as chama direto.
+    """
+    try:
+        km = distancia_por_rua_km(calcular_distancia_km(ra_origem, (lat, lng)))
+        minutos = estimar_tempo_ida_min(km, modo)
+        custo = estimar_custo_ida_volta(km, modo)
+    except (ValueError, TypeError):
+        return None
+    return {"km": round(km, 1), "minutos": round(minutos), "custo_ida_volta": custo}

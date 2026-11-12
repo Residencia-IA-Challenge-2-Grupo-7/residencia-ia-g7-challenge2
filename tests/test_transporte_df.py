@@ -8,6 +8,7 @@ Samambaia, Águas Claras e Plano Piloto.
 
 import json
 import math
+from decimal import Decimal
 from pathlib import Path
 
 import pytest
@@ -20,9 +21,12 @@ from src.logistica.transporte_df import (
     FATOR_ROTA,
     MODOS,
     RAIO_TERRA_KM,
+    TARIFA_PUBLICO,
     VELOCIDADE_KMH,
     calcular_distancia_km,
     distancia_por_rua_km,
+    estimar_custo_ida_volta,
+    estimar_deslocamento,
     estimar_tempo_ida_min,
     haversine_km,
     ponto_da_ra,
@@ -345,3 +349,85 @@ def test_mesma_ra_nao_da_zero_minuto():
     assert tempos["publico"] == pytest.approx(15 + DISTANCIA_MINIMA_KM / 18 * 60)
     assert tempos["a_pe"] == pytest.approx(DISTANCIA_MINIMA_KM / 4.5 * 60)
     assert all(minutos > 0 for minutos in tempos.values())
+
+
+# ---------------------------------------------------------------- custo de ida e volta
+
+
+def test_tarifa_e_a_mesma_da_reserva_das_salas():
+    assert TARIFA_PUBLICO == integracoes.TARIFA_PUBLICO == Decimal("5.50")
+
+
+@pytest.mark.parametrize("km", [2.0, 7.7, 13.0, 30.54])
+@pytest.mark.parametrize("modo", MODOS)
+def test_custo_da_o_mesmo_que_a_reserva_das_salas(km, modo):
+    assert estimar_custo_ida_volta(km, modo) == integracoes._custo_ida_volta(modo, km)
+
+
+@pytest.mark.parametrize("km", [2.0, 30.54])
+def test_onibus_e_metro_custam_duas_passagens_qualquer_que_seja_a_distancia(km):
+    assert estimar_custo_ida_volta(km, "publico") == Decimal("11.00")
+
+
+@pytest.mark.parametrize("modo", ["carona", "a_pe", "bike"])
+def test_carona_a_pe_e_bike_nao_custam_nada(modo):
+    assert estimar_custo_ida_volta(30.54, modo) == Decimal("0.00")
+
+
+def test_samambaia_ao_plano_de_app_e_de_carro():
+    km = distancia_por_rua_km(calcular_distancia_km("Samambaia", PLANO))  # ~30,5 km
+    assert estimar_custo_ida_volta(km, "app") == Decimal("144.20")  # (5 + 2,20 x 30,5) x 2
+    assert estimar_custo_ida_volta(km, "carro") == Decimal("54.90")  # 0,90 x 30,5 x 2
+
+
+def test_custo_e_decimal_com_duas_casas():
+    custo = estimar_custo_ida_volta(7.7, "app")
+    assert isinstance(custo, Decimal)
+    assert custo.as_tuple().exponent == -2
+
+
+# ---------------------------------------------------------------- encaixe com as salas
+
+
+def test_estimar_deslocamento_segue_o_contrato_das_salas():
+    r = estimar_deslocamento("Samambaia", PLANO[0], PLANO[1], "publico")
+    assert set(r) == {"km", "minutos", "custo_ida_volta"}
+    assert r == {"km": 30.5, "minutos": 117, "custo_ida_volta": Decimal("11.00")}
+
+
+@pytest.mark.parametrize(
+    "ra, lat, lng, modo",
+    [
+        ("Goiânia", -15.79, -47.88, "publico"),
+        ("Samambaia", None, -47.88, "publico"),
+        ("Samambaia", -15.79, -47.88, "uber"),
+    ],
+)
+def test_estimar_deslocamento_devolve_none_quando_nao_da_para_estimar(ra, lat, lng, modo):
+    assert estimar_deslocamento(ra, lat, lng, modo) is None
+
+
+def test_salas_passam_a_usar_este_modulo():
+    r = integracoes.deslocamento("Samambaia", DONA_CLEIDE, "publico")
+    assert r["estimado_por"] == "logistica"
+
+
+def test_so_muda_a_reserva_nos_trajetos_curtos(monkeypatch):
+    """Ligar o módulo não muda nenhum cartão, exceto onde entra o piso de 2 km."""
+    lugares = [lugar for lugar in BASE_2FA.values() if lugar.get("lat") is not None]
+    pares = [(ra, lugar, modo) for ra in ras_validas() for lugar in lugares for modo in MODOS]
+    nossos = [integracoes.deslocamento(ra, lugar, modo) for ra, lugar, modo in pares]
+    # Sem a nossa função, integracoes.py cai na reserva dele.
+    monkeypatch.setattr(integracoes, "_funcao", lambda modulos, nome: None)
+    reservas = [integracoes.deslocamento(ra, lugar, modo) for ra, lugar, modo in pares]
+
+    curtos = 0
+    for (ra, lugar, _), nosso, reserva in zip(pares, nossos, reservas):
+        assert (nosso["estimado_por"], reserva["estimado_por"]) == ("logistica", "reserva")
+        if calcular_distancia_km(ra, lugar) * FATOR_ROTA >= DISTANCIA_MINIMA_KM:
+            for chave in ("km", "minutos", "custo_ida_volta"):
+                assert nosso[chave] == reserva[chave], (ra, lugar["nome"], chave)
+        else:
+            curtos += 1
+            assert nosso["km"] == DISTANCIA_MINIMA_KM
+    assert curtos > 0
