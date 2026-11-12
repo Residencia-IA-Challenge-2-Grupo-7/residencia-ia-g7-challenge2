@@ -11,6 +11,7 @@ Este diretório contém as **especificações conceituais, schemas e diretrizes 
 | :--- | :--- |
 | **[`esquema-base.md`](esquema-base.md)** | Especificação do esquema de dados dos estabelecimentos, tipos de rolês permitidos, regras de geolocalização por Região Administrativa (RA) e categorização de preços. |
 | **[`guia-curadoria.md`](guia-curadoria.md)** | Diretrizes metodológicas de curadoria, protocolo de dupla validação (2 Fatores - 2FA) e critérios de descarte (propagandas) e quarentena (dados incompletos). |
+| **[`golden-dataset-semana3.md`](golden-dataset-semana3.md)** | Golden dataset da Semana 3: as 20 perguntas com gabarito ancorado na base 2FA, as regras do gabarito e as decisões de cada parte, usados na comparação RAG vs. IA pura. |
 
 ---
 
