@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Optional
+from typing import Literal, Optional
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
 from pydantic import BaseModel, ConfigDict
@@ -115,6 +115,8 @@ class ComparativoRequest(BaseModel):
     model_config = ConfigDict(extra="forbid")
     pergunta: Optional[str] = None
     id_golden: Optional[str] = None
+    raciocinio: Literal["desligado", "low", "medium", "high"] = "desligado"  # vale para os dois modos
+    busca: Literal["lexica", "vetorial", "hibrida"] = "lexica"  # só o Modo B
 
 
 @app.get("/api/comparativo/golden")
@@ -129,9 +131,12 @@ def comparativo_executar(requisicao: ComparativoRequest):
     """
     Roda a mesma pergunta no Modo A (LLM pura, sem documentos) e no Modo B (RAG sobre a base de 93 lugares,
     com guardrails), lado a lado (issue #34). Com `id_golden`, devolve também o gabarito do caso.
+    `raciocinio` liga o raciocínio do modelo nos dois modos; `busca` escolhe a busca do Modo B (por palavras,
+    por embeddings `gemini-embedding-001` ou as duas juntas).
     """
     try:
-        resultado = executar_comparacao_ab(requisicao.pergunta, requisicao.id_golden)
+        resultado = executar_comparacao_ab(requisicao.pergunta, requisicao.id_golden,
+                                           raciocinio=requisicao.raciocinio, busca=requisicao.busca)
     except ErroComparativo as e:
         raise HTTPException(status_code=e.status, detail=str(e))
     flush_telemetria()

@@ -48,6 +48,8 @@ Prévia com os 10 casos do golden (golden_01 a golden_10), em 12/11, sem cache (
   - **golden_05:** o VBQ (Samambaia) não ficou entre os 3 primeiros, e o modelo respondeu que a base não tinha um lugar que atendesse;
   - **golden_06:** o guardrail 1b bloqueou a pergunta com aderência 0,62, abaixo do limiar de 0,65, embora o New Mercadito esteja na base.
 
+- Com o raciocínio alto ligado nos dois modos, o Modo B acertou os mesmos 6 casos, com p90 de 7,3 s e 3 de 10 respostas acima de 5 s ([experimento de 12/11](../experimentos/2026-11-12-comparativo-raciocinio.md)). O padrão continua sem raciocínio; `raciocinio="high"` em `executar_comparacao_ab` liga nos dois modos.
+
 ## Riscos e limitações
 
 - **Custo e latência do Modo B sobem:** de cerca de 20 ms e custo zero (texto fixo) para cerca de 3 s e R$ 0,001 por pergunta. A latência fica dentro do RNF-14 na prévia, e o cache (RNF-15) evita pagar duas vezes no benchmark.

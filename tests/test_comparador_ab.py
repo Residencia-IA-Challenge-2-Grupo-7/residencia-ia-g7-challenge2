@@ -192,6 +192,22 @@ def test_entradas_invalidas(cliente, sem_chave, corpo, status):
 # ------------------------------------------------------------------------------------------- partes do Modo B
 
 
+def test_raciocinio_ligado_vale_para_os_dois_modos(cliente, openrouter):
+    corpo = comparador_ab.executar_comparacao_ab("", "golden_02", usar_cache=False, registrar=False,
+                                                 raciocinio="high")
+    for chamada in openrouter.chamadas:
+        assert chamada["reasoning"] == {"effort": "high", "exclude": True}
+        assert chamada["max_tokens"] == llm_pura.MAX_TOKENS_COM_RACIOCINIO
+    assert len(openrouter.chamadas) == 2
+    assert corpo["modo_a_llm_pura"]["raciocinio"] == corpo["modo_b_rag"]["raciocinio"] == "high"
+
+
+def test_citacoes_em_grupo_tambem_contam():
+    lugares = [{"id": f"x{n}", "nome": f"L{n}"} for n in range(1, 5)]
+    fontes = llm_rag.formatar_fontes(lugares, "Ver [FONTE #1]. As outras [FONTES #2 e #3] ficam longe.")
+    assert [f["citada"] for f in fontes] == [True, True, True, False]
+
+
 def test_fonte_sem_custo_fica_nula_em_vez_de_inventar_um_valor():
     [fonte] = llm_rag.formatar_fontes([{"id": "x", "nome": "Lugar", "regiao_administrativa": "Guará"}])
     assert fonte["custo_medio_rs"] is None and fonte["citada"] is False
