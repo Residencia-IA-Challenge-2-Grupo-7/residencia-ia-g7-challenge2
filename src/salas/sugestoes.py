@@ -49,11 +49,11 @@ class ResultadoSugestoes:
     teto_aplicado: bool = False
 
 
-def _deslocamento(perfil: PerfilInterpretado, lugar: dict) -> dict | None:
+def _deslocamento(perfil: PerfilInterpretado, lugar: dict, quando: datetime | None = None) -> dict | None:
     """Entre os meios que a pessoa disse que usa, o mais barato que chega em até 75 min; se nenhum chegar, o mais
     rápido. Sem meio informado, ônibus/metrô. Assim quem disse "metrô ou Uber" não paga Uber à toa (Menor Miséria)."""
     modos = perfil.preferencias.transporte or ["publico"]
-    opcoes = [d for d in (integ.deslocamento(perfil.ra, lugar, m) for m in modos) if d]
+    opcoes = [d for d in (integ.deslocamento(perfil.ra, lugar, m, quando) for m in modos) if d]
     if not opcoes:
         return None
     viaveis = [d for d in opcoes if d["minutos"] <= TEMPO_ACEITAVEL_MIN]
@@ -145,7 +145,8 @@ def gerar(perfis: dict[str, PerfilInterpretado], janelas: list[JanelaComum], lug
             continue
         jc, sit, trecho = escolha
         presentes = [perfis[p] for p in sorted(jc.presentes) if p in perfis]
-        desl_por = {p: _deslocamento(perfis[p], lugar) for p in sorted(jc.presentes)
+        quando = (trecho or (jc.inicio, jc.fim))[0]  # domingo ou feriado: ônibus e metrô de graça
+        desl_por = {p: _deslocamento(perfis[p], lugar, quando) for p in sorted(jc.presentes)
                     if p in perfis}
         conhecidos = [d for d in desl_por.values() if d]
         consumo = Decimal(str(lugar.get("custo_medio_rs") or 0)).quantize(Decimal("0.01"))

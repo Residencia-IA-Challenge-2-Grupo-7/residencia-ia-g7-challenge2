@@ -54,9 +54,9 @@ curl -s -X POST localhost:8000/api/salas/ROLE-7KQ2/participantes -H 'content-typ
 
 ## Encaixe das peças das colegas
 
-`integracoes.py` procura as funções abaixo e, se não achar, usa uma reserva simples. Basta criar o módulo com a assinatura indicada; nada mais muda.
+`integracoes.py` procura as funções abaixo e, se não achar, usa uma reserva simples. Basta criar o módulo com a assinatura indicada; nada mais muda. As peças marcadas **entregue** já são usadas; a reserva só entra se o módulo faltar.
 
-| Peça | Dona | Função esperada | Reserva atual |
+| Peça | Dona | Função esperada | Reserva |
 |---|---|---|---|
 | Teto seguro do grupo | Cauan (issue #45) | `src/financas/__init__.py`: `teto_seguro_grupo(tetos: list[Decimal]) -> Decimal` (**pronto**) | o menor teto |
 | Deslocamento | Samara | `src/logistica/transporte_df.py`: `estimar_deslocamento(ra_origem: str, lat: float, lng: float, modo: str) -> dict` com `km`, `minutos`, `custo_ida_volta` | linha reta entre centroides × 1,3; ônibus/metrô a 18 km/h + 15 min, carro e app a 30 km/h + 5 min; R$ 5,50 a passagem |

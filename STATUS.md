@@ -39,7 +39,8 @@
 - **Banco das salas (Eduarda), PR #50 na `main`:** `RepositorioSupabase` com `ROLES_REPOSITORIO=supabase`; o caminho do Postgres ainda não roda em nenhum teste, então o padrão continua `memoria`.
 - **Finanças (Cauan, 12/11), issue #45, na branch `feat/45-financas`:** `src/financas/` com o orçamento sigiloso (só respostas sim ou não para fora), a divisão da conta com itens que só parte consumiu e centavos com quem pagou (RF-32), e o código Pix copia e cola estático (BR Code com CRC16, RF-33). O gerador reproduz um exemplo de código estático que tomamos como do manual do Banco Central (não conferido na fonte). `teto_seguro_grupo` já encaixa nas salas. Faltam as rotas da Tela 4 (lançar gasto, ver dívida, marcar como pago) e a criptografia da chave Pix no banco. 236 testes.
 - **Encaixes pendentes** (o código usa uma reserva simples até chegarem; assinaturas em [src/salas/README.md](src/salas/README.md#encaixe-das-peças-das-colegas)):
-  - Samara: `estimar_deslocamento` e `nota_menor_miseria` em `src/logistica/transporte_df.py` e `data/regioes_df_gps.json`;
+  - Eduarda: `teto_seguro_grupo` em `src/financas/`;
+  - Samara: **entregue na issue #44** (`estimar_deslocamento`, `nota_menor_miseria` e `calcular_score_justica_espacial` em `src/logistica/transporte_df.py`, pontos das 35 RAs em `data/regioes_df_gps.json`); as salas já usam o módulo no lugar da reserva. Regra, números e pendências no [ADR 0012](docs/decisoes/0012-deslocamento-e-menor-miseria.md);
   - Letícia: a busca com filtros, que hoje entra pela `calcular_similaridade_leticia`;
   - Maria Carolina: as Telas 1 a 3 chamando as rotas acima (tokens no cabeçalho `X-Token`).
 - **Problemas achados na base** (para a Letícia, registrados no [ADR 0008](docs/decisoes/0008-base-2fa-de-93-lugares-e-lgpd.md#riscos-e-limitações)):
