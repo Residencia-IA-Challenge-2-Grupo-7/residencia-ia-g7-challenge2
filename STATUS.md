@@ -25,7 +25,11 @@
   - prévia com 10 casos ([experimento](docs/experimentos/2026-11-12-busca-vetorial.md)): lugar certo em 7 de 8 com a vetorial (6 de 8 por palavras), mas o p90 do Modo B vai a 6,1 s por causa do embedding (1,6 s). O padrão segue sendo a busca por palavras até a #38 escolher;
   - a rota e a tela do comparativo ganharam a escolha do raciocínio (dois modos) e da busca (Modo B);
   - a base tem lugares repetidos (Espaguete, Dunkin' Donuts, Johnny Joy, Anime Summit, ExpoFlores 2026; Filomenambúrguer com duas grafias), para a curadoria;
-  - 208 testes. Falta abrir o PR.
+  - 208 testes; PR #56 aberto.
+- **Golden dataset completo (Samara, 12/11), issue #32, PR #57 na `main`:**
+  - os 20 casos em `data/golden_dataset_semana3.json`: 5 geoespaciais, 3 de horário, 2 fora do DF, 5 de preço exato, 3 de ambiência e restrição alimentar e 2 de conflito e gírias;
+  - catálogo, regras e limitações conhecidas em [docs/dados/golden-dataset-semana3.md](docs/dados/golden-dataset-semana3.md); `tests/test_golden_dataset.py` trava os 20 casos, as 6 categorias e o preço contra o `custo_medio_rs`;
+  - a prévia do comparativo usou só os 10 primeiros; os casos 11 a 20 já aparecem em `GET /api/comparativo/golden`.
 - **Back-end das salas (Cauan, 10/11), PR #48 na `main`:**
   - `src/interpretador/campos.py`: os 4 campos viram RA (apelidos, quadras como SQN e QNM, estações de metrô), janelas pelo `tempo.py`, teto pelo `numeros.py` e tags com os rótulos da base. Tudo por regras; o LLM do ADR 0007 só entra se as regras não acharem nenhum dia ([ADR 0009](docs/decisoes/0009-entrada-pelos-4-campos-de-texto.md));
   - `src/state.py` (repositório em memória, pronto para trocar pelo Supabase) e `src/salas/` (gerenciador, cruzamento de horários, horário de funcionamento dos lugares, cartões, votação);
@@ -41,7 +45,8 @@
 - **Problemas achados na base** (para a Letícia, registrados no [ADR 0008](docs/decisoes/0008-base-2fa-de-93-lugares-e-lgpd.md#riscos-e-limitações)):
   - os 2 eventos do Gama têm coordenadas no Plano Piloto, e o lugar de Planaltina não tem coordenadas;
   - 14 itens são eventos ou promoções com datas que já passaram e saem das sugestões;
-  - 21 lugares só dizem "Consultar no local".
+  - 21 lugares só dizem "Consultar no local";
+  - a Lefit tem `custo_medio_rs = 28.0` e `trava_2_preco_ok = true`, mas o vídeo não cita preço; o `horario_funcionamento` do Saguari é o do happy hour, não o de abertura.
 - **Risco aberto:** os termos do TikTok e o direito autoral do perfil de origem. O app mostra só fatos curtos e o link do vídeo; para uso além do acadêmico, pedir permissão por escrito ao autor.
 - **Requisitos v0.4** em [docs/produto/requisitos.md](docs/produto/requisitos.md): voz removida (RF-39, RF-40), 4 campos no lugar da conversa privada, votação múltipla. A revisão completa com o grupo continua pendente.
 - **Mapa da arquitetura** atualizado com o guia oficial (base de 93, 4 campos, sem voz, Supabase, salas e pós-rolê) em [docs/arquitetura/index.html](docs/arquitetura/index.html). **Falta publicar** com `publicar.sh`.
