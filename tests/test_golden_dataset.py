@@ -1,7 +1,7 @@
 """
-Testes do golden dataset da Semana 3 (issue #31).
+Testes do golden dataset da Semana 3 (issues #31 e #32).
 
-Garante que data/golden_dataset_semana3.json segue o contrato JSON da issue
+Garante que data/golden_dataset_semana3.json segue o contrato JSON das issues
 e que todo gabarito esta ancorado em um registro real da base 2FA (RNF-03).
 """
 

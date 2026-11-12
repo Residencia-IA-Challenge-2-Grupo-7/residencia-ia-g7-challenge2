@@ -1,7 +1,7 @@
 # Golden Dataset da Semana 3 (RAG vs. IA Pura)
 
 Arquivo: `data/golden_dataset_semana3.json`
-Testes: `tests/test_golden_geoespacial.py` (rodam no CI)
+Testes: `tests/test_golden_dataset.py` (rodam no CI)
 Origem: issue #31 (parte 1: `golden_01` a `golden_10`)
 
 Conjunto de perguntas com gabarito ancorado na base oficial
@@ -82,7 +82,7 @@ o app cobre só o DF. Recomendar qualquer lugar, inclusive do DF, conta como err
 4. Rode antes de commitar:
 
    ```bash
-   PYTHONPATH=. pytest -v tests/test_golden_geoespacial.py
+   PYTHONPATH=. pytest -v tests/test_golden_dataset.py
    ```
 
    Os testes de campos e de evidência rodam em todos os casos, inclusive nos
