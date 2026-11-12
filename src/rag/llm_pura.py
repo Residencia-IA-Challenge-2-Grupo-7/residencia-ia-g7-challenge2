@@ -58,9 +58,9 @@ def _nivel(raciocinio: str | None) -> str | None:
     return nivel
 
 
-def _resultado(pergunta: str, **campos: Any) -> dict:
+def _resultado(pergunta: str, *, modo: str = MODO, **campos: Any) -> dict:
     base = {
-        "pergunta": pergunta, "resposta": "", "modelo": _modelo(), "provedor": None, "modo": MODO,
+        "pergunta": pergunta, "resposta": "", "modelo": _modelo(), "provedor": None, "modo": modo,
         "fontes_utilizadas": [], "latencia_ms": 0.0, "tokens_entrada": 0, "tokens_saida": 0,
         "tokens_raciocinio": 0, "tokens_total": 0, "raciocinio": None,
         "custo_estimado_usd": 0.0, "custo_estimado_brl": 0.0, "disponivel": True, "cache_hit": False, "erro": None,
@@ -76,10 +76,14 @@ def _reserva(pergunta: str, motivo: str) -> dict:
                                 f"({motivo}). Nenhum lugar foi recomendado."))
 
 
-def _chamar(pergunta: str, chave: str, sessao, nivel: str | None = None) -> dict:
+def _chamar(pergunta: str, chave: str, sessao, nivel: str | None = None, *, sistema: str = PROMPT_SISTEMA,
+            usuario: str | None = None, modo: str = MODO) -> dict:
+    """Uma chamada à OpenRouter. O Modo B (src/rag/llm_rag.py) usa a mesma função, com o próprio prompt de
+    sistema e os documentos recuperados em `usuario`; modelo, temperatura e roteamento são os mesmos."""
     corpo = {
         "model": _modelo(),
-        "messages": [{"role": "system", "content": PROMPT_SISTEMA}, {"role": "user", "content": pergunta}],
+        "messages": [{"role": "system", "content": sistema},
+                     {"role": "user", "content": usuario if usuario is not None else pergunta}],
         "temperature": 0,
         "max_tokens": MAX_TOKENS_COM_RACIOCINIO if nivel else MAX_TOKENS,
         "provider": ROTEAMENTO,
@@ -107,7 +111,7 @@ def _chamar(pergunta: str, chave: str, sessao, nivel: str | None = None) -> dict
                 continue
             u = d.get("usage") or {}
             custo_usd = float(u.get("cost") or 0.0)
-            return _resultado(pergunta, resposta=texto, modelo=d.get("model", _modelo()), provedor=d.get("provider"),
+            return _resultado(pergunta, modo=modo, resposta=texto, modelo=d.get("model", _modelo()), provedor=d.get("provider"),
                               latencia_ms=round(ms, 1), tokens_entrada=u.get("prompt_tokens") or 0,
                               tokens_saida=u.get("completion_tokens") or 0, raciocinio=nivel,
                               tokens_raciocinio=(u.get("completion_tokens_details") or {}).get("reasoning_tokens") or 0,
@@ -116,7 +120,7 @@ def _chamar(pergunta: str, chave: str, sessao, nivel: str | None = None) -> dict
                               custo_estimado_brl=round(custo_usd * COTACAO_USD_BRL, 6))
         except (requests.RequestException, ValueError, KeyError, IndexError, TypeError) as e:
             erros.append(type(e).__name__)
-    return _reserva(pergunta, "falha na OpenRouter: " + "; ".join(erros[-2:]))
+    return {**_reserva(pergunta, "falha na OpenRouter: " + "; ".join(erros[-2:])), "modo": modo}
 
 
 def _registrar_langfuse(r: dict) -> None:

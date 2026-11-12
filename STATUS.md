@@ -3,7 +3,7 @@
 > Arquivo vivo. Toda sessão (humana ou de agente) lê no início e atualiza no fim.
 > Mantenha curto: o histórico fica em `docs/semanas/` e no `git log`.
 
-**Atualizado em:** 2026-11-10
+**Atualizado em:** 2026-11-12
 **Semana do roadmap:** 3 — Comparação RAG × LLM pura, com as Telas 1 a 3 do app em paralelo
 
 ## Agora
@@ -14,14 +14,20 @@
   - **base oficial de 93 lugares** do TikTok com validação em 2 fatores ([ADR 0008](docs/decisoes/0008-base-2fa-de-93-lugares-e-lgpd.md)); `src/base/` (Overture) e `src/voz/` saíram do repositório, e os ADRs 0005 e 0006 ficaram como substituídos;
   - distância e transporte pelas 35 RAs com a regra da Menor Miséria; banco das salas no Supabase.
   - As tarefas da semana de cada integrante estão na seção 4 do guia.
-- **Back-end das salas (Cauan, 10/11), na branch `feat/salas-backend`:**
+- **Comparação LLM pura × RAG (Cauan, 12/11), issue #34, na branch `feat/34-comparador-ab`:**
+  - `POST /api/comparativo/executar` roda a mesma pergunta nos dois modos, em paralelo, e devolve o contrato JSON da issue, com o gabarito quando a pergunta vem do golden; `GET /api/comparativo/golden` lista as perguntas ([ADR 0011](docs/decisoes/0011-comparativo-ab-com-o-mesmo-llm.md));
+  - **Modo A:** DeepSeek V4.1 Flash sem documentos ([ADR 0010](docs/decisoes/0010-baseline-llm-pura-e-guardrails.md), PR #49). **Modo B:** busca com guardrails e o mesmo modelo com os lugares recuperados (`src/rag/llm_rag.py`). Antes, o Modo B era um texto fixo sem LLM;
+  - prévia com os 10 casos do golden: o lugar do gabarito veio nas fontes do Modo B em 6 de 8 casos do DF, e as 2 perguntas fora do DF foram recusadas sem chamar o LLM. p90 de 5,1 s no Modo A e 4,8 s no Modo B. Os 2 erros são da busca: o VBQ (Samambaia) não foi recuperado, e o golden_06 foi bloqueado com aderência 0,62;
+  - 16 testes novos, 193 no total. Falta abrir o PR.
+- **Back-end das salas (Cauan, 10/11), PR #48 na `main`:**
   - `src/interpretador/campos.py`: os 4 campos viram RA (apelidos, quadras como SQN e QNM, estações de metrô), janelas pelo `tempo.py`, teto pelo `numeros.py` e tags com os rótulos da base. Tudo por regras; o LLM do ADR 0007 só entra se as regras não acharem nenhum dia ([ADR 0009](docs/decisoes/0009-entrada-pelos-4-campos-de-texto.md));
   - `src/state.py` (repositório em memória, pronto para trocar pelo Supabase) e `src/salas/` (gerenciador, cruzamento de horários, horário de funcionamento dos lugares, cartões, votação);
   - rotas em `/api/salas`: criar, painel, participantes (entrar, corrigir, confirmar, própria visão), gerar sugestões, votar e fechar votação. Contrato e exemplo em [src/salas/README.md](src/salas/README.md);
   - **110 testes passam** (`python -m pytest tests`), entre eles o fluxo de 3 participantes da issue #43 (`tests/test_salas_backend.py`) e uma varredura das respostas públicas atrás do teto de cada um; o CI e o `make test` passaram a rodar todos os testes;
-  - códigos de sala no formato `ROLE-7KQ2`; PR aberto para fechar a issue #43.
+  - códigos de sala no formato `ROLE-7KQ2`; issue #43 fechada.
+- **Banco das salas (Eduarda), PR #50 na `main`:** `RepositorioSupabase` com `ROLES_REPOSITORIO=supabase`; o caminho do Postgres ainda não roda em nenhum teste, então o padrão continua `memoria`.
 - **Encaixes pendentes** (o código usa uma reserva simples até chegarem; assinaturas em [src/salas/README.md](src/salas/README.md#encaixe-das-peças-das-colegas)):
-  - Eduarda: `teto_seguro_grupo` em `src/financas/` e um `Repositorio` do Supabase em `src/db/`;
+  - Eduarda: `teto_seguro_grupo` em `src/financas/`;
   - Samara: **entregue na issue #44** (`estimar_deslocamento`, `nota_menor_miseria` e `calcular_score_justica_espacial` em `src/logistica/transporte_df.py`, pontos das 35 RAs em `data/regioes_df_gps.json`); as salas já usam o módulo no lugar da reserva. Regra, números e pendências no [ADR 0012](docs/decisoes/0012-deslocamento-e-menor-miseria.md);
   - Letícia: a busca com filtros, que hoje entra pela `calcular_similaridade_leticia`;
   - Maria Carolina: as Telas 1 a 3 chamando as rotas acima (tokens no cabeçalho `X-Token`).
@@ -40,7 +46,8 @@
 
 ## Próximos passos (Cauan, conforme o guia)
 
-- Hoje: issue #33 (LLM pura e guardrails do RAG), que destrava a #34.
+- Abrir o PR da issue #34, que destrava a #36 (Eduarda), a #37 (Maria Carolina) e a #38 (Letícia Miti). O PR #52 (interface do comparativo) precisa passar a usar estas rotas.
+- Melhorar a busca do Modo B (filtro por RA; o golden_06 bloqueado pelo limiar), sem misturar com a avaliação da #38.
 - Quinta: ligar as peças da Eduarda, da Samara e da Letícia quando chegarem e apoiar a Maria Carolina na integração das telas.
 - Sexta: rodar o fluxo de uma sala inteira com as peças reais e o Supabase; revisar os ADRs 0008 e 0009 com o grupo.
 - Ainda faltam no back-end das salas: prazos de resposta (RF-12), confirmação de presença (RF-26), modo "palavra final do organizador" (RF-24) e regra de datas do organizador (RF-14).

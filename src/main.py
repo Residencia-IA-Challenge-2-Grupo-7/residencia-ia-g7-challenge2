@@ -3,9 +3,10 @@ import os
 from typing import Optional
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
-from src.interface import ENTREGAVEIS_PAGE, HTML_PAGE, LANDING_PAGE
+from src.interface import COMPARATIVO_PAGE, ENTREGAVEIS_PAGE, HTML_PAGE, LANDING_PAGE
+from src.rag.comparador_ab import ErroComparativo, executar_comparacao_ab, listar_golden
 from src.salas.rotas import router as salas_router
 from src.telemetria.telemetria import (
     checar_conexao_langfuse,
@@ -33,20 +34,12 @@ class ConsultaRAGRequest(BaseModel):
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
     """
-    Entrega a pagina inicial do Orquestrador de Roles com botao para /rag.
+    Entrega a pagina inicial do Orquestrador de Roles com botao para /rag e /comparativo.
     Se o cliente pedir explicitamente application/json (ex: curl/testes), retorna JSON.
     """
     accept = request.headers.get("accept", "")
     if "application/json" in accept and "text/html" not in accept:
-        langfuse_ok = checar_conexao_langfuse()
-        return {
-            "projeto": "Orquestrador de Roles",
-            "status": "online",
-            "ambiente": os.environ.get("ENVIRONMENT", "desenvolvimento"),
-            "responsavel_devops": "Maria Eduarda",
-            "telemetria_langfuse": "conectado" if langfuse_ok else "desconectado",
-            "doc": "/docs",
-        }
+        return status_api()
     return HTMLResponse(content=LANDING_PAGE)
 
 
@@ -55,6 +48,13 @@ def home(request: Request):
 def demo_interface():
     """Rota direta para a interface web do RAG."""
     return HTMLResponse(content=HTML_PAGE)
+
+
+@app.get("/comparativo", response_class=HTMLResponse)
+@app.get("/comparacao", response_class=HTMLResponse)
+def comparativo_interface():
+    """Rota da Interface Web de Comparação Lado a Lado: LLM Pura vs. RAG Ancorado (Issue #37)."""
+    return HTMLResponse(content=COMPARATIVO_PAGE)
 
 
 @app.get("/status")
@@ -105,6 +105,35 @@ def buscar_roles(requisicao: ConsultaRAGRequest):
         top_k=requisicao.top_k,
         categoria=requisicao.categoria,
     )
+    flush_telemetria()
+    return resultado
+
+
+class ComparativoRequest(BaseModel):
+    """Pergunta livre ou id de um caso do golden dataset (com o id, a pergunta pode ficar vazia)."""
+
+    model_config = ConfigDict(extra="forbid")
+    pergunta: Optional[str] = None
+    id_golden: Optional[str] = None
+
+
+@app.get("/api/comparativo/golden")
+def comparativo_golden():
+    """Perguntas do golden dataset da semana 3 disponíveis para o comparativo (issue #34)."""
+    perguntas = listar_golden()
+    return {"total": len(perguntas), "perguntas": perguntas}
+
+
+@app.post("/api/comparativo/executar")
+def comparativo_executar(requisicao: ComparativoRequest):
+    """
+    Roda a mesma pergunta no Modo A (LLM pura, sem documentos) e no Modo B (RAG sobre a base de 93 lugares,
+    com guardrails), lado a lado (issue #34). Com `id_golden`, devolve também o gabarito do caso.
+    """
+    try:
+        resultado = executar_comparacao_ab(requisicao.pergunta, requisicao.id_golden)
+    except ErroComparativo as e:
+        raise HTTPException(status_code=e.status, detail=str(e))
     flush_telemetria()
     return resultado
 
