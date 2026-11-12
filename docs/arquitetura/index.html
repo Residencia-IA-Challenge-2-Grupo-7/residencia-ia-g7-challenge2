@@ -350,7 +350,7 @@ button{cursor:pointer}
    (estilo acima, motor do mapa abaixo) não precisa ser lido para editar.
    Guia de edição: docs/arquitetura/AGENTS.md, no repositório do grupo. */
 
-const ATUALIZADO = '10/11/2026';
+const ATUALIZADO = '12/11/2026';
 const SUBTITULO = 'conforme o guia oficial de 10/11, com o back-end das salas em construção';
 
 // Tamanho do canvas. Se uma zona crescer além dele, aumente aqui.
@@ -361,7 +361,7 @@ const ZONES = {
   app:     {x:440, y:110,  w:650,  h:1150, t:'App web', s:'PWA, celular primeiro', repo:'ADR 0003 · proposta · semana 6', st:['4 telas do guia oficial: criar sala, 4 campos secretos, painel com votação e pós-rolê com Pix','App web responsivo e instalável (PWA): proposta do ADR 0003, a confirmar com o grupo','Chrome no Android e Safari no iOS, nas duas versões mais recentes (RNF-09)','WCAG 2.1 nível AA, fonte ajustável e alvos de toque grandes (RNF-07)','Português do Brasil: datas dd/mm, 24 horas e R$ (RNF-08)','Framework de front-end: a decidir']},
   servidor:{x:1250,y:110,  w:660,  h:1150, t:'Servidor', s:'estado do rolê e regras', repo:'semana 6', st:['FastAPI (Python) em Docker, publicado no Render; rotas das salas em /api/salas','O estado do rolê fica no servidor, não no modelo (RNF-15)','Banco das salas: Supabase (PostgreSQL), pelo guia oficial; hoje em memória','Tokens por sala e por participante enquanto o login não é decidido','Meio de tempo real: a decidir']},
   ia:      {x:2050,y:110,  w:1060, h:1150, t:'Agentes de IA', html:'Agentes de <span>IA</span>', s:'conversam, interpretam e explicam', repo:'semana 4 · multiagentes', verit:true, st:['Sistema multiagentes da semana 4 (RNF-12)','Um agente por membro, mais planejador, logística, finanças e mediador','O LLM conversa, interpreta, orquestra e explica; os números vêm do motor de cálculo (RNF-04)','Interpretador: o LLM preenche um esquema validado; datas, valores e a consulta à base saem do código (ADR 0007 · proposta)','Provedores trocáveis por configuração (RNF-12)','Framework de agentes: a decidir']},
-  ext:     {x:3180,y:110,  w:345,  h:1150, t:'Fora do sistema', s:'serviços externos', dashed:true, st:['Login: código por e-mail ou telefone, ou conta Google','LLM do interpretador pela OpenRouter, só provedores sem retenção (ADR 0007 · proposta)','Sem voz no app (ADR 0009): entrada por texto e foto da nota fiscal','Supabase: banco das salas na nuvem (guia oficial)','Sem mapa embutido no MVP: link para o Google Maps','Distância pelas 35 RAs, sem API paga (guia oficial)','Transporte público do DF (GTFS): disponibilidade a confirmar','WhatsApp, agendas e apps de banco: pelo próprio celular, sem API']},
+  ext:     {x:3180,y:110,  w:345,  h:1150, t:'Fora do sistema', s:'serviços externos', dashed:true, st:['Login: código por e-mail ou telefone, ou conta Google','LLM do interpretador pela OpenRouter, só provedores sem retenção (ADR 0007 · proposta)','Comparação da semana 3: DeepSeek V4.1 Flash nos dois modos, com e sem a base (ADRs 0010 e 0011 · proposta)','Sem voz no app (ADR 0009): entrada por texto e foto da nota fiscal','Supabase: banco das salas na nuvem (guia oficial)','Sem mapa embutido no MVP: link para o Google Maps','Distância pelas 35 RAs, sem API paga (guia oficial)','Transporte público do DF (GTFS): disponibilidade a confirmar','WhatsApp, agendas e apps de banco: pelo próprio celular, sem API']},
   seg:     {x:40,  y:1330, w:330,  h:620,  t:'Segurança', s:'e operação', st:['HTTPS, autenticação e salas limitadas aos membros (RNF-11)','Segredos fora do git; chave Pix e dados sensíveis criptografados','Checklist básico do OWASP Top 10','Docker, GitHub Actions com todos os testes e deploy no Render']},
   rag:     {x:440, y:1330, w:1470, h:620,  t:'Base e avaliação', s:'RAG da semana 2 e como medimos', repo:'semanas 2, 3 e 7', st:['Base oficial de 93 lugares do DF, de vídeos de rolês no TikTok, com validação em 2 fatores (ADR 0008 · aceita)','Extração por LLM; aprovado só o que tem localização no DF e preço no vídeo','Vetores gemini-embedding-001 (3072 dimensões) em arquivo JSON','Avaliação LLM × RAG na semana 3, com a métrica do RNF-03','Métricas de sucesso calculadas a partir dos registros (RNF-10)']},
   motor:   {x:2050,y:1330, w:1475, h:620,  t:'Motor de cálculo', s:'código, sem LLM', repo:'RNF-04', st:['Cálculos por código determinístico, com testes automatizados (RNF-04)','Nenhum valor em reais nem chave Pix vem de texto gerado pelo modelo','Otimizador para as caronas, não o modelo de linguagem (RF-23)','Linguagem: a decidir']},
@@ -653,12 +653,15 @@ const CARDS = [
  tx:'Ataques de propósito: pedir o orçamento de alguém, pedir "um resumo do que todos disseram", injetar instrução no chat.',ch:['meta: zero vazamentos'],
  rq:['RNF-02, RNF-11']},
 {id:'d-perguntas',k:'dados',z:'rag',x:1050,y:1660,w:250,eb:'Conjunto de teste',t:'Perguntas de teste',st:'plan',
- tx:'20 perguntas sobre Brasília com gabarito tirado dos 93 lugares.',ch:['semana 3'],
- faz:'5 sobre preços exatos, 5 sobre horários difíceis, 5 fora do Plano Piloto e 5 pegadinhas com restrições combinadas. Servem à comparação da semana 3.'},
+ tx:'20 perguntas sobre o DF com gabarito tirado dos 93 lugares; 10 prontas.',ch:['semana 3'],
+ faz:'Casos 01 a 10 em data/golden_dataset_semana3.json (issue #31): 5 em RAs fora do centro, 3 de horário e 2 fora do DF. Os casos 11 a 20 (preços, ambiência e armadilhas) são da issue #32.',
+ fora:['Casos 11 a 20 (issue #32)']},
 {id:'d-avaliacao',k:'dados',z:'rag',x:1340,y:1660,w:250,eb:'Avaliação',t:'LLM × RAG',st:'plan',
  tx:'Quantos lugares, preços e horários o LLM puro inventa e quantos o RAG acerta.',ch:['semana 3'],
- num:['Meta: 100% dos lugares dos planos existem na base','Meta: ao menos 95% dos preços e horários corretos, numa amostra conferida à mão'],
- rq:['RNF-03']},
+ faz:'O motor (src/rag/comparador_ab.py, rotas /api/comparativo) roda a mesma pergunta nos dois modos, em paralelo: Modo A, o DeepSeek sem documentos; Modo B, a busca com guardrails e o mesmo modelo com os lugares recuperados. Falta a avaliação: alucinação e fidelidade (issue #36) e o benchmark com as 20 perguntas (issue #38).',
+ num:['Prévia de 12/11, 10 perguntas: o lugar do gabarito veio nas fontes do Modo B em 6 de 8 casos do DF','Prévia: p90 de 5,1 s no Modo A e 4,8 s no Modo B','Meta: 100% dos lugares dos planos existem na base','Meta: ao menos 95% dos preços e horários corretos, numa amostra conferida à mão'],
+ fora:['Avaliador de alucinação e fidelidade (issue #36)','Benchmark oficial com 20 perguntas (issue #38)'],
+ rq:['RNF-03, RNF-14','ADR 0010 · proposta','ADR 0011 · proposta']},
 {id:'d-metricas',k:'dados',z:'rag',x:1630,y:1660,w:250,eb:'Métricas',t:'Métricas de sucesso',far:'Métricas',st:'plan',
  tx:'Conversão de sala em rolê, encontros confirmados e satisfação, medidos no piloto.',ch:['semana 7'],
  faz:'As métricas de uso saem dos registros pseudonimizados; o impacto compara o formulário antes e depois do piloto com grupos reais.',
@@ -819,6 +822,7 @@ const DEC = [
  {g:'Privacidade',t:'Registros sem nome e sem conteúdo',s:'RNF-10',tx:'Os eventos não levam conversas privadas nem valores de orçamento.',c:['b-log']},
  {g:'Privacidade',t:'Texto de fora não muda as regras',s:'RNF-11',tx:'Instrução injetada pelo chat ou por uma página é tratada como dado.',c:['ia-saida','i-seg','d-adversarial']},
  {g:'Dados',t:'Base oficial de 93 lugares',s:'ADR 0008 · aceita',tx:'Vídeos de rolês no TikTok com validação em 2 fatores (localização e preço). Substitui a coleta nos sites oficiais do ADR 0005, que deu 11 lugares.',c:['r-fontes','r-curadoria','r-base']},
+ {g:'Dados',t:'Mesmo LLM com e sem a base',s:'ADRs 0010 e 0011 · proposta',tx:'A comparação da semana 3 usa o DeepSeek V4.1 Flash nos dois modos; só o Modo B recebe os lugares recuperados. Guardrails em código recusam pergunta fora do DF ou com aderência baixa antes de chamar o LLM.',c:['d-avaliacao','r-base','e-llm']},
  {g:'Dados',t:'Distância sem API paga',s:'Guia oficial',tx:'Tempo e custo pelas 35 RAs e pelas coordenadas da base, sem chave de mapas.',c:['c-custo','e-rotas']},
  {g:'Dados',t:'Fonte e data em cada item',s:'RF-16',tx:'Cada cartão leva o link do vídeo, o autor e a data. Preço e horário são segundo o vídeo; evento com data passada sai.',c:['r-esquema','f-planos']},
  {g:'Dados',t:'Supabase para as salas',s:'Guia oficial',tx:'PostgreSQL gratuito na nuvem para salas, participantes, cartões, votos e despesas. A base de lugares continua em arquivos versionados.',c:['b-db','e-supabase']},
