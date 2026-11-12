@@ -253,7 +253,10 @@ def _etapa_retriever(pergunta: str, top_k: int = 3, categoria: Optional[str] = N
 
 @observe(name="sintese_resposta_llm", as_type="generation")
 def _etapa_generation(pergunta: str, roles: List[Dict[str, Any]]) -> str:
-    """Span de geração: formata a recomendação fundamentada nos dados da Letícia."""
+    """Span de geração: monta a recomendação com um texto fixo preenchido pelos lugares recuperados.
+
+    Não chama nenhum LLM; tokens e custo abaixo são estimativas. A geração por LLM com os lugares como
+    contexto é a do comparativo A/B (src/rag/llm_rag.py, issue #34)."""
     client = obter_cliente()
 
     if not roles:
@@ -291,7 +294,7 @@ def _etapa_generation(pergunta: str, roles: List[Dict[str, Any]]) -> str:
 
     try:
         client.update_current_generation(
-            model="gemini-1.5-flash",
+            model="texto-fixo-sem-llm",
             usage_details={
                 "input": tokens_input,
                 "output": tokens_output,
@@ -301,7 +304,7 @@ def _etapa_generation(pergunta: str, roles: List[Dict[str, Any]]) -> str:
                 "total": round(custo_usd, 8),
             },
             metadata={
-                "provedor": "Google Gemini API",
+                "provedor": "nenhum (texto montado em Python)",
                 "fonte_dados": "Auditoria 2FA TikTok 2026",
             },
         )
@@ -309,6 +312,24 @@ def _etapa_generation(pergunta: str, roles: List[Dict[str, Any]]) -> str:
         pass
 
     return resposta_formatada
+
+
+def recuperar_com_guardrails(
+    pergunta: str, top_k: int = 3, categoria: Optional[str] = None
+) -> tuple[gr.Guardrails, List[Dict[str, Any]]]:
+    """Recuperação do Modo B com os guardrails da issue #33: escopo do DF, teto em reais e aderência mínima.
+
+    Devolve os guardrails avaliados e os lugares recuperados; quando um guardrail bloqueia, a lista vem vazia
+    (nada é recomendado, RNF-03). Usada pela rota /rag/buscar e pelo comparativo A/B (issue #34)."""
+    guard = gr.avaliar_pergunta(pergunta)
+    roles: List[Dict[str, Any]] = []
+    if guard.permitido:
+        roles = _etapa_retriever(pergunta, top_k=top_k, categoria=categoria, guard=guard)
+        if guard.permitido:
+            gr.avaliar_recuperacao(guard, [r["score_similaridade"] for r in roles])
+    if not guard.permitido:
+        roles = []
+    return guard, roles
 
 
 @observe(name="pipeline_orquestrador_rag")
@@ -323,18 +344,12 @@ def simular_recuperacao_rag(
     trace_id = client.get_current_trace_id()
 
     # Guardrails determinísticos (issue #33): escopo do DF, teto em reais e aderência mínima
-    guard = gr.avaliar_pergunta(pergunta_usuario)
-    roles: List[Dict[str, Any]] = []
-    if guard.permitido:
-        roles = _etapa_retriever(pergunta_usuario, top_k=top_k, categoria=categoria, guard=guard)
-        if guard.permitido:
-            gr.avaliar_recuperacao(guard, [r["score_similaridade"] for r in roles])
+    guard, roles = recuperar_com_guardrails(pergunta_usuario, top_k=top_k, categoria=categoria)
     if guard.permitido:
         resposta = _etapa_generation(pergunta_usuario, roles)
         if guard.avisos:
             resposta = " ".join(guard.avisos) + " " + resposta
     else:
-        roles = []  # nada é recomendado quando um guardrail bloqueia (RNF-03)
         resposta = " ".join(guard.avisos)
 
     duracao_ms = round((time.time() - inicio) * 1000, 2)

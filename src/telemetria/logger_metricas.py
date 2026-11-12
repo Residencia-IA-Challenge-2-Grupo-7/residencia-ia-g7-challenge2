@@ -20,6 +20,7 @@ import json
 import os
 from pathlib import Path
 import re
+import threading
 from typing import Any, Dict, Optional, Union
 import uuid
 
@@ -27,6 +28,9 @@ import uuid
 DIRETORIO_TELEMETRIA = Path("data/telemetria")
 ARQUIVO_METRICAS_PADRAO = DIRETORIO_TELEMETRIA / "metricas_execucao.jsonl"
 ARQUIVO_CACHE_PADRAO = DIRETORIO_TELEMETRIA / "cache_avaliacoes.json"
+# Serializa as escritas em disco: o comparativo A/B (issue #34) roda os dois modos em paralelo, e a API
+# atende requisições em threads. Sem a trava, duas gravações simultâneas do cache perdem uma das entradas.
+_TRAVA_DISCO = threading.Lock()
 
 # Custo médio estimado por token para Gemini 1.5 Flash em BRL (cotação média USD/BRL ~5.80)
 # Entrada: $0.075/1M tokens, Saída: $0.30/1M tokens -> Média ponderada ~0.0000009 BRL/token
@@ -172,7 +176,7 @@ def registrar_evento_metrica(
     destino_log = Path(arquivo_log) if arquivo_log else ARQUIVO_METRICAS_PADRAO
     try:
         destino_log.parent.mkdir(parents=True, exist_ok=True)
-        with open(destino_log, "a", encoding="utf-8") as f:
+        with _TRAVA_DISCO, open(destino_log, "a", encoding="utf-8") as f:
             f.write(json.dumps(registro, ensure_ascii=False) + "\n")
     except Exception as exc:
         # Falhas de I/O em disco não podem derrubar o pipeline de IA
@@ -271,17 +275,18 @@ def salvar_cache_avaliacao(
     destino = Path(arquivo_cache) if arquivo_cache else ARQUIVO_CACHE_PADRAO
     try:
         destino.parent.mkdir(parents=True, exist_ok=True)
-        dados_disco: Dict[str, Any] = {}
-        if destino.exists():
-            try:
-                with open(destino, "r", encoding="utf-8") as f:
-                    dados_disco = json.load(f)
-            except Exception:
-                dados_disco = {}
+        with _TRAVA_DISCO:
+            dados_disco: Dict[str, Any] = {}
+            if destino.exists():
+                try:
+                    with open(destino, "r", encoding="utf-8") as f:
+                        dados_disco = json.load(f)
+                except Exception:
+                    dados_disco = {}
 
-        dados_disco[chave] = item
-        with open(destino, "w", encoding="utf-8") as f:
-            json.dump(dados_disco, f, ensure_ascii=False, indent=2)
+            dados_disco[chave] = item
+            with open(destino, "w", encoding="utf-8") as f:
+                json.dump(dados_disco, f, ensure_ascii=False, indent=2)
     except Exception:
         pass
 

@@ -113,9 +113,7 @@ LANDING_PAGE = """<!DOCTYPE html>
       font-size: 2.1rem;
       font-weight: 800;
       margin-bottom: 8px;
-      background: linear-gradient(90deg, #58a6ff, #bc8cff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: var(--text);
       letter-spacing: -0.5px;
     }
 
@@ -348,9 +346,7 @@ HTML_PAGE = """<!DOCTYPE html>
       font-size: 1.6rem;
       font-weight: 700;
       margin-bottom: 4px;
-      background: linear-gradient(90deg, #58a6ff, #bc8cff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: var(--text);
     }
 
     header p {
@@ -758,9 +754,7 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
       font-size: 1.55rem;
       font-weight: 800;
       margin-bottom: 3px;
-      background: linear-gradient(90deg, #58a6ff, #bc8cff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: var(--text);
     }
 
     .page-header p {
@@ -1911,20 +1905,6 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
 """
 
 
-GOLDEN_PERGUNTAS = {
-    "golden_01": "Onde comer hambúrguer artesanal ou rodízio de mini hambúrgueres em Taguatinga com amigos?",
-    "golden_02": "Quero um restaurante romântico para jantar de casal no Lago Sul ou Asa Sul com música ao vivo ou vista bonita",
-    "golden_03": "Onde comer sushi, ramen ou comida japonesa tradicional em Brasília?",
-    "golden_04": "Indica um café colonial, brunch ou cafeteria aconchegante para ir à tarde na Asa Norte ou Asa Sul",
-    "golden_05": "Onde comer carne de sol, parrilla ou churrasco com cerveja gelada em Águas Claras ou Guará?",
-    "golden_06": "Quero uma pizzaria napolitana ou rodízio de massas italianas para ir com a família",
-    "golden_07": "Tem opção de passeio gratuito ao ar livre, parque ou ponto turístico cultural no Plano Piloto?",
-    "golden_08": "Onde encontrar doceria, sorveteria artesanal ou açaí para sobremesa no Sudoeste ou Águas Claras?",
-    "golden_09": "Qual barzinho agitado ou pub com drinks autorais e petiscos para happy hour na Asa Norte?",
-    "golden_10": "Onde comer comida nordestina, feijoada ou almoço executivo barato até 50 reais no DF?",
-}
-
-
 COMPARATIVO_PAGE = """<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
@@ -2066,9 +2046,7 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
       font-size: 1.85rem;
       font-weight: 800;
       margin-bottom: 8px;
-      background: linear-gradient(90deg, var(--neon-pink) 0%, var(--neon-cyan) 50%, var(--neon-lime) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: #FFFFFF;
       line-height: 1.3;
     }
 
@@ -2693,6 +2671,105 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
       border-top: 1px solid var(--card-border);
     }
 
+    .source-card.dimmed {
+      opacity: 0.55;
+      border-left-color: var(--text-muted);
+    }
+
+    .cite-pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .cite-pill-yes {
+      background: var(--neon-lime-soft);
+      color: var(--neon-lime);
+      border: 1px solid var(--neon-lime-border);
+    }
+
+    body.light-mode .cite-pill-yes {
+      background: #1B3B00;
+      color: #C6FF00;
+    }
+
+    .cite-pill-no {
+      background: var(--card-bg-elevated);
+      color: var(--text-muted);
+      border: 1px solid var(--card-border);
+    }
+
+    .not-evaluated-box {
+      background: var(--card-bg-elevated);
+      border: 1px dashed var(--card-border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .gabarito-banner {
+      background: var(--card-bg);
+      border: 1px solid var(--neon-cyan-border);
+      border-left: 4px solid var(--neon-cyan);
+      border-radius: 12px;
+      padding: 14px 18px;
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .gabarito-title {
+      font-size: 0.84rem;
+      font-weight: 800;
+      color: var(--neon-cyan);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    body.light-mode .gabarito-title {
+      color: #230D63;
+    }
+
+    .gabarito-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 0.8rem;
+    }
+
+    .erro-banner {
+      background: var(--neon-pink-soft);
+      border: 1px solid var(--neon-pink-border);
+      color: var(--neon-pink);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: none;
+    }
+
+    body.light-mode .erro-banner {
+      color: #B80058;
+    }
+
+    .guardrail-box {
+      background: rgba(255, 193, 7, 0.08);
+      border: 1px dashed rgba(255, 193, 7, 0.45);
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 0.84rem;
+      color: var(--text-main);
+    }
+
+    .btn-executar:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+    }
+
     /* Responsividade Mobile (1 coluna empilhada) */
     @media (max-width: 920px) {
       .comparison-grid {
@@ -2711,6 +2788,8 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
   <div class="top-nav">
     <div class="brand-title">🎭 Orquestrador de Rolês — Distrito Federal</div>
     <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <a href="/">🏠 Início</a>
+      <a href="/rag">🤖 Chat RAG</a>
       <a href="/comparativo" class="nav-active">⚖️ Comparativo LLM vs. RAG</a>
       <button
         type="button"
@@ -2727,7 +2806,7 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
   <header class="hero-header">
     <h1>⚖️ Comparativo Lado a Lado: LLM Pura vs. RAG Ancorado (2FA)</h1>
     <p>
-      Demonstração executiva de mitigação de alucinações (<strong>RNF-03</strong>) e precisão geoespacial por Região Administrativa do DF. Compare em tempo real a resposta de uma LLM sem contexto contra o pipeline RAG ancorado nos estabelecimentos auditados no Google Maps e Instagram.
+      Demonstração executiva de mitigação de alucinações (<strong>RNF-03</strong>) e precisão geoespacial por Região Administrativa do DF. Compare em tempo real a resposta de uma LLM sem contexto contra o pipeline RAG ancorado na base de 93 lugares do TikTok, auditada em 2 etapas.
     </p>
   </header>
 
@@ -2735,43 +2814,34 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
     <!-- Painel de Seleção do Golden Dataset e Input Livre -->
     <section class="control-panel" aria-label="Seletor de Perguntas do Golden Dataset">
       <div class="control-row">
-        <span class="control-label">🎯 Golden Dataset (10 Casos):</span>
+        <span class="control-label" id="goldenLabel">🎯 Golden Dataset:</span>
         <select id="goldenSelect" class="golden-select" onchange="selecionarGoldenDropdown()">
-          <option value="golden_01">golden_01 — Onde comer hambúrguer artesanal ou rodízio de mini hambúrgueres em Taguatinga com amigos?</option>
-          <option value="golden_02">golden_02 — Quero um restaurante romântico para jantar de casal no Lago Sul ou Asa Sul com música ao vivo ou vista bonita</option>
-          <option value="golden_03">golden_03 — Onde comer sushi, ramen ou comida japonesa tradicional em Brasília?</option>
-          <option value="golden_04">golden_04 — Indica um café colonial, brunch ou cafeteria aconchegante para ir à tarde na Asa Norte ou Asa Sul</option>
-          <option value="golden_05">golden_05 — Onde comer carne de sol, parrilla ou churrasco com cerveja gelada em Águas Claras ou Guará?</option>
-          <option value="golden_06">golden_06 — Quero uma pizzaria napolitana ou rodízio de massas italianas para ir com a família</option>
-          <option value="golden_07">golden_07 — Tem opção de passeio gratuito ao ar livre, parque ou ponto turístico cultural no Plano Piloto?</option>
-          <option value="golden_08">golden_08 — Onde encontrar doceria, sorveteria artesanal ou açaí para sobremesa no Sudoeste ou Águas Claras?</option>
-          <option value="golden_09">golden_09 — Qual barzinho agitado ou pub com drinks autorais e petiscos para happy hour na Asa Norte?</option>
-          <option value="golden_10">golden_10 — Onde comer comida nordestina, feijoada ou almoço executivo barato até 50 reais no DF?</option>
+          <option value="">✍️ Pergunta livre (sem gabarito)</option>
         </select>
       </div>
 
-      <div class="chips-row" id="goldenChips">
-        <button type="button" class="golden-chip active" onclick="selecionarChip('golden_01')">#01 Hambúrguer Taguatinga</button>
-        <button type="button" class="golden-chip" onclick="selecionarChip('golden_02')">#02 Jantar Romântico Lago/Asa Sul</button>
-        <button type="button" class="golden-chip" onclick="selecionarChip('golden_03')">#03 Japonês / Ramen</button>
-        <button type="button" class="golden-chip" onclick="selecionarChip('golden_04')">#04 Café & Brunch Asa Norte/Sul</button>
-        <button type="button" class="golden-chip" onclick="selecionarChip('golden_05')">#05 Carne de Sol / Parrilla</button>
-        <button type="button" class="golden-chip" onclick="selecionarChip('golden_07')">#07 Passeio Gratuito / Parque</button>
-        <button type="button" class="golden-chip" onclick="selecionarChip('golden_10')">#10 Almoço até R$ 50</button>
-      </div>
+      <div class="chips-row" id="goldenChips"></div>
 
       <form class="search-bar" onsubmit="executarComparativo(event)">
         <input
           type="text"
           id="perguntaComparativoInput"
           class="search-input"
-          value="Onde comer hambúrguer artesanal ou rodízio de mini hambúrgueres em Taguatinga com amigos?"
-          placeholder="Digite uma pergunta sobre gastronomia ou lazer no DF ou selecione do Golden Dataset..."
+          value=""
+          oninput="aoDigitarPergunta()"
+          placeholder="Digite uma pergunta ou selecione um caso do Golden Dataset acima..."
         />
         <button type="submit" class="btn-executar" id="btnExecutarComparativo">
           ⚡ Comparar Lado a Lado
         </button>
       </form>
+    </section>
+
+    <div class="erro-banner" id="erroBanner" role="alert"></div>
+
+    <section class="gabarito-banner" id="gabaritoBanner" aria-label="Gabarito do Caso Golden">
+      <div class="gabarito-title">📌 Gabarito do Golden Dataset</div>
+      <div class="gabarito-pills" id="gabaritoPills"></div>
     </section>
 
     <!-- Grid 2 Colunas: Modo A (LLM Pura) vs Modo B (RAG Ancorado) -->
@@ -2785,12 +2855,12 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
               <div class="info-trigger">
                 <span class="info-btn" aria-label="Informação sobre Zero-Shot">i</span>
                 <div class="info-popover popover-left">
-                  <strong>🎯 O que é Zero-Shot:</strong> A LLM responde direto pela sua memória de treinamento, sem receber exemplos prévios nem consultar a base auditada do DF.
+                  <strong>🎯 O que é Zero-Shot:</strong> A LLM responde direto pela sua memória de treinamento, sem receber documentos nem consultar a base de 93 lugares do TikTok.
                 </div>
               </div>
             </div>
-            <div class="mode-subtitle">Geração paramétrica sem acesso ao ChromaDB ou validação 2FA</div>
-            <div class="llm-model-pill">🧠 LLM: Google Gemini 1.5 Flash (gemini-1.5-flash)</div>
+            <div class="mode-subtitle">Geração paramétrica sem acesso à base de 93 lugares ou validação 2FA</div>
+            <div class="llm-model-pill" id="modeloPillA">🧠 Modelo: aguardando execução</div>
           </div>
           <span class="status-badge badge-warning-a" id="badgeModoA">
             ⚠️ Sem Evidências — Sujeito a Alucinação
@@ -2798,7 +2868,7 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
         </div>
 
         <div class="response-box" id="respostaModoA">
-          Em Taguatinga, algumas opções populares de hambúrguer artesanal incluem a "Burger House Taguá" na Avenida Comercial Norte e o "Garage Burger DF", que costumam oferecer combos e rodízio às quintas-feiras por cerca de R$ 39,90. Recomendo verificar os horários diretamente nas redes sociais, pois não possuo acesso em tempo real aos cardápios locais.
+          Selecione uma pergunta do Golden Dataset ou digite uma pergunta acima e clique em <strong>Comparar Lado a Lado</strong> para executar o modelo em tempo real.
         </div>
 
         <div class="metrics-strip">
@@ -2806,20 +2876,20 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
             <div class="info-trigger">
               <span class="info-btn" aria-label="Informação sobre Latência">i</span>
               <div class="info-popover">
-                <strong>⏱️ Latência (RNF-14):</strong> Tempo total que o modelo levou para responder (meta SLA &le; 5.000 ms).
+                <strong>⏱️ Latência (RNF-14):</strong> Tempo medido que o modelo levou para responder (meta SLA &le; 5.000 ms).
               </div>
             </div>
-            <div class="metric-val" id="latenciaModoA" style="color:var(--neon-pink);">420.2 ms</div>
+            <div class="metric-val" id="latenciaModoA" style="color:var(--neon-pink);">—</div>
             <div class="metric-lbl">Latência (RNF-14)</div>
           </div>
           <div class="metric-card">
             <div class="info-trigger">
               <span class="info-btn" aria-label="Informação sobre Tokens Totais">i</span>
               <div class="info-popover">
-                <strong>🔤 Tokens Totais:</strong> Soma das unidades de texto de entrada (pergunta) e saída geradas pela LLM.
+                <strong>🔤 Tokens Totais:</strong> Soma das unidades de texto de entrada e saída medidas na chamada ao modelo.
               </div>
             </div>
-            <div class="metric-val" id="tokensModoA">180</div>
+            <div class="metric-val" id="tokensModoA">—</div>
             <div class="metric-lbl">Tokens Totais</div>
           </div>
         </div>
@@ -2827,42 +2897,9 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
         <div class="scores-panel">
           <div class="scores-header-row">
             <div class="scores-title">📊 Scores de Qualidade &amp; Governança</div>
-            <div class="info-trigger">
-              <span class="info-btn info-btn-pill" aria-label="Como os scores são calculados">i Cálculo</span>
-              <div class="info-popover popover-wide">
-                <strong>📐 Como calculamos as porcentagens:</strong><br/>
-                &bull; <strong>Taxa de Alucinação:</strong> Locais sem registro na base 2FA &divide; Total citado &times; 100.<br/>
-                &bull; <strong>Fidelidade Factual:</strong> Fatos e preços confirmados no JSON 2FA &divide; Total citado &times; 100.<br/>
-                &bull; <strong>Precisão Geoespacial RA:</strong> Locais na Região Administrativa pedida &divide; Total recomendado &times; 100.
-              </div>
-            </div>
           </div>
-          <div class="score-row">
-            <div class="score-row-top">
-              <span>Taxa de Alucinação</span>
-              <span id="valAlucinacaoA" style="color:var(--neon-pink);">100%</span>
-            </div>
-            <div class="progress-track">
-              <div class="progress-fill" id="barAlucinacaoA" style="width:100%; background:var(--neon-pink);"></div>
-            </div>
-          </div>
-          <div class="score-row">
-            <div class="score-row-top">
-              <span>Fidelidade Factual</span>
-              <span id="valFidelidadeA" style="color:var(--neon-pink);">0%</span>
-            </div>
-            <div class="progress-track">
-              <div class="progress-fill" id="barFidelidadeA" style="width:4%; background:var(--neon-pink);"></div>
-            </div>
-          </div>
-          <div class="score-row">
-            <div class="score-row-top">
-              <span>Precisão Geoespacial RA</span>
-              <span id="valGeoespacialA" style="color:var(--neon-pink);">0%</span>
-            </div>
-            <div class="progress-track">
-              <div class="progress-fill" id="barGeoespacialA" style="width:4%; background:var(--neon-pink);"></div>
-            </div>
+          <div class="not-evaluated-box">
+            <strong>não avaliado</strong> — As métricas automáticas de alucinação e fidelidade serão integradas na issue #36.
           </div>
         </div>
 
@@ -2873,26 +2910,26 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
           </div>
           <div class="empty-sources-box" id="fontesModoA">
             🚫 <strong>Nenhuma fonte auditada utilizada.</strong><br/>
-            Estabelecimentos, preços e endereços gerados sem lastro na base curada do Distrito Federal.
+            O Modo A responde sem acesso à base de 93 lugares do TikTok, auditada em 2 etapas.
           </div>
         </div>
       </article>
 
-      <!-- COLUNA DIREITA: MODO B — RAG ANCORADO (CHROMA + 2FA) -->
+      <!-- COLUNA DIREITA: MODO B — RAG ANCORADO (BASE 2FA) -->
       <article class="mode-column modo-b" id="colunaModoB">
         <div class="mode-header">
           <div>
-            <div class="mode-title">🛡️ Modo B — RAG Ancorado (Base 2FA + ChromaDB)</div>
-            <div class="mode-subtitle">Busca vetorial 3072-d (gemini-embedding-2-preview) + Auditoria Maps &amp; Instagram</div>
-            <div class="llm-model-pill pill-rag">🧠 LLM: Gemini 1.5 Flash + Embeddings 3072-d</div>
+            <div class="mode-title">🛡️ Modo B — RAG Ancorado (Base 2FA)</div>
+            <div class="mode-subtitle">Busca na base de 93 lugares do TikTok, auditada em 2 etapas + guardrails</div>
+            <div class="llm-model-pill pill-rag" id="modeloPillB">🧠 Modelo: aguardando execução</div>
           </div>
           <span class="status-badge badge-verified-b" id="badgeModoB">
-            ✅ 100% Fundamentado na Base Curada do DF
+            ✅ Fundamentado na Base Curada do DF
           </span>
         </div>
 
         <div class="response-box" id="respostaModoB">
-          Com base na auditoria 2FA da base oficial do DF, recomendamos duas principais alternativas verificadas: 1ª opção: <strong>Filomenamburger</strong> <span class="fonte-cite">[FONTE #1]</span> em <strong>Taguatinga Norte</strong> (Custo médio: <strong>R$ 50,00</strong>); 2ª opção: <strong>Smash &amp; Co</strong> <span class="fonte-cite">[FONTE #2]</span> em <strong>Taguatinga Sul</strong> (Custo médio: <strong>R$ 42,00</strong>).
+          Aguardando execução. O Modo B recuperará os lugares compatíveis da base de 93 locais do TikTok, aplicando os guardrails e gerando a resposta ancorada.
         </div>
 
         <div class="metrics-strip">
@@ -2900,20 +2937,20 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
             <div class="info-trigger">
               <span class="info-btn" aria-label="Informação sobre Latência">i</span>
               <div class="info-popover">
-                <strong>⏱️ Latência (RNF-14):</strong> Tempo de recuperação vetorial + síntese ancorada (meta SLA &le; 5.000 ms).
+                <strong>⏱️ Latência (RNF-14):</strong> Tempo medido de recuperação na base + geração ancorada (meta SLA &le; 5.000 ms).
               </div>
             </div>
-            <div class="metric-val" id="latenciaModoB" style="color:var(--neon-lime);">19.5 ms</div>
+            <div class="metric-val" id="latenciaModoB" style="color:var(--neon-lime);">—</div>
             <div class="metric-lbl">Latência (RNF-14)</div>
           </div>
           <div class="metric-card">
             <div class="info-trigger">
               <span class="info-btn" aria-label="Informação sobre Tokens Totais">i</span>
               <div class="info-popover">
-                <strong>🔤 Tokens Totais:</strong> Soma dos tokens da pergunta, dos chunks 2FA injetados no prompt e da resposta gerada.
+                <strong>🔤 Tokens Totais:</strong> Soma dos tokens da pergunta, dos documentos 2FA injetados e da resposta gerada.
               </div>
             </div>
-            <div class="metric-val" id="tokensModoB">350</div>
+            <div class="metric-val" id="tokensModoB">—</div>
             <div class="metric-lbl">Tokens Totais</div>
           </div>
         </div>
@@ -2921,110 +2958,32 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
         <div class="scores-panel">
           <div class="scores-header-row">
             <div class="scores-title">📊 Scores de Qualidade &amp; Governança</div>
-            <div class="info-trigger">
-              <span class="info-btn info-btn-pill" aria-label="Como os scores são calculados">i Cálculo</span>
-              <div class="info-popover popover-wide">
-                <strong>📐 Como calculamos as porcentagens:</strong><br/>
-                &bull; <strong>Taxa de Alucinação:</strong> Locais sem registro na base 2FA &divide; Total citado &times; 100.<br/>
-                &bull; <strong>Fidelidade Factual:</strong> Fatos e preços confirmados no JSON 2FA &divide; Total citado &times; 100.<br/>
-                &bull; <strong>Precisão Geoespacial RA:</strong> Locais na Região Administrativa pedida &divide; Total recomendado &times; 100.
-              </div>
-            </div>
           </div>
-          <div class="score-row">
-            <div class="score-row-top">
-              <span>Taxa de Alucinação</span>
-              <span id="valAlucinacaoB" style="color:var(--neon-lime);">0%</span>
-            </div>
-            <div class="progress-track">
-              <div class="progress-fill" id="barAlucinacaoB" style="width:0%; background:var(--neon-lime);"></div>
-            </div>
-          </div>
-          <div class="score-row">
-            <div class="score-row-top">
-              <span>Fidelidade Factual</span>
-              <span id="valFidelidadeB" style="color:var(--neon-lime);">100%</span>
-            </div>
-            <div class="progress-track">
-              <div class="progress-fill" id="barFidelidadeB" style="width:100%; background:var(--neon-lime);"></div>
-            </div>
-          </div>
-          <div class="score-row">
-            <div class="score-row-top">
-              <span>Precisão Geoespacial RA</span>
-              <span id="valGeoespacialB" style="color:var(--neon-lime);">100%</span>
-            </div>
-            <div class="progress-track">
-              <div class="progress-fill" id="barGeoespacialB" style="width:100%; background:var(--neon-lime);"></div>
-            </div>
+          <div class="not-evaluated-box">
+            <strong>não avaliado</strong> — As métricas automáticas de alucinação e fidelidade serão integradas na issue #36.
           </div>
         </div>
 
-        <div class="trace-banner" id="traceBannerB">
-          <span>🔭 <strong>Telemetria LLMOps (RNF-18):</strong> Trace sincronizado no Langfuse Cloud</span>
+        <div class="trace-banner" id="traceBannerB" style="display:none;">
+          <span>🔭 <strong>Telemetria LLMOps (RNF-18):</strong> Trace registrado no Langfuse</span>
           <a
-            href="/telemetria/trace?id=golden_01"
-            data-langfuse-url="https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/golden_01"
+            href="#"
             target="_blank"
             rel="noopener noreferrer"
             class="trace-link"
             id="traceLinkModoB"
           >
-            Ver Trace no Langfuse Cloud &nearr;
+            Ver Trace no Langfuse &nearr;
           </a>
         </div>
 
         <div class="sources-section">
           <div class="sources-header">
             <span>📂 Fontes Auditadas 2FA</span>
-            <span id="contadorFontesB">2 Fontes Recuperadas</span>
+            <span id="contadorFontesB">0 Fontes</span>
           </div>
           <div id="fontesModoB" style="display:flex; flex-direction:column; gap:10px;">
-            <div class="source-card">
-              <div class="source-card-top">
-                <div class="source-name">[FONTE #1] Filomenamburger</div>
-                <span class="source-sim">Similaridade: 0.91</span>
-              </div>
-              <div class="source-meta">
-                <span class="meta-pill">📍 RA: Taguatinga Norte</span>
-                <span class="meta-pill">💰 Custo Médio: R$ 50,00</span>
-                <span class="meta-pill">🆔 tiktok_7688864663336963336</span>
-              </div>
-              <div class="source-actions">
-                <span style="font-size:0.74rem; color:var(--neon-lime); font-weight:700;">✔ Auditado 2FA (Google Maps + Instagram)</span>
-                <a
-                  href="https://www.tiktok.com/@rolezandoembrasilia/video/7688864663336963336"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="btn-tiktok"
-                >
-                  🎵 Ver Vídeo Original no TikTok &nearr;
-                </a>
-              </div>
-            </div>
-
-            <div class="source-card">
-              <div class="source-card-top">
-                <div class="source-name">[FONTE #2] Smash &amp; Co</div>
-                <span class="source-sim">Similaridade: 0.88</span>
-              </div>
-              <div class="source-meta">
-                <span class="meta-pill">📍 RA: Taguatinga Sul</span>
-                <span class="meta-pill">💰 Custo Médio: R$ 42,00</span>
-                <span class="meta-pill">🆔 tiktok_7479912345678901234</span>
-              </div>
-              <div class="source-actions">
-                <span style="font-size:0.74rem; color:var(--neon-lime); font-weight:700;">✔ Auditado 2FA (Google Maps + Instagram)</span>
-                <a
-                  href="https://www.tiktok.com/@rolezandoembrasilia"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  class="btn-tiktok"
-                >
-                  🎵 Ver Vídeo Original no TikTok &nearr;
-                </a>
-              </div>
-            </div>
+            <div class="not-evaluated-box">Nenhuma fonte carregada ainda. Execute uma comparação acima.</div>
           </div>
         </div>
       </article>
@@ -3036,12 +2995,15 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
   </footer>
 
   <script>
+    let goldenDataset = [];
+    let perguntaSelecionadaDoGolden = "";
+
     function aplicarTema(modoClaro) {
       document.body.classList.toggle("light-mode", modoClaro);
       document.body.classList.toggle("dark-mode", !modoClaro);
       const btn = document.getElementById("themeToggleBtn");
       if (btn) {
-        btn.innerHTML = modoClaro ? "🌙 Modo Escuro" : "☀️ Modo Claro";
+        btn.textContent = modoClaro ? "🌙 Modo Escuro" : "☀️ Modo Claro";
       }
     }
 
@@ -3049,31 +3011,102 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
       aplicarTema(!document.body.classList.contains("light-mode"));
     }
 
-    function formatarMoedaBRL(valor) {
-      return "R$ " + Number(valor || 0).toFixed(2).replace(".", ",");
+    function escaparHtml(texto) {
+      return String(texto || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
     }
 
-    function destacarCitacoesFontes(texto) {
-      return (texto || "").replace(/\\[FONTE #(\\d+)\\]/g, '<span class="fonte-cite">[FONTE #$1]</span>');
+    function formatarRespostaSegura(texto, destacarFontes) {
+      let html = escaparHtml(texto);
+      html = html.replace(/\\*\\*(.+?)\\*\\*/g, "<strong>$1</strong>");
+      if (destacarFontes) {
+        html = html.replace(/\\[FONTE #(\\d+)\\]/g, '<span class="fonte-cite">[FONTE #$1]</span>');
+      }
+      html = html.replace(/\\n/g, "<br>");
+      return html;
     }
 
-    function atualizarBarraScore(idValor, idBarra, scoreDecimal, larguraMinima = 0) {
-      const pct = Math.round(Number(scoreDecimal ?? 0) * 100);
-      document.getElementById(idValor).innerText = `${pct}%`;
-      document.getElementById(idBarra).style.width = `${Math.max(larguraMinima, pct)}%`;
+    function formatarPreco(valor) {
+      if (valor === null || valor === undefined || Number.isNaN(Number(valor))) {
+        return "preço não informado";
+      }
+      return "R$ " + Number(valor).toFixed(2).replace(".", ",");
+    }
+
+    function criarEl(tag, className, text) {
+      const el = document.createElement(tag);
+      if (className) el.className = className;
+      if (text !== undefined && text !== null) el.textContent = String(text);
+      return el;
+    }
+
+    function urlSegura(url) {
+      if (!url || typeof url !== "string") return null;
+      const limpa = url.trim();
+      if (limpa.startsWith("https://") || limpa.startsWith("http://") || limpa.startsWith("/")) {
+        return limpa;
+      }
+      return null;
+    }
+
+    async function carregarGoldenDataset() {
+      const select = document.getElementById("goldenSelect");
+      const chips = document.getElementById("goldenChips");
+      const label = document.getElementById("goldenLabel");
+      try {
+        const res = await fetch("/api/comparativo/golden");
+        if (!res.ok) return;
+        const data = await res.json();
+        goldenDataset = Array.isArray(data.perguntas) ? data.perguntas : [];
+        label.textContent = `🎯 Golden Dataset (${goldenDataset.length} Casos):`;
+
+        select.innerHTML = "";
+        select.appendChild(criarEl("option", "", "✍️ Pergunta livre (sem gabarito)"));
+        select.firstChild.value = "";
+
+        chips.innerHTML = "";
+        goldenDataset.forEach((item, idx) => {
+          const opt = document.createElement("option");
+          opt.value = item.id;
+          opt.textContent = `${item.id} — ${item.pergunta}`;
+          select.appendChild(opt);
+
+          if (idx < 8) {
+            const chip = criarEl("button", "golden-chip", `#${String(idx + 1).padStart(2, "0")} ${item.categoria || item.id}`);
+            chip.type = "button";
+            chip.dataset.id = item.id;
+            chip.addEventListener("click", () => selecionarChip(item.id));
+            chips.appendChild(chip);
+          }
+        });
+      } catch (err) {
+        console.error("Erro ao carregar /api/comparativo/golden:", err);
+      }
+    }
+
+    function atualizarChipsAtivos(idGolden) {
+      document.querySelectorAll(".golden-chip").forEach(btn => {
+        btn.classList.toggle("active", Boolean(idGolden) && btn.dataset.id === idGolden);
+      });
     }
 
     function selecionarGoldenDropdown() {
       const sel = document.getElementById("goldenSelect");
       const idGolden = sel.value;
-      const textoOpcao = sel.options[sel.selectedIndex]?.text || "";
-      const partes = textoOpcao.split(" — ");
-      if (partes.length > 1) {
-        document.getElementById("perguntaComparativoInput").value = partes.slice(1).join(" — ");
+      atualizarChipsAtivos(idGolden);
+      if (!idGolden) {
+        perguntaSelecionadaDoGolden = "";
+        return;
       }
-      document.querySelectorAll(".golden-chip").forEach(btn => {
-        btn.classList.toggle("active", btn.getAttribute("onclick").includes(idGolden));
-      });
+      const item = goldenDataset.find(g => g.id === idGolden);
+      if (item) {
+        perguntaSelecionadaDoGolden = item.pergunta;
+        document.getElementById("perguntaComparativoInput").value = item.pergunta;
+      }
       executarComparativo();
     }
 
@@ -3082,359 +3115,214 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
       selecionarGoldenDropdown();
     }
 
+    function aoDigitarPergunta() {
+      const atual = document.getElementById("perguntaComparativoInput").value.trim();
+      const sel = document.getElementById("goldenSelect");
+      if (sel.value && atual !== perguntaSelecionadaDoGolden.trim()) {
+        sel.value = "";
+        atualizarChipsAtivos("");
+      }
+    }
+
+    function renderizarGabarito(gabarito) {
+      const banner = document.getElementById("gabaritoBanner");
+      const pills = document.getElementById("gabaritoPills");
+      pills.innerHTML = "";
+      if (!gabarito) {
+        banner.style.display = "none";
+        return;
+      }
+      banner.style.display = "flex";
+      if (gabarito.categoria) pills.appendChild(criarEl("span", "meta-pill", `🏷️ Categoria: ${gabarito.categoria}`));
+      if (gabarito.ra_esperada) pills.appendChild(criarEl("span", "meta-pill", `📍 RA esperada: ${gabarito.ra_esperada}`));
+      if (Array.isArray(gabarito.locais_gabarito) && gabarito.locais_gabarito.length) {
+        pills.appendChild(criarEl("span", "meta-pill", `⭐ Locais esperados: ${gabarito.locais_gabarito.join(", ")}`));
+      }
+      if (gabarito.preco_maximo_gabarito != null) {
+        pills.appendChild(criarEl("span", "meta-pill", `💰 Teto esperado: ${formatarPreco(gabarito.preco_maximo_gabarito)}`));
+      }
+      if (gabarito.horario_gabarito) {
+        pills.appendChild(criarEl("span", "meta-pill", `🕒 Horário: ${gabarito.horario_gabarito}`));
+      }
+    }
+
+    function renderizarModoIndisponivel(elResposta, elPill, elBadge, modo) {
+      if (modo.modelo === "texto-fixo-sem-llm") {
+        elPill.textContent = "⚠️ Resposta fixa sem LLM (modelo indisponível)";
+      } else {
+        elPill.textContent = `⚠️ Modelo indisponível (${modo.modelo || "desconhecido"})`;
+      }
+      elBadge.textContent = "❌ Modelo não respondeu";
+      const motivo = modo.erro ? `Motivo: ${modo.erro}` : "Sem detalhes adicionais do erro.";
+      elResposta.innerHTML = "";
+      if (modo.resposta) {
+        const respDiv = document.createElement("div");
+        respDiv.innerHTML = formatarRespostaSegura(modo.resposta, true);
+        elResposta.appendChild(respDiv);
+      }
+      const errNote = criarEl("div", "guardrail-box", `⚠️ O modelo não respondeu. ${motivo}`);
+      errNote.style.marginTop = modo.resposta ? "10px" : "0";
+      elResposta.appendChild(errNote);
+    }
+
     function renderizarComparativo(payload) {
       const modoA = payload.modo_a_llm_pura || {};
       const modoB = payload.modo_b_rag || {};
-      const scoresA = modoA.scores || {};
-      const scoresB = modoB.scores || {};
+
+      renderizarGabarito(payload.gabarito || null);
 
       // Modo A
-      document.getElementById("respostaModoA").innerHTML = modoA.resposta || "";
-      document.getElementById("latenciaModoA").innerText = `${Number(modoA.latencia_ms || 0).toFixed(1)} ms`;
-      document.getElementById("tokensModoA").innerText = `${modoA.tokens_total || 0}`;
-      atualizarBarraScore("valAlucinacaoA", "barAlucinacaoA", scoresA.taxa_alucinacao ?? 1.0, 4);
-      atualizarBarraScore("valFidelidadeA", "barFidelidadeA", scoresA.fidelidade_factual_rnf03 ?? 0.0, 4);
-      atualizarBarraScore("valGeoespacialA", "barGeoespacialA", scoresA.precisao_geoespacial_ra ?? 0.0, 4);
+      const pillA = document.getElementById("modeloPillA");
+      const badgeA = document.getElementById("badgeModoA");
+      const respA = document.getElementById("respostaModoA");
+      if (modoA.disponivel === false) {
+        renderizarModoIndisponivel(respA, pillA, badgeA, modoA);
+      } else {
+        pillA.textContent = `🧠 Modelo: ${modoA.modelo || payload.modelo || "não informado"}`;
+        badgeA.textContent = "⚠️ Sem Evidências — Sujeito a Alucinação";
+        respA.innerHTML = formatarRespostaSegura(modoA.resposta || "", false);
+      }
+      document.getElementById("latenciaModoA").textContent = `${Number(modoA.latencia_ms ?? 0).toFixed(1)} ms`;
+      document.getElementById("tokensModoA").textContent = `${modoA.tokens_total ?? 0}`;
 
       // Modo B
-      document.getElementById("respostaModoB").innerHTML = destacarCitacoesFontes(modoB.resposta || "");
-      document.getElementById("latenciaModoB").innerText = `${Number(modoB.latencia_ms || 0).toFixed(1)} ms`;
-      document.getElementById("tokensModoB").innerText = `${modoB.tokens_total || 0}`;
-      atualizarBarraScore("valAlucinacaoB", "barAlucinacaoB", scoresB.taxa_alucinacao ?? 0.0, 0);
-      atualizarBarraScore("valFidelidadeB", "barFidelidadeB", scoresB.fidelidade_factual_rnf03 ?? 1.0, 0);
-      atualizarBarraScore("valGeoespacialB", "barGeoespacialB", scoresB.precisao_geoespacial_ra ?? 1.0, 0);
+      const pillB = document.getElementById("modeloPillB");
+      const badgeB = document.getElementById("badgeModoB");
+      const respB = document.getElementById("respostaModoB");
+      if (modoB.disponivel === false) {
+        renderizarModoIndisponivel(respB, pillB, badgeB, modoB);
+      } else {
+        pillB.textContent = `🧠 Modelo: ${modoB.modelo || payload.modelo || "não informado"}`;
+        badgeB.textContent = "✅ Fundamentado na Base Curada do DF";
+        respB.innerHTML = formatarRespostaSegura(modoB.resposta || "", true);
+      }
+      document.getElementById("latenciaModoB").textContent = `${Number(modoB.latencia_ms ?? 0).toFixed(1)} ms`;
+      document.getElementById("tokensModoB").textContent = `${modoB.tokens_total ?? 0}`;
 
-      const idGoldenAtual = payload.id_golden || "golden_01";
-      const perguntaAtual = encodeURIComponent(payload.pergunta || "");
-      document.getElementById("traceLinkModoB").href = `/telemetria/trace?id=${encodeURIComponent(idGoldenAtual)}&pergunta=${perguntaAtual}`;
+      // Trace Langfuse: exibir apenas quando trace_url não for nulo
+      const traceBanner = document.getElementById("traceBannerB");
+      const traceLink = document.getElementById("traceLinkModoB");
+      const traceSeguro = urlSegura(modoB.trace_url);
+      if (traceSeguro) {
+        traceLink.href = traceSeguro;
+        traceBanner.style.display = "flex";
+      } else {
+        traceBanner.style.display = "none";
+      }
 
-      const fontes = modoB.fontes_utilizadas || [];
-      document.getElementById("contadorFontesB").innerText = `${fontes.length} Fonte(s) Recuperada(s)`;
-      document.getElementById("fontesModoB").innerHTML = fontes.map((f, idx) => `
-        <div class="source-card">
-          <div class="source-card-top">
-            <div class="source-name">[FONTE #${idx + 1}] ${f.nome}</div>
-            <span class="source-sim">Similaridade: ${Number(f.score_similaridade || 0).toFixed(2)}</span>
-          </div>
-          <div class="source-meta">
-            <span class="meta-pill">📍 RA: ${f.ra}</span>
-            <span class="meta-pill">💰 Custo Médio: ${formatarMoedaBRL(f.custo_medio_rs)}</span>
-            <span class="meta-pill">🆔 ${f.id}</span>
-          </div>
-          <div class="source-actions">
-            <span style="font-size:0.74rem; color:var(--neon-lime); font-weight:700;">✔ Auditado 2FA (Google Maps + Instagram)</span>
-            ${f.url_tiktok ? `<a href="${f.url_tiktok}" target="_blank" rel="noopener noreferrer" class="btn-tiktok">🎵 Ver Vídeo Original no TikTok &nearr;</a>` : ""}
-          </div>
-        </div>
-      `).join("");
+      // Fontes do Modo B (DOM seguro com textContent, sem innerHTML para dados externos)
+      const fontes = Array.isArray(modoB.fontes_utilizadas) ? modoB.fontes_utilizadas : [];
+      const containerFontes = document.getElementById("fontesModoB");
+      document.getElementById("contadorFontesB").textContent = `${fontes.length} Fonte(s) Recuperada(s)`;
+      containerFontes.innerHTML = "";
+
+      if (fontes.length === 0) {
+        const motivoGuardrail = modoB.guardrails && modoB.guardrails.motivo
+          ? `Motivo do guardrail: ${modoB.guardrails.motivo}`
+          : "Nenhum estabelecimento compatível foi recuperado na base.";
+        const box = criarEl("div", "guardrail-box", `🛡️ Pergunta recusada pelos guardrails — ${motivoGuardrail}`);
+        containerFontes.appendChild(box);
+        return;
+      }
+
+      fontes.forEach((f, idx) => {
+        const card = criarEl("div", f.citada === false ? "source-card dimmed" : "source-card");
+
+        const top = criarEl("div", "source-card-top");
+        top.appendChild(criarEl("div", "source-name", `[FONTE #${idx + 1}] ${f.nome || "Local sem nome"}`));
+
+        const badgesRight = criarEl("div", "");
+        badgesRight.style.display = "flex";
+        badgesRight.style.gap = "6px";
+        badgesRight.style.flexWrap = "wrap";
+        badgesRight.appendChild(
+          criarEl(
+            "span",
+            f.citada === false ? "cite-pill cite-pill-no" : "cite-pill cite-pill-yes",
+            f.citada === false ? "Recuperada (não citada)" : "✔ Citada na resposta"
+          )
+        );
+        badgesRight.appendChild(criarEl("span", "source-sim", `Similaridade: ${Number(f.score_similaridade ?? 0).toFixed(2)}`));
+        top.appendChild(badgesRight);
+        card.appendChild(top);
+
+        const meta = criarEl("div", "source-meta");
+        meta.appendChild(criarEl("span", "meta-pill", `📍 RA: ${f.ra || "não informada"}`));
+        meta.appendChild(criarEl("span", "meta-pill", `💰 Custo Médio: ${formatarPreco(f.custo_medio_rs)}`));
+        meta.appendChild(criarEl("span", "meta-pill", `🆔 ${f.id || ""}`));
+        card.appendChild(meta);
+
+        const actions = criarEl("div", "source-actions");
+        const selo = criarEl("span", "", "✔ Base de 93 lugares do TikTok, auditada em 2 etapas");
+        selo.style.fontSize = "0.74rem";
+        selo.style.color = "var(--neon-lime)";
+        selo.style.fontWeight = "700";
+        actions.appendChild(selo);
+
+        const linkTiktok = urlSegura(f.url_tiktok);
+        if (linkTiktok) {
+          const a = criarEl("a", "btn-tiktok", "🎵 Ver Vídeo Original no TikTok ↗");
+          a.href = linkTiktok;
+          a.target = "_blank";
+          a.rel = "noopener noreferrer";
+          actions.appendChild(a);
+        }
+        card.appendChild(actions);
+        containerFontes.appendChild(card);
+      });
     }
 
     async function executarComparativo(event) {
       if (event) event.preventDefault();
-      const idGolden = document.getElementById("goldenSelect").value || "golden_01";
+      const idGolden = document.getElementById("goldenSelect").value;
       const pergunta = document.getElementById("perguntaComparativoInput").value.trim();
-      if (!pergunta) return;
+      const erroBanner = document.getElementById("erroBanner");
+      erroBanner.style.display = "none";
+      erroBanner.textContent = "";
+
+      if (!idGolden && !pergunta) {
+        erroBanner.textContent = "Selecione um caso do Golden Dataset ou digite uma pergunta.";
+        erroBanner.style.display = "block";
+        return;
+      }
 
       const btn = document.getElementById("btnExecutarComparativo");
-      const textoOriginal = btn.innerText;
-      btn.innerText = "⏳ Comparando...";
+      const textoOriginal = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = "⏳ Consultando modelos (3–5s)...";
+
+      document.getElementById("respostaModoA").textContent = "⏳ Consultando Modo A (LLM Pura)...";
+      document.getElementById("respostaModoB").textContent = "⏳ Recuperando base 2FA e consultando Modo B (RAG)...";
+
+      const corpoReq = idGolden ? { id_golden: idGolden } : { pergunta: pergunta };
 
       try {
         const res = await fetch("/api/comparativo/executar", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ id_golden: idGolden, pergunta: pergunta })
+          body: JSON.stringify(corpoReq)
         });
-        if (res.ok) {
-          renderizarComparativo(await res.json());
+        const dados = await res.json();
+        if (!res.ok) {
+          erroBanner.textContent = dados.detail || `Erro ${res.status} ao executar comparativo.`;
+          erroBanner.style.display = "block";
+          document.getElementById("respostaModoA").textContent = "Erro ao executar comparação.";
+          document.getElementById("respostaModoB").textContent = "Erro ao executar comparação.";
+          return;
         }
+        renderizarComparativo(dados);
       } catch (err) {
         console.error("Erro ao consultar /api/comparativo/executar:", err);
+        erroBanner.textContent = "Falha de comunicação com o servidor ao executar comparativo.";
+        erroBanner.style.display = "block";
       } finally {
-        btn.innerText = textoOriginal;
+        btn.disabled = false;
+        btn.textContent = textoOriginal;
       }
     }
+
+    document.addEventListener("DOMContentLoaded", carregarGoldenDataset);
   </script>
 </body>
 </html>
 """
-
-
-def render_trace_inspector_page(trace_data: dict) -> str:
-    """Renderiza uma página interativa de inspeção do Trace LLMOps (Langfuse Cloud Mirror / RNF-18)."""
-    import json as _json
-
-    trace_id = trace_data.get("trace_id") or "trace-langfuse-2fa-df"
-    id_golden = trace_data.get("id_golden") or "golden_01"
-    pergunta = trace_data.get("pergunta") or ""
-    resposta_rag = trace_data.get("resposta_rag") or ""
-    latencia_ms = float(trace_data.get("latencia_ms") or 19.5)
-    lat_retriever = round(latencia_ms * 0.58, 1)
-    lat_gen = round(latencia_ms - lat_retriever, 1)
-    tokens_total = int(trace_data.get("tokens_total") or 350)
-    tokens_in = int(tokens_total * 0.62)
-    tokens_out = tokens_total - tokens_in
-    fontes = trace_data.get("fontes_utilizadas") or []
-    json_pretty = _json.dumps(trace_data, ensure_ascii=False, indent=2)
-
-    cards_fontes = "".join(
-        f"""
-        <div class="chunk-item">
-          <div>
-            <strong>[FONTE #{idx}] {f.get('nome')}</strong> &bull; <span style="color:#00E5FF;">{f.get('ra')}</span> &bull; Custo Médio: R$ {float(f.get('custo_medio_rs') or 0):.2f}
-          </div>
-          <span class="sim-pill">Cosseno: {float(f.get('score_similaridade') or 0):.2f}</span>
-        </div>
-        """
-        for idx, f in enumerate(fontes, start=1)
-    )
-
-    return f"""<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Langfuse Trace Inspector — {id_golden} | Telemetria LLMOps (RNF-18)</title>
-  <style>
-    :root {{
-      --bg-dark: #0C0A14;
-      --card-bg: #151124;
-      --card-elevated: #1D1732;
-      --card-border: #2D2447;
-      --text-main: #F5F2FF;
-      --text-muted: #A59BBF;
-      --neon-pink: #FF2E9A;
-      --neon-lime: #C6FF00;
-      --neon-cyan: #00E5FF;
-    }}
-    * {{ box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }}
-    body {{
-      background-color: var(--bg-dark);
-      background-image:
-        radial-gradient(circle at 12% 10%, rgba(0, 229, 255, 0.09), transparent 32%),
-        radial-gradient(circle at 88% 12%, rgba(255, 46, 154, 0.08), transparent 32%);
-      color: var(--text-main);
-      min-height: 100vh;
-      padding-bottom: 40px;
-    }}
-    .top-bar {{
-      background: rgba(12, 10, 20, 0.94);
-      border-bottom: 1px solid var(--card-border);
-      padding: 12px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
-    }}
-    .btn-back {{
-      background: rgba(0, 229, 255, 0.13);
-      color: var(--neon-cyan);
-      border: 1px solid rgba(0, 229, 255, 0.45);
-      padding: 7px 14px;
-      border-radius: 999px;
-      text-decoration: none;
-      font-size: 0.84rem;
-      font-weight: 700;
-    }}
-    .container {{
-      max-width: 1180px;
-      margin: 24px auto;
-      padding: 0 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 18px;
-    }}
-    .trace-header-card {{
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-top: 4px solid var(--neon-cyan);
-      border-radius: 14px;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }}
-    .title-row {{
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-    }}
-    h1 {{
-      font-size: 1.4rem;
-      font-weight: 800;
-      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-lime));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }}
-    .badge-ok {{
-      background: rgba(198, 255, 0, 0.14);
-      color: var(--neon-lime);
-      border: 1px solid rgba(198, 255, 0, 0.45);
-      padding: 5px 12px;
-      border-radius: 999px;
-      font-size: 0.76rem;
-      font-weight: 700;
-    }}
-    .kpi-row {{
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;
-    }}
-    .kpi-box {{
-      background: var(--bg-dark);
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 12px;
-    }}
-    .kpi-lbl {{ font-size: 0.72rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700; }}
-    .kpi-val {{ font-size: 1.15rem; font-weight: 800; margin-top: 4px; color: var(--neon-cyan); }}
-    .section-card {{
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 14px;
-      padding: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }}
-    .section-title {{
-      font-size: 0.95rem;
-      font-weight: 800;
-      color: var(--neon-cyan);
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-    }}
-    .span-node {{
-      background: var(--bg-dark);
-      border: 1px solid var(--card-border);
-      border-left: 4px solid var(--neon-cyan);
-      border-radius: 10px;
-      padding: 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }}
-    .span-node.span-retriever {{ border-left-color: var(--neon-pink); margin-left: 20px; }}
-    .span-node.span-generation {{ border-left-color: var(--neon-lime); margin-left: 20px; }}
-    .span-top {{ display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }}
-    .span-name {{ font-weight: 800; font-size: 0.94rem; }}
-    .span-time {{ font-size: 0.78rem; color: var(--neon-lime); font-family: monospace; font-weight: 700; }}
-    .chunk-item {{
-      background: var(--card-elevated);
-      border: 1px solid var(--card-border);
-      border-radius: 8px;
-      padding: 9px 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.83rem;
-      gap: 8px;
-      flex-wrap: wrap;
-    }}
-    .sim-pill {{
-      background: rgba(198, 255, 0, 0.14);
-      color: var(--neon-lime);
-      border: 1px solid rgba(198, 255, 0, 0.4);
-      padding: 2px 9px;
-      border-radius: 999px;
-      font-size: 0.74rem;
-      font-weight: 700;
-    }}
-    pre {{
-      background: #08060E;
-      border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 14px;
-      color: #D9D2F9;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-      font-size: 0.8rem;
-      overflow-x: auto;
-      line-height: 1.5;
-    }}
-  </style>
-</head>
-<body>
-  <div class="top-bar">
-    <div style="font-weight:800; font-size:0.95rem;">🔭 Langfuse Observability &bull; Trace Inspector (RNF-18)</div>
-    <a href="/comparativo" class="btn-back">&larr; Voltar para o Comparativo LLM vs. RAG</a>
-  </div>
-
-  <div class="container">
-    <div class="trace-header-card">
-      <div class="title-row">
-        <h1>Trace #{trace_id} ({id_golden})</h1>
-        <span class="badge-ok">● STATUS: SUCCESS &bull; 100% ANCORADO 2FA</span>
-      </div>
-      <div style="font-size:0.86rem; color:var(--text-muted);">
-        <strong>Pergunta Rastreada:</strong> "{pergunta}"
-      </div>
-      <div class="kpi-row">
-        <div class="kpi-box">
-          <div class="kpi-lbl">Latência Total (RNF-14)</div>
-          <div class="kpi-val" style="color:var(--neon-lime);">{latencia_ms:.1f} ms</div>
-        </div>
-        <div class="kpi-box">
-          <div class="kpi-lbl">Tokens (Input / Output)</div>
-          <div class="kpi-val">{tokens_total} ({tokens_in} in / {tokens_out} out)</div>
-        </div>
-        <div class="kpi-box">
-          <div class="kpi-lbl">Fidelidade Factual (RNF-03)</div>
-          <div class="kpi-val" style="color:var(--neon-lime);">100%</div>
-        </div>
-        <div class="kpi-box">
-          <div class="kpi-lbl">Taxa de Alucinação</div>
-          <div class="kpi-val" style="color:var(--neon-lime);">0%</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="section-card">
-      <div class="section-title">🌲 Árvore de Spans (Langfuse Execution Waterfall)</div>
-
-      <div class="span-node">
-        <div class="span-top">
-          <span class="span-name">🔗 TRACE ROOT: pipeline_orquestrador_rag</span>
-          <span class="span-time">{latencia_ms:.1f} ms</span>
-        </div>
-        <div style="font-size:0.82rem; color:var(--text-muted);">
-          Orquestração ponta a ponta do Modo B (RAG Ancorado) com verificação de escopo e telemetria Langfuse SDK.
-        </div>
-      </div>
-
-      <div class="span-node span-retriever">
-        <div class="span-top">
-          <span class="span-name">🔍 SPAN [RETRIEVER]: recuperacao_vetorial_tiktok (ChromaDB 3072-d)</span>
-          <span class="span-time">{lat_retriever:.1f} ms</span>
-        </div>
-        <div style="font-size:0.82rem; color:var(--text-muted); margin-bottom:6px;">
-          Modelo de Embedding: <code>gemini-embedding-2-preview (3072 dimensões)</code> &bull; Base: <code>data/banco_aprovado_2fa.json</code> (93 rolês auditados).
-        </div>
-        {cards_fontes}
-      </div>
-
-      <div class="span-node span-generation">
-        <div class="span-top">
-          <span class="span-name">🧠 SPAN [GENERATION]: sintese_resposta_llm (Google Gemini 1.5 Flash)</span>
-          <span class="span-time">{lat_gen:.1f} ms</span>
-        </div>
-        <div style="font-size:0.84rem; line-height:1.55; background:var(--card-elevated); padding:10px 12px; border-radius:8px;">
-          {resposta_rag}
-        </div>
-      </div>
-    </div>
-
-    <div class="section-card">
-      <div class="section-title">📦 Payload JSON Completo do Trace (Auditoria RNF-18)</div>
-      <pre>{json_pretty}</pre>
-    </div>
-  </div>
-</body>
-</html>
-"""
-
-
-
-

@@ -3,15 +3,10 @@ import os
 from typing import Optional
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
-from src.interface import (
-    COMPARATIVO_PAGE,
-    ENTREGAVEIS_PAGE,
-    GOLDEN_PERGUNTAS,
-    HTML_PAGE,
-    render_trace_inspector_page,
-)
+from src.interface import COMPARATIVO_PAGE, ENTREGAVEIS_PAGE, HTML_PAGE, LANDING_PAGE
+from src.rag.comparador_ab import ErroComparativo, executar_comparacao_ab, listar_golden
 from src.salas.rotas import router as salas_router
 from src.telemetria.telemetria import (
     checar_conexao_langfuse,
@@ -36,21 +31,16 @@ class ConsultaRAGRequest(BaseModel):
     categoria: Optional[str] = None
 
 
-class ComparativoRequest(BaseModel):
-    id_golden: Optional[str] = "golden_01"
-    pergunta: str = GOLDEN_PERGUNTAS["golden_01"]
-
-
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
     """
-    Entrega diretamente a interface principal de Comparativo LLM vs. RAG.
+    Entrega a pagina inicial do Orquestrador de Roles com botao para /rag e /comparativo.
     Se o cliente pedir explicitamente application/json (ex: curl/testes), retorna JSON.
     """
     accept = request.headers.get("accept", "")
     if "application/json" in accept and "text/html" not in accept:
         return status_api()
-    return HTMLResponse(content=COMPARATIVO_PAGE)
+    return HTMLResponse(content=LANDING_PAGE)
 
 
 @app.get("/rag", response_class=HTMLResponse)
@@ -65,128 +55,6 @@ def demo_interface():
 def comparativo_interface():
     """Rota da Interface Web de Comparação Lado a Lado: LLM Pura vs. RAG Ancorado (Issue #37)."""
     return HTMLResponse(content=COMPARATIVO_PAGE)
-
-
-@app.post("/api/comparativo/executar")
-def executar_comparativo_api(requisicao: ComparativoRequest):
-    """
-    Executa o comparativo Lado a Lado (Modo A: LLM Pura Zero-Shot vs Modo B: RAG Ancorado 2FA)
-    seguindo rigorosamente o Contrato JSON da Issue #37.
-    """
-    rag_res = simular_recuperacao_rag(pergunta_usuario=requisicao.pergunta, top_k=3)
-    roles = rag_res.get("roles_recuperados") or []
-
-    fontes_formatadas = [
-        {
-            "id": str(r.get("id", "tiktok_7688864663336963336")),
-            "nome": r.get("nome", "Estabelecimento Auditado"),
-            "ra": r.get("regiao_administrativa", "Plano Piloto"),
-            "custo_medio_rs": float(r.get("custo_medio_rs") or 50.0),
-            "score_similaridade": float(r.get("score_similaridade") or 0.91),
-            "url_tiktok": r.get(
-                "link_tiktok",
-                r.get("url_tiktok", "https://www.tiktok.com/@rolezandoembrasilia"),
-            ),
-        }
-        for r in roles
-    ]
-
-    fallback_fontes = [
-        {
-            "id": "tiktok_7688864663336963336",
-            "nome": "Filomenamburger",
-            "ra": "Taguatinga Norte",
-            "custo_medio_rs": 50.0,
-            "score_similaridade": 0.91,
-            "url_tiktok": "https://www.tiktok.com/@rolezandoembrasilia/video/7688864663336963336",
-        },
-        {
-            "id": "tiktok_7479912345678901234",
-            "nome": "Smash & Co",
-            "ra": "Taguatinga Sul",
-            "custo_medio_rs": 42.0,
-            "score_similaridade": 0.88,
-            "url_tiktok": "https://www.tiktok.com/@rolezandoembrasilia",
-        },
-    ]
-    for fb in fallback_fontes:
-        if len(fontes_formatadas) < 2:
-            fontes_formatadas.append(fb)
-
-    f1, f2 = fontes_formatadas[0], fontes_formatadas[1]
-    resposta_rag = (
-        f"Com base na auditoria 2FA da base oficial do DF, recomendamos duas principais alternativas verificadas: "
-        f"1ª opção: {f1['nome']} [FONTE #1] em {f1['ra']} (Custo médio: R$ {f1['custo_medio_rs']:.2f}); "
-        f"2ª opção: {f2['nome']} [FONTE #2] em {f2['ra']} (Custo médio: R$ {f2['custo_medio_rs']:.2f})."
-    )
-    if len(fontes_formatadas) >= 3:
-        f3 = fontes_formatadas[2]
-        resposta_rag += (
-            f" Como 3ª alternativa auditada, há também o {f3['nome']} [FONTE #3] em {f3['ra']} "
-            f"(Custo médio: R$ {f3['custo_medio_rs']:.2f})."
-        )
-
-    resposta_llm_pura = (
-        f"Para '{requisicao.pergunta}', opções genéricas costumam incluir bistrôs comerciais e franquias "
-        f"no centro de Brasília, com preços estimados entre R$ 35,00 e R$ 90,00 (geração sem acesso à base "
-        f"auditada 2FA ou validação de endereço/RA em tempo real)."
-    )
-
-    id_golden = requisicao.id_golden or "custom"
-    return {
-        "id_golden": id_golden,
-        "pergunta": requisicao.pergunta,
-        "modo_a_llm_pura": {
-            "resposta": resposta_llm_pura,
-            "fontes_utilizadas": [],
-            "latencia_ms": 420.2,
-            "tokens_total": 180,
-            "custo_estimado_brl": 0.0018,
-            "scores": {
-                "fidelidade_factual_rnf03": 0.0,
-                "taxa_alucinacao": 1.0,
-                "precisao_geoespacial_ra": 0.0,
-                "sla_latencia_rnf14": 1.0,
-            },
-        },
-        "modo_b_rag": {
-            "resposta": resposta_rag,
-            "fontes_utilizadas": fontes_formatadas,
-            "latencia_ms": float(rag_res.get("latencia_ms") or 19.5),
-            "tokens_total": int(rag_res.get("tokens_utilizados") or 350),
-            "custo_estimado_brl": float(rag_res.get("custo_estimado_brl") or 0.0035),
-            "trace_url": f"/telemetria/trace?id={id_golden}",
-            "scores": {
-                "fidelidade_factual_rnf03": 1.0,
-                "taxa_alucinacao": 0.0,
-                "precisao_geoespacial_ra": 1.0,
-                "sla_latencia_rnf14": 1.0,
-            },
-        },
-    }
-
-
-@app.get("/telemetria/trace", response_class=HTMLResponse)
-def visualizar_trace_langfuse(
-    id: str = Query("golden_01", description="ID do Caso Golden ou Trace"),
-    pergunta: Optional[str] = Query(None, description="Pergunta submetida no comparativo"),
-):
-    """Renderiza o Painel de Inspeção de Trace Langfuse (RNF-18) para não exibir página externa vazia."""
-    pergunta_final = pergunta or GOLDEN_PERGUNTAS.get(id, GOLDEN_PERGUNTAS["golden_01"])
-    comp = executar_comparativo_api(ComparativoRequest(id_golden=id, pergunta=pergunta_final))
-    modo_b = comp["modo_b_rag"]
-    trace_payload = {
-        "trace_id": f"lf-trace-{id}-2fa",
-        "id_golden": id,
-        "projeto_langfuse_id": "cmw59be2y01d8ad0jqbgsjut6",
-        "pergunta": pergunta_final,
-        "resposta_rag": modo_b["resposta"],
-        "latencia_ms": modo_b["latencia_ms"],
-        "tokens_total": modo_b["tokens_total"],
-        "scores": modo_b["scores"],
-        "fontes_utilizadas": modo_b["fontes_utilizadas"],
-    }
-    return HTMLResponse(content=render_trace_inspector_page(trace_payload))
 
 
 @app.get("/status")
@@ -237,6 +105,35 @@ def buscar_roles(requisicao: ConsultaRAGRequest):
         top_k=requisicao.top_k,
         categoria=requisicao.categoria,
     )
+    flush_telemetria()
+    return resultado
+
+
+class ComparativoRequest(BaseModel):
+    """Pergunta livre ou id de um caso do golden dataset (com o id, a pergunta pode ficar vazia)."""
+
+    model_config = ConfigDict(extra="forbid")
+    pergunta: Optional[str] = None
+    id_golden: Optional[str] = None
+
+
+@app.get("/api/comparativo/golden")
+def comparativo_golden():
+    """Perguntas do golden dataset da semana 3 disponíveis para o comparativo (issue #34)."""
+    perguntas = listar_golden()
+    return {"total": len(perguntas), "perguntas": perguntas}
+
+
+@app.post("/api/comparativo/executar")
+def comparativo_executar(requisicao: ComparativoRequest):
+    """
+    Roda a mesma pergunta no Modo A (LLM pura, sem documentos) e no Modo B (RAG sobre a base de 93 lugares,
+    com guardrails), lado a lado (issue #34). Com `id_golden`, devolve também o gabarito do caso.
+    """
+    try:
+        resultado = executar_comparacao_ab(requisicao.pergunta, requisicao.id_golden)
+    except ErroComparativo as e:
+        raise HTTPException(status_code=e.status, detail=str(e))
     flush_telemetria()
     return resultado
 
