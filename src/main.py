@@ -12,6 +12,7 @@ from src.interface import (
     HTML_PAGE,
     render_trace_inspector_page,
 )
+from src.salas.rotas import router as salas_router
 from src.telemetria.telemetria import (
     checar_conexao_langfuse,
     disparar_primeiro_trace,
