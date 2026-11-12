@@ -196,5 +196,27 @@
     "horario_gabarito": "Jantar de segunda a sábado, das 19h às 22h (buffet de massas só às terças); almoço de segunda a sexta, das 12h às 15h",
     "evidencia_id_tiktok": "tiktok_7673387366404427026",
     "armadilha_llm_pura": "Dar o preço do menu Dolce Vita de quinta (R$ 150 por casal) ou do rodízio de pizza de quarta (R$ 68) para a terça, ou inventar um restaurante na própria Torre de TV"
+  },
+  {
+    "id": "golden_19",
+    "pergunta": "Quero comemorar meu aniversário num rodízio japonês completo na Asa Norte, mas sem pagar nada. Existe rodízio caro totalmente de graça?",
+    "categoria": "conflito_e_girias",
+    "ra_esperada": "Plano Piloto (Asa Norte)",
+    "locais_gabarito": ["Blue Sushi"],
+    "preco_maximo_gabarito": 109.99,
+    "horario_gabarito": "Todos os dias, das 11h30 às 23h (rodízio a R$ 109,99 no almoço e R$ 129,99 no jantar)",
+    "evidencia_id_tiktok": "tiktok_7610154654244130056",
+    "armadilha_llm_pura": "A LLM pura tende a dizer que não existe nada parecido ou a inventar uma promoção; o RAG pode trazer o Uzuki Sushi (Asa Sul), que tem regra parecida. Resposta certa: 'totalmente de graça' para o grupo não existe; só o aniversariante não paga, e só se levar 10 convidados, que pagam a partir de R$ 109,99 no almoço"
+  },
+  {
+    "id": "golden_20",
+    "pergunta": "Saindo do trampo na Asa Norte, ali perto da tesourinha, bora num rolê baratinho de espetinho na brasa no Noroeste numa segunda? Coisa de uns 30 conto.",
+    "categoria": "conflito_e_girias",
+    "ra_esperada": "Plano Piloto (Noroeste)",
+    "locais_gabarito": ["Brasa Meat Burger"],
+    "preco_maximo_gabarito": 30.0,
+    "horario_gabarito": "Segunda a sexta, das 18h às 23h",
+    "evidencia_id_tiktok": "tiktok_7660278692215606536",
+    "armadilha_llm_pura": "Ler as gírias ao pé da letra ('tesourinha' é um trevo viário das Asas, não um estabelecimento; 'conto' é real) ou inventar uma churrascaria; o RAG pode trazer o Dom Frangão (Vicente Pires), que também tem baguete com espeto, mas só abre à noite de quarta a domingo. Obs.: o forte da casa é delivery e retirada (é um quiosque)"
   }
 ]
