@@ -128,6 +128,8 @@ def _registrar_langfuse(r: dict) -> None:
         from src.telemetria.telemetria import obter_cliente
 
         obter_cliente().update_current_generation(
+            input=r.get("pergunta"),
+            output=r.get("resposta"),
             model=r["modelo"],
             usage_details={"input": r["tokens_entrada"], "output": r["tokens_saida"], "total": r["tokens_total"]},
             cost_details={"total": r["custo_estimado_usd"]},

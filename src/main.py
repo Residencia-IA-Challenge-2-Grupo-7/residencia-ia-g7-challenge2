@@ -143,6 +143,27 @@ def comparativo_executar(requisicao: ComparativoRequest):
     return resultado
 
 
+@app.post("/api/comparativo/avaliar")
+def comparativo_avaliar(dados: dict):
+    """
+    Motor de Avaliação Híbrida da Semana 3 (Issue #36):
+    Recebe a saída do POST /api/comparativo/executar (ou executa sob demanda) e gera as notas
+    determinísticas RNF-04 + LLM-as-a-Judge MiMo-V2.6-Pro, registrando no Langfuse.
+    """
+    try:
+        from src.telemetria.evals_semana3 import avaliar_par_comparativo
+        if "modo_a_llm_pura" not in dados and ("id_golden" in dados or "pergunta" in dados):
+            dados = executar_comparacao_ab(dados.get("pergunta"), dados.get("id_golden"))
+        # A avaliação roda em outra requisição: os scores vão para o trace do comparativo, pelo id no trace_url
+        trace_url = ((dados.get("modo_b_rag") or {}).get("trace_url") or "").rstrip("/")
+        trace_id = trace_url.rsplit("/", 1)[-1] if "/traces/" in trace_url else None
+        avaliacao = avaliar_par_comparativo(dados, registrar_langfuse=bool(trace_id), trace_id=trace_id)
+        flush_telemetria()
+        return {"comparativo": dados, "avaliacao": avaliacao}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.get("/entregaveis", response_class=HTMLResponse)
 def entregaveis_hub():
     """

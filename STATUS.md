@@ -30,6 +30,13 @@
   - os 20 casos em `data/golden_dataset_semana3.json`: 5 geoespaciais, 3 de horário, 2 fora do DF, 5 de preço exato, 3 de ambiência e restrição alimentar e 2 de conflito e gírias;
   - catálogo, regras e limitações conhecidas em [docs/dados/golden-dataset-semana3.md](docs/dados/golden-dataset-semana3.md); `tests/test_golden_dataset.py` trava os 20 casos, as 6 categorias e o preço contra o `custo_medio_rs`;
   - a prévia do comparativo usou só os 10 primeiros; os casos 11 a 20 já aparecem em `GET /api/comparativo/golden`.
+- **Avaliação automatizada híbrida e Haystack (Eduarda, 12/11), issue #36, na branch `feat/entrega-semana3-comparativo-relatorio`:**
+  - `src/telemetria/evals_semana3.py` (`avaliar_par_comparativo` e `POST /api/comparativo/avaliar`): Etapa 1 determinística em Python (RNF-04) conferindo se os lugares existem nos 93 de `data/banco_aprovado_2fa.json`, se a RA corresponde à `ra_esperada` e se o preço respeita o gabarito; Etapa 2 com LLM-as-a-Judge pelo MiMo-V2.6-Pro (`xiaomi/mimo-v2.6-pro` na OpenRouter, família distinta do DeepSeek avaliado, temperatura 0, roteamento sem retenção e saída em JSON) classificando cada afirmação em "confere com a base", "contradiz a base" ou "não está na base" (com fallback determinístico offline);
+  - calcula os 4 scores padronizados (`fidelidade_factual_rnf03`, `taxa_alucinacao`, `precisao_geoespacial_ra`, `sla_latencia_rnf14`) e as métricas da busca sem LLM (`recall_at_k`, `mrr`, `recusa_correta`, `recusa_indevida`);
+  - registra os scores no trace ativo do Langfuse Cloud e remove de `simular_recuperacao_rag` (`src/telemetria/telemetria.py`) a nota fixa `fidelidade_rnf03_zero_alucinacao = 1.0`;
+  - correção no rastreamento Langfuse (`src/rag/llm_pura.py`, `src/rag/llm_rag.py`, `src/rag/comparador_ab.py`): envio de `input` e `output` explícitos nas gerações e spans, eliminando traces vazios na web do Langfuse;
+  - pipeline corporativo Haystack demonstrador em `src/rag/pipeline_haystack.py` (`InMemoryDocumentStore`, `InMemoryBM25Retriever`, `ChatPromptBuilder` e `GeradorOpenRouter`);
+  - **269 testes passam** (`PYTHONPATH=. pytest tests`).
 - **Back-end das salas (Cauan, 10/11), PR #48 na `main`:**
   - `src/interpretador/campos.py`: os 4 campos viram RA (apelidos, quadras como SQN e QNM, estações de metrô), janelas pelo `tempo.py`, teto pelo `numeros.py` e tags com os rótulos da base. Tudo por regras; o LLM do ADR 0007 só entra se as regras não acharem nenhum dia ([ADR 0009](docs/decisoes/0009-entrada-pelos-4-campos-de-texto.md));
   - `src/state.py` (repositório em memória, pronto para trocar pelo Supabase) e `src/salas/` (gerenciador, cruzamento de horários, horário de funcionamento dos lugares, cartões, votação);

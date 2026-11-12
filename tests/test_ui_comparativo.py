@@ -123,6 +123,9 @@ def test_integracao_comparativo_com_rotas_reais_e_escape_xss(monkeypatch, tmp_pa
     lm._MEMORIA_CACHE.clear()
     monkeypatch.delenv("LANGFUSE_PUBLIC_KEY", raising=False)
     monkeypatch.delenv("LANGFUSE_SECRET_KEY", raising=False)
+    # obter_cliente() relê o .env a cada chamada; sem isso as chaves voltariam no meio do teste
+    from src.telemetria import telemetria
+    monkeypatch.setattr(telemetria, "_carregar_env", lambda: None)
     monkeypatch.setattr(llm_pura, "segredo", lambda nome: "chave-de-teste")
     monkeypatch.setattr(requests, "Session", lambda: _OpenRouterFalsa())
 
