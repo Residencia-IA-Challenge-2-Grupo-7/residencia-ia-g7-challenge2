@@ -98,17 +98,20 @@ def _resumo_modo(r: dict) -> dict:
         "disponivel": r["disponivel"],
         "cache_hit": r["cache_hit"],
         "erro": r["erro"],
+        "raciocinio": r.get("raciocinio"),
+        "tokens_raciocinio": r.get("tokens_raciocinio", 0),
     }
 
 
-def _executar_modo_b(pergunta: str, *, top_k: int, usar_cache: bool, registrar: bool, sessao) -> dict:
+def _executar_modo_b(pergunta: str, *, top_k: int, usar_cache: bool, registrar: bool, sessao,
+                     raciocinio: str | None = None) -> dict:
     from src.telemetria.telemetria import recuperar_com_guardrails
 
     t0 = time.perf_counter()
     guard, lugares = recuperar_com_guardrails(pergunta, top_k=top_k)
     ms_recuperacao = (time.perf_counter() - t0) * 1000
     r = llm_rag.gerar_resposta_rag(pergunta, lugares, avisos=guard.avisos, usar_cache=usar_cache, registrar=registrar,
-                           sessao=sessao)
+                                   sessao=sessao, raciocinio=raciocinio)
     resumo = _resumo_modo(r)
     resumo["latencia_ms"] = round(ms_recuperacao + r["latencia_ms"], 1)  # recuperação + geração
     resumo["guardrails"] = guard.para_json()
@@ -132,12 +135,15 @@ def _url_trace() -> str | None:
 
 
 def executar_comparacao_ab(pergunta: str | None, id_golden: str | None = None, *, top_k: int = TOP_K,
-                           usar_cache: bool = True, registrar: bool = True, sessao=None) -> dict:
+                           usar_cache: bool = True, registrar: bool = True, sessao=None,
+                           raciocinio: str | None = None) -> dict:
     """Roda a pergunta nos dois modos e devolve o contrato JSON da issue #34.
 
     Com `id_golden`, a pergunta vem do golden dataset e o resultado traz o `gabarito`; sem ele, `gabarito` é
     None. Lança `ErroComparativo` para entrada inválida (sem pergunta, caso inexistente, pergunta diferente da
-    do caso). `usar_cache`, `registrar` e `sessao` são repassados aos dois modos (ver `gerar_resposta_llm_pura`).
+    do caso). `usar_cache`, `registrar`, `sessao` e `raciocinio` são repassados aos dois modos (ver
+    `gerar_resposta_llm_pura`); `raciocinio="high"` liga o raciocínio do modelo nos dois, para a comparação
+    continuar com o mesmo modelo e a mesma configuração dos dois lados.
     """
     pergunta, caso = _resolver_pergunta(pergunta, id_golden)
     sessao_a = sessao_b = sessao
@@ -149,9 +155,9 @@ def executar_comparacao_ab(pergunta: str | None, id_golden: str | None = None, *
     # Cada modo roda numa cópia do contexto atual, para os dois spans entrarem no mesmo trace do Langfuse.
     with ThreadPoolExecutor(max_workers=2) as executor:
         futuro_a = executor.submit(contextvars.copy_context().run, gerar_resposta_llm_pura, pergunta,
-                                   usar_cache=usar_cache, registrar=registrar, sessao=sessao_a)
+                                   usar_cache=usar_cache, registrar=registrar, sessao=sessao_a, raciocinio=raciocinio)
         futuro_b = executor.submit(contextvars.copy_context().run, _executar_modo_b, pergunta, top_k=top_k,
-                                   usar_cache=usar_cache, registrar=registrar, sessao=sessao_b)
+                                   usar_cache=usar_cache, registrar=registrar, sessao=sessao_b, raciocinio=raciocinio)
         modo_a, modo_b = _resumo_modo(futuro_a.result()), futuro_b.result()
 
     modo_b["trace_url"] = _url_trace()
