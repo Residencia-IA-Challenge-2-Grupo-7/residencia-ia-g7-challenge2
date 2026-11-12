@@ -23,6 +23,9 @@ from src.interpretador.lugares import casar
 from src.interpretador.numeros import canon, extenso_para_digitos, valor_em_reais
 
 LIMIAR_SIMILARIDADE = 0.65
+# Mesmo guardrail 1b na escala do cosseno (busca vetorial e híbrida, gemini-embedding-001). Calibrado em 12/11
+# com eval/calibrar_busca.py: ver docs/experimentos/2026-11-12-busca-vetorial.md
+LIMIAR_COSSENO = 0.63  # fora do tema: 0,574 a 0,624; golden do DF: 0,625 a 0,812 (margem pequena)
 # Abaixo disso, "luxo" é incompatível: o lugar marcado como "Caro ($$$)" mais barato da base custa R$ 50 (10/11)
 TETO_MINIMO_LUXO = Decimal("50")
 
@@ -73,6 +76,10 @@ class Guardrails:
     lugares_fora_df: list[str] = field(default_factory=list)
     score_maximo: float | None = None
     filtrados_por_teto: int = 0
+    busca: str = "lexica"                      # lexica, vetorial ou hibrida (a que de fato rodou)
+    busca_erro: str | None = None              # por que a busca pedida voltou para a léxica, se voltou
+    embedding_ms: float = 0.0                  # tempo do embedding da pergunta (entra na latência do Modo B)
+    embedding_custo_usd: float = 0.0
 
     def para_json(self) -> dict:
         d = asdict(self)

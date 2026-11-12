@@ -81,7 +81,11 @@ def montar_mensagem(pergunta: str, lugares: list[dict]) -> str:
 
 
 def _citadas(resposta: str) -> set[int]:
-    return {int(n) for n in re.findall(r"\[\s*FONTE\s*#\s*(\d+)\s*\]", resposta or "", flags=re.IGNORECASE)}
+    """Números citados em [FONTE #1], e também nas formas que o modelo às vezes usa: [FONTES #2 e #3], [FONTE #1, #2]."""
+    numeros = set()
+    for grupo in re.findall(r"\[\s*FONTES?\s*(#[^\]]*)\]", resposta or "", flags=re.IGNORECASE):
+        numeros.update(int(n) for n in re.findall(r"#\s*(\d+)", grupo))
+    return numeros
 
 
 def formatar_fontes(lugares: list[dict], resposta: str = "") -> list[dict]:
@@ -129,13 +133,13 @@ def _registrar_langfuse(r: dict) -> None:
 
 
 def gerar_resposta_rag(pergunta: str, lugares: list[dict], *, avisos: Iterable[str] = (), usar_cache: bool = True,
-                       registrar: bool = True, sessao=None) -> dict:
+                       registrar: bool = True, sessao=None, raciocinio: str | None = None) -> dict:
     """Pergunta + lugares recuperados -> resposta do LLM ancorada nesses lugares.
 
     `lugares`: saída de `recuperar_com_guardrails` (vazia quando um guardrail bloqueou; aí não há chamada ao LLM).
     `avisos`: avisos dos guardrails (ex.: conflito entre "luxo" e teto baixo), postos antes da resposta.
-    `usar_cache`, `registrar` e `sessao`: como em `gerar_resposta_llm_pura`. A chave do cache inclui os ids
-    dos lugares, então a mesma pergunta com outra recuperação gera outra chamada.
+    `usar_cache`, `registrar`, `sessao` e `raciocinio`: como em `gerar_resposta_llm_pura`. A chave do cache
+    inclui os ids dos lugares e o raciocínio, então a mesma pergunta com outra recuperação gera outra chamada.
     """
     pergunta = (pergunta or "").strip()
     avisos = [a for a in avisos if a]
@@ -147,7 +151,9 @@ def gerar_resposta_rag(pergunta: str, lugares: list[dict], *, avisos: Iterable[s
                                    resposta=" ".join(avisos) or "Nenhum lugar da base atende ao pedido.")
     from src.telemetria import logger_metricas as lm
 
-    parametros = {"modelo": llm_pura._modelo(), "prompt": VERSAO_PROMPT, "lugares": [l.get("id") for l in lugares]}
+    nivel = llm_pura._nivel(raciocinio)
+    parametros = {"modelo": llm_pura._modelo(), "prompt": VERSAO_PROMPT, "lugares": [l.get("id") for l in lugares],
+                  "raciocinio": nivel}
     if usar_cache:
         item = lm.obter_cache_avaliacao(pergunta, MODO, parametros)
         if item and isinstance(item.get("resposta"), dict):
@@ -157,7 +163,7 @@ def gerar_resposta_rag(pergunta: str, lugares: list[dict], *, avisos: Iterable[s
     if not chave:
         r = _reserva(pergunta, lugares, f"sem {llm_pura.CHAVE_ENV}")
     else:
-        r = llm_pura._chamar(pergunta, chave, sessao or requests.Session(), sistema=PROMPT_SISTEMA,
+        r = llm_pura._chamar(pergunta, chave, sessao or requests.Session(), nivel, sistema=PROMPT_SISTEMA,
                              usuario=montar_mensagem(pergunta, lugares), modo=MODO)
         if r["disponivel"]:
             r["fontes_utilizadas"] = formatar_fontes(lugares, r["resposta"])
