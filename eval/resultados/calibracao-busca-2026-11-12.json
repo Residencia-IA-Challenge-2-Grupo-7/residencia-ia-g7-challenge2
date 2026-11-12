@@ -1,0 +1,182 @@
+{
+ "golden": [
+  {
+   "id": "golden_01",
+   "gabarito": [
+    "Filomenambúrguer"
+   ],
+   "posicao_lexica": 2,
+   "posicao_vetorial": 1,
+   "posicao_hibrida": 1,
+   "max_lexica": 0.98,
+   "max_cosseno": 0.7992,
+   "top3_vetorial": [
+    "Filomenambúrguer",
+    "Filomenamburger",
+    "Casa Bari"
+   ]
+  },
+  {
+   "id": "golden_02",
+   "gabarito": [
+    "Restaurante Dona Cleide"
+   ],
+   "posicao_lexica": 1,
+   "posicao_vetorial": 1,
+   "posicao_hibrida": 1,
+   "max_lexica": 0.98,
+   "max_cosseno": 0.8118,
+   "top3_vetorial": [
+    "Restaurante Dona Cleide",
+    "Peixe na Rede",
+    "Vila Carioca"
+   ]
+  },
+  {
+   "id": "golden_03",
+   "gabarito": [
+    "Santo Bifidele"
+   ],
+   "posicao_lexica": 1,
+   "posicao_vetorial": 1,
+   "posicao_hibrida": 1,
+   "max_lexica": 0.93,
+   "max_cosseno": 0.7796,
+   "top3_vetorial": [
+    "Santo Bifidele",
+    "Detroit American Steakhouse",
+    "Brasa Meat Burger"
+   ]
+  },
+  {
+   "id": "golden_04",
+   "gabarito": [
+    "Royal Burger"
+   ],
+   "posicao_lexica": 3,
+   "posicao_vetorial": 1,
+   "posicao_hibrida": 1,
+   "max_lexica": 0.98,
+   "max_cosseno": 0.7867,
+   "top3_vetorial": [
+    "Royal Burger",
+    "House Burger",
+    "Gordeixos Delivery"
+   ]
+  },
+  {
+   "id": "golden_05",
+   "gabarito": [
+    "VBQ"
+   ],
+   "posicao_lexica": 11,
+   "posicao_vetorial": 1,
+   "posicao_hibrida": 5,
+   "max_lexica": 0.98,
+   "max_cosseno": 0.7933,
+   "top3_vetorial": [
+    "VBQ",
+    "Omura Sushi",
+    "Saguari Gastro House"
+   ]
+  },
+  {
+   "id": "golden_06",
+   "gabarito": [
+    "New Mercadito"
+   ],
+   "posicao_lexica": 9,
+   "posicao_vetorial": 5,
+   "posicao_hibrida": 3,
+   "max_lexica": 0.62,
+   "max_cosseno": 0.6248,
+   "top3_vetorial": [
+    "Maria Fumaça",
+    "Vila Carioca",
+    "Leduce Gastronomia"
+   ]
+  },
+  {
+   "id": "golden_07",
+   "gabarito": [
+    "Casa Bar"
+   ],
+   "posicao_lexica": 4,
+   "posicao_vetorial": 1,
+   "posicao_hibrida": 2,
+   "max_lexica": 0.98,
+   "max_cosseno": 0.8079,
+   "top3_vetorial": [
+    "Casa Bar",
+    "Espaguete",
+    "Espaguete"
+   ]
+  },
+  {
+   "id": "golden_08",
+   "gabarito": [
+    "Spelunca DF"
+   ],
+   "posicao_lexica": 3,
+   "posicao_vetorial": 2,
+   "posicao_hibrida": 2,
+   "max_lexica": 0.98,
+   "max_cosseno": 0.6395,
+   "top3_vetorial": [
+    "Jucata e Verofato Pizza e Pasta",
+    "Spelunca DF",
+    "Pizzaria Natureto"
+   ]
+  }
+ ],
+ "fora_do_tema": [
+  {
+   "pergunta": "oficina mecânica perto de mim",
+   "max_lexica": 0.56,
+   "max_cosseno": 0.6142,
+   "top1_vetorial": "Oficina de Tortas"
+  },
+  {
+   "pergunta": "boliche para ir com amigos",
+   "max_lexica": 0.56,
+   "max_cosseno": 0.6243,
+   "top1_vetorial": "BOP Games 2026"
+  },
+  {
+   "pergunta": "museu de arte com exposição nova",
+   "max_lexica": 0.56,
+   "max_cosseno": 0.6177,
+   "top1_vetorial": "Anime Summit 2026"
+  },
+  {
+   "pergunta": "academia com personal trainer",
+   "max_lexica": 0.56,
+   "max_cosseno": 0.5735,
+   "top1_vetorial": "Brasília Capital Fitness 2026"
+  },
+  {
+   "pergunta": "dentista que atende sábado",
+   "max_lexica": 0.56,
+   "max_cosseno": 0.5849,
+   "top1_vetorial": "Saguari Gastro House"
+  },
+  {
+   "pergunta": "loja de roupa de festa barata",
+   "max_lexica": 0.96,
+   "max_cosseno": 0.62,
+   "top1_vetorial": "Johnny Joy"
+  },
+  {
+   "pergunta": "pet shop com banho e tosa",
+   "max_lexica": 0.56,
+   "max_cosseno": 0.6102,
+   "top1_vetorial": "Cachorrão da 5"
+  },
+  {
+   "pergunta": "curso de inglês à noite",
+   "max_lexica": 0.56,
+   "max_cosseno": 0.5808,
+   "top1_vetorial": "Vale Encantado"
+  }
+ ]
+}

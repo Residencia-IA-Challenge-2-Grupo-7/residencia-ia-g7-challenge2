@@ -2359,6 +2359,11 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
       border-color: var(--brand-secondary);
     }
 
+    .golden-select.config-select {
+      flex: 1 1 200px;
+      min-width: 0;
+    }
+
     .chips-row {
       display: flex;
       flex-wrap: wrap;
@@ -2975,6 +2980,19 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
 
         <div class="chips-row" id="goldenChips"></div>
 
+        <div class="control-row">
+          <span class="control-label">⚙️ Configuração:</span>
+          <select id="raciocinioSelect" class="golden-select config-select" aria-label="Raciocínio do modelo nos dois modos">
+            <option value="desligado">🧠 Raciocínio desligado (padrão)</option>
+            <option value="high">🧠 Raciocínio alto (mais lento)</option>
+          </select>
+          <select id="buscaSelect" class="golden-select config-select" aria-label="Tipo de busca do Modo B">
+            <option value="lexica">🔎 Busca do Modo B: por palavras (padrão)</option>
+            <option value="vetorial">🔎 Busca do Modo B: por embeddings</option>
+            <option value="hibrida">🔎 Busca do Modo B: híbrida</option>
+          </select>
+        </div>
+
         <form class="search-bar" onsubmit="executarComparativo(event)">
           <input
             type="text"
@@ -3199,6 +3217,8 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
       aplicarTema(!document.body.classList.contains("dark-mode"));
     }
 
+    const NOMES_BUSCA = { lexica: "por palavras", vetorial: "por embeddings", hibrida: "híbrida" };
+
     function escaparHtml(texto) {
       return String(texto || "")
         .replace(/&/g, "&amp;")
@@ -3406,7 +3426,7 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
       if (modoB.disponivel === false) {
         renderizarModoIndisponivel(respB, pillB, badgeB, modoB);
       } else {
-        pillB.textContent = `🧠 Modelo: ${modoB.modelo || payload.modelo || "não informado"}`;
+        pillB.textContent = `🧠 Modelo: ${modoB.modelo || payload.modelo || "não informado"} · 🔎 Busca: ${NOMES_BUSCA[modoB.busca] || modoB.busca || "por palavras"}`;
         badgeB.textContent = "✅ Fundamentado na Base Curada do DF";
         respB.innerHTML = formatarRespostaSegura(modoB.resposta || "", true);
       }
@@ -3431,6 +3451,13 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
       const containerFontes = document.getElementById("fontesModoB");
       document.getElementById("contadorFontesB").textContent = `${fontes.length} Fonte(s) Recuperada(s)`;
       containerFontes.innerHTML = "";
+
+      const buscaPedida = payload.configuracao && payload.configuracao.busca;
+      if (buscaPedida && modoB.busca && buscaPedida !== modoB.busca) {
+        const erroBusca = (modoB.guardrails && modoB.guardrails.busca_erro) || "embedding indisponível";
+        containerFontes.appendChild(criarEl("div", "guardrail-box",
+          `⚠️ A busca ${NOMES_BUSCA[buscaPedida] || buscaPedida} não pôde ser usada (${erroBusca}); o Modo B usou a busca por palavras.`));
+      }
 
       if (fontes.length === 0) {
         const motivoGuardrail = modoB.guardrails && modoB.guardrails.motivo
@@ -3511,6 +3538,9 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
       document.getElementById("respostaModoB").textContent = "⏳ Recuperando base 2FA e consultando Modo B (RAG)...";
 
       const corpoReq = idGolden ? { id_golden: idGolden } : { pergunta: pergunta };
+      corpoReq.raciocinio = document.getElementById("raciocinioSelect").value;
+      corpoReq.busca = document.getElementById("buscaSelect").value;
+      if (corpoReq.raciocinio !== "desligado") btn.textContent = "⏳ Consultando modelos com raciocínio (até ~12s)...";
 
       try {
         const res = await fetch("/api/comparativo/executar", {
