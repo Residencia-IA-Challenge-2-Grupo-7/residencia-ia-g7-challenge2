@@ -54,14 +54,14 @@ curl -s -X POST localhost:8000/api/salas/ROLE-7KQ2/participantes -H 'content-typ
 
 ## Encaixe das peças das colegas
 
-`integracoes.py` procura as funções abaixo e, se não achar, usa uma reserva simples. Basta criar o módulo com a assinatura indicada; nada mais muda.
+`integracoes.py` procura as funções abaixo e, se não achar, usa uma reserva simples. Basta criar o módulo com a assinatura indicada; nada mais muda. As peças marcadas **entregue** já são usadas; a reserva só entra se o módulo faltar.
 
-| Peça | Dona | Função esperada | Reserva atual |
+| Peça | Dona | Função esperada | Reserva |
 |---|---|---|---|
 | Teto seguro do grupo | Eduarda | `src/financas/__init__.py`: `teto_seguro_grupo(tetos: list[Decimal]) -> Decimal` | o menor teto |
-| Deslocamento | Samara | `src/logistica/transporte_df.py`: `estimar_deslocamento(ra_origem: str, lat: float, lng: float, modo: str) -> dict` com `km`, `minutos`, `custo_ida_volta` | linha reta entre centroides × 1,3; ônibus/metrô a 18 km/h + 15 min, carro e app a 30 km/h + 5 min; R$ 5,50 a passagem |
-| Nota de justiça | Samara | `src/logistica/transporte_df.py`: `nota_menor_miseria(deslocamentos: list[dict]) -> float` (0 a 100) | 100 − 0,8 × (pior tempo − 20) − 0,3 × (pior − melhor); 30 sem dado |
-| Centroides das RAs | Samara | `data/regioes_df_gps.json`, `{ra: {lat, lng}}` ou lista com `ra`, `lat`, `lng` | média das coordenadas da base por RA |
+| Deslocamento | Samara (**entregue**, issue #44) | `src/logistica/transporte_df.py`: `estimar_deslocamento(ra_origem, lat, lng, modo, quando=None) -> dict` com `km`, `minutos`, `custo_ida_volta`; `quando` é o início do rolê (domingo ou feriado: ônibus e metrô de graça, Vai de Graça) | linha reta entre centroides × 1,3; ônibus/metrô a 18 km/h + 15 min, carro e app a 30 km/h + 5 min; R$ 5,50 a passagem, zero aos domingos |
+| Nota de justiça | Samara (**entregue**, issue #44) | `src/logistica/transporte_df.py`: `nota_menor_miseria(deslocamentos: list[dict]) -> float` (0 a 100) | penalidade = 0,8 × (pior tempo − 20) + 0,3 × (pior − melhor); nota = 100 × 100 / (100 + penalidade), que nunca zera; 30 sem dado |
+| Pontos das RAs | Samara (**entregue**, issue #44) | `data/regioes_df_gps.json`, lista com `nome`, `lat`, `lng` (35 RAs) | média das coordenadas da base por RA |
 | Aderência ao pedido | Letícia | `src/telemetria/telemetria.py`: `calcular_similaridade_leticia(pergunta, lugar)` (já existe) | contagem de tags |
 | Banco das salas | Eduarda | um `Repositorio` (`existe`, `obter`, `salvar`) em `src/db/`, ligado por `ROLES_REPOSITORIO=supabase` em `src/state.py` | memória (perde tudo ao reiniciar) |
 
