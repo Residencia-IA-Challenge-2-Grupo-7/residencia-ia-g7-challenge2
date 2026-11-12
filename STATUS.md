@@ -22,7 +22,7 @@
   - códigos de sala no formato `ROLE-7KQ2`; PR aberto para fechar a issue #43.
 - **Encaixes pendentes** (o código usa uma reserva simples até chegarem; assinaturas em [src/salas/README.md](src/salas/README.md#encaixe-das-peças-das-colegas)):
   - Eduarda: `teto_seguro_grupo` em `src/financas/` e um `Repositorio` do Supabase em `src/db/`;
-  - Samara: `estimar_deslocamento` e `nota_menor_miseria` em `src/logistica/transporte_df.py` e `data/regioes_df_gps.json`;
+  - Samara: **entregue na issue #44** (`estimar_deslocamento`, `nota_menor_miseria` e `calcular_score_justica_espacial` em `src/logistica/transporte_df.py`, pontos das 35 RAs em `data/regioes_df_gps.json`); as salas já usam o módulo no lugar da reserva. Regra, números e pendências no [ADR 0012](docs/decisoes/0012-deslocamento-e-menor-miseria.md);
   - Letícia: a busca com filtros, que hoje entra pela `calcular_similaridade_leticia`;
   - Maria Carolina: as Telas 1 a 3 chamando as rotas acima (tokens no cabeçalho `X-Token`).
 - **Problemas achados na base** (para a Letícia, registrados no [ADR 0008](docs/decisoes/0008-base-2fa-de-93-lugares-e-lgpd.md#riscos-e-limitações)):

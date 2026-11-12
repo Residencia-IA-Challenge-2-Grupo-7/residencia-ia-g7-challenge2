@@ -17,5 +17,6 @@ Não apague nem reescreva uma decisão antiga: se ela mudar, crie uma nova e mar
 | [0007](0007-interpretador-e-contrato-de-busca.md) | Interpretador de mensagens e contrato da busca usada pelos agentes | proposta; a conversa privada deu lugar aos 4 campos (0009) |
 | [0008](0008-base-2fa-de-93-lugares-e-lgpd.md) | Base oficial de 93 lugares (validação em 2 fatores) e conformidade com a LGPD | aceita (medidas de LGPD em proposta) |
 | [0009](0009-entrada-pelos-4-campos-de-texto.md) | Entrada pelos 4 campos de texto, interpretados por regras (sem voz) | aceita (escopo); interpretação por regras em proposta |
+| [0012](0012-deslocamento-e-menor-miseria.md) | Deslocamento no DF (Haversine × fator de rota) e nota de justiça da Menor Miséria | proposta |
 
 A pasta [revisoes/](revisoes/) guarda as críticas feitas por outros agentes ou pessoas a um ADR (`NNNN-critica.md`), as respostas do autor e o prompt usado para pedir a crítica.
