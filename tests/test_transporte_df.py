@@ -24,11 +24,13 @@ from src.logistica.transporte_df import (
     TARIFA_PUBLICO,
     VELOCIDADE_KMH,
     calcular_distancia_km,
+    calcular_score_justica_espacial,
     distancia_por_rua_km,
     estimar_custo_ida_volta,
     estimar_deslocamento,
     estimar_tempo_ida_min,
     haversine_km,
+    nota_menor_miseria,
     ponto_da_ra,
     resolver_ra,
     tempos_de_ida_min,
@@ -431,3 +433,119 @@ def test_so_muda_a_reserva_nos_trajetos_curtos(monkeypatch):
             curtos += 1
             assert nosso["km"] == DISTANCIA_MINIMA_KM
     assert curtos > 0
+
+
+# ---------------------------------------------------------------- Menor Miséria por tempo (salas)
+
+
+def _desl(*minutos):
+    return [{"minutos": m} for m in minutos]
+
+
+GRUPOS_DE_TEMPO = [
+    (10,),
+    (20, 20),
+    (20, 100),
+    (60, 60),
+    (30, 45, 90),
+    (117, 22),
+    (5, 200),
+    (66, 66, 66, 66),
+]
+
+
+def test_salas_passam_a_usar_esta_nota():
+    achada = integracoes._funcao(
+        ["src.logistica.transporte_df", "src.logistica"], "nota_menor_miseria"
+    )
+    assert achada is nota_menor_miseria
+
+
+@pytest.mark.parametrize("minutos", GRUPOS_DE_TEMPO, ids=str)
+def test_nota_por_tempo_da_o_mesmo_que_a_reserva_das_salas(minutos, monkeypatch):
+    nossa = integracoes.nota_justica(_desl(*minutos))
+    monkeypatch.setattr(integracoes, "_funcao", lambda modulos, nome: None)
+    assert nossa == integracoes.nota_justica(_desl(*minutos))
+
+
+def test_mesma_media_mas_quem_fica_pior_derruba_a_nota():
+    """Os dois grupos têm média de 60 min; o primeiro deixa alguém com 100 min."""
+    assert nota_menor_miseria(_desl(20, 100)) < nota_menor_miseria(_desl(60, 60))
+
+
+def test_dentro_da_folga_so_a_desigualdade_tira_pontos():
+    assert nota_menor_miseria(_desl(15, 15, 20)) == pytest.approx(98.5)
+    assert nota_menor_miseria(_desl(20, 20)) == 100.0
+
+
+def test_ordem_das_pessoas_nao_muda_a_nota():
+    assert nota_menor_miseria(_desl(30, 45, 90)) == nota_menor_miseria(_desl(90, 30, 45))
+
+
+def test_sem_trajeto_para_medir_a_nota_e_30():
+    assert nota_menor_miseria([]) == 30.0
+
+
+# ---------------------------------------------------------------- Menor Miséria por distância (issue)
+
+DUPLA_DA_ISSUE = ["Samambaia", "Plano Piloto"]
+
+
+def test_issue_samambaia_e_plano_preferem_aguas_claras_a_um_dos_extremos():
+    no_plano = calcular_score_justica_espacial(DUPLA_DA_ISSUE, PLANO)
+    em_samambaia = calcular_score_justica_espacial(DUPLA_DA_ISSUE, SAMAMBAIA)
+    em_aguas_claras = calcular_score_justica_espacial(DUPLA_DA_ISSUE, AGUAS_CLARAS)
+    assert em_aguas_claras > no_plano == em_samambaia
+
+
+def test_media_quase_igual_mas_a_nota_separa_os_lugares():
+    """Em Plano, Águas Claras e Guará a média de km da dupla fica entre 11,7 e 11,9."""
+    lugares = [PLANO, AGUAS_CLARAS, _ponto("Guará")]
+    medias = [
+        sum(calcular_distancia_km(ra, lugar) for ra in DUPLA_DA_ISSUE) / 2
+        for lugar in lugares
+    ]
+    notas = [calcular_score_justica_espacial(DUPLA_DA_ISSUE, lugar) for lugar in lugares]
+    assert max(medias) - min(medias) < 0.3
+    assert notas[0] < notas[1] < notas[2]
+
+
+def test_grupo_espalhado_ainda_separa_os_lugares():
+    """Planaltina + Santa Maria + Plano: a nota por tempo zera em quase todo lugar; esta não."""
+    grupo = ["Planaltina", "Santa Maria", "Plano Piloto"]
+    notas = [
+        calcular_score_justica_espacial(grupo, _ponto(ra))
+        for ra in ["Plano Piloto", "Guará", "Samambaia"]  # pior trajeto: 31,5 / 41,9 / 54,5 km
+    ]
+    assert notas[0] > notas[1] > notas[2] > 0
+
+
+def test_protege_quem_mora_na_periferia():
+    """Ceilândia + Samambaia + Plano: o melhor lugar não é o Plano, onde só um mora (RNF-13)."""
+    grupo = ["Ceilândia", "Samambaia", "Plano Piloto"]
+    candidatos = ["Plano Piloto", "Águas Claras", "Taguatinga", "Guará"]
+    melhor = max(candidatos, key=lambda ra: calcular_score_justica_espacial(grupo, _ponto(ra)))
+    assert melhor != "Plano Piloto"
+
+
+def test_todo_mundo_saindo_do_proprio_lugar_tira_100():
+    assert calcular_score_justica_espacial(["Águas Claras", "Águas Claras"], DONA_CLEIDE) == 100.0
+
+
+def test_nota_espacial_fica_entre_0_e_100_em_toda_a_base():
+    grupo = ["Ceilândia", "Samambaia", "Plano Piloto", "Planaltina"]
+    for lugar in BASE_2FA.values():
+        if lugar.get("lat") is not None:
+            assert 0 < calcular_score_justica_espacial(grupo, lugar) <= 100
+
+
+def test_nota_espacial_e_so_um_numero():
+    """Nada no resultado diz quem é o mais prejudicado nem de onde cada um sai."""
+    assert isinstance(calcular_score_justica_espacial(DUPLA_DA_ISSUE, PLANO), float)
+
+
+def test_grupo_vazio_ou_ra_desconhecida_levanta_erro():
+    with pytest.raises(ValueError):
+        calcular_score_justica_espacial([], PLANO)
+    with pytest.raises(ValueError):
+        calcular_score_justica_espacial(["Goiânia"], PLANO)

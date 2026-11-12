@@ -15,8 +15,10 @@ Peças, na ordem em que uma depende da outra:
 5. `estimar_custo_ida_volta`: quanto a pessoa gasta para ir e voltar.
 6. `estimar_deslocamento`: o encaixe com as salas (src/salas/integracoes.py),
    que junta distância, tempo e custo de uma pessoa num dicionário só.
-
-A nota de justiça (Menor Miséria) se apoia nelas.
+7. Menor Miséria (RNF-13): `calcular_score_justica_espacial`, pela distância
+   de cada membro até o lugar, e `nota_menor_miseria`, pelo tempo de cada um
+   (o encaixe com as salas). As duas vão de 0 a 100 e nunca dizem quem é o
+   mais prejudicado.
 """
 from __future__ import annotations
 
@@ -231,3 +233,83 @@ def estimar_deslocamento(ra_origem: str, lat: float, lng: float, modo: str) -> d
     except (ValueError, TypeError):
         return None
     return {"km": round(km, 1), "minutos": round(minutos), "custo_ida_volta": custo}
+
+
+# ---------------------------------------------------------------- Menor Miséria (RNF-13)
+#
+# Um lugar é justo quando ninguém do grupo fica com um trajeto desproporcional. Por isso a
+# nota olha para quem fica PIOR, e não para a média: Samambaia + Plano Piloto têm quase a
+# mesma média de km em qualquer lugar entre os dois, mas o pior trajeto muda muito.
+#
+#   penalidade = PESO_PIOR x (pior - FOLGA, se passar da folga) + PESO_DESIGUALDADE x (pior - melhor)
+#
+# O primeiro termo é a Menor Miséria (minimizar o pior trajeto); o segundo desempata entre
+# lugares com o mesmo pior trajeto, preferindo o que divide o esforço de forma mais igual.
+
+FOLGA_MIN = 20
+"""Até 20 min de viagem ninguém é tratado como prejudicado."""
+
+PESO_PIOR_MIN = 0.8
+"""Pontos perdidos por minuto do pior trajeto acima da folga."""
+
+PESO_DESIGUALDADE_MIN = 0.3
+"""Pontos perdidos por minuto de diferença entre o pior e o melhor trajeto."""
+
+NOTA_SEM_DADOS = 30.0
+"""Nota quando não há nenhum trajeto para medir: a incerteza pesa contra o lugar."""
+
+# Os pesos por tempo são os mesmos da reserva de src/salas/integracoes.py. Os pesos por
+# distância são os mesmos, convertidos em km de linha reta para quem vai de ônibus/metrô
+# (o meio mais lento e o mais comum entre quem mora longe): para um grupo que vai todo de
+# ônibus, as duas notas partem da mesma penalidade. O que muda é como a penalidade vira
+# nota (ver `calcular_score_justica_espacial`).
+
+_MIN_POR_KM_PUBLICO = FATOR_ROTA * 60 / VELOCIDADE_KMH["publico"]
+"""1 km em linha reta vira ~4,3 min de ônibus/metrô (1,3 km de rua a 18 km/h)."""
+
+FOLGA_KM = (FOLGA_MIN - ESPERA_MIN["publico"]) / _MIN_POR_KM_PUBLICO
+"""~1,2 km: a distância que cabe nos 20 min de folga, descontados os 15 de espera."""
+
+PESO_PIOR_KM = PESO_PIOR_MIN * _MIN_POR_KM_PUBLICO
+"""~3,5 pontos por km do pior trajeto acima da folga."""
+
+PESO_DESIGUALDADE_KM = PESO_DESIGUALDADE_MIN * _MIN_POR_KM_PUBLICO
+"""~1,3 ponto por km de diferença entre o pior e o melhor trajeto."""
+
+
+def _penalidade(valores: list[float], folga: float, peso_pior: float, peso_desigualdade: float) -> float:
+    pior, melhor = max(valores), min(valores)
+    return peso_pior * max(0.0, pior - folga) + peso_desigualdade * (pior - melhor)
+
+
+def nota_menor_miseria(deslocamentos: list[dict]) -> float:
+    """Nota de justiça de 0 a 100 pelo tempo de chegada de cada pessoa (o encaixe com as salas).
+
+    Recebe a lista de deslocamentos de quem vai ao lugar, sem nome de ninguém (o mesmo
+    formato de `estimar_deslocamento`), e usa só os minutos. É a fórmula da reserva de
+    src/salas/integracoes.py, para os cartões não mudarem: 100 menos a penalidade, presa
+    entre 0 e 100. Limitação: em grupos muito espalhados vários lugares empatam em 0.
+    """
+    if not deslocamentos:
+        return NOTA_SEM_DADOS
+    tempos = [float(d["minutos"]) for d in deslocamentos]
+    nota = 100 - _penalidade(tempos, FOLGA_MIN, PESO_PIOR_MIN, PESO_DESIGUALDADE_MIN)
+    return round(max(0.0, min(100.0, nota)), 1)
+
+
+def calcular_score_justica_espacial(membros_ras: list[str], local_candidato: Ponto | Mapping) -> float:
+    """Nota de justiça espacial de 0 a 100 pela distância de cada membro até o lugar.
+
+    Não depende do meio de transporte: mede só onde o lugar fica em relação a onde cada um
+    sai. `membros_ras` tem uma RA por pessoa (repetida se duas saem da mesma RA), e
+    `local_candidato` é (lat, lng) ou um registro da base.
+
+    A nota é 100 x 100 / (100 + penalidade): 100 quando ninguém é prejudicado, 50 quando a
+    penalidade chega a 100, e nunca zera. Assim, mesmo num grupo espalhado pelo DF, um lugar
+    com o pior trajeto menor sempre tira nota maior, que é o que a Menor Miséria pede.
+    """
+    if not membros_ras:
+        raise ValueError("o grupo precisa ter pelo menos uma pessoa")
+    distancias = [calcular_distancia_km(ra, local_candidato) for ra in membros_ras]
+    penalidade = _penalidade(distancias, FOLGA_KM, PESO_PIOR_KM, PESO_DESIGUALDADE_KM)
+    return round(100 * 100 / (100 + penalidade), 1)
