@@ -12,13 +12,22 @@ from pathlib import Path
 
 import pytest
 
+from src.interpretador.campos import ROTULOS_TRANSPORTE
 from src.interpretador.lugares import ras_validas
 from src.logistica.transporte_df import (
+    DISTANCIA_MINIMA_KM,
+    ESPERA_MIN,
+    FATOR_ROTA,
+    MODOS,
     RAIO_TERRA_KM,
+    VELOCIDADE_KMH,
     calcular_distancia_km,
+    distancia_por_rua_km,
+    estimar_tempo_ida_min,
     haversine_km,
     ponto_da_ra,
     resolver_ra,
+    tempos_de_ida_min,
 )
 from src.rag.coletor_tiktok_2fa import COORDENADAS_RAS_DF
 from src.salas import integracoes
@@ -273,3 +282,66 @@ def test_toda_ra_chega_a_todo_lugar_da_base_com_coordenadas():
         for lugar in lugares:
             km = calcular_distancia_km(ra, lugar)
             assert 0 <= km < 100, (ra, lugar["nome"])
+
+
+# ---------------------------------------------------------------- tempo de ida
+
+RAS_DA_ISSUE = ["Samambaia", "Águas Claras", "Plano Piloto"]
+
+
+def test_modos_sao_os_do_campo_4_da_tela_2():
+    assert set(MODOS) == set(ROTULOS_TRANSPORTE) == set(VELOCIDADE_KMH) == set(ESPERA_MIN)
+
+
+def test_usa_os_mesmos_numeros_da_reserva_das_salas():
+    """Se alguém mudar um lado e não o outro, os cartões mudam sem ninguém decidir."""
+    assert FATOR_ROTA == integracoes.FATOR_ROTA
+    assert VELOCIDADE_KMH == integracoes.VELOCIDADE_KMH
+    assert ESPERA_MIN == integracoes.ESPERA_MIN
+
+
+def test_rua_e_30_por_cento_mais_longa_que_a_linha_reta():
+    assert distancia_por_rua_km(10) == pytest.approx(13)
+
+
+@pytest.mark.parametrize("reta", [0, 0.5, 1.5])
+def test_trajeto_curto_respeita_o_piso(reta):
+    assert distancia_por_rua_km(reta) == DISTANCIA_MINIMA_KM
+
+
+@pytest.mark.parametrize("reta", [-1, float("nan")])
+def test_distancia_invalida_levanta_erro(reta):
+    with pytest.raises(ValueError):
+        distancia_por_rua_km(reta)
+
+
+def test_tempo_soma_a_espera_e_o_trajeto():
+    # 18 km de ônibus a 18 km/h = 60 min, mais 15 min de espera
+    assert estimar_tempo_ida_min(18, "publico") == pytest.approx(75)
+    # 15 km de carro a 30 km/h = 30 min, mais 5 min para estacionar
+    assert estimar_tempo_ida_min(15, "carro") == pytest.approx(35)
+
+
+def test_meio_desconhecido_levanta_erro_dizendo_os_validos():
+    with pytest.raises(ValueError, match="publico"):
+        estimar_tempo_ida_min(5, "uber")
+
+
+def test_samambaia_ao_plano_de_carro_e_de_onibus():
+    tempos = tempos_de_ida_min("Samambaia", PLANO)
+    assert tempos["carro"] == pytest.approx(66.1, abs=0.1)
+    assert tempos["publico"] == pytest.approx(116.8, abs=0.1)
+
+
+@pytest.mark.parametrize("origem", RAS_DA_ISSUE)
+@pytest.mark.parametrize("destino", RAS_DA_ISSUE)
+def test_carro_e_app_chegam_antes_do_onibus(origem, destino):
+    tempos = tempos_de_ida_min(origem, _ponto(destino))
+    assert tempos["carro"] == tempos["app"] < tempos["publico"]
+
+
+def test_mesma_ra_nao_da_zero_minuto():
+    tempos = tempos_de_ida_min("Águas Claras", DONA_CLEIDE)
+    assert tempos["publico"] == pytest.approx(15 + DISTANCIA_MINIMA_KM / 18 * 60)
+    assert tempos["a_pe"] == pytest.approx(DISTANCIA_MINIMA_KM / 4.5 * 60)
+    assert all(minutos > 0 for minutos in tempos.values())

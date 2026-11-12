@@ -10,8 +10,10 @@ Peças, na ordem em que uma depende da outra:
    data/regioes_df_gps.json.
 3. `calcular_distancia_km`: da RA de origem até um lugar (coordenadas ou um
    registro da base de 93).
+4. `distancia_por_rua_km`, `estimar_tempo_ida_min` e `tempos_de_ida_min`: o
+   caminho por rua e o tempo de ida em cada meio de transporte.
 
-Tempo, custo e a nota de justiça (Menor Miséria) se apoiam nelas.
+Custo e a nota de justiça (Menor Miséria) se apoiam nelas.
 """
 from __future__ import annotations
 
@@ -111,3 +113,54 @@ def calcular_distancia_km(origem_ra: str, local_gps: Ponto | Mapping) -> float:
     base estão no centro da RA. O mínimo realista entra no cálculo do tempo.
     """
     return haversine_km(ponto_da_ra(origem_ra), _ponto_do_local(local_gps))
+
+
+# ---------------------------------------------------------------- tempo de ida
+
+MODOS = ("publico", "app", "carro", "carona", "a_pe", "bike")
+"""Os meios que o campo 4 da Tela 2 reconhece (src/interpretador/campos.py)."""
+
+# Os três números abaixo são os mesmos da reserva de src/salas/integracoes.py, para os
+# cartões não mudarem quando este módulo entrar no lugar dela. São estimativas, não medições.
+
+FATOR_ROTA = 1.3
+"""A rua não é linha reta: o caminho de verdade fica cerca de 30% mais longo."""
+
+VELOCIDADE_KMH = {"publico": 18, "app": 30, "carro": 30, "carona": 30, "a_pe": 4.5, "bike": 12}
+"""Velocidade média no trajeto, já contando trânsito, semáforos e paradas."""
+
+ESPERA_MIN = {"publico": 15, "app": 5, "carro": 5, "carona": 5, "a_pe": 0, "bike": 0}
+"""Tempo fixo além do trajeto: andar até a parada e esperar, chamar o app, estacionar."""
+
+DISTANCIA_MINIMA_KM = 2.0
+"""Piso do caminho por rua. Origem e lugar no mesmo ponto (o centro da RA) dariam 0 km e
+0 min, mas ninguém mora em cima do lugar: 2 km é uma volta dentro da própria RA."""
+
+
+def _checar_modo(modo: str) -> str:
+    if modo not in VELOCIDADE_KMH:
+        raise ValueError(f"meio de transporte desconhecido: {modo!r}; use um de: {', '.join(MODOS)}")
+    return modo
+
+
+def distancia_por_rua_km(distancia_reta_km: float) -> float:
+    """Linha reta -> estimativa do caminho por rua, nunca abaixo de DISTANCIA_MINIMA_KM."""
+    km = float(distancia_reta_km)
+    if not math.isfinite(km) or km < 0:
+        raise ValueError("distância inválida: precisa ser um número maior ou igual a zero")
+    return max(DISTANCIA_MINIMA_KM, km * FATOR_ROTA)
+
+
+def estimar_tempo_ida_min(km_por_rua: float, modo: str) -> float:
+    """Minutos de ida pelo meio escolhido: tempo fixo + trajeto na velocidade média.
+
+    Recebe o caminho por rua (`distancia_por_rua_km`), não a linha reta.
+    """
+    _checar_modo(modo)
+    return ESPERA_MIN[modo] + km_por_rua / VELOCIDADE_KMH[modo] * 60
+
+
+def tempos_de_ida_min(origem_ra: str, local_gps: Ponto | Mapping) -> dict[str, float]:
+    """Tempo de ida da RA até o lugar em cada meio, para comparar carro/app com ônibus/metrô."""
+    km = distancia_por_rua_km(calcular_distancia_km(origem_ra, local_gps))
+    return {modo: estimar_tempo_ida_min(km, modo) for modo in MODOS}
