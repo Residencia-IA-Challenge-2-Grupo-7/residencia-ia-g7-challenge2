@@ -696,13 +696,17 @@ const CARDS = [
  tx:'Distribui os passageiros entre os motoristas, respeitando vagas e o desvio máximo de cada um.',ch:['Should'],
  faz:'Se um motorista recusa a rota proposta, o otimizador refaz a distribuição sem ele e avisa os passageiros afetados.',
  fora:['Prioridade a confirmar, porque depende de um otimizador de rotas.'],rq:['RF-23']},
-{id:'c-divisao',k:'regra',z:'motor',x:2800,y:1660,w:330,eb:'Função',t:'Divisão e saldo',far:'Divisão',st:'plan',
- tx:'Divide cada gasto entre os presentes. Os centavos que sobram ficam com quem pagou.',ch:['RF-32'],
- faz:'Quem confirmou e não foi fica fora das divisões. O saldo entre rolês, que cobra só o valor líquido, é desejável (Could).',rq:['RF-32, RF-35']},
-{id:'c-pix',k:'regra',z:'motor',x:3160,y:1660,w:330,eb:'Função',t:'Pix copia e cola',far:'Pix',st:'plan',
+{id:'c-divisao',k:'regra',z:'motor',x:2800,y:1660,w:330,eb:'Função',t:'Divisão e saldo',far:'Divisão',st:'ok',
+ tx:'Divide cada gasto entre os presentes. Os centavos que sobram ficam com quem pagou.',ch:['RF-32','em código'],
+ faz:'Itens que só parte consumiu são divididos só entre quem consumiu. Contas com frações exatas; cada devedor paga a própria parte arredondada para baixo. Quem confirmou e não foi fica fora das divisões.',
+ fora:['Rotas da Tela 4 (lançar gasto, ver dívida, marcar como pago)','Saldo entre rolês (RF-35, Could)'],
+ rq:['RF-32, RF-35','src/financas/divisao_conta.py']},
+{id:'c-pix',k:'regra',z:'motor',x:3160,y:1660,w:330,eb:'Função',t:'Pix copia e cola',far:'Pix',st:'ok',
  tx:'Código estático no padrão do Banco Central, com a chave de quem pagou e o valor devido.',ch:['RF-33'],
  faz:'Enviado em particular a cada devedor. O app orienta a conferir no banco o nome de quem recebe e o valor antes de pagar.',
- pq:['Gerado por código determinístico, nunca pelo modelo.'],rq:['RF-33','RNF-04']},
+ pq:['Gerado por código determinístico, nunca pelo modelo.'],
+ num:['CRC16 confere com o valor de referência; o gerador reproduz um exemplo de código estático que tomamos como do manual do BR Code (não conferido na fonte)'],
+ rq:['RF-33','RNF-04','src/financas/pix.py']},
 ];
 
 const EDGES = [
