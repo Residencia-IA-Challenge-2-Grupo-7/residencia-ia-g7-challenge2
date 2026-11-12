@@ -25,6 +25,7 @@ from __future__ import annotations
 import json
 import math
 from collections.abc import Mapping
+from datetime import date, datetime, timedelta
 from decimal import Decimal
 from functools import lru_cache
 from pathlib import Path
@@ -183,8 +184,8 @@ def tempos_de_ida_min(origem_ra: str, local_gps: Ponto | Mapping) -> dict[str, f
 TARIFA_PUBLICO = Decimal("5.50")
 """Passagem de ônibus/metrô por trecho. É a tarifa do metrô e o teto da integração (até 3
 embarques em 3 h); trechos curtos custam R$ 2,70 ou R$ 3,80, então é um teto, não a média.
-Congelada até 31/12/2026. Aos domingos e feriados o programa Vai de Graça zera a tarifa,
-o que este cálculo não sabe: o contrato com as salas não recebe a data."""
+Congelada até 31/12/2026. Aos domingos e feriados o programa Vai de Graça zera a tarifa:
+com a data do rolê (`quando`), o custo de ônibus/metrô vai a zero nesses dias (`tarifa_zero`)."""
 
 APP_BANDEIRADA = Decimal("5")
 APP_POR_KM = Decimal("2.20")
@@ -196,16 +197,50 @@ CARRO_POR_KM = Decimal("0.90")
 # Carona, a pé e bike não têm custo para a pessoa.
 
 
-def estimar_custo_ida_volta(km_por_rua: float, modo: str) -> Decimal:
+def _pascoa(ano: int) -> date:
+    """Domingo de Páscoa (algoritmo de Meeus/Jones/Butcher, calendário gregoriano)."""
+    a, b, c = ano % 19, ano // 100, ano % 100
+    d, e = b // 4, b % 4
+    f = (b + 8) // 25
+    g = (b - f + 1) // 3
+    h = (19 * a + b - d - g + 15) % 30
+    i, k = c // 4, c % 4
+    l = (32 + 2 * e + 2 * i - h - k) % 7
+    m = (a + 11 * h + 22 * l) // 451
+    mes = (h + l - 7 * m + 114) // 31
+    dia = (h + l - 7 * m + 114) % 31 + 1
+    return date(ano, mes, dia)
+
+
+@lru_cache(maxsize=8)
+def feriados(ano: int) -> frozenset[date]:
+    """Feriados nacionais e do DF no ano. Pontos facultativos (Carnaval, Corpus Christi) ficam de fora:
+    não são feriado, e o Vai de Graça vale para domingos e feriados."""
+    fixos = [(1, 1), (4, 21), (5, 1), (9, 7), (10, 12), (11, 2), (11, 15), (11, 20), (11, 30), (12, 25)]
+    # 21/4: Tiradentes e aniversário de Brasília; 20/11: Consciência Negra (nacional desde 2024);
+    # 30/11: Dia do Evangélico (feriado distrital)
+    return frozenset([date(ano, m, d) for m, d in fixos] + [_pascoa(ano) - timedelta(days=2)])  # Sexta-feira Santa
+
+
+def tarifa_zero(quando: date | datetime | None) -> bool:
+    """Ônibus e metrô de graça nesse dia? Domingos e feriados (programa Vai de Graça). Sem data, não."""
+    if quando is None:
+        return False
+    dia = quando.date() if isinstance(quando, datetime) else quando
+    return dia.weekday() == 6 or dia in feriados(dia.year)
+
+
+def estimar_custo_ida_volta(km_por_rua: float, modo: str, quando: date | datetime | None = None) -> Decimal:
     """Reais para ir e voltar pelo meio escolhido, com 2 casas decimais.
 
     Recebe o caminho por rua (`distancia_por_rua_km`). Dinheiro em Decimal, nunca float:
     0.1 + 0.2 em float dá 0.30000000000000004, e conta de dinheiro não pode ter isso.
+    Com `quando` (data do rolê) num domingo ou feriado, ônibus e metrô saem de graça (Vai de Graça).
     """
     _checar_modo(modo)
     km = Decimal(str(round(km_por_rua, 1)))
     por_trecho = {
-        "publico": TARIFA_PUBLICO,
+        "publico": Decimal("0") if tarifa_zero(quando) else TARIFA_PUBLICO,
         "app": APP_BANDEIRADA + APP_POR_KM * km,
         "carro": CARRO_POR_KM * km,
     }.get(modo, Decimal("0"))
@@ -215,7 +250,8 @@ def estimar_custo_ida_volta(km_por_rua: float, modo: str) -> Decimal:
 # ---------------------------------------------------------------- encaixe com as salas
 
 
-def estimar_deslocamento(ra_origem: str, lat: float, lng: float, modo: str) -> dict | None:
+def estimar_deslocamento(ra_origem: str, lat: float, lng: float, modo: str,
+                         quando: date | datetime | None = None) -> dict | None:
     """Distância, tempo e custo de uma pessoa até um lugar, no formato que as salas esperam.
 
     É a função que src/salas/integracoes.py procura pelo nome (contrato no README das salas):
@@ -224,12 +260,13 @@ def estimar_deslocamento(ra_origem: str, lat: float, lng: float, modo: str) -> d
 
     Devolve None quando não dá para estimar (RA, coordenada ou meio inválidos). Aí as salas
     usam a reserva delas em vez de cair (RNF-15). As funções de baixo continuam levantando
-    ValueError para quem as chama direto.
+    ValueError para quem as chama direto. `quando` é o início do rolê: num domingo ou feriado,
+    ônibus e metrô custam zero (Vai de Graça).
     """
     try:
         km = distancia_por_rua_km(calcular_distancia_km(ra_origem, (lat, lng)))
         minutos = estimar_tempo_ida_min(km, modo)
-        custo = estimar_custo_ida_volta(km, modo)
+        custo = estimar_custo_ida_volta(km, modo, quando)
     except (ValueError, TypeError):
         return None
     return {"km": round(km, 1), "minutos": round(minutos), "custo_ida_volta": custo}
@@ -282,19 +319,24 @@ def _penalidade(valores: list[float], folga: float, peso_pior: float, peso_desig
     return peso_pior * max(0.0, pior - folga) + peso_desigualdade * (pior - melhor)
 
 
+def _nota(penalidade: float) -> float:
+    """100 x 100 / (100 + penalidade): 100 sem penalidade, 50 com penalidade 100, nunca zera."""
+    return round(100 * 100 / (100 + penalidade), 1)
+
+
 def nota_menor_miseria(deslocamentos: list[dict]) -> float:
     """Nota de justiça de 0 a 100 pelo tempo de chegada de cada pessoa (o encaixe com as salas).
 
     Recebe a lista de deslocamentos de quem vai ao lugar, sem nome de ninguém (o mesmo
-    formato de `estimar_deslocamento`), e usa só os minutos. É a fórmula da reserva de
-    src/salas/integracoes.py, para os cartões não mudarem: 100 menos a penalidade, presa
-    entre 0 e 100. Limitação: em grupos muito espalhados vários lugares empatam em 0.
+    formato de `estimar_deslocamento`), e usa só os minutos. Usa a mesma curva da nota por
+    distância (`_nota`): 100 quando ninguém é prejudicado, 50 quando a penalidade chega a 100,
+    e nunca zera. Antes era 100 menos a penalidade, presa em 0, e grupos espalhados empatavam
+    em 0 em vários lugares (decisão de 12/11, no ADR do deslocamento).
     """
     if not deslocamentos:
         return NOTA_SEM_DADOS
     tempos = [float(d["minutos"]) for d in deslocamentos]
-    nota = 100 - _penalidade(tempos, FOLGA_MIN, PESO_PIOR_MIN, PESO_DESIGUALDADE_MIN)
-    return round(max(0.0, min(100.0, nota)), 1)
+    return _nota(_penalidade(tempos, FOLGA_MIN, PESO_PIOR_MIN, PESO_DESIGUALDADE_MIN))
 
 
 def calcular_score_justica_espacial(membros_ras: list[str], local_candidato: Ponto | Mapping) -> float:
@@ -311,5 +353,4 @@ def calcular_score_justica_espacial(membros_ras: list[str], local_candidato: Pon
     if not membros_ras:
         raise ValueError("o grupo precisa ter pelo menos uma pessoa")
     distancias = [calcular_distancia_km(ra, local_candidato) for ra in membros_ras]
-    penalidade = _penalidade(distancias, FOLGA_KM, PESO_PIOR_KM, PESO_DESIGUALDADE_KM)
-    return round(100 * 100 / (100 + penalidade), 1)
+    return _nota(_penalidade(distancias, FOLGA_KM, PESO_PIOR_KM, PESO_DESIGUALDADE_KM))
