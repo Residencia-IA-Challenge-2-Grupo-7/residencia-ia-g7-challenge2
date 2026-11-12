@@ -163,5 +163,38 @@
     "horario_gabarito": "Segunda a sábado, das 7h às 15h; buffet a R$ 32,99 de segunda a quinta e R$ 34,99 às sextas, sábados e feriados",
     "evidencia_id_tiktok": "tiktok_7673387511963585810",
     "armadilha_llm_pura": "Dizer que cabe nos R$ 30 (arredondando R$ 32,99 para baixo) ou usar o preço de sexta (R$ 34,99) para a terça. Resposta certa: o buffet não cabe (passa R$ 2,99); o café colonial (R$ 25) cabe"
+  },
+  {
+    "id": "golden_16",
+    "pergunta": "Quero uma gelateria ou doceria aconchegante em Brasília onde tudo seja sem trigo, sem lactose e sem açúcar refinado. Qual é e em que horário abre?",
+    "categoria": "vibes_e_restricoes",
+    "ra_esperada": "Plano Piloto (Asa Sul)",
+    "locais_gabarito": ["Lefit Gelatos e Doces Saudáveis"],
+    "preco_maximo_gabarito": 28.0,
+    "horario_gabarito": "Todos os dias, das 10h às 19h",
+    "evidencia_id_tiktok": "tiktok_7699233720657530119",
+    "armadilha_llm_pura": "Indicar a Pizzaria Natureto, que tem massa sem glúten mas não é doceria, ou uma doceria 'fit' genérica que usa lactose; inventar endereço ou horário. Obs.: o vídeo não cita preço; os R$ 28 da base não têm fonte na legenda nem na transcrição, então este caso não serve para medir precisão de preço"
+  },
+  {
+    "id": "golden_17",
+    "pergunta": "Quero comer feijoada à vontade num sábado em Águas Claras com as crianças, num lugar com brinquedoteca e monitora. Onde é e quanto custa?",
+    "categoria": "vibes_e_restricoes",
+    "ra_esperada": "Águas Claras",
+    "locais_gabarito": ["Vila Carioca"],
+    "preco_maximo_gabarito": 59.97,
+    "horario_gabarito": "Feijoada às sextas (com rabada) e aos sábados (com samba ao vivo); domingo é festival de sabores; happy hour todos os dias",
+    "evidencia_id_tiktok": "tiktok_7610152796129692936",
+    "armadilha_llm_pura": "Indicar o Restaurante Dona Cleide (golden_02), que tem brinquedoteca em Águas Claras mas não serve feijoada, ou dar o preço de sexta (R$ 55,97) ou de domingo (R$ 75,97) para o sábado"
+  },
+  {
+    "id": "golden_18",
+    "pergunta": "Quero um jantar romântico a dois num restaurante chique ao lado da Torre de TV numa terça, com buffet de massas frescas. Onde é e quanto custa por pessoa?",
+    "categoria": "vibes_e_restricoes",
+    "ra_esperada": "Plano Piloto (Asa Sul)",
+    "locais_gabarito": ["Lucca Restaurante"],
+    "preco_maximo_gabarito": 89.0,
+    "horario_gabarito": "Jantar de segunda a sábado, das 19h às 22h (buffet de massas só às terças); almoço de segunda a sexta, das 12h às 15h",
+    "evidencia_id_tiktok": "tiktok_7673387366404427026",
+    "armadilha_llm_pura": "Dar o preço do menu Dolce Vita de quinta (R$ 150 por casal) ou do rodízio de pizza de quarta (R$ 68) para a terça, ou inventar um restaurante na própria Torre de TV"
   }
 ]
