@@ -2,7 +2,11 @@
 Testes do golden dataset da Semana 3 (issues #31 e #32).
 
 Garante que data/golden_dataset_semana3.json segue o contrato JSON das issues
-e que todo gabarito esta ancorado em um registro real da base 2FA (RNF-03).
+e que todo gabarito esta ancorado em um registro real da base 2FA (RNF-03):
+
+- exatamente 20 casos, golden_01 a golden_20, sem IDs duplicados;
+- as 6 categorias representadas, na distribuicao combinada para cada parte;
+- nome, RA e preco de cada gabarito iguais ao registro de evidencia.
 """
 
 import json
@@ -40,7 +44,18 @@ CAMPOS_NULOS_FORA_DE_ESCOPO = (
     "horario_gabarito",
     "evidencia_id_tiktok",
 )
-IDS_PARTE_1 = [f"golden_{n:02d}" for n in range(1, 11)]
+IDS_ESPERADOS = [f"golden_{n:02d}" for n in range(1, 21)]
+DISTRIBUICAO_PARTE_1 = {
+    "geoespacial_ra_fora_centro": 5,
+    "janela_horario": 3,
+    "fora_de_escopo_df": 2,
+}
+DISTRIBUICAO_PARTE_2 = {
+    "precisao_financeira": 5,
+    "vibes_e_restricoes": 3,
+    "conflito_e_girias": 2,
+}
+CATEGORIAS = set(DISTRIBUICAO_PARTE_1) | set(DISTRIBUICAO_PARTE_2)
 
 CASOS_COM_EVIDENCIA = [
     caso for caso in GOLDEN if caso.get("categoria") != CATEGORIA_FORA_DE_ESCOPO
@@ -59,25 +74,41 @@ def _ids(casos):
     return [caso.get("id", "sem_id") for caso in casos]
 
 
-def test_golden_tem_ids_01_a_10():
-    """Existem pelo menos 10 casos, com golden_01 a golden_10 e sem IDs repetidos."""
+def test_golden_tem_exatamente_20_ids_em_sequencia():
+    """O dataset fechado tem golden_01 a golden_20, nessa ordem e sem IDs repetidos."""
     ids = [caso.get("id") for caso in GOLDEN]
 
-    assert len(GOLDEN) >= 10
-    assert len(ids) == len(set(ids)), "Ha IDs duplicados no golden dataset"
-    faltando = [id_ for id_ in IDS_PARTE_1 if id_ not in ids]
-    assert not faltando, f"IDs ausentes: {faltando}"
+    duplicados = sorted(str(id_) for id_, n in Counter(ids).items() if n > 1)
+    assert not duplicados, f"IDs duplicados: {duplicados}"
+    assert len(GOLDEN) == 20, f"Esperados 20 casos, encontrados {len(GOLDEN)}"
+    assert ids == IDS_ESPERADOS, "IDs fora da sequencia golden_01 a golden_20"
 
 
-def test_golden_parte_1_distribuicao_por_categoria():
-    """A parte 1 tem 5 casos geoespaciais, 3 de horario e 2 fora do DF."""
-    parte_1 = [caso for caso in GOLDEN if caso.get("id") in IDS_PARTE_1]
+def test_golden_todas_as_categorias_representadas():
+    """As 6 categorias aparecem, e nenhuma outra (pega erro de digitacao)."""
+    categorias = {caso.get("categoria") for caso in GOLDEN}
 
-    assert Counter(caso["categoria"] for caso in parte_1) == {
-        "geoespacial_ra_fora_centro": 5,
-        "janela_horario": 3,
-        "fora_de_escopo_df": 2,
-    }
+    faltando = sorted(map(str, CATEGORIAS - categorias))
+    inesperadas = sorted(map(str, categorias - CATEGORIAS))
+    assert not faltando and not inesperadas, (
+        f"Categorias faltando: {faltando}; inesperadas: {inesperadas}"
+    )
+
+
+@pytest.mark.parametrize(
+    ("ids_da_parte", "distribuicao"),
+    [
+        (IDS_ESPERADOS[:10], DISTRIBUICAO_PARTE_1),
+        (IDS_ESPERADOS[10:], DISTRIBUICAO_PARTE_2),
+    ],
+    ids=["parte_1", "parte_2"],
+)
+def test_golden_distribuicao_por_parte(ids_da_parte, distribuicao):
+    """Parte 1: 5 geoespaciais, 3 de horario, 2 fora do DF.
+    Parte 2: 5 financeiras, 3 de vibes e restricoes, 2 de conflito e girias."""
+    casos = [caso for caso in GOLDEN if caso.get("id") in ids_da_parte]
+
+    assert Counter(caso.get("categoria") for caso in casos) == distribuicao
 
 
 @pytest.mark.parametrize("caso", GOLDEN, ids=_ids(GOLDEN))
@@ -114,11 +145,31 @@ def test_golden_evidencia_existe_na_base_2fa(caso):
 
 @pytest.mark.parametrize("caso", CASOS_COM_EVIDENCIA, ids=_ids(CASOS_COM_EVIDENCIA))
 def test_golden_gabarito_bate_com_registro_da_base(caso):
-    """Nome, RA e preco do gabarito sao copiados do registro de evidencia."""
+    """Nome e RA do gabarito sao copiados do registro de evidencia."""
     registro = BASE_2FA.get(caso["evidencia_id_tiktok"])
     if registro is None:
         pytest.skip("Evidencia ausente; coberta por test_golden_evidencia_existe_na_base_2fa")
 
     assert registro["nome"] in caso["locais_gabarito"]
     assert registro["regiao_administrativa"] == caso["ra_esperada"]
-    assert registro["custo_medio_rs"] == caso["preco_maximo_gabarito"]
+
+
+@pytest.mark.parametrize("caso", CASOS_COM_EVIDENCIA, ids=_ids(CASOS_COM_EVIDENCIA))
+def test_golden_preco_bate_com_custo_medio_da_base(caso):
+    """preco_maximo_gabarito e o custo_medio_rs exato do registro de evidencia (RNF-03)."""
+    registro = BASE_2FA.get(caso.get("evidencia_id_tiktok"))
+    if registro is None:
+        pytest.skip("Evidencia ausente; coberta por test_golden_evidencia_existe_na_base_2fa")
+
+    assert caso["preco_maximo_gabarito"] == registro["custo_medio_rs"], (
+        f"Gabarito R$ {caso['preco_maximo_gabarito']} difere da base "
+        f"R$ {registro['custo_medio_rs']} ({registro['nome']})"
+    )
+
+
+def test_golden_evidencias_nao_se_repetem():
+    """Cada caso aponta para um registro diferente da base (mais lugares cobertos)."""
+    evidencias = [caso.get("evidencia_id_tiktok") for caso in CASOS_COM_EVIDENCIA]
+
+    repetidas = sorted(str(e) for e, n in Counter(evidencias).items() if n > 1)
+    assert not repetidas, f"Evidencias repetidas: {repetidas}"
