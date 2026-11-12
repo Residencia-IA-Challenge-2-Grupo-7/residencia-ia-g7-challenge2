@@ -77,15 +77,22 @@ def test_rota_comparativo_retorna_200_e_estrutura_lado_a_lado():
     # 4. Sem gradiente no texto dos títulos
     assert "-webkit-text-fill-color" not in html
 
-    # 5. Seletor dinâmico do Golden Dataset, input livre, paleta neon e proteção XSS
+    # 5. Seletor dinâmico do Golden Dataset, input livre, paleta Analytics Executive Dashboard e proteção XSS
     assert 'id="goldenSelect"' in html
     assert 'id="perguntaComparativoInput"' in html
     assert 'id="themeToggleBtn"' in html
     assert "body.dark-mode" in html
-    assert "#0C0A14" in html
-    assert "#FF2E9A" in html
-    assert "#00E5FF" in html
-    assert "#C6FF00" in html
+    assert "#FAFAFA" in html
+    assert "#132E31" in html
+    assert "#337A89" in html
+    assert "#7DC5CF" in html
+    assert "#E9F7F7" in html
+    assert "#E5E7EB" in html
+    assert "0 10px 30px rgba(0, 0, 0, 0.05)" in html
+    assert "DM Sans" in html
+    assert 'class="sidebar"' in html
+    assert 'class="kpi-grid"' in html
+    assert 'class="chart-card"' in html
     assert "/api/comparativo/golden" in html
     assert "/api/comparativo/executar" in html
     assert "escaparHtml" in html
