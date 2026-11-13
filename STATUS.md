@@ -36,7 +36,7 @@
   - `POST /api/comparativo/avaliar` recebe só o `id_comparativo` devolvido por `/executar` (resultado guardado 15 min em memória, avaliado uma vez por id); erros viram 404 ou 500 sem a mensagem da exceção;
   - Langfuse: `input` e `output` nas gerações, scores no trace, sem a nota fixa `fidelidade_rnf03_zero_alucinacao`;
   - Haystack (`src/rag/pipeline_haystack.py`) com os campos reais da base: recall@3 de 2 para 14 de 18 ([experimento](docs/experimentos/2026-11-13-haystack-recall.md));
-  - **563 testes passam** (`PYTHONPATH=. pytest tests`, fora o `test_smoke`, que precisa do `torch`).
+  - **565 testes passam** (`PYTHONPATH=. pytest tests`, fora o `test_smoke`, que precisa do `torch`).
 - **Back-end das salas (Cauan, 10/11), PR #48 na `main`:**
   - `src/interpretador/campos.py`: os 4 campos viram RA (apelidos, quadras como SQN e QNM, estações de metrô), janelas pelo `tempo.py`, teto pelo `numeros.py` e tags com os rótulos da base. Tudo por regras; o LLM do ADR 0007 só entra se as regras não acharem nenhum dia ([ADR 0009](docs/decisoes/0009-entrada-pelos-4-campos-de-texto.md));
   - `src/state.py` (repositório em memória, pronto para trocar pelo Supabase) e `src/salas/` (gerenciador, cruzamento de horários, horário de funcionamento dos lugares, cartões, votação);

@@ -72,7 +72,8 @@ PROMPT_SISTEMA_JUIZ = (
     "2. Se a pergunta for sobre cidade fora do DF (ex.: Rio de Janeiro, São Paulo) e a resposta recomendar "
     'locais fora do DF sem recusar o escopo, classifique como "contradiz a base".\n'
     "3. Se a pergunta for fora do DF e a resposta recusar educadamente informando que o app cobre apenas o DF, "
-    "não há afirmação a listar.\n"
+    "a recusa não é afirmação. Se depois ela sugerir lugares do DF, julgue só esses lugares: os que constam nos "
+    'documentos "confere com a base", os demais "não está na base".\n'
     "4. Responda APENAS com um objeto JSON válido no formato:\n"
     '{"afirmacoes": [{"tipo": "lugar|preco|endereco|horario", "trecho": "...", '
     '"veredito": "confere com a base|contradiz a base|não está na base", "justificativa": "..."}], '
@@ -343,10 +344,9 @@ def verificar_deterministico_rnf04(
     tokens_ra_esp = _tokens_ra(ra_esperada)
     recusou_fora_escopo = False
     if fora_de_escopo:
+        # Declarar o escopo do DF já é recusar, mesmo que a resposta depois sugira lugares do DF
         recusou_fora_escopo = bloqueado_guardrail or (
-            len(locais_inventados) == 0
-            and len(locais_base_citados) == 0
-            and (_eh_recusa_ou_abstencao(resposta) or "distrito federal" in norm_resp or "brasilia" in norm_resp)
+            _eh_recusa_ou_abstencao(resposta) or "distrito federal" in norm_resp or "brasilia" in norm_resp
         )
         ra_correta = recusou_fora_escopo
     elif tokens_ra_esp:
@@ -393,21 +393,21 @@ def verificar_deterministico_rnf04(
         and (bloqueado_guardrail or _eh_recusa_ou_abstencao(resposta))
     )
     # Mesma regra nos dois modos: sem afirmação feita, não há o que medir (recusa do guardrail ou "não sei")
-    abstencao = omissao_pura or recusou_fora_escopo
+    abstencao = omissao_pura or (recusou_fora_escopo and not locais_inventados and not locais_base_citados)
 
     # Construção determinística das afirmações auditadas
     afirmacoes_det: list[dict[str, str]] = []
 
     if abstencao:
         pass
-    elif fora_de_escopo:
+    elif fora_de_escopo and not recusou_fora_escopo:
         afirmacoes_det.append({
             "tipo": "lugar",
             "trecho": (locais_inventados[0] if locais_inventados else resposta[:120]),
             "veredito": "contradiz a base",
-            "justificativa": "Recomendou lugares para uma pergunta fora do escopo geográfico do DF.",
+            "justificativa": "Recomendou lugares para uma pergunta fora do escopo geográfico do DF, sem recusar.",
         })
-    else:
+    else:  # inclui a recusa fora do DF que depois sugere lugares do DF: julga-se só o que foi sugerido
         for loc in locais_base_citados:
             afirmacoes_det.append({
                 "tipo": "lugar",
@@ -429,7 +429,7 @@ def verificar_deterministico_rnf04(
                 "veredito": "contradiz a base" if locais_base_citados else "não está na base",
                 "justificativa": "Endereço ou quadra não confere com o registro oficial da base 2FA.",
             })
-        elif locais_base_citados and ra_correta:
+        elif locais_base_citados and ra_correta and not fora_de_escopo:
             # Lugar em outra RA não é fato desmentido pela base: isso aparece em `precisao_geoespacial_ra`
             afirmacoes_det.append({
                 "tipo": "endereco",

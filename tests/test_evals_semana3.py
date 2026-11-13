@@ -537,3 +537,23 @@ def test_trecho_de_frase_entre_negritos_nao_vira_local_inventado():
     # Nome próprio fora da base continua sendo pego
     _, inventados = _extrair_candidatos_locais_texto("Vá no **Bar do Zé Inventado** hoje.", base)
     assert inventados == ["Bar do Zé Inventado"]
+
+
+def test_recusa_fora_do_df_com_sugestoes_do_df_nao_e_alucinacao():
+    """Revisão PR #60 (2ª rodada): golden_09 da prévia recusa o Rio e sugere bares de Brasília."""
+    import pathlib
+    caminho = pathlib.Path(__file__).resolve().parents[1] / "eval" / "resultados" / "comparativo-ab-previa-golden-01-10-2026-11-12.json"
+    caso = next(c for c in json.loads(caminho.read_text(encoding="utf-8")) if c["id_golden"] == "golden_09")
+    res = avaliar_par_comparativo(caso, sessao=_SessaoJuizFalsa(status_code=503), registrar_langfuse=False)
+    s = res["modo_a_llm_pura"]["scores"]
+    assert s["acerto_gabarito"] == 1.0
+    assert s["taxa_alucinacao"] == 0.0
+
+
+def test_recomendar_lugares_de_fora_sem_recusar_continua_contradizendo():
+    gabarito = {"categoria": "fora_de_escopo_df", "ra_esperada": None, "locais_gabarito": []}
+    modo = _modo("No Rio, vá ao **Bar Urca** e à **Confeitaria Colombo**.")
+    s = avaliar_par_comparativo("Bares no Rio de Janeiro?", gabarito, modo, _modo(""),
+                                sessao=_SessaoJuizFalsa(status_code=503), registrar_langfuse=False)["modo_a_llm_pura"]["scores"]
+    assert s["acerto_gabarito"] == 0.0
+    assert s["taxa_alucinacao"] == 1.0
