@@ -22,6 +22,9 @@ def test_tela_1_criar_sala_responde_200():
     assert 'id="abaCriar"' in r.text
     assert 'id="abaPerfil"' in r.text
     assert 'id="abaSala"' in r.text
+    assert 'btnDevProxima' in r.text
+    assert 'btnDevAnterior' in r.text
+    assert 'avancarTelaDev()' in r.text
 
 
 def test_tela_2_perfil_4_campos_responde_200():

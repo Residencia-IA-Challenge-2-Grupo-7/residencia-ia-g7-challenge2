@@ -2,7 +2,7 @@
    nunca de respostas da API (que podem conter perfil secreto). */
 'use strict';
 
-const CACHE = 'orquestrador-telas-v1';
+const CACHE = 'orquestrador-telas-v3';
 const ESTATICOS = [
   '/static/telas/app.css',
   '/static/telas/comum.js',
@@ -14,7 +14,8 @@ const ESTATICOS = [
 ];
 
 self.addEventListener('install', (ev) => {
-  ev.waitUntil(caches.open(CACHE).then((c) => c.addAll(ESTATICOS)).then(() => self.skipWaiting()));
+  self.skipWaiting();
+  ev.waitUntil(caches.open(CACHE).then((c) => c.addAll(ESTATICOS)));
 });
 
 self.addEventListener('activate', (ev) => {
@@ -28,7 +29,16 @@ self.addEventListener('activate', (ev) => {
 self.addEventListener('fetch', (ev) => {
   const url = new URL(ev.request.url);
   if (ev.request.method !== 'GET' || !url.pathname.startsWith('/static/telas/')) return;
+  // Network-first: sempre busca versão mais recente no servidor, usa cache só se offline
   ev.respondWith(
-    caches.match(ev.request).then((emCache) => emCache || fetch(ev.request))
+    fetch(ev.request)
+      .then((resp) => {
+        if (resp && resp.status === 200) {
+          const clone = resp.clone();
+          caches.open(CACHE).then((c) => c.put(ev.request, clone));
+        }
+        return resp;
+      })
+      .catch(() => caches.match(ev.request))
   );
 });

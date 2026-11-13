@@ -241,6 +241,22 @@ const Orq = (() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
+  const ORDEM_ABAS = ['criar', 'perfil', 'sala'];
+
+  function avancar() {
+    const idx = ORDEM_ABAS.indexOf(abaAtual);
+    const proxima = (idx >= 0 && idx < ORDEM_ABAS.length - 1) ? ORDEM_ABAS[idx + 1] : ORDEM_ABAS[0];
+    irParaAba(proxima);
+    return proxima;
+  }
+
+  function voltar() {
+    const idx = ORDEM_ABAS.indexOf(abaAtual);
+    const anterior = (idx > 0) ? ORDEM_ABAS[idx - 1] : ORDEM_ABAS[ORDEM_ABAS.length - 1];
+    irParaAba(anterior);
+    return anterior;
+  }
+
   function iniciarAbas() {
     const abas = { abaCriar: 'criar', abaPerfil: 'perfil', abaSala: 'sala' };
     for (const [id, nome] of Object.entries(abas)) {
@@ -294,10 +310,12 @@ const Orq = (() => {
   return {
     CODIGO_DEMO, ErroApi, api, credenciais, salvarCredenciais, esquecerParticipante, el, mostrarAviso,
     reais, faixaReais, urlSegura, codigoDaUrl, ehDemo, linkConvite, linkWhatsApp, copiar,
-    codigoAtivo, definirCodigoAtivo, irParaAba, aoMudarAba,
+    codigoAtivo, definirCodigoAtivo, irParaAba, aoMudarAba, avancar, voltar,
   };
 })();
 
 // Exposição global para chamadas diretas via onclick no HTML
 window.Orq = Orq;
 window.irParaAba = Orq.irParaAba;
+window.avancarTela = Orq.avancar;
+window.voltarTela = Orq.voltar;

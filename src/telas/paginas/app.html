@@ -10,8 +10,65 @@
   <link rel="apple-touch-icon" href="/static/telas/icone.svg">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <title>Orquestrador de Rolês — App</title>
-  <link rel="stylesheet" href="/static/telas/app.css">
-  <script src="/static/telas/comum.js"></script>
+  <link rel="stylesheet" href="/static/telas/app.css?v=3">
+  <script src="/static/telas/comum.js?v=3"></script>
+  <script>
+    // Navegação direta e imediata (funciona mesmo se houver cache antigo no navegador)
+    window.irParaAbaDev = function(nome) {
+      if (window.Orq && typeof window.Orq.irParaAba === 'function') {
+        window.Orq.irParaAba(nome);
+        return;
+      }
+      var paineis = { criar: 'painelCriar', perfil: 'painelPerfil', sala: 'painelSala' };
+      var abas = { criar: 'abaCriar', perfil: 'abaPerfil', sala: 'abaSala' };
+      for (var k in paineis) {
+        var el = document.getElementById(paineis[k]);
+        if (el) el.hidden = (k !== nome);
+      }
+      for (var j in abas) {
+        var b = document.getElementById(abas[j]);
+        if (b) {
+          b.classList.toggle('ativa', j === nome);
+          b.setAttribute('aria-selected', j === nome ? 'true' : 'false');
+        }
+      }
+      var main = document.getElementById('conteudo');
+      if (main) main.classList.toggle('largo', nome === 'sala');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    window.avancarTelaDev = function() {
+      if (window.Orq && typeof window.Orq.avancar === 'function') {
+        window.Orq.avancar();
+        return;
+      }
+      var ordem = ['criar', 'perfil', 'sala'];
+      var atual = 'criar';
+      var pPerfil = document.getElementById('painelPerfil');
+      var pSala = document.getElementById('painelSala');
+      if (pPerfil && !pPerfil.hidden) atual = 'perfil';
+      else if (pSala && !pSala.hidden) atual = 'sala';
+      var idx = ordem.indexOf(atual);
+      var prox = (idx >= 0 && idx < ordem.length - 1) ? ordem[idx + 1] : ordem[0];
+      window.irParaAbaDev(prox);
+    };
+
+    window.voltarTelaDev = function() {
+      if (window.Orq && typeof window.Orq.voltar === 'function') {
+        window.Orq.voltar();
+        return;
+      }
+      var ordem = ['criar', 'perfil', 'sala'];
+      var atual = 'criar';
+      var pPerfil = document.getElementById('painelPerfil');
+      var pSala = document.getElementById('painelSala');
+      if (pPerfil && !pPerfil.hidden) atual = 'perfil';
+      else if (pSala && !pSala.hidden) atual = 'sala';
+      var idx = ordem.indexOf(atual);
+      var ant = (idx > 0) ? ordem[idx - 1] : ordem[ordem.length - 1];
+      window.irParaAbaDev(ant);
+    };
+  </script>
 </head>
 <body>
   <a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
@@ -25,16 +82,25 @@
     </div>
     <div class="topo-abas">
       <nav class="abas" role="tablist" aria-label="Etapas do rolê">
-        <button type="button" class="aba ativa" role="tab" id="abaCriar" aria-controls="painelCriar" aria-selected="true" onclick="Orq.irParaAba('criar')">
+        <button type="button" class="aba ativa" role="tab" id="abaCriar" aria-controls="painelCriar" aria-selected="true" onclick="irParaAbaDev('criar')">
           1. Criar Sala
         </button>
-        <button type="button" class="aba" role="tab" id="abaPerfil" aria-controls="painelPerfil" aria-selected="false" onclick="Orq.irParaAba('perfil')">
+        <button type="button" class="aba" role="tab" id="abaPerfil" aria-controls="painelPerfil" aria-selected="false" onclick="irParaAbaDev('perfil')">
           2. Meus Dados
         </button>
-        <button type="button" class="aba" role="tab" id="abaSala" aria-controls="painelSala" aria-selected="false" onclick="Orq.irParaAba('sala')">
+        <button type="button" class="aba" role="tab" id="abaSala" aria-controls="painelSala" aria-selected="false" onclick="irParaAbaDev('sala')">
           3. Painel e Votação
         </button>
       </nav>
+    </div>
+    <div class="barra-dev-navegacao" data-dev-controle="true">
+      <div class="barra-dev-conteudo">
+        <span class="selo-dev">🛠️ Modo Dev: avance pelas 3 telas sem preencher</span>
+        <div class="botoes-dev-nav">
+          <button type="button" class="botao botao-dev" id="btnDevAnterior" onclick="voltarTelaDev()">⬅️ Tela Anterior</button>
+          <button type="button" class="botao botao-dev botao-dev-destaque" id="btnDevProxima" onclick="avancarTelaDev()">Avançar Tela ➡️</button>
+        </div>
+      </div>
     </div>
   </header>
 
@@ -107,6 +173,12 @@
         </ol>
         <p style="margin:14px 0 0"><button type="button" class="botao botao-secundario" id="botaoVerDemo">Ver uma sala de exemplo (DEMO)</button></p>
       </section>
+
+      <div class="bloco-dev-avancar" data-dev-controle="true">
+        <span class="rotulo-dev">🛠️ MODO DEV / APRESENTAÇÃO</span>
+        <p style="margin:0 0 10px; font-size:0.9rem; color:var(--texto-suave)">Para demonstrar as telas aos colegas devs sem precisar preencher o formulário:</p>
+        <button type="button" class="botao botao-dev botao-dev-destaque botao-largo" onclick="avancarTelaDev()">Avançar para Tela 2 (Meus Dados) ➡️</button>
+      </div>
     </div>
 
     <!-- ============================================================ ABA 2: MEUS DADOS SECRETOS -->
@@ -186,6 +258,15 @@
           <button type="button" class="botao botao-secundario" id="botaoCorrigir">✏️ Corrigir</button>
         </div>
       </section>
+
+      <div class="bloco-dev-avancar" data-dev-controle="true">
+        <span class="rotulo-dev">🛠️ MODO DEV / APRESENTAÇÃO</span>
+        <p style="margin:0 0 10px; font-size:0.9rem; color:var(--texto-suave)">Para demonstrar a próxima tela sem precisar preencher e confirmar os 4 campos:</p>
+        <div class="grupo-botoes">
+          <button type="button" class="botao botao-dev" onclick="voltarTelaDev()">⬅️ Voltar para Tela 1</button>
+          <button type="button" class="botao botao-dev botao-dev-destaque" onclick="avancarTelaDev()">Avançar para Tela 3 (Painel e Votação) ➡️</button>
+        </div>
+      </div>
     </div>
 
     <!-- ============================================================ ABA 3: PAINEL E VOTAÇÃO -->
@@ -257,14 +338,23 @@
           </div>
         </form>
       </section>
+
+      <div class="bloco-dev-avancar" data-dev-controle="true">
+        <span class="rotulo-dev">🛠️ MODO DEV / APRESENTAÇÃO</span>
+        <p style="margin:0 0 10px; font-size:0.9rem; color:var(--texto-suave)">Fluxo completo visualizado! Navegue livremente entre as telas:</p>
+        <div class="grupo-botoes">
+          <button type="button" class="botao botao-dev" onclick="irParaAbaDev('perfil')">⬅️ Voltar para Tela 2 (Meus Dados)</button>
+          <button type="button" class="botao botao-dev botao-dev-destaque" onclick="irParaAbaDev('criar')">🔄 Recomeçar da Tela 1 (Criar Sala)</button>
+        </div>
+      </div>
     </div>
   </main>
 
   <footer class="rodape">Residência em IA — Instituto Eldorado &amp; UnB · Grupo 7</footer>
 
-  <script src="/static/telas/demo.js"></script>
-  <script src="/static/telas/app.js"></script>
-  <script src="/static/telas/perfil.js"></script>
-  <script src="/static/telas/sala.js"></script>
+  <script src="/static/telas/demo.js?v=3"></script>
+  <script src="/static/telas/app.js?v=3"></script>
+  <script src="/static/telas/perfil.js?v=3"></script>
+  <script src="/static/telas/sala.js?v=3"></script>
 </body>
 </html>

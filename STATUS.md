@@ -8,7 +8,7 @@
 
 ## Agora
 
-- **Telas 1 a 3 do aplicativo (issue #42)** implementadas em [src/telas/](src/telas/rotas.py) (branch `feat/42-telas-app`): `/app` (criar sala e convite), `/sala/{codigo}/perfil` (4 campos secretos + confirmação do resumo), `/sala/{codigo}` (painel sem valores individuais, cartões de sugestão, votação múltipla e banner oficial), modo demonstração `/sala/demo`, manifesto/service worker PWA (`/manifest.webmanifest`, `/sw.js`) e testes em [tests/test_interface_app.py](tests/test_interface_app.py) (pendente rodar `pytest` no CI ou ambiente com `pytest` instalado).
+- **Telas 1 a 3 do aplicativo (issue #42)** implementadas em [src/telas/](src/telas/rotas.py) (branch `feat/frontend-issue-42`): navegação unificada por 3 abas superiores interativas (`1. Criar Sala`, `2. Meus Dados`, `3. Painel e Votação`), alternância dinâmica com histórico e fallback gracioso para modo demonstração (DEMO) com 4 lugares reais de Brasília do TikTok quando a sala ainda não existe no servidor. Testes de interface passam (`tests/test_interface_app.py`). Servidor local ativo em `http://127.0.0.1:8000/app`.
 
 - **Fonte da verdade sobre o app: [GUIA_OFICIAL_PROJETO.md](GUIA_OFICIAL_PROJETO.md)** (10/11). Resumo do que ele fechou:
   - ciclo completo do rolê: sala, 4 campos secretos, 3 a 4 cartões, votação múltipla e, depois, foto da nota fiscal, divisão e Pix;

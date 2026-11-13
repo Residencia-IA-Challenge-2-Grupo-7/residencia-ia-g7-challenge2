@@ -53,6 +53,15 @@
 
     if (creds.nome_sugerido && !$('nome').value) $('nome').value = creds.nome_sugerido;
 
+    if (demo && !$('nome').value) {
+      $('nome').value = 'Bia';
+      $('perfilMaiorIdade').checked = true;
+      if (!$('origem').value) $('origem').value = 'Águas Claras perto da estação';
+      if (!$('horarios').value) $('horarios').value = 'Sexta depois das 19h ou sábado à tarde';
+      if (!$('teto').value) $('teto').value = '60';
+      if (!$('preferencias').value) $('preferencias').value = 'Barzinho ou café calmo, sou vegetariana, vou de metrô/Uber';
+    }
+
     if (demo && Demo.temMeuPerfil()) {
       jaParticipa = true;
     } else if (!demo && creds.participante_id && creds.token) {
