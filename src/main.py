@@ -179,6 +179,73 @@ def download_relatorio_pdf():
     )
 
 
+@app.get("/visualizar/relatorio-semana3-pdf")
+def visualizar_relatorio_semana3_pdf():
+    """Visualização inline do Relatório Técnico da Semana 03 diretamente no navegador."""
+    pdf_path = os.path.join(BASE_DIR, "docs/entregas/semana-03/RELATORIO_TECNICO_SEMANA_03.pdf")
+    if not os.path.isfile(pdf_path):
+        # Fallback para outros padrões de nome que possam ser gerados
+        candidatos = [
+            os.path.join(BASE_DIR, "docs/entregas/semana-03/RELATORIO_TECNICO_SEMANA_03.pdf"),
+            os.path.join(BASE_DIR, "docs/entregas/semana-03/RELATORIO_TECNICO_LLM_VS_RAG_GRUPO7.pdf"),
+        ]
+        for c in candidatos:
+            if os.path.isfile(c):
+                pdf_path = c
+                break
+        else:
+            raise HTTPException(status_code=404, detail="Relatório Técnico da Semana 03 ainda não disponível.")
+    return FileResponse(
+        pdf_path,
+        media_type="application/pdf",
+        content_disposition_type="inline",
+    )
+
+
+@app.get("/download/relatorio-semana3-pdf")
+def download_relatorio_semana3_pdf():
+    """Download do Relatório Técnico Oficial da Semana 03 (PDF)."""
+    pdf_path = os.path.join(BASE_DIR, "docs/entregas/semana-03/RELATORIO_TECNICO_SEMANA_03.pdf")
+    if not os.path.isfile(pdf_path):
+        candidatos = [
+            os.path.join(BASE_DIR, "docs/entregas/semana-03/RELATORIO_TECNICO_SEMANA_03.pdf"),
+            os.path.join(BASE_DIR, "docs/entregas/semana-03/RELATORIO_TECNICO_LLM_VS_RAG_GRUPO7.pdf"),
+        ]
+        for c in candidatos:
+            if os.path.isfile(c):
+                pdf_path = c
+                break
+        else:
+            raise HTTPException(status_code=404, detail="Relatório Técnico da Semana 03 ainda não disponível.")
+    return FileResponse(
+        pdf_path,
+        media_type="application/pdf",
+        filename="RELATORIO_TECNICO_SEMANA_03.pdf",
+    )
+
+
+@app.get("/download/entregavel-semana3-zip")
+def download_entregavel_semana3_zip():
+    """Download do Pacote ZIP Completo de Entregáveis da Semana 03."""
+    zip_path = os.path.join(BASE_DIR, "docs/entregas/semana-03/Entregavel_Grupo7_Semana_03.zip")
+    if not os.path.isfile(zip_path):
+        candidatos = [
+            os.path.join(BASE_DIR, "docs/entregas/semana-03/Entregavel_Grupo7_Semana_03.zip"),
+            os.path.join(BASE_DIR, "docs/entregas/semana-03/Entregavel_Grupo7_Comparacao_LLM_RAG.zip"),
+        ]
+        for c in candidatos:
+            if os.path.isfile(c):
+                zip_path = c
+                break
+        else:
+            raise HTTPException(status_code=404, detail="Pacote ZIP da Semana 03 ainda não disponível.")
+    return FileResponse(
+        zip_path,
+        media_type="application/zip",
+        filename="Entregavel_Grupo7_Semana_03.zip",
+    )
+
+
 @app.get("/download/entregavel-zip")
 def download_entregavel_zip():
     """Download do Pacote ZIP Completo de Entregáveis da Semana 02."""
@@ -227,7 +294,7 @@ def api_entregavel_arquivo(caminho: str = Query(..., description="Caminho relati
 
 
 @app.get("/api/entregaveis/dados")
-def api_entregavel_dados(colecao: str = Query("aprovados", description="aprovados, quarentena ou vetores")):
+def api_entregavel_dados(colecao: str = Query("aprovados", description="aprovados, quarentena, vetores, golden_semana3 ou benchmark_semana3")):
     """
     Retorna coleções estruturadas para tabelas interativas na Central de Entregáveis.
     """
@@ -237,8 +304,15 @@ def api_entregavel_dados(colecao: str = Query("aprovados", description="aprovado
         path = os.path.join(BASE_DIR, "data/fila_quarentena_2fa.json")
     elif colecao == "vetores":
         path = os.path.join(BASE_DIR, "data/banco_vetorial_embeddings.json")
+    elif colecao == "golden_semana3":
+        path = os.path.join(BASE_DIR, "data/golden_dataset_semana3.json")
+    elif colecao == "benchmark_semana3":
+        path = os.path.join(BASE_DIR, "data/resultados_benchmark_semana3.json")
     else:
-        raise HTTPException(status_code=400, detail="Coleção inválida. Use: aprovados, quarentena ou vetores.")
+        raise HTTPException(
+            status_code=400,
+            detail="Coleção inválida. Use: aprovados, quarentena, vetores, golden_semana3 ou benchmark_semana3."
+        )
 
     if not os.path.isfile(path):
         raise HTTPException(status_code=404, detail="Arquivo de dados não encontrado.")

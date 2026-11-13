@@ -3,10 +3,18 @@
 > Arquivo vivo. Toda sessão (humana ou de agente) lê no início e atualiza no fim.
 > Mantenha curto: o histórico fica em `docs/semanas/` e no `git log`.
 
-**Atualizado em:** 2026-11-12
+**Atualizado em:** 2026-11-13
 **Semana do roadmap:** 3 — Comparação RAG × LLM pura, com as Telas 1 a 3 do app em paralelo
 
 ## Agora
+
+- **Central de Entregáveis da Semana 3 (Maria Carolina, 13/11), issue #39, na branch `feat/frontend-issue-39`:**
+  - Interface `/entregaveis` evoluída com o painel da Semana 03 (Comparação LLM Pura vs. RAG) e botão de destaque para `/comparativo`, mantendo os 7 módulos da Semana 02 100% preservados (`RNF-12`);
+  - Placar comparativo com KPIs consolidados (Alucinação 100% LLM pura vs. 0% RAG, acurácia geográfica, RNF-03 e RNF-14);
+  - Visualizador interativo do Golden Dataset com 20 casos (`colecao=golden_semana3`) com filtros por categoria e busca textual;
+  - Visualizador dos resultados auditados do Benchmark A/B (`colecao=benchmark_semana3`) comparando respostas e fontes citadas;
+  - Novas rotas em `src/main.py`: `/visualizar/relatorio-semana3-pdf`, `/download/relatorio-semana3-pdf` e `/download/entregavel-semana3-zip`;
+  - Nova suíte de testes em `tests/test_entregaveis_semana3.py` (5 testes passando verde, cobrindo integridade da Semana 2, coleções da Semana 3, códigos 200/400/404 e elementos HTML da interface).
 
 - **Fonte da verdade sobre o app: [GUIA_OFICIAL_PROJETO.md](GUIA_OFICIAL_PROJETO.md)** (10/11). Resumo do que ele fechou:
   - ciclo completo do rolê: sala, 4 campos secretos, 3 a 4 cartões, votação múltipla e, depois, foto da nota fiscal, divisão e Pix;
