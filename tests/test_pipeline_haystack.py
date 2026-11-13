@@ -40,3 +40,21 @@ def test_pipeline_haystack_com_mock_openrouter():
         assert "Café do Lago" in res["resposta"]
         assert len(res["fontes_recuperadas"]) > 0
         assert res["metadados"]["tokens_total"] == 45
+
+
+def test_documentos_usam_os_campos_reais_da_base():
+    """Revisão PR #60 item 6: RA, descrição e preço precisam estar no conteúdo/metadados."""
+    docs = {d.meta["nome"]: d for d in carregar_documentos_base()}
+    d = docs["Restaurante Dona Cleide"]
+    assert "Águas Claras" in d.content
+    assert d.meta["custo_medio_rs"] is not None
+    assert d.meta["preco_medio_texto"].startswith("R$")
+    assert all(x.meta["preco_medio_texto"] != "R$ N/A" for x in docs.values())
+
+
+def test_recall_at_3_do_haystack_no_golden():
+    from scripts.medir_recall_haystack import medir
+
+    r = medir()
+    assert r["casos"] == 18
+    assert r["acertos"] >= 14  # 14 de 18 (77,8%); era 2 de 18 com os campos errados

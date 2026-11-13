@@ -47,7 +47,8 @@ TEMPLATE_USUARIO = [
         "Nome: {{ doc.meta['nome'] }}\n"
         "Região administrativa: {{ doc.meta.get('regiao_administrativa', 'DF') }}\n"
         "Endereço: {{ doc.meta.get('endereco', 'Não informado') }}\n"
-        "Preço médio por pessoa: R$ {{ doc.meta.get('faixa_preco_estimada_reais', 'N/A') }}\n"
+        "Preço médio por pessoa: {{ doc.meta.get('preco_medio_texto', 'não informado') }}\n"
+        "Horário de funcionamento: {{ doc.meta.get('horario_funcionamento') or 'não informado' }}\n"
         "Descrição: {{ doc.content }}\n\n"
         "{% endfor %}\n"
         "Pergunta do usuário: {{ question }}\n\n"
@@ -69,18 +70,29 @@ def carregar_documentos_base() -> list[Document]:
     for item in dados:
         if not isinstance(item, dict):
             continue
-        conteudo = f"{item.get('nome', '')}. Tipo: {item.get('tipo_de_role', '')}. " \
-                   f"Vibes: {', '.join(item.get('vibes', [])) if isinstance(item.get('vibes'), list) else ''}. " \
-                   f"{item.get('descricao', '')} {item.get('resumo_experiencia', '')}"
+        vibes = item.get("vibes")
+        vibes_txt = ", ".join(vibes) if isinstance(vibes, list) else ""
+        custo = item.get("custo_medio_rs")
+        preco_txt = llm_rag._reais(float(custo)) if custo not in (None, "") else "não informado"
+        # O BM25 só lê o conteúdo: nome, tipo, RA, vibes e descrição precisam estar nele
+        partes = [
+            f"{item.get('nome', '')}.",
+            f"Tipo: {item.get('tipo_de_role', '')}.",
+            f"Região administrativa: {item.get('regiao_administrativa', '')}.",
+            f"Vibes: {vibes_txt}.",
+            f"{item.get('resumo_sensorial') or ''}",
+        ]
         doc = Document(
-            content=conteudo.strip(),
+            content=" ".join(p for p in partes if p).strip(),
             meta={
                 "id": item.get("id"),
                 "nome": item.get("nome"),
                 "tipo_de_role": item.get("tipo_de_role"),
                 "regiao_administrativa": item.get("regiao_administrativa"),
                 "endereco": item.get("endereco"),
-                "faixa_preco_estimada_reais": item.get("faixa_preco_estimada_reais"),
+                "faixa_de_preco": item.get("faixa_de_preco"),
+                "custo_medio_rs": custo,
+                "preco_medio_texto": preco_txt,
                 "horario_funcionamento": item.get("horario_funcionamento"),
             },
         )
@@ -161,12 +173,12 @@ def executar_rag_haystack(pergunta: str, top_k: int = 3) -> dict[str, Any]:
             "retriever": {"query": pergunta, "top_k": top_k},
             "prompt_builder": {"question": pergunta},
             "gerador": {"pergunta": pergunta},
-        }
+        },
+        include_outputs_from={"retriever"},  # os mesmos documentos do prompt, sem rodar a busca de novo
     )
 
     saida_gerador = res.get("gerador", {})
-    # Recupera documentos retornados pelo retriever
-    docs_recuperados = pipe.get_component("retriever").run(query=pergunta, top_k=top_k).get("documents", [])
+    docs_recuperados = res.get("retriever", {}).get("documents", [])
 
     fontes = []
     for i, doc in enumerate(docs_recuperados, 1):
@@ -176,7 +188,7 @@ def executar_rag_haystack(pergunta: str, top_k: int = 3) -> dict[str, Any]:
             "id": m.get("id"),
             "nome": m.get("nome"),
             "regiao_administrativa": m.get("regiao_administrativa"),
-            "preco": m.get("faixa_preco_estimada_reais"),
+            "preco": m.get("custo_medio_rs"),
         })
 
     return {

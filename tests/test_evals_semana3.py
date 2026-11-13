@@ -235,11 +235,15 @@ def test_fallback_deterministico_offline_garante_mesmos_limites_de_alucinacao_e_
     scores_a = resultado["modo_a_llm_pura"]["scores"]
     scores_b = resultado["modo_b_rag"]["scores"]
 
-    assert scores_a["taxa_alucinacao"] > 0.5
-    assert scores_a["fidelidade_factual_rnf03"] < 0.5
+    # Sem juiz, só o preço desmentido conta como alucinação; lugar e endereço fora da base são "não verificáveis"
+    assert scores_a["taxa_alucinacao"] > 0.0
+    assert scores_a["taxa_fora_da_base"] > 0.5
+    assert scores_a["fidelidade_factual_rnf03"] == 0.0
+    assert scores_a["acerto_gabarito"] == 0.0
 
     assert scores_b["fidelidade_factual_rnf03"] == 1.0
     assert scores_b["taxa_alucinacao"] == 0.0
+    assert scores_b["acerto_gabarito"] == 1.0
 
 
 def test_metricas_busca_recall_mrr_e_recusas():
@@ -360,37 +364,164 @@ def test_registro_scores_no_langfuse_e_remocao_de_nota_fixa(monkeypatch, caso_go
     assert "fidelidade_rnf03_zero_alucinacao" not in nomes_simular
 
 
-def test_endpoint_comparativo_avaliar(monkeypatch, caso_golden_01):
-    from unittest.mock import patch
+def _client_e_guardar(caso, monkeypatch=None):
+    from fastapi.testclient import TestClient
+    from src import main
+
+    resultado = {
+        "pergunta": caso["pergunta"],
+        "id_golden": "golden_01",
+        "gabarito": caso["gabarito"],
+        "modo_a_llm_pura": caso["modo_a_alucinado"],
+        "modo_b_rag": caso["modo_b_ancorado"],
+    }
+    return TestClient(main.app), main._guardar_comparativo(resultado)
+
+
+def test_endpoint_comparativo_avaliar_usa_o_juiz_de_verdade(monkeypatch, caso_golden_01):
+    """O juiz é simulado na camada HTTP (formato real com `afirmacoes`), não substituído por um mock da função."""
+    monkeypatch.setenv("OPENROUTER_API_KEY", "sk-or-test-dummy")
+    sessao = _SessaoJuizFalsa()
+    monkeypatch.setattr("src.telemetria.evals_semana3.requests.Session", lambda: sessao)
+    client, id_comp = _client_e_guardar(caso_golden_01)
+
+    res = client.post("/api/comparativo/avaliar", json={"id_comparativo": id_comp})
+    assert res.status_code == 200
+    av = res.json()["avaliacao"]
+    assert av["modo_b_rag"]["julgamento_juiz"]["usou_llm"] is True
+    assert av["modo_b_rag"]["scores"]["fidelidade_factual_rnf03"] == 1.0
+    assert len(sessao.chamadas) == 2
+
+    # Repetir não chama o juiz de novo
+    assert client.post("/api/comparativo/avaliar", json={"id_comparativo": id_comp}).status_code == 200
+    assert len(sessao.chamadas) == 2
+
+
+def test_endpoint_avaliar_nao_confia_no_navegador(caso_golden_01):
     from fastapi.testclient import TestClient
     from src.main import app
 
     client = TestClient(app)
-    # Testa rota passando o json simulado
-    payload = {
-        "pergunta": caso_golden_01["pergunta"],
-        "gabarito": caso_golden_01["gabarito"],
-        "modo_a_llm_pura": caso_golden_01["modo_a_alucinado"],
-        "modo_b_rag": caso_golden_01["modo_b_ancorado"],
-    }
-    with patch("src.telemetria.evals_semana3.julgar_com_llm_judge") as mock_judge:
-        mock_judge.return_value = {
-            "disponivel": True,
-            "fidelidade_factual_rnf03": 1.0,
-            "taxa_alucinacao": 0.0,
-            "precisao_geoespacial_ra": 1.0,
-            "ra_correta": True,
-            "preco_contradiz": False,
-            "endereco_inventado": False,
-            "alucinacoes_detectadas": [],
-            "justificativa": "Sem alucinações",
-        }
-        res = client.post("/api/comparativo/avaliar", json=payload)
-        assert res.status_code == 200
-        dados = res.json()
-        assert "avaliacao" in dados
-        assert dados["avaliacao"]["modo_b_rag"]["scores"]["fidelidade_factual_rnf03"] == 1.0
+    # payload antigo (texto, gabarito e trace vindos do navegador) é rejeitado
+    assert client.post("/api/comparativo/avaliar", json={"modo_a_llm_pura": {}, "modo_b_rag": {}}).status_code == 422
+    assert client.post("/api/comparativo/avaliar", json={"id_comparativo": "x" * 500}).status_code == 422
+    assert client.post("/api/comparativo/avaliar", json={"id_comparativo": "inexistente123"}).status_code == 404
 
+
+def test_endpoint_avaliar_nao_vaza_mensagem_de_excecao(monkeypatch, caso_golden_01):
+    def _quebra(*a, **k):
+        raise RuntimeError("segredo-interno")
+
+    monkeypatch.setattr("src.telemetria.evals_semana3.avaliar_par_comparativo", _quebra)
+    client, id_comp = _client_e_guardar(caso_golden_01)
+    res = client.post("/api/comparativo/avaliar", json={"id_comparativo": id_comp})
+    assert res.status_code == 500
+    assert "segredo-interno" not in res.text
+
+
+def test_executar_devolve_id_comparativo(monkeypatch, caso_golden_01):
+    from fastapi.testclient import TestClient
+    from src import main
+
+    monkeypatch.setattr(main, "executar_comparacao_ab", lambda *a, **k: {"modo_a_llm_pura": {}, "modo_b_rag": {}})
+    res = TestClient(main.app).post("/api/comparativo/executar", json={"pergunta": "café"})
+    assert res.status_code == 200
+    assert res.json()["id_comparativo"] in main._COMPARATIVOS
+
+
+def _modo(resposta, **extra):
+    return {"resposta": resposta, "fontes_utilizadas": [], "latencia_ms": 1000.0, "disponivel": True, **extra}
+
+
+def test_abstencao_tem_a_mesma_nota_nos_dois_modos(caso_golden_01):
+    """Item 1 da revisão: "não sei" do Modo A e recusa do guardrail do Modo B recebem as mesmas notas."""
+    recusa_a = _modo("Não tenho certeza de locais com brinquedoteca em Taguatinga, prefiro não inventar.")
+    recusa_b = _modo("Não encontrei na base nenhum lugar que atenda bem a esse pedido.",
+                     guardrails={"permitido": False, "motivo_bloqueio": "baixa_aderencia"})
+    res = avaliar_par_comparativo(caso_golden_01["pergunta"], caso_golden_01["gabarito"], recusa_a, recusa_b,
+                                  sessao=_SessaoJuizFalsa(status_code=503), registrar_langfuse=False)
+    sa, sb = res["modo_a_llm_pura"]["scores"], res["modo_b_rag"]["scores"]
+    for nome in ("fidelidade_factual_rnf03", "taxa_alucinacao", "taxa_fora_da_base", "precisao_geoespacial_ra"):
+        assert sa[nome] is None and sb[nome] is None
+    assert sa["abstencao"] == sb["abstencao"] == 1.0
+    assert sa["acerto_gabarito"] == sb["acerto_gabarito"] == 0.0  # abstenção é erro de acerto, não alucinação
+
+
+def test_nao_esta_na_base_nao_e_alucinacao(caso_golden_01):
+    """Item 2: lugar real fora dos 93 vira `taxa_fora_da_base`; só o que a base desmente é alucinação."""
+    modo = _modo("Que tal o **Outback Steakhouse** ou o **Coco Bambu**? Ambos em Taguatinga.")
+    res = avaliar_par_comparativo(caso_golden_01["pergunta"], caso_golden_01["gabarito"], modo, _modo(""),
+                                  sessao=_SessaoJuizFalsa(status_code=503), registrar_langfuse=False)
+    s = res["modo_a_llm_pura"]["scores"]
+    assert s["taxa_alucinacao"] == 0.0
+    assert s["taxa_fora_da_base"] == 1.0
+
+
+def test_nomes_de_ra_nao_viram_lugar_inventado():
+    from src.telemetria.evals_semana3 import _extrair_candidatos_locais_texto, _normalizar
+
+    base = {_normalizar("Omura Sushi"): {"nome": "Omura Sushi"}}
+    resposta = "**Taguatinga — Setor de Restaurantes** e **Riacho Fundo II** e **Samambaia Shopping** e **Águas Claras Sul**"
+    _, inventados = _extrair_candidatos_locais_texto(resposta, base)
+    assert inventados == []
+
+
+def test_ra_so_conta_com_lugar_recomendado_na_ra_esperada():
+    """Item 4: mencionar a RA no texto não basta; o lugar citado precisa estar nela."""
+    gabarito = {"categoria": "geoespacial_ra_fora_centro", "ra_esperada": "Samambaia",
+                "locais_gabarito": ["VBQ"], "preco_maximo_gabarito": 80}
+    resposta = _modo("Não há rodízio de pizza e sushi em Samambaia. Veja **Restaurante Dona Cleide** em Águas Claras.")
+    det = verificar_deterministico_rnf04("q", gabarito, resposta)
+    assert det["ra_correta"] is False
+    certo = _modo("Em Samambaia, vá no **VBQ**.")
+    assert verificar_deterministico_rnf04("q", gabarito, certo)["ra_correta"] is True
+
+
+def test_sem_piso_fixo_e_com_acerto_gabarito(caso_golden_01):
+    """Item 4: alucinação é proporção real (1 de 4 afirmações), e o acerto do gabarito vira nota."""
+    modo = _modo("Recomendo o **Filomenambúrguer** em Taguatinga, por R$ 49,99.", latencia_ms=1000.0)
+    juiz = {"afirmacoes": [
+        {"tipo": "lugar", "trecho": "Filomenambúrguer", "veredito": "confere com a base", "justificativa": ""},
+        {"tipo": "endereco", "trecho": "Taguatinga", "veredito": "confere com a base", "justificativa": ""},
+        {"tipo": "preco", "trecho": "R$ 49,99", "veredito": "confere com a base", "justificativa": ""},
+        {"tipo": "horario", "trecho": "24h", "veredito": "contradiz a base", "justificativa": ""},
+    ]}
+    sessao = _SessaoJuizFalsa([juiz, juiz])
+    import os
+    os.environ["OPENROUTER_API_KEY"] = "sk-or-test-dummy"
+    try:
+        res = avaliar_par_comparativo(caso_golden_01["pergunta"], caso_golden_01["gabarito"], modo, modo,
+                                      sessao=sessao, registrar_langfuse=False)
+    finally:
+        del os.environ["OPENROUTER_API_KEY"]
+    s = res["modo_b_rag"]["scores"]
+    assert s["taxa_alucinacao"] == 0.25
+    assert s["fidelidade_factual_rnf03"] == 0.75
+    assert s["acerto_gabarito"] == 1.0
+    assert s["precisao_geoespacial_ra"] == 1.0
+
+
+def test_juiz_ve_os_mesmos_campos_do_modo_b_e_nao_ve_o_veredito_do_codigo(monkeypatch, caso_golden_01):
+    """Item 3: documentos no formato do Modo B (com a descrição), sem `verificacao_deterministica_previa`."""
+    monkeypatch.setenv("OPENROUTER_API_KEY", "sk-or-test-dummy")
+    sessao = _SessaoJuizFalsa()
+    avaliar_par_comparativo(caso_golden_01["pergunta"], caso_golden_01["gabarito"], caso_golden_01["modo_a_alucinado"],
+                            caso_golden_01["modo_b_ancorado"], sessao=sessao, registrar_langfuse=False)
+    corpo = json.loads(sessao.chamadas[1]["json"]["messages"][1]["content"])
+    assert "verificacao_deterministica_previa" not in corpo
+    assert "Descrição:" in corpo["documentos_base_2fa"]
+    assert "Preço médio por pessoa" in corpo["documentos_base_2fa"]
+    assert "omissões" in sessao.chamadas[1]["json"]["messages"][0]["content"].lower()
+
+
+def test_resposta_do_cache_e_modelo_indisponivel_nao_viram_nota(caso_golden_01):
+    cache = _modo("Recomendo o **Filomenambúrguer** em Taguatinga.", cache_hit=True, latencia_ms=0.0)
+    fora = _modo("LLM pura indisponível", disponivel=False)
+    res = avaliar_par_comparativo(caso_golden_01["pergunta"], caso_golden_01["gabarito"], fora, cache,
+                                  sessao=_SessaoJuizFalsa(status_code=503), registrar_langfuse=False)
+    assert all(v is None for v in res["modo_a_llm_pura"]["scores"].values())
+    assert res["modo_b_rag"]["scores"]["sla_latencia_rnf14"] is None
+    assert res["delta_rag_vs_llm"]["ganho_fidelidade"] is None
 
 
 def test_trecho_de_frase_entre_negritos_nao_vira_local_inventado():

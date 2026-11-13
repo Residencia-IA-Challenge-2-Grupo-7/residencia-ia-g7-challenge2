@@ -13,10 +13,13 @@ Combina:
    - `"contradiz a base"`
    - `"não está na base"`
    Quando sem chave ou offline, opera com fallback determinístico completo.
-3. **4 Scores Padronizados (0.0 a 1.0):**
-   - `fidelidade_factual_rnf03`
-   - `taxa_alucinacao`
-   - `precisao_geoespacial_ra`
+3. **Scores Padronizados (0.0 a 1.0; `None` = não avaliado):**
+   - `fidelidade_factual_rnf03`: afirmações que conferem com a base
+   - `taxa_alucinacao`: só afirmações que a base desmente ("contradiz a base")
+   - `taxa_fora_da_base`: afirmações que não dá para verificar na base ("não está na base")
+   - `precisao_geoespacial_ra`: algum lugar recomendado da base está na RA esperada
+   - `acerto_gabarito`: o lugar do gabarito aparece na resposta (ou a recusa certa fora do DF)
+   - `abstencao`: 1.0 quando a resposta não afirma nada (recusa/"não sei"), igual nos dois modos
    - `sla_latencia_rnf14`
 4. **Métricas da Busca (Sem LLM):**
    - `recall_at_k`, `mrr`, `recusa_correta` e `recusa_indevida`.
@@ -30,12 +33,14 @@ import os
 import re
 import time
 import unicodedata
+from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 from typing import Any
 
 import requests
 
 from src.interpretador.config import CFG, segredo
+from src.rag import llm_rag
 from src.telemetria.telemetria import carregar_base_oficial_leticia, obter_cliente
 
 MODELO_JUIZ_PADRAO = "xiaomi/mimo-v2.6-pro"
@@ -50,19 +55,24 @@ VEREDITOS_VALIDOS = ("confere com a base", "contradiz a base", "não está na ba
 PROMPT_SISTEMA_JUIZ = (
     "Você é um auditor factual rigoroso (LLM-as-a-Judge) avaliando respostas sobre estabelecimentos "
     "e rolês no Distrito Federal (Brasília e regiões administrativas).\n"
-    "Compare a resposta avaliada exclusivamente contra o GABARITO e os DOCUMENTOS DA BASE 2FA fornecidos.\n"
-    "Para cada afirmação sobre lugar, preço, endereço ou horário feita na resposta, classifique o campo "
-    "`veredito` estritamente com um destes três valores exatos:\n"
+    "Compare a resposta avaliada exclusivamente contra o GABARITO e os DOCUMENTOS DA BASE 2FA fornecidos "
+    "(os mesmos campos que o sistema avaliado recebeu: nome, tipo, região, endereço, horário, faixa de preço, "
+    "descrição e preço médio).\n"
+    "Liste SOMENTE afirmações que estão escritas na resposta avaliada sobre lugar, preço, endereço ou horário. "
+    "Omissões, fatos que a resposta não disse e a ausência de informação NÃO entram na lista. "
+    "Se a resposta apenas recusa ou diz que não sabe, sem afirmar nada, devolva `afirmacoes` vazia.\n"
+    "Para cada afirmação, classifique o campo `veredito` estritamente com um destes três valores exatos:\n"
     '- "confere com a base"\n'
-    '- "contradiz a base"\n'
-    '- "não está na base"\n\n'
+    '- "contradiz a base" (a base desmente: preço, endereço, região ou horário diferentes do documento)\n'
+    '- "não está na base" (o documento não permite verificar a afirmação)\n\n'
     "Regras de julgamento:\n"
-    "1. Se a resposta inventar nome de estabelecimento, quadra, rua, endereço, preço ou horário que não "
-    'conste nos documentos da base 2FA, classifique como "não está na base" ou "contradiz a base".\n'
+    "1. Se a resposta citar estabelecimento, quadra, rua, endereço, preço ou horário que não conste nos "
+    'documentos, classifique como "não está na base"; use "contradiz a base" só quando o documento do mesmo '
+    "lugar traz um valor diferente.\n"
     "2. Se a pergunta for sobre cidade fora do DF (ex.: Rio de Janeiro, São Paulo) e a resposta recomendar "
-    'locais fora do DF sem recusar o escopo, classifique como "não está na base".\n'
+    'locais fora do DF sem recusar o escopo, classifique como "contradiz a base".\n'
     "3. Se a pergunta for fora do DF e a resposta recusar educadamente informando que o app cobre apenas o DF, "
-    'classifique como "confere com a base".\n'
+    "não há afirmação a listar.\n"
     "4. Responda APENAS com um objeto JSON válido no formato:\n"
     '{"afirmacoes": [{"tipo": "lugar|preco|endereco|horario", "trecho": "...", '
     '"veredito": "confere com a base|contradiz a base|não está na base", "justificativa": "..."}], '
@@ -85,6 +95,28 @@ _TERMOS_IGNORADOS_NOMES = {
     "faixa de preco", "tipo de role", "vibe", "vibes", "localizacao", "contato",
 }
 
+RAIZ = Path(__file__).resolve().parents[2]
+
+
+def _carregar_nomes_ras() -> frozenset[str]:
+    """Nomes normalizados das 35 RAs (`data/regioes_df_gps.json`), inclusive as partes de 'Sudoeste/Octogonal'."""
+    try:
+        dados = json.loads((RAIZ / "data" / "regioes_df_gps.json").read_text(encoding="utf-8"))
+    except Exception:
+        return frozenset()
+    nomes: set[str] = set()
+    for item in dados:
+        nome = item.get("nome") or ""
+        for parte in [nome, *re.split(r"[/()]", nome)]:
+            norm = _normalizar(parte)
+            if len(norm) >= 3:
+                nomes.add(norm)
+    return frozenset(nomes)
+
+
+def _comeca_com_nome_de_ra(cand_norm: str) -> bool:
+    return any(cand_norm == ra or cand_norm.startswith(ra + " ") for ra in NOMES_RAS)
+
 
 def _modelo_juiz() -> str:
     return (os.environ.get("JUIZ_LLM_MODELO") or MODELO_JUIZ_PADRAO).strip()
@@ -100,6 +132,9 @@ def _normalizar(texto: str | None) -> str:
     )
     sem_acento = re.sub(r"[^\w\s]", " ", sem_acento.lower())
     return re.sub(r"\s+", " ", sem_acento).strip()
+
+
+NOMES_RAS = _carregar_nomes_ras()
 
 
 def _extrair_precos_reais(texto: str) -> list[float]:
@@ -153,6 +188,17 @@ def _tokens_ra(ra_esperada: str | None) -> list[str]:
     return tokens
 
 
+def _ra_confere(ra_lugar: str | None, ra_esperada: str | None) -> bool:
+    """A RA do lugar é a esperada: igual, contida ('Plano Piloto (Asa Sul), ...') ou o trecho entre parênteses."""
+    lugar, esperada = _normalizar(ra_lugar), _normalizar(ra_esperada)
+    if not lugar or not esperada:
+        return False
+    if lugar == esperada or re.search(rf"\b{re.escape(esperada)}\b", lugar):
+        return True
+    partes = [_normalizar(p) for p in re.findall(r"\(([^)]*)\)", ra_esperada or "")]
+    return any(len(p) > 3 and lugar == p for p in partes)
+
+
 def _extrair_candidatos_locais_texto(resposta: str, nomes_base_norm: dict[str, dict]) -> tuple[list[dict], list[str]]:
     """Identifica estabelecimentos da base oficial citados no texto e possíveis estabelecimentos inventados."""
     norm_resp = _normalizar(resposta)
@@ -192,7 +238,7 @@ def _extrair_candidatos_locais_texto(resposta: str, nomes_base_norm: dict[str, d
         if (not (cand_limpo[0].isupper() or cand_limpo[0].isdigit()) or "\n" in cand_limpo
                 or re.search(r"[.!?;)]\s", cand_limpo) or len(cand_limpo.split()) > 7):
             continue
-        if cand_norm in _TERMOS_IGNORADOS_NOMES:
+        if cand_norm in _TERMOS_IGNORADOS_NOMES or _comeca_com_nome_de_ra(cand_norm):
             continue
         if any(cand_norm.startswith(prefixo) for prefixo in (
             "onde ", "para ", "como ", "busque ", "veja ", "confira ", "considere ",
@@ -293,21 +339,18 @@ def verificar_deterministico_rnf04(
         for g_norm in locais_gab_norm
     )
 
-    # Checagem de RA
+    # Checagem de RA: só vale lugar da base recomendado dentro da RA esperada (mencionar a RA não conta)
     tokens_ra_esp = _tokens_ra(ra_esperada)
+    recusou_fora_escopo = False
     if fora_de_escopo:
-        recusou = bloqueado_guardrail or (
+        recusou_fora_escopo = bloqueado_guardrail or (
             len(locais_inventados) == 0
+            and len(locais_base_citados) == 0
             and (_eh_recusa_ou_abstencao(resposta) or "distrito federal" in norm_resp or "brasilia" in norm_resp)
         )
-        ra_correta = recusou
+        ra_correta = recusou_fora_escopo
     elif tokens_ra_esp:
-        mencionou_ra = any(t in norm_resp for t in tokens_ra_esp)
-        local_na_ra = any(
-            any(t in _normalizar(loc.get("regiao_administrativa", "")) for t in tokens_ra_esp)
-            for loc in locais_base_citados
-        )
-        ra_correta = bool((mencionou_ra or local_na_ra) and len(locais_base_citados) > 0)
+        ra_correta = any(_ra_confere(loc.get("regiao_administrativa"), ra_esperada) for loc in locais_base_citados)
     else:
         ra_correta = len(locais_base_citados) > 0 and len(locais_inventados) == 0
 
@@ -349,31 +392,20 @@ def verificar_deterministico_rnf04(
         and not preco_contradiz
         and (bloqueado_guardrail or _eh_recusa_ou_abstencao(resposta))
     )
+    # Mesma regra nos dois modos: sem afirmação feita, não há o que medir (recusa do guardrail ou "não sei")
+    abstencao = omissao_pura or recusou_fora_escopo
 
     # Construção determinística das afirmações auditadas
     afirmacoes_det: list[dict[str, str]] = []
 
-    if fora_de_escopo:
-        if ra_correta and len(locais_inventados) == 0:
-            afirmacoes_det.append({
-                "tipo": "lugar",
-                "trecho": resposta[:120],
-                "veredito": "confere com a base",
-                "justificativa": "Recusou corretamente pergunta fora do escopo geográfico do DF.",
-            })
-        else:
-            afirmacoes_det.append({
-                "tipo": "lugar",
-                "trecho": (locais_inventados[0] if locais_inventados else resposta[:120]),
-                "veredito": "não está na base",
-                "justificativa": "Citou estabelecimentos fora da base 2FA ou não recusou escopo fora do DF.",
-            })
-    elif omissao_pura:
+    if abstencao:
+        pass
+    elif fora_de_escopo:
         afirmacoes_det.append({
             "tipo": "lugar",
-            "trecho": resposta[:120] or "(abstenção)",
-            "veredito": "confere com a base" if bloqueado_guardrail else "não está na base",
-            "justificativa": "Abstenção sem inventar estabelecimentos (omissão sem alucinação).",
+            "trecho": (locais_inventados[0] if locais_inventados else resposta[:120]),
+            "veredito": "contradiz a base",
+            "justificativa": "Recomendou lugares para uma pergunta fora do escopo geográfico do DF.",
         })
     else:
         for loc in locais_base_citados:
@@ -397,11 +429,12 @@ def verificar_deterministico_rnf04(
                 "veredito": "contradiz a base" if locais_base_citados else "não está na base",
                 "justificativa": "Endereço ou quadra não confere com o registro oficial da base 2FA.",
             })
-        elif locais_base_citados:
+        elif locais_base_citados and ra_correta:
+            # Lugar em outra RA não é fato desmentido pela base: isso aparece em `precisao_geoespacial_ra`
             afirmacoes_det.append({
                 "tipo": "endereco",
-                "trecho": locais_base_citados[0].get("regiao_administrativa", ""),
-                "veredito": "confere com a base" if ra_correta else "contradiz a base",
+                "trecho": ra_esperada or "",
+                "veredito": "confere com a base",
                 "justificativa": "Localização conferida contra a RA oficial da base 2FA.",
             })
 
@@ -417,12 +450,12 @@ def verificar_deterministico_rnf04(
                 ),
             })
 
-        if not afirmacoes_det:
+        if not afirmacoes_det and resposta.strip():
             afirmacoes_det.append({
                 "tipo": "lugar",
-                "trecho": resposta[:120] or "(resposta vazia)",
+                "trecho": resposta[:120],
                 "veredito": "não está na base",
-                "justificativa": "Nenhum estabelecimento da base 2FA foi recomendado.",
+                "justificativa": "Nenhum estabelecimento da base 2FA foi reconhecido na resposta.",
             })
 
     return {
@@ -434,6 +467,7 @@ def verificar_deterministico_rnf04(
         "preco_contradiz": preco_contradiz,
         "endereco_inventado": endereco_inventado,
         "omissao_pura": omissao_pura,
+        "abstencao": abstencao,
         "precos_extraidos": precos_citados,
         "fora_de_escopo": fora_de_escopo,
         "bloqueado_guardrail": bloqueado_guardrail,
@@ -463,17 +497,9 @@ def julgar_com_llm_judge(
         if f.get("nome"):
             nomes_relevantes.add(f["nome"])
 
-    docs_contexto = [
-        {
-            "nome": item.get("nome"),
-            "regiao_administrativa": item.get("regiao_administrativa"),
-            "endereco": item.get("endereco"),
-            "custo_medio_rs": item.get("custo_medio_rs"),
-            "horario_funcionamento": item.get("horario_funcionamento"),
-        }
-        for item in base
-        if item.get("nome") in nomes_relevantes
-    ]
+    # O juiz recebe os mesmos campos que o Modo B recebeu (llm_rag.montar_documentos)
+    lugares_relevantes = [item for item in base if item.get("nome") in nomes_relevantes]
+    docs_contexto = llm_rag.montar_documentos(lugares_relevantes)
 
     if not chave:
         return {
@@ -484,19 +510,13 @@ def julgar_com_llm_judge(
             "latencia_juiz_ms": 0.0,
         }
 
+    # Sem o veredito do código no prompt: o juiz é uma segunda opinião; os dois se combinam nas notas
     prompt_usuario = json.dumps(
         {
             "pergunta": pergunta,
             "gabarito": gabarito or {},
             "documentos_base_2fa": docs_contexto,
             "resposta_avaliada": resultado_modo.get("resposta") or "",
-            "verificacao_deterministica_previa": {
-                "locais_base_citados": verificacao_det["locais_base_citados"],
-                "locais_inventados": verificacao_det["locais_inventados"],
-                "ra_correta": verificacao_det["ra_correta"],
-                "preco_contradiz": verificacao_det["preco_contradiz"],
-                "endereco_inventado": verificacao_det["endereco_inventado"],
-            },
         },
         ensure_ascii=False,
     )
@@ -541,7 +561,7 @@ def julgar_com_llm_judge(
             conteudo = re.sub(r"^```(?:json)?\s*|\s*```$", "", conteudo, flags=re.DOTALL).strip()
         julgamento = json.loads(conteudo)
         afirmacoes_brutas = julgamento.get("afirmacoes")
-        if not isinstance(afirmacoes_brutas, list) or not afirmacoes_brutas:
+        if not isinstance(afirmacoes_brutas, list):
             raise ValueError("lista de afirmacoes ausente")
 
         afirmacoes_limpas: list[dict[str, str]] = []
@@ -563,9 +583,10 @@ def julgar_com_llm_judge(
                 "justificativa": str(af.get("justificativa") or ""),
             })
 
-        if not afirmacoes_limpas:
+        if afirmacoes_brutas and not afirmacoes_limpas:
             raise ValueError("nenhuma afirmacao valida")
 
+        uso = dados.get("usage") or {}
         return {
             "modelo_juiz": dados.get("model") or modelo,
             "usou_llm": True,
@@ -573,6 +594,8 @@ def julgar_com_llm_judge(
             "afirmacoes": afirmacoes_limpas,
             "resumo_juiz": julgamento.get("resumo_juiz") or "",
             "latencia_juiz_ms": ms,
+            "tokens_total": int(uso.get("total_tokens") or 0),
+            "custo_usd": float(uso.get("cost") or 0.0),
         }
     except Exception as exc:
         ms = round((time.perf_counter() - t0) * 1000, 1)
@@ -585,66 +608,83 @@ def julgar_com_llm_judge(
         }
 
 
+NOMES_SCORES = (
+    "fidelidade_factual_rnf03",
+    "taxa_alucinacao",
+    "taxa_fora_da_base",
+    "precisao_geoespacial_ra",
+    "acerto_gabarito",
+    "abstencao",
+    "sla_latencia_rnf14",
+)
+
+
+def _proporcoes(afirmacoes: list[dict]) -> tuple[float, float, float] | None:
+    """(fidelidade, alucinação, fora da base) como proporção das afirmações; None se não há afirmação."""
+    total = len(afirmacoes)
+    if total == 0:
+        return None
+    vereditos = [a.get("veredito") for a in afirmacoes]
+    return (
+        vereditos.count("confere com a base") / total,
+        vereditos.count("contradiz a base") / total,
+        vereditos.count("não está na base") / total,
+    )
+
+
 def _calcular_scores_modo(
     resultado_modo: dict,
     verificacao_det: dict,
     julgamento_juiz: dict,
-) -> dict[str, float]:
-    """Calcula os 4 scores padronizados (0.0 a 1.0) combinando RNF-04 (determinístico) e o juiz."""
+    gabarito: dict | None = None,
+) -> dict[str, float | None]:
+    """Calcula as notas (0.0 a 1.0) combinando RNF-04 (determinístico) e o juiz. `None` = não avaliado."""
+    if resultado_modo.get("disponivel") is False:
+        # Falha de infraestrutura (sem resposta do modelo) não é nota de qualidade
+        return {nome: None for nome in NOMES_SCORES}
+
     latencia_ms = float(resultado_modo.get("latencia_ms") or 0.0)
-    sla_latencia = 1.0 if latencia_ms <= SLA_LATENCIA_MAX_MS else 0.0
-    precisao_ra = 1.0 if verificacao_det["ra_correta"] else 0.0
-
-    afirmacoes = julgamento_juiz.get("afirmacoes") or verificacao_det["afirmacoes_deterministicas"]
-    total_af = max(len(afirmacoes), 1)
-    conferem = sum(1 for a in afirmacoes if a.get("veredito") == "confere com a base")
-    alucinadas = sum(
-        1 for a in afirmacoes
-        if a.get("veredito") in ("contradiz a base", "não está na base")
-    )
-
-    fidelidade_juiz = conferem / total_af
-    alucinacao_juiz = alucinadas / total_af
-
-    # Travas determinísticas RNF-04 (código prevalece sobre suavizações indevidas):
-    tem_alucinacao_det = bool(
-        verificacao_det["locais_inventados"]
-        or verificacao_det["preco_contradiz"]
-        or verificacao_det["endereco_inventado"]
-        or (verificacao_det["fora_de_escopo"] and not verificacao_det["ra_correta"])
-    )
-    ancorado_2fa_perfeito = bool(
-        not tem_alucinacao_det
-        and verificacao_det["ra_correta"]
-        and (
-            verificacao_det["fora_de_escopo"]
-            or (
-                len(verificacao_det["locais_base_citados"]) > 0
-                and (verificacao_det["acertou_local_gabarito"] or verificacao_det["preco_confere"])
-            )
-        )
-    )
-
-    if ancorado_2fa_perfeito and alucinacao_juiz == 0.0:
-        fidelidade_final = 1.0
-        taxa_alucinacao_final = 0.0
-    elif tem_alucinacao_det:
-        # Penalidade determinística garantida para respostas que inventam local, endereço ou preço
-        penalidade_det = 0.75 if (
-            verificacao_det["locais_inventados"]
-            and (verificacao_det["preco_contradiz"] or verificacao_det["endereco_inventado"])
-        ) else 0.6
-        taxa_alucinacao_final = round(max(alucinacao_juiz, penalidade_det), 4)
-        fidelidade_final = round(min(fidelidade_juiz, 1.0 - taxa_alucinacao_final), 4)
+    if resultado_modo.get("cache_hit"):
+        sla_latencia = None  # resposta do cache: a latência não mede o modelo
     else:
-        taxa_alucinacao_final = round(alucinacao_juiz, 4)
-        fidelidade_final = round(fidelidade_juiz, 4)
+        sla_latencia = 1.0 if latencia_ms <= SLA_LATENCIA_MAX_MS else 0.0
+
+    gabarito = gabarito or {}
+    locais_gabarito = [n for n in (gabarito.get("locais_gabarito") or []) if n]
+    abstencao = bool(verificacao_det.get("abstencao"))
+
+    if verificacao_det["fora_de_escopo"]:
+        acerto_gabarito = 1.0 if verificacao_det["ra_correta"] else 0.0  # recusar é o acerto
+        precisao_ra = None
+    elif locais_gabarito:
+        acerto_gabarito = 1.0 if verificacao_det["acertou_local_gabarito"] else 0.0
+        precisao_ra = None if abstencao else (1.0 if verificacao_det["ra_correta"] else 0.0)
+    else:
+        acerto_gabarito = None
+        precisao_ra = None if abstencao else (1.0 if verificacao_det["ra_correta"] else 0.0)
+
+    fidelidade = alucinacao = fora_da_base = None
+    if not abstencao:
+        det = _proporcoes(verificacao_det["afirmacoes_deterministicas"])
+        juiz_props = _proporcoes(julgamento_juiz.get("afirmacoes") or []) if julgamento_juiz.get("usou_llm") else None
+        base_props = juiz_props or det
+        if base_props is not None:
+            fidelidade, alucinacao, fora_da_base = base_props
+            if juiz_props is not None and det is not None and det[1] > alucinacao:
+                # Trava do código: contradição achada em Python não some por causa do juiz (sem piso fixo)
+                alucinacao = det[1]
+                fidelidade = min(fidelidade, 1.0 - alucinacao)
+                fora_da_base = min(fora_da_base, 1.0 - alucinacao - fidelidade)
+            fidelidade, alucinacao, fora_da_base = (round(max(0.0, v), 4) for v in (fidelidade, alucinacao, fora_da_base))
 
     return {
-        "fidelidade_factual_rnf03": round(max(0.0, min(1.0, fidelidade_final)), 4),
-        "taxa_alucinacao": round(max(0.0, min(1.0, taxa_alucinacao_final)), 4),
-        "precisao_geoespacial_ra": round(precisao_ra, 4),
-        "sla_latencia_rnf14": round(sla_latencia, 4),
+        "fidelidade_factual_rnf03": fidelidade,
+        "taxa_alucinacao": alucinacao,
+        "taxa_fora_da_base": fora_da_base,
+        "precisao_geoespacial_ra": precisao_ra,
+        "acerto_gabarito": acerto_gabarito,
+        "abstencao": 1.0 if abstencao else 0.0,
+        "sla_latencia_rnf14": sla_latencia,
     }
 
 
@@ -745,6 +785,13 @@ def _registrar_scores_langfuse(
         return False
 
 
+def _delta(maior: dict, menor: dict, nome: str) -> float | None:
+    """Diferença entre dois modos numa nota; None se algum dos dois não foi avaliado."""
+    if maior.get(nome) is None or menor.get(nome) is None:
+        return None
+    return round(maior[nome] - menor[nome], 4)
+
+
 def avaliar_par_comparativo(
     pergunta: str | dict[str, Any],
     gabarito: dict[str, Any] | None = None,
@@ -781,12 +828,26 @@ def avaliar_par_comparativo(
     det_b = verificar_deterministico_rnf04(pergunta_str, gabarito, resultado_modo_b, base)
 
     # Etapa 2: LLM-as-a-Judge (MiMo-V2.6-Pro via OpenRouter) com fallback determinístico
-    juiz_a = julgar_com_llm_judge(pergunta_str, gabarito, resultado_modo_a, det_a, base, sessao=sessao)
-    juiz_b = julgar_com_llm_judge(pergunta_str, gabarito, resultado_modo_b, det_b, base, sessao=sessao)
+    # Os dois modos são julgados em paralelo; abstenção não tem afirmação, então não gasta chamada ao juiz
+    def _julgar(resultado, det):
+        if det["abstencao"] or resultado.get("disponivel") is False:
+            return {
+                "modelo_juiz": _modelo_juiz(),
+                "usou_llm": False,
+                "motivo_fallback": "sem afirmações para julgar",
+                "afirmacoes": det["afirmacoes_deterministicas"],
+                "latencia_juiz_ms": 0.0,
+            }
+        return julgar_com_llm_judge(pergunta_str, gabarito, resultado, det, base, sessao=sessao)
 
-    # Cálculo dos 4 Scores Padronizados
-    scores_a = _calcular_scores_modo(resultado_modo_a, det_a, juiz_a)
-    scores_b = _calcular_scores_modo(resultado_modo_b, det_b, juiz_b)
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        fut_a = pool.submit(_julgar, resultado_modo_a, det_a)
+        fut_b = pool.submit(_julgar, resultado_modo_b, det_b)
+        juiz_a, juiz_b = fut_a.result(), fut_b.result()
+
+    # Cálculo das notas padronizadas
+    scores_a = _calcular_scores_modo(resultado_modo_a, det_a, juiz_a, gabarito)
+    scores_b = _calcular_scores_modo(resultado_modo_b, det_b, juiz_b, gabarito)
 
     # Métricas da Busca (sem LLM)
     metricas_busca = calcular_metricas_busca(gabarito, resultado_modo_b)
@@ -807,9 +868,10 @@ def avaliar_par_comparativo(
         },
         "metricas_busca": metricas_busca,
         "delta_rag_vs_llm": {
-            "ganho_fidelidade": round(scores_b["fidelidade_factual_rnf03"] - scores_a["fidelidade_factual_rnf03"], 4),
-            "reducao_alucinacao": round(scores_a["taxa_alucinacao"] - scores_b["taxa_alucinacao"], 4),
-            "ganho_precisao_ra": round(scores_b["precisao_geoespacial_ra"] - scores_a["precisao_geoespacial_ra"], 4),
+            "ganho_fidelidade": _delta(scores_b, scores_a, "fidelidade_factual_rnf03"),
+            "reducao_alucinacao": _delta(scores_a, scores_b, "taxa_alucinacao"),
+            "ganho_precisao_ra": _delta(scores_b, scores_a, "precisao_geoespacial_ra"),
+            "ganho_acerto_gabarito": _delta(scores_b, scores_a, "acerto_gabarito"),
         },
     }
 

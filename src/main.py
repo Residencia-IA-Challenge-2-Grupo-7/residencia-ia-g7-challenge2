@@ -1,9 +1,13 @@
 import json
+import logging
 import os
+import secrets
+import threading
+import time
 from typing import Literal, Optional
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from src.interface import COMPARATIVO_PAGE, ENTREGAVEIS_PAGE, HTML_PAGE, LANDING_PAGE
 from src.rag.comparador_ab import ErroComparativo, executar_comparacao_ab, listar_golden
@@ -14,6 +18,8 @@ from src.telemetria.telemetria import (
     flush_telemetria,
     simular_recuperacao_rag,
 )
+
+logger = logging.getLogger(__name__)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -140,28 +146,75 @@ def comparativo_executar(requisicao: ComparativoRequest):
     except ErroComparativo as e:
         raise HTTPException(status_code=e.status, detail=str(e))
     flush_telemetria()
+    # O resultado fica guardado no servidor: /avaliar só recebe este id, nunca texto, gabarito ou trace do navegador
+    resultado["id_comparativo"] = _guardar_comparativo(resultado)
     return resultado
 
 
+class AvaliarRequest(BaseModel):
+    """Só o id devolvido por `POST /api/comparativo/executar` (o resultado avaliado é o guardado no servidor)."""
+
+    model_config = ConfigDict(extra="forbid")
+    id_comparativo: str = Field(min_length=8, max_length=64, pattern=r"^[A-Za-z0-9_-]+$")
+
+
+TTL_COMPARATIVO_S = 900
+MAX_COMPARATIVOS = 200
+_COMPARATIVOS: dict[str, dict] = {}
+_COMPARATIVOS_LOCK = threading.Lock()
+
+
+def _guardar_comparativo(resultado: dict) -> str:
+    """Guarda o resultado em memória com id aleatório e validade curta; descarta vencidos e excedentes."""
+    agora = time.monotonic()
+    id_comparativo = secrets.token_urlsafe(16)
+    with _COMPARATIVOS_LOCK:
+        for chave in [k for k, v in _COMPARATIVOS.items() if v["expira"] <= agora]:
+            del _COMPARATIVOS[chave]
+        while len(_COMPARATIVOS) >= MAX_COMPARATIVOS:
+            del _COMPARATIVOS[next(iter(_COMPARATIVOS))]
+        _COMPARATIVOS[id_comparativo] = {
+            "dados": dict(resultado),
+            "expira": agora + TTL_COMPARATIVO_S,
+            "avaliacao": None,
+            "trava": threading.Lock(),
+        }
+    return id_comparativo
+
+
 @app.post("/api/comparativo/avaliar")
-def comparativo_avaliar(dados: dict):
+def comparativo_avaliar(requisicao: AvaliarRequest):
     """
-    Motor de Avaliação Híbrida da Semana 3 (Issue #36):
-    Recebe a saída do POST /api/comparativo/executar (ou executa sob demanda) e gera as notas
-    determinísticas RNF-04 + LLM-as-a-Judge MiMo-V2.6-Pro, registrando no Langfuse.
+    Motor de Avaliação Híbrida da Semana 3 (Issue #36): avalia um comparativo já executado pelo servidor
+    (RNF-04 determinístico + LLM-as-a-Judge MiMo-V2.6-Pro) e grava as notas no trace dele no Langfuse.
+    A avaliação é feita uma única vez por id: repetir a chamada devolve o mesmo resultado, sem novo custo.
     """
-    try:
-        from src.telemetria.evals_semana3 import avaliar_par_comparativo
-        if "modo_a_llm_pura" not in dados and ("id_golden" in dados or "pergunta" in dados):
-            dados = executar_comparacao_ab(dados.get("pergunta"), dados.get("id_golden"))
-        # A avaliação roda em outra requisição: os scores vão para o trace do comparativo, pelo id no trace_url
-        trace_url = ((dados.get("modo_b_rag") or {}).get("trace_url") or "").rstrip("/")
-        trace_id = trace_url.rsplit("/", 1)[-1] if "/traces/" in trace_url else None
-        avaliacao = avaliar_par_comparativo(dados, registrar_langfuse=bool(trace_id), trace_id=trace_id)
-        flush_telemetria()
-        return {"comparativo": dados, "avaliacao": avaliacao}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    with _COMPARATIVOS_LOCK:
+        entrada = _COMPARATIVOS.get(requisicao.id_comparativo)
+        if entrada and entrada["expira"] <= time.monotonic():
+            del _COMPARATIVOS[requisicao.id_comparativo]
+            entrada = None
+    if entrada is None:
+        raise HTTPException(status_code=404, detail="Comparativo não encontrado ou expirado. Execute-o de novo.")
+
+    with entrada["trava"]:
+        if entrada["avaliacao"] is None:
+            dados = entrada["dados"]
+            try:
+                from src.telemetria.evals_semana3 import avaliar_par_comparativo
+
+                # O trace vem do resultado gerado pelo servidor, não do navegador
+                trace_url = ((dados.get("modo_b_rag") or {}).get("trace_url") or "").rstrip("/")
+                trace_id = trace_url.rsplit("/", 1)[-1] if "/traces/" in trace_url else None
+                entrada["avaliacao"] = avaliar_par_comparativo(
+                    dados, registrar_langfuse=bool(trace_id), trace_id=trace_id)
+                flush_telemetria()
+            except ErroComparativo as e:
+                raise HTTPException(status_code=e.status, detail=str(e))
+            except Exception:
+                logger.exception("Falha ao avaliar o comparativo %s", requisicao.id_comparativo)
+                raise HTTPException(status_code=500, detail="Falha ao avaliar o comparativo.")
+        return {"comparativo": entrada["dados"], "avaliacao": entrada["avaliacao"]}
 
 
 @app.get("/entregaveis", response_class=HTMLResponse)

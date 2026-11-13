@@ -3570,9 +3570,12 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
 
     // Issue #36: avaliação híbrida (RNF-04 determinístico + juiz MiMo-V2.6-Pro), em segundo plano
     const ROTULOS_SCORES = [
+      ["acerto_gabarito", "🏁 Acertou o lugar do gabarito", false],
       ["fidelidade_factual_rnf03", "🎯 Fidelidade factual (RNF-03)", false],
-      ["taxa_alucinacao", "👻 Taxa de alucinação", true],
+      ["taxa_alucinacao", "👻 Alucinação (a base desmente)", true],
+      ["taxa_fora_da_base", "❔ Não verificável na base", true],
       ["precisao_geoespacial_ra", "📍 Precisão da RA", false],
+      ["abstencao", "🙊 Recusou / não afirmou nada", null],
       ["sla_latencia_rnf14", "⏱️ SLA ≤ 5 s (RNF-14)", false],
     ];
 
@@ -3586,17 +3589,23 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
         return;
       }
       ROTULOS_SCORES.forEach(([chave, rotulo, menorMelhor]) => {
-        const v = Number(scores[chave]);
-        if (Number.isNaN(v)) return;
-        const bom = menorMelhor ? v <= 0.2 : v >= 0.8;
-        const ruim = menorMelhor ? v >= 0.5 : v < 0.5;
+        const bruto = scores[chave];
+        if (bruto === undefined) return;
+        const naoAvaliado = bruto === null;
+        const v = naoAvaliado ? NaN : Number(bruto);
         const linha = criarEl("div", "");
         linha.style.display = "flex";
         linha.style.justifyContent = "space-between";
         linha.style.gap = "8px";
         linha.appendChild(criarEl("span", "", rotulo));
-        const val = criarEl("strong", "", `${(v * 100).toFixed(0)}%`);
-        val.style.color = bom ? "#16a34a" : (ruim ? "#dc2626" : "#d97706");
+        const val = criarEl("strong", "", naoAvaliado ? "n/a" : (chave === "abstencao" ? (v >= 0.5 ? "sim" : "não") : `${(v * 100).toFixed(0)}%`));
+        if (naoAvaliado || menorMelhor === null) {
+          val.style.opacity = "0.8";
+        } else {
+          const bom = menorMelhor ? v <= 0.2 : v >= 0.8;
+          const ruim = menorMelhor ? v >= 0.5 : v < 0.5;
+          val.style.color = bom ? "#16a34a" : (ruim ? "#dc2626" : "#d97706");
+        }
         linha.appendChild(val);
         box.appendChild(linha);
       });
@@ -3626,7 +3635,7 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
         const res = await fetch("/api/comparativo/avaliar", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(dados)
+          body: JSON.stringify({ id_comparativo: dados.id_comparativo })
         });
         const corpo = await res.json();
         if (!res.ok || !corpo.avaliacao) throw new Error(corpo.detail || `HTTP ${res.status}`);
