@@ -30,6 +30,13 @@
   - os 20 casos em `data/golden_dataset_semana3.json`: 5 geoespaciais, 3 de horário, 2 fora do DF, 5 de preço exato, 3 de ambiência e restrição alimentar e 2 de conflito e gírias;
   - catálogo, regras e limitações conhecidas em [docs/dados/golden-dataset-semana3.md](docs/dados/golden-dataset-semana3.md); `tests/test_golden_dataset.py` trava os 20 casos, as 6 categorias e o preço contra o `custo_medio_rs`;
   - a prévia do comparativo usou só os 10 primeiros; os casos 11 a 20 já aparecem em `GET /api/comparativo/golden`.
+- **Avaliação automatizada híbrida e Haystack (Eduarda, 12/11), issue #36, PR #60 (revisão da @cadasiso atendida em 13/11):**
+  - `src/telemetria/evals_semana3.py`: checagem em código (RNF-04) + juiz MiMo-V2.6-Pro (`xiaomi/mimo-v2.6-pro`, temperatura 0, sem retenção), com fallback offline. Detalhe de regras e notas no docstring do módulo;
+  - notas (`None` = não avaliado): `fidelidade_factual_rnf03`, `taxa_alucinacao` (só o que a base desmente), `taxa_fora_da_base` (não verificável), `precisao_geoespacial_ra`, `acerto_gabarito`, `abstencao` e `sla_latencia_rnf14`. Recusa e "não sei" valem igual nos dois modos; sem piso fixo; o juiz vê os mesmos campos do Modo B e não vê o veredito do código;
+  - `POST /api/comparativo/avaliar` recebe só o `id_comparativo` devolvido por `/executar` (resultado guardado 15 min em memória, avaliado uma vez por id); erros viram 404 ou 500 sem a mensagem da exceção;
+  - Langfuse: `input` e `output` nas gerações, scores no trace, sem a nota fixa `fidelidade_rnf03_zero_alucinacao`;
+  - Haystack (`src/rag/pipeline_haystack.py`) com os campos reais da base: recall@3 de 2 para 14 de 18 ([experimento](docs/experimentos/2026-11-13-haystack-recall.md));
+  - **565 testes passam** (`PYTHONPATH=. pytest tests`, fora o `test_smoke`, que precisa do `torch`).
 - **Back-end das salas (Cauan, 10/11), PR #48 na `main`:**
   - `src/interpretador/campos.py`: os 4 campos viram RA (apelidos, quadras como SQN e QNM, estações de metrô), janelas pelo `tempo.py`, teto pelo `numeros.py` e tags com os rótulos da base. Tudo por regras; o LLM do ADR 0007 só entra se as regras não acharem nenhum dia ([ADR 0009](docs/decisoes/0009-entrada-pelos-4-campos-de-texto.md));
   - `src/state.py` (repositório em memória, pronto para trocar pelo Supabase) e `src/salas/` (gerenciador, cruzamento de horários, horário de funcionamento dos lugares, cartões, votação);

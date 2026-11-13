@@ -3106,8 +3106,8 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
 
           <div class="scores-panel">
             <div class="scores-title">📊 Scores de Qualidade &amp; Governança</div>
-            <div class="not-evaluated-box">
-              <strong>não avaliado</strong> — As métricas automáticas de alucinação e fidelidade serão integradas na issue #36.
+            <div class="not-evaluated-box" id="scoresModoA">
+              <strong>não avaliado</strong> — Execute uma comparação para gerar os scores automáticos (issue #36).
             </div>
           </div>
 
@@ -3165,8 +3165,8 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
 
           <div class="scores-panel">
             <div class="scores-title">📊 Scores de Qualidade &amp; Governança</div>
-            <div class="not-evaluated-box">
-              <strong>não avaliado</strong> — As métricas automáticas de alucinação e fidelidade serão integradas na issue #36.
+            <div class="not-evaluated-box" id="scoresModoB">
+              <strong>não avaliado</strong> — Execute uma comparação para gerar os scores automáticos (issue #36).
             </div>
           </div>
 
@@ -3557,6 +3557,7 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
           return;
         }
         renderizarComparativo(dados);
+        avaliarComparativo(dados);
       } catch (err) {
         console.error("Erro ao consultar /api/comparativo/executar:", err);
         erroBanner.textContent = "Falha de comunicação com o servidor ao executar comparativo.";
@@ -3564,6 +3565,95 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
       } finally {
         btn.disabled = false;
         btn.textContent = textoOriginal;
+      }
+    }
+
+    // Issue #36: avaliação híbrida (RNF-04 determinístico + juiz MiMo-V2.6-Pro), em segundo plano
+    const ROTULOS_SCORES = [
+      ["acerto_gabarito", "🏁 Acertou o lugar do gabarito", false],
+      ["fidelidade_factual_rnf03", "🎯 Fidelidade factual (RNF-03)", false],
+      ["taxa_alucinacao", "👻 Alucinação (a base desmente)", true],
+      ["taxa_fora_da_base", "❔ Não verificável na base", true],
+      ["precisao_geoespacial_ra", "📍 Precisão da RA", false],
+      ["abstencao", "🙊 Recusou / não afirmou nada", null],
+      ["sla_latencia_rnf14", "⏱️ SLA ≤ 5 s (RNF-14)", false],
+    ];
+
+    function preencherScores(alvoId, bloco, extra) {
+      const box = document.getElementById(alvoId);
+      if (!box) return;
+      box.innerHTML = "";
+      const scores = (bloco && bloco.scores) || null;
+      if (!scores) {
+        box.appendChild(criarEl("span", "", "não avaliado — avaliação indisponível."));
+        return;
+      }
+      ROTULOS_SCORES.forEach(([chave, rotulo, menorMelhor]) => {
+        const bruto = scores[chave];
+        if (bruto === undefined) return;
+        const naoAvaliado = bruto === null;
+        const v = naoAvaliado ? NaN : Number(bruto);
+        const linha = criarEl("div", "");
+        linha.style.display = "flex";
+        linha.style.justifyContent = "space-between";
+        linha.style.gap = "8px";
+        linha.appendChild(criarEl("span", "", rotulo));
+        const val = criarEl("strong", "", naoAvaliado ? "n/a" : (chave === "abstencao" ? (v >= 0.5 ? "sim" : "não") : `${(v * 100).toFixed(0)}%`));
+        if (naoAvaliado || menorMelhor === null) {
+          val.style.opacity = "0.8";
+        } else {
+          const bom = menorMelhor ? v <= 0.2 : v >= 0.8;
+          const ruim = menorMelhor ? v >= 0.5 : v < 0.5;
+          val.style.color = bom ? "#16a34a" : (ruim ? "#dc2626" : "#d97706");
+        }
+        linha.appendChild(val);
+        box.appendChild(linha);
+      });
+      const juiz = (bloco && bloco.julgamento_juiz) || {};
+      const origem = juiz.usou_llm
+        ? `⚖️ Juiz: ${juiz.modelo_juiz || "MiMo-V2.6-Pro"} + verificação determinística`
+        : `⚖️ Verificação determinística (juiz indisponível: ${juiz.motivo_fallback || "sem chave"})`;
+      const rodape = criarEl("div", "", origem);
+      rodape.style.fontSize = "0.72rem";
+      rodape.style.opacity = "0.8";
+      rodape.style.marginTop = "6px";
+      box.appendChild(rodape);
+      if (extra) {
+        const e = criarEl("div", "", extra);
+        e.style.fontSize = "0.72rem";
+        e.style.opacity = "0.8";
+        box.appendChild(e);
+      }
+    }
+
+    async function avaliarComparativo(dados) {
+      ["scoresModoA", "scoresModoB"].forEach((id) => {
+        const box = document.getElementById(id);
+        if (box) box.textContent = "⏳ Avaliando com o juiz MiMo-V2.6-Pro e as travas RNF-04...";
+      });
+      try {
+        const res = await fetch("/api/comparativo/avaliar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id_comparativo: dados.id_comparativo })
+        });
+        const corpo = await res.json();
+        if (!res.ok || !corpo.avaliacao) throw new Error(corpo.detail || `HTTP ${res.status}`);
+        const av = corpo.avaliacao;
+        const modoA = dados.modo_a_llm_pura || {};
+        const extraA = modoA.cache_hit ? "ℹ️ Resposta do cache: latência 0 ms não mede o modelo." : "";
+        const busca = av.metricas_busca || {};
+        const extraB = (busca.recall_at_k !== undefined && busca.recall_at_k !== null)
+          ? `🔎 Busca: recall@k ${Number(busca.recall_at_k).toFixed(2)} · MRR ${Number(busca.mrr ?? 0).toFixed(2)}`
+          : "";
+        preencherScores("scoresModoA", av.modo_a_llm_pura, extraA);
+        preencherScores("scoresModoB", av.modo_b_rag, extraB);
+      } catch (err) {
+        console.error("Erro ao consultar /api/comparativo/avaliar:", err);
+        ["scoresModoA", "scoresModoB"].forEach((id) => {
+          const box = document.getElementById(id);
+          if (box) box.textContent = "não avaliado — falha ao gerar os scores automáticos.";
+        });
       }
     }
 

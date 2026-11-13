@@ -275,6 +275,8 @@ def _etapa_retriever(pergunta: str, top_k: int = 3, categoria: Optional[str] = N
 
     try:
         client.update_current_span(
+            input=pergunta,
+            output=[{"nome": r.get("nome"), "ra": r.get("regiao_administrativa"), "score": r.get("score_similaridade")} for r in resultados],
             metadata={
                 "base_dados": "data/banco_aprovado_2fa.json",
                 "autor_base": "Letícia Miti (Semana 2)",
@@ -417,12 +419,6 @@ def simular_recuperacao_rag(
                 name="qualidade_recuperacao_rag",
                 value=score_medio_recuperacao,
                 comment=f"Média semântica dos top {len(roles)} rolês",
-            )
-            client.create_score(
-                trace_id=trace_id,
-                name="fidelidade_rnf03_zero_alucinacao",
-                value=1.0,
-                comment="100% dos locais são do arquivo oficial data/banco_aprovado_2fa.json da Letícia",
             )
             client.create_score(
                 trace_id=trace_id,
