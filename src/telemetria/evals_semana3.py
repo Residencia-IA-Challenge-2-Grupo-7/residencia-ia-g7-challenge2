@@ -94,6 +94,7 @@ _TERMOS_IGNORADOS_NOMES = {
     "descricao", "funcionamento", "preco medio", "preco medio por pessoa",
     "regiao administrativa", "opcoes", "opcao", "resumo", "detalhes", "ambiente",
     "faixa de preco", "tipo de role", "vibe", "vibes", "localizacao", "contato",
+    "nome", "local", "estabelecimento", "regiao", "horario de funcionamento",
 }
 
 RAIZ = Path(__file__).resolve().parents[2]
@@ -241,18 +242,31 @@ def _extrair_candidatos_locais_texto(resposta: str, nomes_base_norm: dict[str, d
             continue
         if cand_norm in _TERMOS_IGNORADOS_NOMES or _comeca_com_nome_de_ra(cand_norm):
             continue
+        # Ignora valores monetários em negrito (ex.: "**R$ 69,90**" ou "**R$ 19,90 por pessoa**")
+        if re.match(r"^r\$\s*\d", cand_limpo.lower()) or re.match(r"^r\s+\d", cand_norm):
+            continue
         if any(cand_norm.startswith(prefixo) for prefixo in (
             "onde ", "para ", "como ", "busque ", "veja ", "confira ", "considere ",
             "observacao", "nota", "aviso", "dica", "sugestao", "horario", "preco", "endereco",
             "descricao", "regiao ", "rodizio de ", "opcoes em ", "comercio da ", "bares em ",
-            "restaurantes ", "hamburguerias ", "pizzarias ",
+            "restaurantes ", "hamburguerias ", "pizzarias ", "nome ",
         )):
             continue
-        # Verifica se coincide com algum nome da base (parcial ou exato)
+        # Verifica se coincide com algum nome da base (parcial, exato ou sem espaços internos)
         bate_base = False
-        for nome_norm in nomes_base_norm:
-            if cand_norm == nome_norm or cand_norm in nome_norm or nome_norm in cand_norm:
+        cand_sem_esp = cand_norm.replace(" ", "")
+        for nome_norm, item_base in nomes_base_norm.items():
+            nome_sem_esp = nome_norm.replace(" ", "")
+            if (
+                cand_norm == nome_norm
+                or cand_norm in nome_norm
+                or nome_norm in cand_norm
+                or (len(cand_sem_esp) >= 5 and cand_sem_esp == nome_sem_esp)
+            ):
                 bate_base = True
+                if item_base["nome"] not in vistos_nomes:
+                    encontrados_base.append(item_base)
+                    vistos_nomes.add(item_base["nome"])
                 break
         if not bate_base and cand_limpo not in inventados:
             inventados.append(cand_limpo)

@@ -1,0 +1,1537 @@
+=========================================================================================================
+LOG COMPROBATÓRIO OFICIAL — BENCHMARK A/B: LLM PURA vs. RAG ANCORADO 2FA (SEMANA 3 — ISSUE #38)
+   RESIDÊNCIA EM IA (INSTITUTO ELDORADO / UnB) | GRUPO 7 — ORQUESTRADOR DE ROLÊS
+=========================================================================================================
+Data/Hora da Consolidação : 2026-11-13T19:18:48Z
+Golden Dataset Avaliado   : data/golden_dataset_semana3.json (20 consultas auditadas)
+Base Oficial de Conhecim. : data/banco_aprovado_2fa.json (93 locais DF validados em 2 fatores)
+Modelo Gerador Avaliado   : deepseek/deepseek-v4.1-flash-1017 (OpenRouter, temperatura 0, ZDR ativo)
+Modelo Avaliador (Juiz)   : xiaomi/mimo-v2.6-pro (Etapa 1 RNF-04 Código + Etapa 2 LLM-as-a-Judge)
+Dataset Langfuse Cloud    : golden_dataset_semana3 (6 configurações × 2 rodadas)
+=========================================================================================================
+
+1. RESUMO EXECUTIVO POR CONFIGURAÇÃO (20 CONSULTAS — CONTAGENS E MÉTRICAS OFICIAIS)
+---------------------------------------------------------------------------------------------------------
+#  | Configuração                           | Acerto Gab.  | Acerto DF  | Fidelid.  | Alucin.  | Inv.   | Prec. RA   | p50 / p90     | Custo Méd.
+---------------------------------------------------------------------------------------------------------
+1  | LLM pura, sem raciocínio               | 2 de 20      | 0 de 18    |   0.0%    |   3.0%   | 32     | 0 de 15    | 3.8s / 5.3s   | R$ 0.00079
+2  | LLM pura, raciocínio alto              | 2 de 20      | 0 de 18    |   0.0%    |  28.6%   | 2      | 0 de 14    | 6.8s / 14.6s  | R$ 0.00198
+3  | RAG sem LLM (busca + texto fixo da semana 2) | 12 de 20     | 10 de 18   |  84.4%    |  13.9%   | 0      | 13 de 16   | 0.0s / 0.0s   | R$ 0.00087
+4  | RAG + LLM, busca léxica                | 12 de 20     | 10 de 18   |  88.8%    |  10.6%   | 0      | 13 de 16   | 3.1s / 3.6s   | R$ 0.00081
+5  | RAG + LLM, busca léxica, raciocínio alto | 12 de 20     | 10 de 18   |  83.5%    |  16.5%   | 0      | 13 de 16   | 4.5s / 6.9s   | R$ 0.00121
+6  | RAG + LLM, busca vetorial              | 18 de 20     | 16 de 18   |  91.0%    |   7.2%   | 0      | 16 de 17   | 5.1s / 5.8s   | R$ 0.00092
+---------------------------------------------------------------------------------------------------------
+
+1.1. DETALHAMENTO COMPLETO E VARIAÇÃO ENTRE RODADAS (RODADA 1 vs. RODADA 2)
+---------------------------------------------------------------------------------------------------------
+[1] LLM pura, sem raciocínio (1_llm_pura_sem_raciocinio)
+    • Como rodar               : executar_comparacao_ab(...)["modo_a_llm_pura"]
+    • Acerto do Gabarito       : 2 de 20 (10.0%) | Casos dentro do DF: 0 de 18 (0.0%) | Recusa fora do DF: 2 de 2
+    • Fidelidade Factual RNF-03: 0.0% (casos com afirmações avaliadas: 15 de 20; 100% fiéis: 0 de 15; meta RNF-03 >= 95%: NÃO ATINGIDA)
+    • Taxa de Alucinação       : 3.0% (casos com contradição factual: 3 de 20; preço contraditório: 1 de 20; endereço contraditório/inventado: 5 de 20)
+    • Taxa Fora da Base / Inv. : 97.0% fora da base | Lugares inventados: 32 em 13 de 20 casos (Alternativa, Alternativa: Taguatinga/Ceilândia, Bar do Calaf, Bar do Caldo, Boteco da Asa, Boteco do Espeto, Churrasquinho da Quadra, Coco Bambu Brasília)
+    • Precisão Geoespacial (RA): 0.0% (0 de 15 respostas com recomendação na RA esperada) | Abstenções ('não sei'/recusa): 5 de 20
+    • Métricas da Busca (RAG)  : N/A (configuração sem recuperação de documentos)
+    • Latência (RNF-14 <= 5s)  : p50 = 3748 ms (3.75 s) | p90 = 5259 ms (5.26 s) | Dentro de 5 s: 17 de 20 (acima de 5 s: 3 de 20)
+    • Custo e Tokens           : Custo médio = R$ 0.000789 (Total 20 casos = R$ 0.01578) | Tokens médios = 369 (raciocínio = 0)
+    • Variação (2 Rodadas)     : Acerto R1 = 2 de 20 vs. R2 = 2 de 20 (delta = +0) | p90 R1 = 5259 ms vs. R2 = 4834 ms | Fidelidade R1 = 0.0% vs. R2 = 0.0%
+    • Experimento Langfuse     : https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/experiments/results?baseline=af974ccfc3fb9189
+
+[2] LLM pura, raciocínio alto (2_llm_pura_raciocinio_alto)
+    • Como rodar               : executar_comparacao_ab(..., raciocinio="high")["modo_a_llm_pura"]
+    • Acerto do Gabarito       : 2 de 20 (10.0%) | Casos dentro do DF: 0 de 18 (0.0%) | Recusa fora do DF: 2 de 2
+    • Fidelidade Factual RNF-03: 0.0% (casos com afirmações avaliadas: 14 de 20; 100% fiéis: 0 de 14; meta RNF-03 >= 95%: NÃO ATINGIDA)
+    • Taxa de Alucinação       : 28.6% (casos com contradição factual: 4 de 20; preço contraditório: 5 de 20; endereço contraditório/inventado: 1 de 20)
+    • Taxa Fora da Base / Inv. : 71.4% fora da base | Lugares inventados: 2 em 1 de 20 casos (Beirute, CLN 107, Bloco A)
+    • Precisão Geoespacial (RA): 0.0% (0 de 14 respostas com recomendação na RA esperada) | Abstenções ('não sei'/recusa): 6 de 20
+    • Métricas da Busca (RAG)  : N/A (configuração sem recuperação de documentos)
+    • Latência (RNF-14 <= 5s)  : p50 = 6844 ms (6.84 s) | p90 = 14582 ms (14.58 s) | Dentro de 5 s: 1 de 20 (acima de 5 s: 19 de 20)
+    • Custo e Tokens           : Custo médio = R$ 0.001978 (Total 20 casos = R$ 0.03957) | Tokens médios = 708 (raciocínio = 380)
+    • Variação (2 Rodadas)     : Acerto R1 = 2 de 20 vs. R2 = 2 de 20 (delta = +0) | p90 R1 = 14582 ms vs. R2 = 18115 ms | Fidelidade R1 = 0.0% vs. R2 = 3.6%
+    • Experimento Langfuse     : https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/experiments/results?baseline=d03b9b9c2810a776
+
+[3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo)
+    • Como rodar               : simular_recuperacao_rag / POST /rag/buscar
+    • Acerto do Gabarito       : 12 de 20 (60.0%) | Casos dentro do DF: 10 de 18 (55.6%) | Recusa fora do DF: 2 de 2
+    • Fidelidade Factual RNF-03: 84.4% (casos com afirmações avaliadas: 16 de 20; 100% fiéis: 6 de 16; meta RNF-03 >= 95%: NÃO ATINGIDA)
+    • Taxa de Alucinação       : 13.9% (casos com contradição factual: 8 de 20; preço contraditório: 1 de 20; endereço contraditório/inventado: 0 de 20)
+    • Taxa Fora da Base / Inv. : 1.7% fora da base | Lugares inventados: 0 em 0 de 20 casos (nenhum)
+    • Precisão Geoespacial (RA): 81.2% (13 de 16 respostas com recomendação na RA esperada) | Abstenções ('não sei'/recusa): 4 de 20
+    • Métricas da Busca (RAG)  : Recall@3 = 10 de 18 (55.6%) | MRR = 0.3704 | Recusa correta fora DF = 2 de 2 | Recusa indevida DF = 3 de 18
+    • Latência (RNF-14 <= 5s)  : p50 = 20 ms (0.02 s) | p90 = 32 ms (0.03 s) | Dentro de 5 s: 20 de 20 (acima de 5 s: 0 de 20)
+    • Custo e Tokens           : Custo médio = R$ 0.000872 (Total 20 casos = R$ 0.01743) | Tokens médios = 1593 (raciocínio = 0)
+    • Variação (2 Rodadas)     : Acerto R1 = 12 de 20 vs. R2 = 12 de 20 (delta = +0) | p90 R1 = 32 ms vs. R2 = 42 ms | Fidelidade R1 = 84.4% vs. R2 = 84.4%
+    • Experimento Langfuse     : https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/experiments/results?baseline=e35f318c5947b644
+
+[4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica)
+    • Como rodar               : executar_comparacao_ab(...)["modo_b_rag"]
+    • Acerto do Gabarito       : 12 de 20 (60.0%) | Casos dentro do DF: 10 de 18 (55.6%) | Recusa fora do DF: 2 de 2
+    • Fidelidade Factual RNF-03: 88.8% (casos com afirmações avaliadas: 16 de 20; 100% fiéis: 8 de 16; meta RNF-03 >= 95%: NÃO ATINGIDA)
+    • Taxa de Alucinação       : 10.6% (casos com contradição factual: 7 de 20; preço contraditório: 1 de 20; endereço contraditório/inventado: 0 de 20)
+    • Taxa Fora da Base / Inv. : 0.6% fora da base | Lugares inventados: 0 em 0 de 20 casos (nenhum)
+    • Precisão Geoespacial (RA): 81.2% (13 de 16 respostas com recomendação na RA esperada) | Abstenções ('não sei'/recusa): 4 de 20
+    • Métricas da Busca (RAG)  : Recall@3 = 10 de 18 (55.6%) | MRR = 0.3704 | Recusa correta fora DF = 2 de 2 | Recusa indevida DF = 3 de 18
+    • Latência (RNF-14 <= 5s)  : p50 = 3151 ms (3.15 s) | p90 = 3609 ms (3.61 s) | Dentro de 5 s: 20 de 20 (acima de 5 s: 0 de 20)
+    • Custo e Tokens           : Custo médio = R$ 0.000807 (Total 20 casos = R$ 0.01614) | Tokens médios = 755 (raciocínio = 0)
+    • Variação (2 Rodadas)     : Acerto R1 = 12 de 20 vs. R2 = 12 de 20 (delta = +0) | p90 R1 = 3609 ms vs. R2 = 3899 ms | Fidelidade R1 = 88.8% vs. R2 = 87.7%
+    • Experimento Langfuse     : https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/experiments/results?baseline=0b1b9b704ad0be14
+
+[5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto)
+    • Como rodar               : executar_comparacao_ab(..., raciocinio="high")["modo_b_rag"]
+    • Acerto do Gabarito       : 12 de 20 (60.0%) | Casos dentro do DF: 10 de 18 (55.6%) | Recusa fora do DF: 2 de 2
+    • Fidelidade Factual RNF-03: 83.5% (casos com afirmações avaliadas: 16 de 20; 100% fiéis: 10 de 16; meta RNF-03 >= 95%: NÃO ATINGIDA)
+    • Taxa de Alucinação       : 16.5% (casos com contradição factual: 6 de 20; preço contraditório: 1 de 20; endereço contraditório/inventado: 0 de 20)
+    • Taxa Fora da Base / Inv. : 0.0% fora da base | Lugares inventados: 0 em 0 de 20 casos (nenhum)
+    • Precisão Geoespacial (RA): 81.2% (13 de 16 respostas com recomendação na RA esperada) | Abstenções ('não sei'/recusa): 4 de 20
+    • Métricas da Busca (RAG)  : Recall@3 = 10 de 18 (55.6%) | MRR = 0.3704 | Recusa correta fora DF = 2 de 2 | Recusa indevida DF = 3 de 18
+    • Latência (RNF-14 <= 5s)  : p50 = 4513 ms (4.51 s) | p90 = 6877 ms (6.88 s) | Dentro de 5 s: 13 de 20 (acima de 5 s: 7 de 20)
+    • Custo e Tokens           : Custo médio = R$ 0.001208 (Total 20 casos = R$ 0.02417) | Tokens médios = 892 (raciocínio = 149)
+    • Variação (2 Rodadas)     : Acerto R1 = 12 de 20 vs. R2 = 12 de 20 (delta = +0) | p90 R1 = 6877 ms vs. R2 = 8231 ms | Fidelidade R1 = 83.5% vs. R2 = 83.3%
+    • Experimento Langfuse     : https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/experiments/results?baseline=bdf3d7b813e9be8c
+
+[6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial)
+    • Como rodar               : executar_comparacao_ab(..., busca="vetorial")["modo_b_rag"]
+    • Acerto do Gabarito       : 18 de 20 (90.0%) | Casos dentro do DF: 16 de 18 (88.9%) | Recusa fora do DF: 2 de 2
+    • Fidelidade Factual RNF-03: 91.0% (casos com afirmações avaliadas: 17 de 20; 100% fiéis: 11 de 17; meta RNF-03 >= 95%: NÃO ATINGIDA)
+    • Taxa de Alucinação       : 7.2% (casos com contradição factual: 3 de 20; preço contraditório: 1 de 20; endereço contraditório/inventado: 0 de 20)
+    • Taxa Fora da Base / Inv. : 1.8% fora da base | Lugares inventados: 0 em 0 de 20 casos (nenhum)
+    • Precisão Geoespacial (RA): 94.1% (16 de 17 respostas com recomendação na RA esperada) | Abstenções ('não sei'/recusa): 3 de 20
+    • Métricas da Busca (RAG)  : Recall@3 = 16 de 18 (88.9%) | MRR = 0.8333 | Recusa correta fora DF = 2 de 2 | Recusa indevida DF = 2 de 18
+    • Latência (RNF-14 <= 5s)  : p50 = 5104 ms (5.10 s) | p90 = 5826 ms (5.83 s) | Dentro de 5 s: 9 de 20 (acima de 5 s: 11 de 20)
+    • Custo e Tokens           : Custo médio = R$ 0.000915 (Total 20 casos = R$ 0.01829) | Tokens médios = 814 (raciocínio = 0)
+    • Variação (2 Rodadas)     : Acerto R1 = 18 de 20 vs. R2 = 18 de 20 (delta = +0) | p90 R1 = 5826 ms vs. R2 = 5346 ms | Fidelidade R1 = 91.0% vs. R2 = 91.2%
+    • Experimento Langfuse     : https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/experiments/results?baseline=916c6e5bce59b56d
+
+=========================================================================================================
+2. CONFIGURAÇÃO ESCOLHIDA PARA O PRODUTO (CRITÉRIO OFICIAL DA ISSUE #38)
+=========================================================================================================
+Critério Pré-Definido : Entre as configurações com p90 <= 5 s (RNF-14) e nenhum lugar inventado (0 locais falsos), a de maior acerto do lugar do gabarito; no empate, a mais barata.
+Configuração Vencedora: [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica)
+  - Cumpre RNF-14 (p90 <= 5 s) : SIM (p50 = 3151 ms | p90 = 3609 ms)
+  - Zero Lugares Inventados    : SIM (0 locais falsos nas 20 consultas)
+  - Acerto do Lugar Gabarito   : 12 de 20 (60.0%) | DF: 10 de 18
+  - Fidelidade Factual (RNF-03): 88.8% | Taxa de Alucinação: 10.6%
+  - Custo Médio por Consulta   : R$ 0.000807
+Justificativa Técnica : A configuração 'RAG + LLM, busca léxica' (4_rag_llm_busca_lexica) foi eleita a melhor para o produto por cumprir simultaneamente o SLA de latência RNF-14 (p90 = 3.61 s <= 5,0 s, com 20 de 20 respostas dentro do limite) e zero lugares inventados (0 estabelecimentos falsos em 20 consultas, fidelidade factual média de 88.8%), alcançando o maior acerto do gabarito entre as configurações elegíveis (12 de 20 no geral e 10 de 18 nos casos do DF) com custo médio de R$ 0.00081 por consulta.
+
+Motivos de descarte das demais configurações:
+  • LLM pura, sem raciocínio (1_llm_pura_sem_raciocinio): p90 = 5.26 s (> 5,0 s do RNF-14); inventou 32 local(is) (13 de 20 casos); menor acerto do gabarito (2 de 20 vs. 12 de 20)
+  • LLM pura, raciocínio alto (2_llm_pura_raciocinio_alto): p90 = 14.58 s (> 5,0 s do RNF-14); inventou 2 local(is) (1 de 20 casos); menor acerto do gabarito (2 de 20 vs. 12 de 20)
+  • RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo): maior custo médio (R$ 0.000872 vs. R$ 0.000807)
+  • RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto): p90 = 6.88 s (> 5,0 s do RNF-14); maior custo médio (R$ 0.001208 vs. R$ 0.000807)
+  • RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial): p90 = 5.83 s (> 5,0 s do RNF-14); maior custo médio (R$ 0.000915 vs. R$ 0.000807)
+
+=========================================================================================================
+3. CONSOLIDAÇÃO DE MÉTRICAS POR CATEGORIA DE PERGUNTA (RNF-10 — MODO A vs. MODO B VENCEDOR)
+=========================================================================================================
+Categoria                      | Casos | Acerto Modo A  | Acerto Modo B  | Fidel. A  | Fidel. B  | Aluc. A  | Aluc. B
+---------------------------------------------------------------------------------------------------------
+geoespacial_ra_fora_centro     | 5     | 0 de 5         | 4 de 5         |    0.0%  |   96.5%  |   0.0%  |   1.5%
+janela_horario                 | 3     | 0 de 3         | 2 de 3         |    0.0%  |   95.0%  |   5.6%  |   5.0%
+fora_de_escopo_df              | 2     | 2 de 2         | 2 de 2         |    0.0%  |    0.0%  |   0.0%  |   0.0%
+precisao_financeira            | 5     | 0 de 5         | 3 de 5         |    0.0%  |   95.5%  |   0.0%  |   4.5%
+vibes_e_restricoes             | 3     | 0 de 3         | 1 de 3         |    0.0%  |   94.9%  |   4.5%  |   5.1%
+conflito_e_girias              | 2     | 0 de 2         | 0 de 2         |    0.0%  |   40.9%  |  10.0%  |  59.1%
+---------------------------------------------------------------------------------------------------------
+
+=========================================================================================================
+4. DETALHAMENTO DAS 20 CONSULTAS DO GOLDEN DATASET (RESPOSTAS LADO A LADO, SCORES E TRACE IDs)
+=========================================================================================================
+
+#########################################################################################################
+CASO #01 [golden_01] | Categoria: geoespacial_ra_fora_centro | RA Esperada: Taguatinga
+#########################################################################################################
+Pergunta : "Onde tem rodízio de mini hambúrguer e pão de queijo em Taguatinga para ir com amigos?"
+Gabarito : Locais=['Filomenambúrguer'] | Preço Máx=R$ 49.99 | Horário=Todos os dias (um preço de domingo a quinta e outro às sextas, sábados e feriados)
+---------------------------------------------------------------------------------------------------------
+  [1] LLM pura, sem raciocínio (1_llm_pura_sem_raciocinio) | Latência R1: 3765 ms (R2: 2542 ms) | Custo: R$ 0.000901
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=0.0 | fora_da_base=1.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Auditoria  : Base Citados=[] | Inventados=['Bar do Caldo', 'Boteco da Asa'] | Trace ID=66adbb559a899c9414e3a3bf409f26dd | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/66adbb559a899c9414e3a3bf409f26dd
+      • Resposta   :
+        Não tenho certeza de lugares específicos em Taguatinga que ofereçam rodízio de mini hambúrguer e pão de queijo — não quero inventar endereços ou preços. Posso sugerir caminhos seguros:
+        
+        1. **Bar do Caldo (Taguatinga)** — não sei confirmar se tem esse rodízio; endereço, preço e horário: não sei.
+        2. **Boteco da Asa (Taguatinga)** — não sei confirmar o rodízio; dados: não sei.
+        3. **Taguatinga Shopping (Taguatinga)** — praça de alimentação com opções de hambúrguer, mas não sei de rodízio de mini hambúrguer com pão de queijo; preço/horário variam.
+        
+        Recomendo ligar para bares da região ou buscar no Instagram por "rodízio mini hambúrguer Taguatinga" para confirmar. Quer que eu sugira opções de hamburgueria em outras RAs?
+
+  [2] LLM pura, raciocínio alto (2_llm_pura_raciocinio_alto) | Latência R1: 8029 ms (R2: 6195 ms) | Custo: R$ 0.002125
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=0.0 | fora_da_base=1.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=8287f7353e072e38aadb2647e6b03db4 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/8287f7353e072e38aadb2647e6b03db4
+      • Resposta   :
+        Não sei indicar com segurança um lugar em Taguatinga que faça **rodízio de mini hambúrguer e pão de queijo** para ir com amigos. Não tenho dados confirmados de nome, endereço, preço médio por pessoa e horário de funcionamento para nenhum estabelecimento com esse combo. Para não inventar informação, prefiro não recomendar nomes. Sugiro confirmar no Google Maps, Instagram ou WhatsApp de hamburguerias de Taguatinga se oferecem rodízio de mini hambúrguer e se incluem pão de queijo; vale perguntar também sobre valor por pessoa e horário.
+
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 23 ms (R2: 21 ms) | Custo: R$ 0.001060
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Casa Bari', 'Filomenambúrguer', 'Espaguete'] | recall@3=1.0 | mrr=0.5 | pos_gabarito=2
+      • Auditoria  : Base Citados=['Casa Bari', 'Espaguete', 'Filomenambúrguer'] | Inventados=[] | Trace ID=9ad94675b5a13c6e482c02b126758526 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/9ad94675b5a13c6e482c02b126758526
+      • Resposta   :
+        Para o seu pedido (Onde tem rodízio de mini hambúrguer e pão de queijo em Taguatinga para ir com amigos?), a recomendação oficial na base auditada do TikTok é o 'Casa Bari' em Taguatinga (Taguatinga, EQNL 21/23, Bloco D, Brasília - DF)! Rodízio de pizzas premium com buffet de mini hambúrguer, massas e salgadinhos, oferecendo uma experiência completa e variada. O ambiente é animado e conta com brinquedoteca monitorada, ideal para famílias e grupos de amigos. Preço médio estimado: R$ 69.9 (Moderado ($$)). Outras opções auditadas no DF: Filomenambúrguer (Taguatinga), Espaguete (Taguatinga).
+
+  [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 3277 ms (R2: 4076 ms) | Custo: R$ 0.001054
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Casa Bari', 'Filomenambúrguer', 'Espaguete'] | recall@3=1.0 | mrr=0.5 | pos_gabarito=2
+      • Auditoria  : Base Citados=['Casa Bari', 'Filomenambúrguer'] | Inventados=[] | Trace ID=66adbb559a899c9414e3a3bf409f26dd | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/66adbb559a899c9414e3a3bf409f26dd
+      • Resposta   :
+        Para rodízio de mini hambúrguer e pão de queijo em Taguatinga com amigos, a base indica:
+        
+        **Filomenambúrguer** [FONTE #2]
+        - Região: Taguatinga
+        - Endereço: Taguatinga Norte, Brasília - DF
+        - Preço médio por pessoa: R$ 49,99
+        - Horário: domingo a quinta, sexta, sábados e feriados
+        - Destaque: rodízio de pão de queijo com combinações, pizza, mini hambúrguer e pastel; brinquedoteca gratuita.
+        
+        **Casa Bari** [FONTE #1]
+        - Região: Taguatinga
+        - Endereço: EQNL 21/23, Bloco D, Brasília - DF
+        - Preço médio por pessoa: R$ 69,90
+        - Horário: aberto todos os dias
+        - Destaque: rodízio de pizzas premium com buffet de mini hambúrguer, massas e salgadinhos.
+        
+        Observação: a base não informa horário detalhado (horas) para esses locais.
+
+  [5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto) | Latência R1: 6420 ms (R2: 9031 ms) | Custo: R$ 0.002167
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Busca RAG  : Fontes=['Casa Bari', 'Filomenambúrguer', 'Espaguete'] | recall@3=1.0 | mrr=0.5 | pos_gabarito=2
+      • Auditoria  : Base Citados=['Casa Bari', 'Filomenambúrguer'] | Inventados=[] | Trace ID=8287f7353e072e38aadb2647e6b03db4 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/8287f7353e072e38aadb2647e6b03db4
+      • Resposta   :
+        Em Taguatinga, a base indica estas opções:
+        
+        1. **Casa Bari** — Taguatinga. Endereço: Taguatinga, EQNL 21/23, Bloco D, Brasília - DF. Preço médio por pessoa: **R$ 69,90**. Horário: **aberto todos os dias**. Tem buffet com mini hambúrguer e ambiente animado, ideal para grupos de amigos [FONTE #1].
+        
+        2. **Filomenambúrguer** — Taguatinga. Endereço: Taguatinga Norte, Brasília - DF. Preço médio por pessoa: **R$ 49,99**. Horário informado na base: **“Domingo a quinta e sexta, sábados e feriados”**. Tem rodízio de pão de queijo com combinações, além de mini hambúrguer, pizza e pastel [FONTE #2].
+        
+        Não encontrei na base outro lugar que atenda exatamente a “rodízio de mini hambúrguer e pão de queijo”.
+
+  [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 5133 ms (R2: 5056 ms) | Custo: R$ 0.001354
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Busca RAG  : Fontes=['Filomenambúrguer', 'Filomenamburger', 'Casa Bari'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
+      • Auditoria  : Base Citados=['Casa Bari', 'Filomenambúrguer', 'Filomenamburger'] | Inventados=[] | Trace ID=8cbd1aebc67b7dbbc5ba26a19e1b9ad0 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/8cbd1aebc67b7dbbc5ba26a19e1b9ad0
+      • Resposta   :
+        Para rodízio de mini hambúrguer e pão de queijo em Taguatinga com amigos, a base indica:
+        
+        1. **Filomenambúrguer** – Taguatinga. Endereço: Taguatinga Norte, Brasília - DF. Preço médio: R$ 49,99. Horário: domingo a quinta, sexta, sábados e feriados (horário não detalhado). [FONTE #1]
+        
+        2. **Filomenamburger** – Taguatinga. Endereço: Taguatinga Norte, CNB 4, Brasília - DF. Preço médio: R$ 50,00. Horário: todos os dias, das 18h às 23h. [FONTE #2]
+        
+        3. **Casa Bari** – Taguatinga. Endereço: EQNL 21/23, Bloco D, Brasília - DF. Preço médio: R$ 69,90. Horário: aberto todos os dias (horário não detalhado). [FONTE #3]
+        
+        Observação: a Casa Bari tem rodízio de pizzas com buffet de mini hambúrguer; pão de queijo não consta na descrição.
+
+
+#########################################################################################################
+CASO #02 [golden_02] | Categoria: geoespacial_ra_fora_centro | RA Esperada: Águas Claras
+#########################################################################################################
+Pergunta : "Onde tem rodízio de caldos ou de pizza com brinquedoteca em Águas Claras?"
+Gabarito : Locais=['Restaurante Dona Cleide'] | Preço Máx=R$ 54.9 | Horário=Rodízios de terça a domingo, das 17h às 23h
+---------------------------------------------------------------------------------------------------------
+  [1] LLM pura, sem raciocínio (1_llm_pura_sem_raciocinio) | Latência R1: 3732 ms (R2: 3707 ms) | Custo: R$ 0.000849
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=0.0 | fora_da_base=1.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Auditoria  : Base Citados=[] | Inventados=['Coco Bambu Águas Claras', 'Pizza Prime Águas Claras'] | Trace ID=cca2b5c06951f8f0619d5566c919fa4d | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/cca2b5c06951f8f0619d5566c919fa4d
+      • Resposta   :
+        Não tenho certeza de locais com **brinquedoteca** em Águas Claras — esse dado específico eu não sei confirmar. Para rodízio, sugiro verificar:
+        
+        1. **Coco Bambu Águas Claras** – Águas Claras. Endereço: Av. Araucárias, 1835 (não tenho certeza do número exato). Preço médio: R$ 80–120. Funcionamento: almoço e jantar, diariamente. Não sei se tem brinquedoteca.
+        
+        2. **Pizza Prime Águas Claras** – Águas Claras. Endereço: não tenho certeza. Preço médio: R$ 60–90. Horário: não sei confirmar. Não sei sobre brinquedoteca.
+        
+        3. **Rodízio de caldos**: não conheço um específico em Águas Claras com brinquedoteca.
+        
+        Recomendo ligar antes e confirmar espaço kids.
+
+  [2] LLM pura, raciocínio alto (2_llm_pura_raciocinio_alto) | Latência R1: 6351 ms (R2: 7495 ms) | Custo: R$ 0.001653
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=0.0
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=82b3637b448d86d34aaabb6c79caf811 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/82b3637b448d86d34aaabb6c79caf811
+      • Resposta   :
+        Não tenho certeza de nenhum local em Águas Claras que ofereça rodízio de caldos ou de pizza **com brinquedoteca**. Para não inventar nome, endereço, preço ou horário, prefiro não indicar lugares específicos.
+        
+        Sugestão prática: busque no Google Maps e no Instagram por “rodízio de pizza Águas Claras brinquedoteca” e “rodízio de caldos Águas Claras”; antes de ir, ligue e confirme se a brinquedoteca está funcionando, se há taxa e se o rodízio inclui crianças.
+        
+        Se você aceitar opções sem brinquedoteca, posso tentar ajudar com rodízios de pizza em Águas Claras — mas também só indicarei dados dos quais eu tenha certeza.
+
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 23 ms (R2: 22 ms) | Custo: R$ 0.001130
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Restaurante Dona Cleide', 'Casa Bari', 'Vitorino'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
+      • Auditoria  : Base Citados=['Restaurante Dona Cleide', 'Casa Bari', 'Vitorino'] | Inventados=[] | Trace ID=acc2488aa30786961a64586a97997c37 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/acc2488aa30786961a64586a97997c37
+      • Resposta   :
+        Para o seu pedido (Onde tem rodízio de caldos ou de pizza com brinquedoteca em Águas Claras?), a recomendação oficial na base auditada do TikTok é o 'Restaurante Dona Cleide' em Águas Claras (Águas Claras - Avenida das Araucárias, Mirante Plaza Gourmet, lote 885, loja 12, Brasília - DF)! Restaurante com rodízio de caldos variados e pizzas de forno a lenha, oferecendo ambiente agradável com música ao vivo aos finais de semana. Destaca-se pela brinquedoteca ampla com monitora, ideal para famílias com crianças. Preço médio estimado: R$ 54.9 (Moderado ($$)). Outras opções auditadas no DF: Casa Bari (Taguatinga), Vitorino (Plano Piloto (Asa Sul)).
+
+  [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 3105 ms (R2: 3391 ms) | Custo: R$ 0.001194
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.9 | taxa_alucinacao=0.0 | fora_da_base=0.1 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Restaurante Dona Cleide', 'Casa Bari', 'Vitorino'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
+      • Auditoria  : Base Citados=['Restaurante Dona Cleide', 'Casa Bari', 'Vitorino'] | Inventados=[] | Trace ID=cca2b5c06951f8f0619d5566c919fa4d | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/cca2b5c06951f8f0619d5566c919fa4d
+      • Resposta   :
+        Em Águas Claras, a base tem uma opção que atende ao pedido:
+        
+        **Restaurante Dona Cleide** — Águas Claras
+        Endereço: Avenida das Araucárias, Mirante Plaza Gourmet, lote 885, loja 12, Brasília - DF
+        Preço médio por pessoa: R$ 54,90
+        Horário: Terça a domingo, 11h20 às 23h; segunda, 11h20 às 16h. Rodízios: 17h às 23h (ter–dom). Happy Hour: sex/sáb, 16h às 20h.
+        Oferece rodízio de caldos variados e pizzas de forno a lenha, com brinquedoteca ampla com monitora [FONTE #1].
+        
+        As demais opções da base com brinquedoteca ficam em outras regiões: Casa Bari (Taguatinga) [FONTE #2] e Vitorino (Plano Piloto/Asa Sul) [FONTE #3].
+
+  [5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto) | Latência R1: 7837 ms (R2: 5129 ms) | Custo: R$ 0.002412
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Busca RAG  : Fontes=['Restaurante Dona Cleide', 'Casa Bari', 'Vitorino'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
+      • Auditoria  : Base Citados=['Restaurante Dona Cleide'] | Inventados=[] | Trace ID=82b3637b448d86d34aaabb6c79caf811 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/82b3637b448d86d34aaabb6c79caf811
+      • Resposta   :
+        Em Águas Claras, a base indica **Restaurante Dona Cleide** como opção que combina rodízio de caldos variados e pizzas de forno a lenha com brinquedoteca ampla com monitora [FONTE #1].
+        
+        - **Nome:** Restaurante Dona Cleide  
+        - **Região administrativa:** Águas Claras  
+        - **Endereço:** Águas Claras — Avenida das Araucárias, Mirante Plaza Gourmet, lote 885, loja 12, Brasília - DF  
+        - **Preço médio por pessoa:** R$ 54,90  
+        - **Horário:** Terça a domingo, 11h20 às 23h; segunda, 11h20 às 16h. Rodízios: 17h às 23h (ter–dom). Happy Hour: sex/sáb, 16h às 20h [FONTE #1].
+        
+        Não há outro lugar em Águas Claras com esses critérios nos documentos enviados.
+
+  [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 4749 ms (R2: 5131 ms) | Custo: R$ 0.001117
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Restaurante Dona Cleide', 'Peixe na Rede', 'Vila Carioca'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
+      • Auditoria  : Base Citados=['Restaurante Dona Cleide', 'Vila Carioca', 'Peixe na Rede'] | Inventados=[] | Trace ID=6e67510bbb163e3f795ace45db714191 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/6e67510bbb163e3f795ace45db714191
+      • Resposta   :
+        A base tem uma opção que atende ao pedido:
+        
+        **Restaurante Dona Cleide** — Águas Claras
+        Endereço: Avenida das Araucárias, Mirante Plaza Gourmet, lote 885, loja 12, Brasília - DF
+        Preço médio por pessoa: R$ 54,90
+        Horário: Terça a domingo, 11h20 às 23h; segunda, 11h20 às 16h. Rodízios: 17h às 23h (ter–dom). Happy hour: sex/sáb, 16h às 20h.
+        Oferece rodízio de caldos variados e pizzas de forno a lenha, com brinquedoteca ampla com monitora [FONTE #1].
+        
+        As demais opções da base em Águas Claras (Peixe na Rede [FONTE #2] e Vila Carioca [FONTE #3]) têm brinquedoteca, mas não informam rodízio de caldos ou pizza.
+
+
+#########################################################################################################
+CASO #03 [golden_03] | Categoria: geoespacial_ra_fora_centro | RA Esperada: Guará
+#########################################################################################################
+Pergunta : "Onde comer churrasco americano defumado no Guará?"
+Gabarito : Locais=['Santo Bifidele'] | Preço Máx=R$ 39.9 | Horário=Executivos no almoço, de segunda a sexta
+---------------------------------------------------------------------------------------------------------
+  [1] LLM pura, sem raciocínio (1_llm_pura_sem_raciocinio) | Latência R1: 2617 ms (R2: 4608 ms) | Custo: R$ 0.000407
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=1.0
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=27904bf198a9cdbfd9e9c5df832520cb | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/27904bf198a9cdbfd9e9c5df832520cb
+      • Resposta   :
+        Não tenho certeza de lugares específicos de churrasco americano defumado no Guará. Para não inventar endereços ou preços, prefiro dizer que não sei. Sugiro buscar no Google Maps ou Instagram por "barbecue Guará" e conferir avaliações recentes. Se quiser, posso recomendar opções de churrasco em outras regiões do DF que eu conheça com mais segurança.
+
+  [2] LLM pura, raciocínio alto (2_llm_pura_raciocinio_alto) | Latência R1: 8191 ms (R2: 4967 ms) | Custo: R$ 0.001940
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=0.0 | fora_da_base=1.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=50c28cc9c7bade1768b74012fb64f236 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/50c28cc9c7bade1768b74012fb64f236
+      • Resposta   :
+        Não tenho informação confiável sobre nenhum local no Guará especializado em churrasco americano defumado. Para não inventar nome, endereço, preço médio ou horário, não vou indicar lugares sem certeza.
+        
+        Sugiro confirmar no Google Maps/Instagram buscando “barbecue defumado Guará” e checar cardápio, preço e funcionamento atualizados. Se você aceitar opções fora do Guará, posso tentar recomendar, mas também só com dados que eu tiver segurança.
+
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 8 ms (R2: 44 ms) | Custo: R$ 0.001090
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Santo Bifidele', 'New Mercadito', 'Jucata e Verofato Pizza e Pasta'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
+      • Auditoria  : Base Citados=['New Mercadito', 'Santo Bifidele', 'Jucata e Verofato Pizza e Pasta'] | Inventados=[] | Trace ID=c144edae85a0cdb36bcffd24f4673929 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/c144edae85a0cdb36bcffd24f4673929
+      • Resposta   :
+        Para o seu pedido (Onde comer churrasco americano defumado no Guará?), a recomendação oficial na base auditada do TikTok é o 'Santo Bifidele' em Guará (Guará 2 — Guará, Distrito Federal, Região Centro-Oeste, Brasil)! O restaurante serve churrasco americano defumado e na parrilla, com opções como costelinha executiva e pratos para compartilhar com vários acompanhamentos. O ambiente é descrito como sempre lotado, oferecendo também sanduíches artesanais e sobremesas variadas. Preço médio estimado: R$ 39.9 (Barato ($)). Outras opções auditadas no DF: New Mercadito (Plano Piloto (Asa Sul)), Jucata e Verofato Pizza e Pasta (Plano Piloto (Vila Planalto)).
+
+  [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 2051 ms (R2: 1997 ms) | Custo: R$ 0.000786
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Santo Bifidele', 'New Mercadito', 'Jucata e Verofato Pizza e Pasta'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
+      • Auditoria  : Base Citados=['Santo Bifidele'] | Inventados=[] | Trace ID=27904bf198a9cdbfd9e9c5df832520cb | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/27904bf198a9cdbfd9e9c5df832520cb
+      • Resposta   :
+        Para churrasco americano defumado no Guará, a base indica:
+        
+        **Santo Bifidele** [FONTE #1]
+        - Região administrativa: Guará
+        - Endereço: Guará 2 — Guará, Distrito Federal
+        - Preço médio por pessoa: R$ 39,90
+        - Horário: almoço de segunda a sexta
+        
+        É a única opção da base que atende ao pedido, com churrasco americano defumado e na parrilla.
+
+  [5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto) | Latência R1: 4184 ms (R2: 3692 ms) | Custo: R$ 0.001316
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Santo Bifidele', 'New Mercadito', 'Jucata e Verofato Pizza e Pasta'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
+      • Auditoria  : Base Citados=['Santo Bifidele'] | Inventados=[] | Trace ID=50c28cc9c7bade1768b74012fb64f236 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/50c28cc9c7bade1768b74012fb64f236
+      • Resposta   :
+        A base tem uma opção que atende: **Santo Bifidele** — restaurante de churrasco americano defumado e na parrilla, com costelinha executiva e pratos para compartilhar.
+        
+        - **Região administrativa:** Guará
+        - **Endereço:** Guará 2 — Guará, Distrito Federal
+        - **Preço médio por pessoa:** R$ 39,90
+        - **Horário de funcionamento:** almoço de segunda a sexta
+        
+        Fonte: [FONTE #1]
+
+  [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 4295 ms (R2: 4493 ms) | Custo: R$ 0.000789
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Santo Bifidele', 'Detroit American Steakhouse', 'Brasa Meat Burger'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
+      • Auditoria  : Base Citados=['Santo Bifidele'] | Inventados=[] | Trace ID=4e7a1f317156328887695f6519517c0c | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/4e7a1f317156328887695f6519517c0c
+      • Resposta   :
+        A base tem uma opção no Guará:
+        
+        **Santo Bifidele** — Guará
+        Endereço: Guará 2 — Guará, Distrito Federal
+        Preço médio por pessoa: R$ 39,90
+        Horário: almoço de segunda a sexta
+        Serve churrasco americano defumado e na parrilla, com costelinha executiva e pratos para compartilhar. [FONTE #1]
+        
+        Não há outros documentos com churrasco defumado no Guará.
+
+
+#########################################################################################################
+CASO #04 [golden_04] | Categoria: geoespacial_ra_fora_centro | RA Esperada: Riacho Fundo
+#########################################################################################################
+Pergunta : "Onde tem rodízio de almoço barato com parmegiana no Riacho Fundo?"
+Gabarito : Locais=['Royal Burger'] | Preço Máx=R$ 29.9 | Horário=Almoço às segundas, quartas e quintas; preço maior de sexta a domingo e feriados
+---------------------------------------------------------------------------------------------------------
+  [1] LLM pura, sem raciocínio (1_llm_pura_sem_raciocinio) | Latência R1: 6000 ms (R2: 3727 ms) | Custo: R$ 0.000817
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=0.0
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=9f7caa15458d3ac2645a9947bfc7f875 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/9f7caa15458d3ac2645a9947bfc7f875
+      • Resposta   :
+        Não tenho certeza de restaurantes específicos de rodízio de parmegiana no Riacho Fundo — não quero inventar endereços ou preços. O que posso sugerir com ressalvas:
+        
+        1. **Riacho Fundo I – comércio central (Av. Central)**: há vários self-services e churrascarias de bairro com almoço em torno de R$ 25–40. Não sei nomes/endereços exatos com segurança.
+        
+        2. **Riacho Fundo II – Feira Central**: opções de almoço popular, média de R$ 20–35. Dados específicos incertos.
+        
+        3. **Taguatinga (próxima)** – restaurantes de parmegiana com rodízio existem, mas não confirmo nomes/preços.
+        
+        Sugiro buscar no Google Maps "rodízio parmegiana Riacho Fundo" e confirmar horário por telefone.
+
+  [2] LLM pura, raciocínio alto (2_llm_pura_raciocinio_alto) | Latência R1: 6342 ms (R2: 6355 ms) | Custo: R$ 0.001523
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=0.0 | fora_da_base=1.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=587b3bb12d4fc831738a2e5c60cda195 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/587b3bb12d4fc831738a2e5c60cda195
+      • Resposta   :
+        Não tenho informação confiável sobre rodízio de almoço com parmegiana no Riacho Fundo. Para não inventar nome, endereço, preço médio ou horário, não vou indicar lugares específicos. Sugiro confirmar em apps de mapas/delivery, Instagram de restaurantes locais ou grupos do bairro, perguntando por “rodízio de parmegiana no Riacho Fundo”. Se você aceitar opções fora do Riacho Fundo, posso tentar ajudar com alternativas no DF, mas também só indicarei o que eu souber com segurança.
+
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 20 ms (R2: 20 ms) | Custo: R$ 0.001120
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.8 | taxa_alucinacao=0.2 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Restaurante Dona Cleide', 'Casa Bari', 'Royal Burger'] | recall@3=1.0 | mrr=0.3333 | pos_gabarito=3
+      • Auditoria  : Base Citados=['Restaurante Dona Cleide', 'Casa Bari', 'Royal Burger'] | Inventados=[] | Trace ID=f914f80a720833d9b56fa5658c67242d | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/f914f80a720833d9b56fa5658c67242d
+      • Resposta   :
+        Para o seu pedido (Onde tem rodízio de almoço barato com parmegiana no Riacho Fundo?), a recomendação oficial na base auditada do TikTok é o 'Restaurante Dona Cleide' em Águas Claras (Águas Claras - Avenida das Araucárias, Mirante Plaza Gourmet, lote 885, loja 12, Brasília - DF)! Restaurante com rodízio de caldos variados e pizzas de forno a lenha, oferecendo ambiente agradável com música ao vivo aos finais de semana. Destaca-se pela brinquedoteca ampla com monitora, ideal para famílias com crianças. Preço médio estimado: R$ 54.9 (Moderado ($$)). Outras opções auditadas no DF: Casa Bari (Taguatinga), Royal Burger (Riacho Fundo).
+
+  [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 2643 ms (R2: 3004 ms) | Custo: R$ 0.000969
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Restaurante Dona Cleide', 'Casa Bari', 'Royal Burger'] | recall@3=1.0 | mrr=0.3333 | pos_gabarito=3
+      • Auditoria  : Base Citados=['Royal Burger'] | Inventados=[] | Trace ID=9f7caa15458d3ac2645a9947bfc7f875 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/9f7caa15458d3ac2645a9947bfc7f875
+      • Resposta   :
+        A base tem uma opção que atende ao pedido:
+        
+        **Royal Burger** [FONTE #3]
+        - Região administrativa: Riacho Fundo
+        - Endereço: Riacho Fundo 1 — Riacho Fundo, Distrito Federal
+        - Preço médio por pessoa: R$ 29,90 (faixa barata)
+        - Horário: almoço às segundas, quartas, quintas, sextas, domingos e feriados; sábado com feijoada
+        - Destaque: rodízio de parmegiana, grelhados e guarnições
+        
+        Observação: o documento não informa o horário exato de abertura e fechamento, apenas os dias/períodos de funcionamento.
+
+  [5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto) | Latência R1: 5073 ms (R2: 4458 ms) | Custo: R$ 0.001532
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Busca RAG  : Fontes=['Restaurante Dona Cleide', 'Casa Bari', 'Royal Burger'] | recall@3=1.0 | mrr=0.3333 | pos_gabarito=3
+      • Auditoria  : Base Citados=['Royal Burger'] | Inventados=[] | Trace ID=587b3bb12d4fc831738a2e5c60cda195 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/587b3bb12d4fc831738a2e5c60cda195
+      • Resposta   :
+        A base tem uma opção que atende: **Royal Burger** — Riacho Fundo.  
+        Endereço: Riacho Fundo 1 — Riacho Fundo, Distrito Federal.  
+        Preço médio por pessoa: **R$ 29,90** (faixa barata).  
+        Horário informado: almoço às segundas, quartas, quintas, sextas a domingos e feriados; sábado com feijoada. A base não detalha o horário exato de abertura/fechamento.  
+        Destaque: rodízio de parmegiana, grelhados e guarnições, com brinquedoteca. [FONTE #3]
+
+  [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 4851 ms (R2: 4564 ms) | Custo: R$ 0.001009
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Royal Burger', 'House Burger', 'Gordeixos Delivery'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
+      • Auditoria  : Base Citados=['Royal Burger', 'Gordeixos Delivery', 'House Burger'] | Inventados=[] | Trace ID=7a3c91e8e7059e194246d1be44ae647e | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/7a3c91e8e7059e194246d1be44ae647e
+      • Resposta   :
+        A base tem uma opção que atende ao pedido:
+        
+        **Royal Burger** — Riacho Fundo
+        Endereço: Riacho Fundo 1 — Riacho Fundo, Distrito Federal
+        Preço médio por pessoa: R$ 29,90
+        Horário: almoço (segunda, quarta, quinta, sexta a domingo e feriados); sábado tem feijoada
+        Oferece rodízio de parmegiana, grelhados e guarnições com preço acessível [FONTE #1].
+        
+        As outras opções da base no Riacho Fundo (House Burger) e em Vicente Pires (Gordeixos Delivery) não têm rodízio de almoço com parmegiana conforme os documentos, então não as incluí.
+
+
+#########################################################################################################
+CASO #05 [golden_05] | Categoria: geoespacial_ra_fora_centro | RA Esperada: Samambaia
+#########################################################################################################
+Pergunta : "Onde comer rodízio de pizza e sushi à noite em Samambaia com a família?"
+Gabarito : Locais=['VBQ'] | Preço Máx=R$ 44.9 | Horário=Noite (rodízio com reposição a noite toda)
+---------------------------------------------------------------------------------------------------------
+  [1] LLM pura, sem raciocínio (1_llm_pura_sem_raciocinio) | Latência R1: 5093 ms (R2: 5229 ms) | Custo: R$ 0.000855
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=0.0 | fora_da_base=1.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Auditoria  : Base Citados=[] | Inventados=['Sushi em Samambaia', 'Alternativa: Taguatinga/Ceilândia', 'Alternativa'] | Trace ID=8f749b6408cf22a3af51d4939603ee5b | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/8f749b6408cf22a3af51d4939603ee5b
+      • Resposta   :
+        Não tenho certeza de rodízios específicos que combinem pizza e sushi em Samambaia, então prefiro não inventar nomes e endereços. O que posso sugerir com segurança:
+        
+        1. **Rodízio de pizza em Samambaia** — há pizzarias na região, mas não tenho dados confiáveis de endereço, preço e horário. Sugiro buscar no Google Maps por "rodízio de pizza Samambaia" e confirmar funcionamento noturno por telefone.
+        
+        2. **Sushi em Samambaia** — existem delivery e restaurantes japoneses na RA, porém não sei informar nomes/endereços com certeza.
+        
+        3. **Alternativa: Taguatinga/Ceilândia** — vizinhas de Samambaia, concentram mais opções de rodízio japonês e pizzaria; também não tenho dados verificados para indicar.
+        
+        Recomendo ligar antes e confirmar rodízio noturno e preço por pessoa.
+
+  [2] LLM pura, raciocínio alto (2_llm_pura_raciocinio_alto) | Latência R1: 6153 ms (R2: 8892 ms) | Custo: R$ 0.001651
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=0.0 | fora_da_base=1.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=7dfec44e3ccaa9f002affd28653f992a | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/7dfec44e3ccaa9f002affd28653f992a
+      • Resposta   :
+        Não tenho informação confiável sobre restaurantes em Samambaia que ofereçam **rodízio de pizza e sushi à noite** com nome, endereço, preço médio e horário confirmados. Para não inventar dados, não vou indicar lugares específicos.
+        
+        Sugestão prática: procure no Google Maps ou iFood por “rodízio pizza sushi Samambaia”, filtre por “aberto agora” e confirme por telefone se há rodízio conjunto de pizza e sushi, valor por pessoa e se o ambiente é adequado para família. Se você me disser um bairro específico ou uma faixa de preço, posso ajudar a montar critérios de escolha, mas não posso garantir nomes e dados sem consulta.
+
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 34 ms (R2: 26 ms) | Custo: R$ 0.001130
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.8 | taxa_alucinacao=0.2 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Restaurante Dona Cleide', 'Casa Bari', 'Vitorino'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
+      • Auditoria  : Base Citados=['Restaurante Dona Cleide', 'Casa Bari', 'Vitorino'] | Inventados=[] | Trace ID=c2bdd9f0ded599bcaeb95d971bfe073e | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/c2bdd9f0ded599bcaeb95d971bfe073e
+      • Resposta   :
+        Para o seu pedido (Onde comer rodízio de pizza e sushi à noite em Samambaia com a família?), a recomendação oficial na base auditada do TikTok é o 'Restaurante Dona Cleide' em Águas Claras (Águas Claras - Avenida das Araucárias, Mirante Plaza Gourmet, lote 885, loja 12, Brasília - DF)! Restaurante com rodízio de caldos variados e pizzas de forno a lenha, oferecendo ambiente agradável com música ao vivo aos finais de semana. Destaca-se pela brinquedoteca ampla com monitora, ideal para famílias com crianças. Preço médio estimado: R$ 54.9 (Moderado ($$)). Outras opções auditadas no DF: Casa Bari (Taguatinga), Vitorino (Plano Piloto (Asa Sul)).
+
+  [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 3199 ms (R2: 2984 ms) | Custo: R$ 0.000908
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.9231 | taxa_alucinacao=0.0769 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Restaurante Dona Cleide', 'Casa Bari', 'Vitorino'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
+      • Auditoria  : Base Citados=['Restaurante Dona Cleide', 'Casa Bari', 'Vitorino'] | Inventados=[] | Trace ID=8f749b6408cf22a3af51d4939603ee5b | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/8f749b6408cf22a3af51d4939603ee5b
+      • Resposta   :
+        A base não tem um lugar que atenda exatamente ao pedido: não há nenhum documento com rodízio de pizza e sushi em **Samambaia**. Os mais próximos são:
+        
+        - **Casa Bari** — Taguatinga — EQNL 21/23, Bloco D — R$ 69,90 — aberto todos os dias (horário não detalhado) [FONTE #2]
+        - **Vitorino** — Plano Piloto (Asa Sul) — 116 Sul — R$ 79,90 — horário: consultar no local [FONTE #3]
+        - **Restaurante Dona Cleide** — Águas Claras — Avenida das Araucárias, Mirante Plaza Gourmet, lote 885, loja 12 — R$ 54,90 — ter–dom 11h20–23h; seg 11h20–16h [FONTE #1]
+        
+        Nenhum é em Samambaia; não sei informar horário noturno específico da Casa Bari.
+
+  [5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto) | Latência R1: 4029 ms (R2: 7634 ms) | Custo: R$ 0.000940
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=1.0 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Restaurante Dona Cleide', 'Casa Bari', 'Vitorino'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=7dfec44e3ccaa9f002affd28653f992a | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/7dfec44e3ccaa9f002affd28653f992a
+      • Resposta   :
+        A base não tem um lugar que atenda ao pedido: não há nenhum documento com restaurante em **Samambaia** que ofereça rodízio de pizza e sushi à noite para família. Por isso, não posso recomendar um lugar nessa região administrativa sem inventar informações.
+
+  [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 5074 ms (R2: 5326 ms) | Custo: R$ 0.001191
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Busca RAG  : Fontes=['VBQ', 'Omura Sushi', 'Saguari Gastro House'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
+      • Auditoria  : Base Citados=['Omura Sushi', 'VBQ'] | Inventados=[] | Trace ID=af24aae6045be809e78bd2265b51f9ff | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/af24aae6045be809e78bd2265b51f9ff
+      • Resposta   :
+        Para rodízio de pizza e sushi à noite em Samambaia com a família, a base indica:
+        
+        **VBQ** [FONTE #1] — Samambaia, QS 122, Conjunto J. Preço médio: R$ 44,90. Funciona no horário da noite. Oferece rodízio de mais de 30 sabores de pizza, ilha de sushi, petiscos e brinquedoteca.
+        
+        **Omura Sushi** [FONTE #2] — Samambaia QN 122, Conjunto 05, Lote 04. Preço médio: R$ 70,00. Jantar das 17h às 22h (segunda só no jantar). Rodízio japonês com sushis, sashimis e yakisobas.
+        
+        Observação: o Omura é japonês, sem pizza. O VBQ é o que mais combina pizza e sushi. Não há na base um lugar que una explicitamente os dois tipos de rodízio.
+
+
+#########################################################################################################
+CASO #06 [golden_06] | Categoria: janela_horario | RA Esperada: Plano Piloto (Asa Sul)
+#########################################################################################################
+Pergunta : "Onde dá para comer e beber com os amigos depois da 1h da manhã num sábado?"
+Gabarito : Locais=['New Mercadito'] | Preço Máx=R$ 54.99 | Horário=Sexta a domingo até 01h30; segunda a quinta só até 00h
+---------------------------------------------------------------------------------------------------------
+  [1] LLM pura, sem raciocínio (1_llm_pura_sem_raciocinio) | Latência R1: 4456 ms (R2: 4043 ms) | Custo: R$ 0.000871
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=0.0 | fora_da_base=1.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Auditoria  : Base Citados=[] | Inventados=['Bar do Calaf', 'Boteco da Asa', 'Zapata'] | Trace ID=7ca568885eb01c913d37bd334c5c70bc | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/7ca568885eb01c913d37bd334c5c70bc
+      • Resposta   :
+        Não tenho certeza de locais confirmados abertos após 1h de sábado no DF — esse horário é limitado, e não quero inventar endereços ou horários. O que sei com alguma segurança:
+        
+        1. **Bar do Calaf** (Plano Piloto, Setor Comercial Sul) — costuma funcionar até tarde nos fins de semana, mas não sei confirmar se passa de 1h. Preço médio: R$ 60–90. Endereço exato: não tenho certeza.
+        
+        2. **Boteco da Asa** (Asa Norte) — boteco que às vezes estende o horário; não sei garantir após 1h. Preço médio: R$ 50–80.
+        
+        3. **Zapata** (Asa Sul) — não sei o horário de sábado.
+        
+        Sugiro checar no Instagram/Google Maps antes de sair. Quer que eu indique opções que fecham mais cedo, mas com boa comida?
+
+  [2] LLM pura, raciocínio alto (2_llm_pura_raciocinio_alto) | Latência R1: 15868 ms (R2: 17089 ms) | Custo: R$ 0.004264
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=0.0 | fora_da_base=1.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Auditoria  : Base Citados=[] | Inventados=['Beirute', 'CLN 107, Bloco A'] | Trace ID=7f5dd0eb75add828afdf79036630da46 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/7f5dd0eb75add828afdf79036630da46
+      • Resposta   :
+        Não tenho certeza suficiente para cravar lugares abertos **depois da 1h de sábado** no DF. Para não inventar endereço, preço ou horário, não sei indicar 3 opções confiáveis.
+        
+        O único nome que associo a funcionamento tardio é o **Beirute (Asa Norte)**, mas não confirmo: endereço aproximado **CLN 107, Bloco A**; preço médio e horário de sábado após 1h: **não sei**.
+        
+        Alternativa segura: às 1h, filtrar “aberto agora” no Google Maps/Instagram e ligar antes. Asa Norte (CLN 107/108) e Setor Comercial Sul são áreas com mais chance, mas não afirmo. Se aceitar lugares que fecham antes de 1h, posso montar 3 opções com dados que eu saiba.
+
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 21 ms (R2: 5 ms) | Custo: R$ 0.000170
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=[] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=bca290cbb53821a5d51ece4c435a083a | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/bca290cbb53821a5d51ece4c435a083a
+      • Resposta   :
+        Não encontrei na base de 93 lugares do DF nenhum lugar que atenda bem a esse pedido (maior aderência 0,62, abaixo do mínimo de 0,65). Para não recomendar um lugar aleatório, prefiro não sugerir nada. Tente descrever o tipo de rolê, a região ou o clima.
+
+  [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 25 ms (R2: 20 ms) | Custo: R$ 0.000000
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=[] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=7ca568885eb01c913d37bd334c5c70bc | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/7ca568885eb01c913d37bd334c5c70bc
+      • Resposta   :
+        Não encontrei na base de 93 lugares do DF nenhum lugar que atenda bem a esse pedido (maior aderência 0,62, abaixo do mínimo de 0,65). Para não recomendar um lugar aleatório, prefiro não sugerir nada. Tente descrever o tipo de rolê, a região ou o clima.
+
+  [5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto) | Latência R1: 14 ms (R2: 14 ms) | Custo: R$ 0.000000
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=[] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=7f5dd0eb75add828afdf79036630da46 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/7f5dd0eb75add828afdf79036630da46
+      • Resposta   :
+        Não encontrei na base de 93 lugares do DF nenhum lugar que atenda bem a esse pedido (maior aderência 0,62, abaixo do mínimo de 0,65). Para não recomendar um lugar aleatório, prefiro não sugerir nada. Tente descrever o tipo de rolê, a região ou o clima.
+
+  [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 1935 ms (R2: 1800 ms) | Custo: R$ 0.000017
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=[] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=4d1ec3297ac32d81a3765983839d5c8a | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/4d1ec3297ac32d81a3765983839d5c8a
+      • Resposta   :
+        Não encontrei na base de 93 lugares do DF nenhum lugar que atenda bem a esse pedido (maior aderência 0,62, abaixo do mínimo de 0,63). Para não recomendar um lugar aleatório, prefiro não sugerir nada. Tente descrever o tipo de rolê, a região ou o clima.
+
+
+#########################################################################################################
+CASO #07 [golden_07] | Categoria: janela_horario | RA Esperada: Taguatinga
+#########################################################################################################
+Pergunta : "Onde tem buffet de almoço à vontade por menos de R$ 30 no domingo em Taguatinga?"
+Gabarito : Locais=['Casa Bar'] | Preço Máx=R$ 29.99 | Horário=Somente aos domingos, no almoço
+---------------------------------------------------------------------------------------------------------
+  [1] LLM pura, sem raciocínio (1_llm_pura_sem_raciocinio) | Latência R1: 4164 ms (R2: 4193 ms) | Custo: R$ 0.000882
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=0.1667 | fora_da_base=0.8333 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Auditoria  : Base Citados=[] | Inventados=['Feira dos Goianos'] | Trace ID=4148dff59614faa0e666cfbdaa61b701 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/4148dff59614faa0e666cfbdaa61b701
+      • Resposta   :
+        Não tenho certeza de buffets de almoço à vontade por menos de R$ 30 aos domingos em Taguatinga — esse preço está bem abaixo da média atual, e não quero indicar lugares com dados que eu não possa confirmar.
+        
+        O que posso sugerir, com ressalvas:
+        
+        1. **Restaurantes de comida caseira no centro de Taguatinga (Setor Central, próximo à Praça do Relógio)** — muitos cobram por quilo ou prato feito, com preço médio de R$ 25 a R$ 40. Não sei quais abrem aos domingos nem quais têm buffet à vontade nesse valor.
+        
+        2. **Feira dos Goianos (Taguatinga Norte)** — barracas de comida com pratos a partir de ~R$ 20, mas funciona principalmente de terça a domingo pela manhã; não sei se há buffet à vontade.
+        
+        Sugiro ligar antes ou verificar no Google Maps/Instagram o valor e o horário de domingo.
+
+  [2] LLM pura, raciocínio alto (2_llm_pura_raciocinio_alto) | Latência R1: 6008 ms (R2: 7664 ms) | Custo: R$ 0.001514
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=1.0 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=1b4b7902443d34ea575f51ab35c7620a | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/1b4b7902443d34ea575f51ab35c7620a
+      • Resposta   :
+        Não tenho informação confiável para indicar buffet de almoço à vontade por menos de R$ 30 no domingo em Taguatinga. Para não inventar, não vou citar nomes, endereços, preços ou horários que não posso confirmar. Recomendo verificar em apps de delivery/mapas, grupos locais ou ligar para restaurantes de Taguatinga e confirmar: (1) se o buffet é à vontade; (2) se funciona no domingo; (3) preço por pessoa; (4) horário. Se você puder informar nomes de locais que já conhece, posso ajudar a avaliar os dados que você tiver.
+
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 12 ms (R2: 15 ms) | Custo: R$ 0.000980
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Casa Bar', 'Hamburgueria Espacial', 'Espaguete'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
+      • Auditoria  : Base Citados=['Hamburgueria Espacial', 'Espaguete', 'Casa Bar', 'Casa Bari'] | Inventados=[] | Trace ID=fda7b9fb27dec0aed7780d89e1a7d1a4 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/fda7b9fb27dec0aed7780d89e1a7d1a4
+      • Resposta   :
+        Para o seu pedido (Onde tem buffet de almoço à vontade por menos de R$ 30 no domingo em Taguatinga?), a recomendação oficial na base auditada do TikTok é o 'Casa Bar' em Taguatinga (Taguatinga, EQNL 21/23, Bloco D, Brasília - DF)! Buffet de almoço à vontade com sobremesa liberada e ambiente espaçoso e bonito. Inclui opções de proteínas na parrilla como picanha e sobrecoxa grelhada. Preço médio estimado: R$ 29.99 (Barato ($)). Outras opções auditadas no DF: Hamburgueria Espacial (Taguatinga), Espaguete (Taguatinga).
+
+  [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 3328 ms (R2: 2536 ms) | Custo: R$ 0.001083
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.9 | taxa_alucinacao=0.1 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Casa Bar', 'Hamburgueria Espacial', 'Espaguete'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
+      • Auditoria  : Base Citados=['Hamburgueria Espacial', 'Espaguete', 'Casa Bar', 'Casa Bari'] | Inventados=[] | Trace ID=4148dff59614faa0e666cfbdaa61b701 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/4148dff59614faa0e666cfbdaa61b701
+      • Resposta   :
+        A base tem uma opção que atende ao pedido:
+        
+        **Casa Bar** — Taguatinga
+        Endereço: EQNL 21/23, Bloco D, Brasília - DF
+        Preço médio por pessoa: R$ 29,99
+        Horário: somente aos domingos no almoço
+        Oferece buffet de almoço à vontade com sobremesa liberada [FONTE #1].
+        
+        As outras opções da base em Taguatinga não se encaixam: a Hamburgueria Espacial tem preço médio de R$ 25,00, mas o horário de funcionamento não está informado (só "consultar no local") [FONTE #2]; e o Espaguete tem preço médio de R$ 18,45, porém não é buffet à vontade e o horário de domingo não está especificado com clareza [FONTE #3].
+
+  [5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto) | Latência R1: 3280 ms (R2: 3829 ms) | Custo: R$ 0.001048
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Casa Bar', 'Hamburgueria Espacial', 'Espaguete'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
+      • Auditoria  : Base Citados=['Casa Bar', 'Casa Bari'] | Inventados=[] | Trace ID=1b4b7902443d34ea575f51ab35c7620a | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/1b4b7902443d34ea575f51ab35c7620a
+      • Resposta   :
+        A base tem uma opção que atende: **Casa Bar** — Taguatinga. Endereço: Taguatinga, EQNL 21/23, Bloco D, Brasília - DF. Preço médio por pessoa: R$ 29,99 (barato). Horário de funcionamento: somente aos domingos no almoço. A descrição informa buffet de almoço à vontade com sobremesa liberada, incluindo proteínas na parrilla [FONTE #1].
+
+  [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 5273 ms (R2: 4589 ms) | Custo: R$ 0.001105
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.9 | taxa_alucinacao=0.1 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Busca RAG  : Fontes=['Casa Bar', 'Espaguete', 'Hamburgueria Espacial'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
+      • Auditoria  : Base Citados=['Hamburgueria Espacial', 'Espaguete', 'Casa Bar', 'Casa Bari'] | Inventados=[] | Trace ID=6b77e7b322a9f0da02006377454c17fd | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/6b77e7b322a9f0da02006377454c17fd
+      • Resposta   :
+        A **Casa Bar** atende ao pedido: fica em Taguatinga (EQNL 21/23, Bloco D, Brasília - DF), funciona somente aos domingos no almoço, tem buffet de almoço à vontade com sobremesa liberada e preço médio por pessoa de R$ 29,99 — abaixo de R$ 30 [FONTE #1].
+        
+        Os outros documentos não atendem: o **Espaguete** (Taguatinga) é restaurante de massas, com preço médio de R$ 18,45, mas não há informação de buffet à vontade nem de funcionamento no domingo para esse formato [FONTE #2]; a **Hamburgueria Espacial** é hamburgueria, com preço médio de R$ 25,00, e o horário de funcionamento não está informado ("consultar no local") [FONTE #3].
+
+
+#########################################################################################################
+CASO #08 [golden_08] | Categoria: janela_horario | RA Esperada: Plano Piloto (Asa Sul)
+#########################################################################################################
+Pergunta : "Quero ir num pizza bar com drinks no domingo à tarde. Qual abre e a partir de que horas?"
+Gabarito : Locais=['Spelunca DF'] | Preço Máx=R$ 65.5 | Horário=Domingo a partir das 16h (quarta a sábado a partir das 18h)
+---------------------------------------------------------------------------------------------------------
+  [1] LLM pura, sem raciocínio (1_llm_pura_sem_raciocinio) | Latência R1: 4612 ms (R2: 4442 ms) | Custo: R$ 0.000951
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=0.0 | fora_da_base=1.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Auditoria  : Base Citados=[] | Inventados=['Dom Bosco Pizza Bar', 'Pizzaria Forno da Vila', 'Bar do Calaf'] | Trace ID=b85e99786e2e4dce1fc80cb19e437678 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/b85e99786e2e4dce1fc80cb19e437678
+      • Resposta   :
+        Não tenho certeza de horários específicos de domingo à tarde para pizza bars com drinks no DF, então vou indicar lugares que costumam abrir cedo, mas confirme antes:
+        
+        1. **Dom Bosco Pizza Bar** – Asa Sul (Brasília). Endereço: CLS 405, Bloco B, Loja 2. Preço médio: R$ 70–90. Funcionamento: não sei o horário exato de domingo.
+        
+        2. **Pizzaria Forno da Vila** – Águas Claras. Endereço: Av. Araucárias, próximo à Praça das Araucárias (não tenho o número exato). Preço médio: R$ 60–80. Horário de domingo: não sei.
+        
+        3. **Bar do Calaf** – Setor Bancário Sul (Brasília). Endereço: SBS Q. 2, Bloco E. Preço médio: R$ 80–100. Tem drinks e petiscos, mas não sei se abre domingo à tarde.
+        
+        Recomendo ligar ou checar o Instagram antes de ir.
+
+  [2] LLM pura, raciocínio alto (2_llm_pura_raciocinio_alto) | Latência R1: 15198 ms (R2: 18229 ms) | Custo: R$ 0.004533
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=0.0 | fora_da_base=1.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=04119754466a9a8a6e935a89471189bf | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/04119754466a9a8a6e935a89471189bf
+      • Resposta   :
+        Não sei com segurança qual pizza bar no DF abre no domingo à tarde e a partir de que horas. Para não inventar endereço, preço médio ou horário, não vou indicar nomes como se tivesse certeza.
+        
+        Muitos pizza bars em Brasília abrem só à noite (a partir das 18h), mas isso varia bastante. O mais seguro é confirmar no Google Maps/Instagram do estabelecimento antes de sair.
+        
+        Se você me disser a região administrativa de preferência (Asa Sul, Asa Norte, Águas Claras, Taguatinga etc.), posso sugerir até 3 opções para você checar horário e preço — deixando claro o que eu não sei.
+
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 20 ms (R2: 12 ms) | Custo: R$ 0.001060
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Casa Bari', 'Vitorino', 'Spelunca DF'] | recall@3=1.0 | mrr=0.3333 | pos_gabarito=3
+      • Auditoria  : Base Citados=['Casa Bari', 'Vitorino', 'Spelunca DF'] | Inventados=[] | Trace ID=d7310c00d1349c3f5abec50112faf3dc | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/d7310c00d1349c3f5abec50112faf3dc
+      • Resposta   :
+        Para o seu pedido (Quero ir num pizza bar com drinks no domingo à tarde. Qual abre e a partir de que horas?), a recomendação oficial na base auditada do TikTok é o 'Casa Bari' em Taguatinga (Taguatinga, EQNL 21/23, Bloco D, Brasília - DF)! Rodízio de pizzas premium com buffet de mini hambúrguer, massas e salgadinhos, oferecendo uma experiência completa e variada. O ambiente é animado e conta com brinquedoteca monitorada, ideal para famílias e grupos de amigos. Preço médio estimado: R$ 69.9 (Moderado ($$)). Outras opções auditadas no DF: Vitorino (Plano Piloto (Asa Sul)), Spelunca DF (Plano Piloto (Asa Sul)).
+
+  [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 3512 ms (R2: 3930 ms) | Custo: R$ 0.001086
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Casa Bari', 'Vitorino', 'Spelunca DF'] | recall@3=1.0 | mrr=0.3333 | pos_gabarito=3
+      • Auditoria  : Base Citados=['Casa Bari', 'Vitorino', 'Spelunca DF'] | Inventados=[] | Trace ID=b85e99786e2e4dce1fc80cb19e437678 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/b85e99786e2e4dce1fc80cb19e437678
+      • Resposta   :
+        A base não tem um lugar que atenda exatamente ao pedido de "pizza bar com drinks no domingo à tarde". O mais próximo é:
+        
+        **Spelunca DF** — Bar/Boteco no Plano Piloto (Asa Sul), SCS QD Ed. Maristela, Brasília-DF. Preço médio: R$ 65,50. Funciona de quarta a sábado a partir das 18h e **domingo a partir das 16h** [FONTE #3]. Tem pizzas da casa e happy hour, mas os documentos não informam detalhes sobre drinks.
+        
+        Os outros dois são restaurantes de rodízio de pizza, não bares: Casa Bari (Taguatinga, R$ 69,90, aberto todos os dias) [FONTE #1] e Vitorino (Asa Sul, R$ 79,90, horário "consultar no local") [FONTE #2].
+
+  [5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto) | Latência R1: 6476 ms (R2: 8297 ms) | Custo: R$ 0.001746
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Busca RAG  : Fontes=['Casa Bari', 'Vitorino', 'Spelunca DF'] | recall@3=1.0 | mrr=0.3333 | pos_gabarito=3
+      • Auditoria  : Base Citados=['Spelunca DF'] | Inventados=[] | Trace ID=04119754466a9a8a6e935a89471189bf | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/04119754466a9a8a6e935a89471189bf
+      • Resposta   :
+        O lugar da base que atende é o **Spelunca DF** [FONTE #3].
+        
+        - **Nome:** Spelunca DF
+        - **Região administrativa:** Plano Piloto (Asa Sul)
+        - **Endereço:** SCS QD ED. Maristela, Brasília - DF
+        - **Preço médio por pessoa:** R$ 65,50
+        - **Horário de funcionamento:** quarta a sábado a partir das 18h; **domingo a partir das 16h**
+        
+        Ele é um bar temático com gastronomia que inclui pizzas da casa, sanduíches na massa de pizza e fritas especiais, além de happy hour e promoções de dose dupla [FONTE #3]. Portanto, para domingo à tarde, abre **a partir das 16h**.
+
+  [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 5266 ms (R2: 4928 ms) | Custo: R$ 0.001067
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.875 | taxa_alucinacao=0.125 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Busca RAG  : Fontes=['Jucata e Verofato Pizza e Pasta', 'Spelunca DF', 'Pizzaria Natureto'] | recall@3=1.0 | mrr=0.5 | pos_gabarito=2
+      • Auditoria  : Base Citados=['Pizzaria Natureto', 'Spelunca DF', 'Jucata e Verofato Pizza e Pasta'] | Inventados=[] | Trace ID=ee40a403955801ad4cb4b62f7421713d | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/ee40a403955801ad4cb4b62f7421713d
+      • Resposta   :
+        Para um pizza bar com drinks no domingo à tarde, a base tem:
+        
+        **Spelunca DF** [FONTE #2] — Plano Piloto (Asa Sul), SCS QD Ed. Maristela, Brasília-DF. Preço médio: R$ 65,50. Abre domingo a partir das 16h. Tem pizzas da casa, drinks e happy hour.
+        
+        As outras opções não confirmam abertura no domingo à tarde: a Jucata e Verofato [FONTE #1] tem horários parciais (o Verofato funciona de quarta a domingo a partir das 17h), e a Pizzaria Natureto [FONTE #3] traz um horário incompleto ("Domingo, 1º de março"), então não sei informar a partir de que horas abre.
+
+
+#########################################################################################################
+CASO #09 [golden_09] | Categoria: fora_de_escopo_df | RA Esperada: Fora do DF (Recusar)
+#########################################################################################################
+Pergunta : "Quais são os melhores bares em Copacabana, no Rio de Janeiro, para ir com amigos numa sexta à noite?"
+Gabarito : Locais=[] | Preço Máx=R$ None | Horário=None
+---------------------------------------------------------------------------------------------------------
+  [1] LLM pura, sem raciocínio (1_llm_pura_sem_raciocinio) | Latência R1: 1952 ms (R2: 2951 ms) | Custo: R$ 0.000350
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=1.0
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=29ef932ad5c5b7f582888bc89e16bcb6 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/29ef932ad5c5b7f582888bc89e16bcb6
+      • Resposta   :
+        Não consigo ajudar com essa pergunta: meu foco é recomendar rolês no Distrito Federal (Brasília e regiões administrativas), não no Rio de Janeiro. Se quiser, posso sugerir bares em Brasília para sexta à noite — por exemplo, na Asa Sul ou no Sudoeste. Quer que eu indique?
+
+  [2] LLM pura, raciocínio alto (2_llm_pura_raciocinio_alto) | Latência R1: 5542 ms (R2: 3468 ms) | Custo: R$ 0.001094
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=0.0
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=5657a535723ff494c5c259e786a20d2d | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/5657a535723ff494c5c259e786a20d2d
+      • Resposta   :
+        Não consigo recomendar bares em Copacabana (Rio de Janeiro): meu escopo é o Distrito Federal — Brasília e regiões administrativas — e eu não tenho informações confiáveis sobre bares no Rio. Para não inventar dados (endereço, preço, horário), não vou listar lugares de Copacabana.
+        
+        Se você quiser, posso indicar bares em Brasília/DF para sexta à noite com amigos, informando região administrativa, endereço, preço médio por pessoa e horário — desde que eu tenha certeza dos dados.
+
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 2 ms (R2: 4 ms) | Custo: R$ 0.000170
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=[] | recall@3=None | mrr=None | pos_gabarito=None
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=34af986f4257609fd1150bbb6fc7e5dc | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/34af986f4257609fd1150bbb6fc7e5dc
+      • Resposta   :
+        A base do Orquestrador de Rolês cobre só o Distrito Federal (93 lugares verificados). Rio de Janeiro e Copacabana (RJ) fica fora do DF, então não vou recomendar nenhum lugar para não inventar informação. Quer uma sugestão em alguma região do DF?
+
+  [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 1 ms (R2: 0 ms) | Custo: R$ 0.000000
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=[] | recall@3=None | mrr=None | pos_gabarito=None
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=29ef932ad5c5b7f582888bc89e16bcb6 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/29ef932ad5c5b7f582888bc89e16bcb6
+      • Resposta   :
+        A base do Orquestrador de Rolês cobre só o Distrito Federal (93 lugares verificados). Rio de Janeiro e Copacabana (RJ) fica fora do DF, então não vou recomendar nenhum lugar para não inventar informação. Quer uma sugestão em alguma região do DF?
+
+  [5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto) | Latência R1: 0 ms (R2: 1 ms) | Custo: R$ 0.000000
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=[] | recall@3=None | mrr=None | pos_gabarito=None
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=5657a535723ff494c5c259e786a20d2d | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/5657a535723ff494c5c259e786a20d2d
+      • Resposta   :
+        A base do Orquestrador de Rolês cobre só o Distrito Federal (93 lugares verificados). Rio de Janeiro e Copacabana (RJ) fica fora do DF, então não vou recomendar nenhum lugar para não inventar informação. Quer uma sugestão em alguma região do DF?
+
+  [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 0 ms (R2: 0 ms) | Custo: R$ 0.000000
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=[] | recall@3=None | mrr=None | pos_gabarito=None
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=e274e870112aae6eec0994c68250a427 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/e274e870112aae6eec0994c68250a427
+      • Resposta   :
+        A base do Orquestrador de Rolês cobre só o Distrito Federal (93 lugares verificados). Rio de Janeiro e Copacabana (RJ) fica fora do DF, então não vou recomendar nenhum lugar para não inventar informação. Quer uma sugestão em alguma região do DF?
+
+
+#########################################################################################################
+CASO #10 [golden_10] | Categoria: fora_de_escopo_df | RA Esperada: Fora do DF (Recusar)
+#########################################################################################################
+Pergunta : "Onde comer hambúrguer artesanal em Pinheiros, São Paulo, gastando até R$ 50?"
+Gabarito : Locais=[] | Preço Máx=R$ None | Horário=None
+---------------------------------------------------------------------------------------------------------
+  [1] LLM pura, sem raciocínio (1_llm_pura_sem_raciocinio) | Latência R1: 2842 ms (R2: 2711 ms) | Custo: R$ 0.000647
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=1.0
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=500f11bc9e5d4695550b33392fe05b72 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/500f11bc9e5d4695550b33392fe05b72
+      • Resposta   :
+        Não consigo ajudar com essa pergunta: meu foco é o Distrito Federal (Brasília e regiões administrativas), não São Paulo. Não tenho informações confiáveis sobre hamburguerias artesanais em Pinheiros, então prefiro não inventar nomes, endereços ou preços.
+        
+        Se quiser, posso recomendar hamburguerias artesanais no DF com preço médio em torno de R$ 50 por pessoa — me diga a região administrativa de preferência (ex.: Plano Piloto, Águas Claras, Taguatinga, Guará) e eu indico até 3 opções com endereço e horário, sinalizando o que eu não tiver certeza.
+
+  [2] LLM pura, raciocínio alto (2_llm_pura_raciocinio_alto) | Latência R1: 5111 ms (R2: 4398 ms) | Custo: R$ 0.001381
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=0.0
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=914b53ac2b2bb00fa3b5d449d7300bb5 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/914b53ac2b2bb00fa3b5d449d7300bb5
+      • Resposta   :
+        Não consigo responder sobre Pinheiros (São Paulo): meu escopo é somente o Distrito Federal — Brasília e regiões administrativas. Por isso, não tenho informações confiáveis para recomendar hamburguerias artesanais em Pinheiros com preço até R$ 50, e não vou inventar nomes, endereços, preços ou horários.
+        
+        Se você estiver no DF ou quiser opções por aqui, posso recomendar hamburguerias artesanais em Brasília e regiões administrativas. Nesse caso, me diga a região de preferência (ex.: Plano Piloto, Águas Claras, Taguatinga, Guará) e o limite de preço. Aí eu indico até 3 lugares com nome, região administrativa, endereço, preço médio por pessoa e horário de funcionamento — sinalizando quando não tiver certeza de algum dado.
+
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 1 ms (R2: 2 ms) | Custo: R$ 0.000160
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=[] | recall@3=None | mrr=None | pos_gabarito=None
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=bb281db6104fcf98e7d5cfe5c3153db9 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/bb281db6104fcf98e7d5cfe5c3153db9
+      • Resposta   :
+        A base do Orquestrador de Rolês cobre só o Distrito Federal (93 lugares verificados). São Paulo e Pinheiros (SP) fica fora do DF, então não vou recomendar nenhum lugar para não inventar informação. Quer uma sugestão em alguma região do DF?
+
+  [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 0 ms (R2: 0 ms) | Custo: R$ 0.000000
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=[] | recall@3=None | mrr=None | pos_gabarito=None
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=500f11bc9e5d4695550b33392fe05b72 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/500f11bc9e5d4695550b33392fe05b72
+      • Resposta   :
+        A base do Orquestrador de Rolês cobre só o Distrito Federal (93 lugares verificados). São Paulo e Pinheiros (SP) fica fora do DF, então não vou recomendar nenhum lugar para não inventar informação. Quer uma sugestão em alguma região do DF?
+
+  [5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto) | Latência R1: 0 ms (R2: 0 ms) | Custo: R$ 0.000000
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=[] | recall@3=None | mrr=None | pos_gabarito=None
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=914b53ac2b2bb00fa3b5d449d7300bb5 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/914b53ac2b2bb00fa3b5d449d7300bb5
+      • Resposta   :
+        A base do Orquestrador de Rolês cobre só o Distrito Federal (93 lugares verificados). São Paulo e Pinheiros (SP) fica fora do DF, então não vou recomendar nenhum lugar para não inventar informação. Quer uma sugestão em alguma região do DF?
+
+  [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 0 ms (R2: 0 ms) | Custo: R$ 0.000000
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=[] | recall@3=None | mrr=None | pos_gabarito=None
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=069064dbf7968d179577f3e60aa0eab8 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/069064dbf7968d179577f3e60aa0eab8
+      • Resposta   :
+        A base do Orquestrador de Rolês cobre só o Distrito Federal (93 lugares verificados). São Paulo e Pinheiros (SP) fica fora do DF, então não vou recomendar nenhum lugar para não inventar informação. Quer uma sugestão em alguma região do DF?
+
+
+#########################################################################################################
+CASO #11 [golden_11] | Categoria: precisao_financeira | RA Esperada: Plano Piloto (Asa Sul)
+#########################################################################################################
+Pergunta : "Onde tem rodízio de churrasco japonês na Asa Sul e quanto custa por pessoa, sem bebida?"
+Gabarito : Locais=['Yaki Nikuya'] | Preço Máx=R$ 124.9 | Horário=Almoço e jantar
+---------------------------------------------------------------------------------------------------------
+  [1] LLM pura, sem raciocínio (1_llm_pura_sem_raciocinio) | Latência R1: 3722 ms (R2: 3260 ms) | Custo: R$ 0.000879
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=0.0 | fora_da_base=1.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Auditoria  : Base Citados=[] | Inventados=['Nazo Japanese Food', 'Kojima', 'Sushi Yassu'] | Trace ID=ebc9ffe7aef16f0fa61a213091cbf3fb | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/ebc9ffe7aef16f0fa61a213091cbf3fb
+      • Resposta   :
+        Não tenho certeza de rodízios de churrasco japonês (yakiniku) na Asa Sul. O que sei com alguma segurança:
+        
+        1. **Nazo Japanese Food** – Asa Sul (SQS 208/209, próximo à Comercial Sul). Preço médio: não sei confirmar valor de rodízio; à la carte costuma ficar R$ 80–120/pessoa. Horário: não sei confirmar.
+        2. **Kojima** – Asa Sul (CLS 208). Preço médio: não sei se há rodízio; à la carte R$ 70–110/pessoa. Horário: não sei confirmar.
+        3. **Sushi Yassu** – Asa Sul (CLS 210). Preço médio: não sei valor exato de rodízio; estimo R$ 90–130/pessoa sem bebida. Horário: não sei confirmar.
+        
+        Recomendo ligar antes para confirmar rodízio, preço e horário.
+
+  [2] LLM pura, raciocínio alto (2_llm_pura_raciocinio_alto) | Latência R1: 7041 ms (R2: 5371 ms) | Custo: R$ 0.001704
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=0.0
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=c77bd11ca646ceeb7a23463ea75ef1c9 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/c77bd11ca646ceeb7a23463ea75ef1c9
+      • Resposta   :
+        Não tenho certeza de nenhum restaurante de rodízio de churrasco japonês (yakiniku) na Asa Sul, em Brasília, nem do preço por pessoa sem bebida. Para não inventar endereço, horário ou valor, prefiro dizer que não sei informar com segurança.
+        
+        Sugestão: buscar no Google Maps/Instagram por “rodízio yakiniku Asa Sul” e confirmar diretamente com o restaurante o valor sem bebidas e o funcionamento. Se você aceitar outras regiões administrativas do DF, posso tentar ajudar com base apenas no que eu souber com segurança.
+
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 25 ms (R2: 9 ms) | Custo: R$ 0.001010
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.8333 | taxa_alucinacao=0.0 | fora_da_base=0.1667 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['New Mercadito', 'Vitorino', 'Leduce Gastronomia'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
+      • Auditoria  : Base Citados=['New Mercadito', 'Vitorino', 'Leduce Gastronomia'] | Inventados=[] | Trace ID=dd6cf2a3aeca7bdcd7cfd18b5c381a4b | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/dd6cf2a3aeca7bdcd7cfd18b5c381a4b
+      • Resposta   :
+        Para o seu pedido (Onde tem rodízio de churrasco japonês na Asa Sul e quanto custa por pessoa, sem bebida?), a recomendação oficial na base auditada do TikTok é o 'New Mercadito' em Plano Piloto (Asa Sul) (Asa Sul, CLS 201, Bloco A, Loja 1, Brasília - DF)! Buffet de almoço com churrasco nobre, feijoada e rabada à vontade, com preços acessíveis para a quantidade oferecida. Ambiente animado com happy hour diário de chopp e drinks, ideal para grupos. Preço médio estimado: R$ 54.99 (Moderado ($$)). Outras opções auditadas no DF: Vitorino (Plano Piloto (Asa Sul)), Leduce Gastronomia (Plano Piloto (Asa Sul)).
+
+  [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 3197 ms (R2: 3265 ms) | Custo: R$ 0.001230
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.8182 | taxa_alucinacao=0.1818 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['New Mercadito', 'Vitorino', 'Leduce Gastronomia'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
+      • Auditoria  : Base Citados=['New Mercadito', 'Vitorino', 'Leduce Gastronomia'] | Inventados=[] | Trace ID=ebc9ffe7aef16f0fa61a213091cbf3fb | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/ebc9ffe7aef16f0fa61a213091cbf3fb
+      • Resposta   :
+        A base consultada não tem nenhum lugar que atenda ao pedido de **rodízio de churrasco japonês na Asa Sul**. Os documentos disponíveis trazem outras opções na região, mas nenhuma de churrasco japonês:
+        
+        - **New Mercadito** (Plano Piloto/Asa Sul) — buffet de churrasco nobre, feijoada e rabada; R$ 54,99 por pessoa; seg–qui 11h30–00h, sex–dom 11h30–01h30 [FONTE #1].
+        - **Vitorino** (Plano Piloto/Asa Sul) — rodízio de pizzas premium, sushi e massas; R$ 79,90; horário: consultar no local [FONTE #2].
+        - **Leduc e Gastronomia** (Plano Piloto/Asa Sul) — rodízio de frutos do mar; R$ 79,90; horário: consultar no local [FONTE #3].
+        
+        Não há informação sobre preço sem bebida nem sobre churrasco japonês.
+
+  [5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto) | Latência R1: 4793 ms (R2: 5621 ms) | Custo: R$ 0.001395
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.8182 | taxa_alucinacao=0.1818 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['New Mercadito', 'Vitorino', 'Leduce Gastronomia'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
+      • Auditoria  : Base Citados=['New Mercadito', 'Vitorino', 'Leduce Gastronomia'] | Inventados=[] | Trace ID=c77bd11ca646ceeb7a23463ea75ef1c9 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/c77bd11ca646ceeb7a23463ea75ef1c9
+      • Resposta   :
+        A base auditada não tem nenhum lugar que atenda especificamente ao pedido de **rodízio de churrasco japonês na Asa Sul**. Também não há informação sobre preço por pessoa sem bebida para esse tipo de rodízio.
+        
+        O documento mais próximo é o **[FONTE #1] New Mercadito** (Plano Piloto – Asa Sul; CLS 201, Bloco A, Loja 1; preço médio R$ 54,99; seg–qui 11h30–00h, sex–dom 11h30–01h30), mas ele oferece buffet de almoço com churrasco nobre, feijoada e rabada — não churrasco japonês.
+        
+        Há também o **[FONTE #2] Vitorino** (Asa Sul; endereço 116 Sul — Lago Sul; R$ 79,90; horário: consultar no local), com rodízio de pizzas premium, sushi e massas, e o **[FONTE #3] Leduce Gastronomia** (Asa Sul; SBS Quadra 3, Bloco B; R$ 79,90; horário: consultar no local), com rodízio de frutos do mar. Nenhum é rodízio de churrasco japonês.
+
+  [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 6085 ms (R2: 5016 ms) | Custo: R$ 0.001426
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.9231 | taxa_alucinacao=0.0 | fora_da_base=0.0769 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Busca RAG  : Fontes=['Yaki Nikuya', 'Uzuki Sushi', 'Blue Sushi'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
+      • Auditoria  : Base Citados=['Blue Sushi', 'Uzuki Sushi', 'Yaki Nikuya'] | Inventados=[] | Trace ID=27fdb524eac606e486b0e328bc7c4ac1 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/27fdb524eac606e486b0e328bc7c4ac1
+      • Resposta   :
+        Na base, o lugar que mais se aproxima de rodízio japonês na Asa Sul é:
+        
+        **Yaki Nikuya** — Plano Piloto (Asa Sul)
+        Endereço: Asa Sul, W3 Sul, Brasília/DF, 70387-000
+        Preço médio por pessoa: R$ 124,90 (sem informação sobre bebidas)
+        Horário: almoço e jantar
+        [FONTE #1]
+        
+        Também há opções de rodízio japonês na Asa Sul, mas não especificamente de churrasco japonês:
+        
+        **Uzuki Sushi** — Plano Piloto (Asa Sul)
+        Endereço: Comercial da 410/411, Asa Sul
+        Preço médio por pessoa: R$ 89,90
+        Horário: segunda a domingo, almoço e jantar
+        [FONTE #2]
+        
+        **Blue Sushi** — Plano Piloto (Asa Norte)
+        Endereço: CLN 109, Bloco A, Loja 30
+        Preço médio por pessoa: R$ 109,99
+        Horário: todos os dias, 11h30 às 23h
+        [FONTE #3]
+        
+        Observação: a base não informa se os preços incluem ou excluem bebidas.
+
+
+#########################################################################################################
+CASO #12 [golden_12] | Categoria: precisao_financeira | RA Esperada: Taguatinga
+#########################################################################################################
+Pergunta : "Quanto custa, num sábado, o rodízio de pizza com buffet de mini burger em Taguatinga?"
+Gabarito : Locais=['Casa Bari'] | Preço Máx=R$ 69.9 | Horário=Aberto todos os dias: R$ 59,90 de segunda a quinta e R$ 69,90 de sexta a domingo e feriados
+---------------------------------------------------------------------------------------------------------
+  [1] LLM pura, sem raciocínio (1_llm_pura_sem_raciocinio) | Latência R1: 3087 ms (R2: 3638 ms) | Custo: R$ 0.000675
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=0.0 | fora_da_base=1.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=3739e62f76af203c12179861e839d058 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/3739e62f76af203c12179861e839d058
+      • Resposta   :
+        Não tenho certeza sobre um rodízio específico de pizza com buffet de mini burger em Taguatinga — não consigo confirmar preço, endereço ou horário sem risco de inventar. Para não te passar informação errada, prefiro dizer que não sei.
+        
+        Sugestões do que fazer:
+        - Ligar diretamente para pizzarias de Taguatinga e perguntar se oferecem esse combo aos sábados.
+        - Verificar apps de delivery (iFood) e Instagram dos estabelecimentos, onde costumam anunciar rodízios e valores.
+        - Confirmar se o buffet de mini burger é incluso ou cobrado à parte.
+        
+        Se você me disser o nome de algum lugar, posso tentar ajudar com o que souber — mas sem garantir dados atualizados.
+
+  [2] LLM pura, raciocínio alto (2_llm_pura_raciocinio_alto) | Latência R1: 4962 ms (R2: 5636 ms) | Custo: R$ 0.001307
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=1.0
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=024dac9b54942510b60642ab38dc4800 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/024dac9b54942510b60642ab38dc4800
+      • Resposta   :
+        Não sei informar esse valor. Não tenho certeza de nenhum estabelecimento em Taguatinga que ofereça, num sábado, rodízio de pizza **com buffet de mini burger**, nem do preço médio por pessoa, endereço ou horário. Para não inventar informação, não vou recomendar lugares específicos nem estimar preço. Sugiro confirmar diretamente com pizzarias/rodízios de Taguatinga por telefone ou Instagram, perguntando se há essa combinação aos sábados e qual o valor atualizado.
+
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 13 ms (R2: 19 ms) | Custo: R$ 0.001140
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.8 | taxa_alucinacao=0.2 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Restaurante Dona Cleide', 'Casa Bari', 'Vitorino'] | recall@3=1.0 | mrr=0.5 | pos_gabarito=2
+      • Auditoria  : Base Citados=['Restaurante Dona Cleide', 'Casa Bari', 'Vitorino'] | Inventados=[] | Trace ID=afdbf1096b77b15886f5dc6a2da118ed | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/afdbf1096b77b15886f5dc6a2da118ed
+      • Resposta   :
+        Para o seu pedido (Quanto custa, num sábado, o rodízio de pizza com buffet de mini burger em Taguatinga?), a recomendação oficial na base auditada do TikTok é o 'Restaurante Dona Cleide' em Águas Claras (Águas Claras - Avenida das Araucárias, Mirante Plaza Gourmet, lote 885, loja 12, Brasília - DF)! Restaurante com rodízio de caldos variados e pizzas de forno a lenha, oferecendo ambiente agradável com música ao vivo aos finais de semana. Destaca-se pela brinquedoteca ampla com monitora, ideal para famílias com crianças. Preço médio estimado: R$ 54.9 (Moderado ($$)). Outras opções auditadas no DF: Casa Bari (Taguatinga), Vitorino (Plano Piloto (Asa Sul)).
+
+  [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 2743 ms (R2: 2408 ms) | Custo: R$ 0.000806
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Restaurante Dona Cleide', 'Casa Bari', 'Vitorino'] | recall@3=1.0 | mrr=0.5 | pos_gabarito=2
+      • Auditoria  : Base Citados=['Casa Bari'] | Inventados=[] | Trace ID=3739e62f76af203c12179861e839d058 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/3739e62f76af203c12179861e839d058
+      • Resposta   :
+        O **Casa Bari**, em Taguatinga, oferece rodízio de pizzas premium com buffet de mini hambúrguer, massas e salgadinhos. O preço médio por pessoa é **R$ 69,90** [FONTE #2].
+        
+        - **Nome:** Casa Bari
+        - **Região administrativa:** Taguatinga
+        - **Endereço:** EQNL 21/23, Bloco D, Brasília - DF
+        - **Preço médio por pessoa:** R$ 69,90
+        - **Horário de funcionamento:** aberto todos os dias (o documento não detalha horário específico de sábado) [FONTE #2]
+        
+        Observação: a base não informa um valor específico para sábado; o preço indicado é o preço médio por pessoa.
+
+  [5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto) | Latência R1: 4057 ms (R2: 6578 ms) | Custo: R$ 0.001009
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Restaurante Dona Cleide', 'Casa Bari', 'Vitorino'] | recall@3=1.0 | mrr=0.5 | pos_gabarito=2
+      • Auditoria  : Base Citados=['Casa Bari'] | Inventados=[] | Trace ID=024dac9b54942510b60642ab38dc4800 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/024dac9b54942510b60642ab38dc4800
+      • Resposta   :
+        O rodízio de pizzas premium com buffet de mini hambúrguer em Taguatinga é o da **Casa Bari** [FONTE #2]. O preço médio por pessoa informado é **R$ 69,90** [FONTE #2]. A base diz apenas que a Casa Bari abre **todos os dias**, mas não detalha horário específico de sábado nem se há preço diferente no fim de semana [FONTE #2]. Endereço: EQNL 21/23, Bloco D, Taguatinga - DF [FONTE #2].
+
+  [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 5879 ms (R2: 3207 ms) | Custo: R$ 0.001212
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Busca RAG  : Fontes=['Filomenamburger', 'Casa Bari', 'Filomenambúrguer'] | recall@3=1.0 | mrr=0.5 | pos_gabarito=2
+      • Auditoria  : Base Citados=['Casa Bari', 'Filomenambúrguer', 'Filomenamburger'] | Inventados=[] | Trace ID=c47a02359a3be74f7992a053ced97614 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/c47a02359a3be74f7992a053ced97614
+      • Resposta   :
+        O **Casa Bari** ([FONTE #2]), em Taguatinga, oferece rodízio de pizzas premium com buffet de mini hambúrguer. Fica na EQNL 21/23, Bloco D, Brasília - DF. Preço médio por pessoa: **R$ 69,90**. Horário: aberto todos os dias — o documento não detalha o horário específico de sábado.
+        
+        Se quiser alternativas com mini hambúrguer em Taguatinga, há também o **Filomenamburger** ([FONTE #1]), na CNB 4, Taguatinga Norte, a R$ 50,00 por pessoa, aberto todos os dias das 18h às 23h (rodízio variado com mini hambúrgueres, pizzas e pastéis). O **Filomenambúrguer** ([FONTE #3]), em Taguatinga Norte, sai a R$ 49,99, mas o documento não informa o preço específico de sábado nem o horário exato.
+
+
+#########################################################################################################
+CASO #13 [golden_13] | Categoria: precisao_financeira | RA Esperada: Taguatinga
+#########################################################################################################
+Pergunta : "Quero levar as crianças num parque de Natal com neve artificial e túnel de luzes em Taguatinga. Quanto custa o ingresso?"
+Gabarito : Locais=['Vale Encantado'] | Preço Máx=R$ 19.9 | Horário=Estreia em 6 de novembro; o lote de ingressos a R$ 19,90 foi liberado em 20 de outubro, às 18h
+---------------------------------------------------------------------------------------------------------
+  [1] LLM pura, sem raciocínio (1_llm_pura_sem_raciocinio) | Latência R1: 2633 ms (R2: 4609 ms) | Custo: R$ 0.000457
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=0.0 | fora_da_base=1.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=3cdd71cfa5f5da724c631447e786c835 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/3cdd71cfa5f5da724c631447e786c835
+      • Resposta   :
+        Não tenho informação confirmada sobre um parque de Natal com neve artificial e túnel de luzes em Taguatinga, então não sei dizer o preço do ingresso. Para não te passar dado errado, sugiro confirmar em canais oficiais (site da Administração Regional de Taguatinga, Instagram do evento ou bilheterias). Se quiser, posso indicar 3 passeios gratuitos ou baratos para crianças no DF que eu conheço com mais segurança.
+
+  [2] LLM pura, raciocínio alto (2_llm_pura_raciocinio_alto) | Latência R1: 6646 ms (R2: 5174 ms) | Custo: R$ 0.001664
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=0.0 | fora_da_base=1.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=bdcc3dba56c23dbc1947f338c4eb6d8a | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/bdcc3dba56c23dbc1947f338c4eb6d8a
+      • Resposta   :
+        Não sei informar esse parque de Natal com neve artificial e túnel de luzes em Taguatinga. Não tenho dados confirmados sobre existência, endereço, horário ou preço de ingresso desse evento específico. Para não inventar informações, não vou chutar valores.
+        
+        Se você confirmar o nome do evento ou o local, posso tentar ajudar com o que eu souber. Caso contrário, recomendo checar os canais oficiais da administração de Taguatinga, da Secretaria de Turismo do DF ou do próprio evento antes de comprar ingressos.
+        
+        Não consigo indicar 3 lugares com nome, região administrativa, endereço, preço médio e horário sem ter certeza desses dados.
+
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 24 ms (R2: 15 ms) | Custo: R$ 0.001080
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.8571 | taxa_alucinacao=0.1429 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Vitorino', 'Vale Encantado', 'ExpoFlores 2026'] | recall@3=1.0 | mrr=0.5 | pos_gabarito=2
+      • Auditoria  : Base Citados=['Vitorino', 'ExpoFlores 2026', 'Vale Encantado'] | Inventados=[] | Trace ID=97dd908fc7a40657f66779e916f7b92f | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/97dd908fc7a40657f66779e916f7b92f
+      • Resposta   :
+        Para o seu pedido (Quero levar as crianças num parque de Natal com neve artificial e túnel de luzes em Taguatinga. Quanto custa o ingresso?), a recomendação oficial na base auditada do TikTok é o 'Vitorino' em Plano Piloto (Asa Sul) (116 Sul — Lago Sul, Distrito Federal, Região Centro-Oeste, Brasil)! Rodízio de pizzas premium e buffet completo com sushi e massas artesanais em um jardim ao ar livre. Ambiente lotado e vibrante, com promoção de gratuidade para crianças durante o mês de fevereiro. Preço médio estimado: R$ 79.9 (Caro ($$$)). Outras opções auditadas no DF: Vale Encantado (Taguatinga), ExpoFlores 2026 (Taguatinga).
+
+  [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 3352 ms (R2: 2587 ms) | Custo: R$ 0.000970
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Vitorino', 'Vale Encantado', 'ExpoFlores 2026'] | recall@3=1.0 | mrr=0.5 | pos_gabarito=2
+      • Auditoria  : Base Citados=['Vale Encantado'] | Inventados=[] | Trace ID=3cdd71cfa5f5da724c631447e786c835 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/3cdd71cfa5f5da724c631447e786c835
+      • Resposta   :
+        O **Vale Encantado** ([FONTE #2]) é o evento natalino imersivo com mega árvore, túnel de luzes e show de neve artificial, em Taguatinga. O preço médio por pessoa é **R$ 19,90** (faixa barata). Endereço: Complexo Quireibara, em Taguatinga, perto do avião, Brasília - DF. Funcionamento: vendas a partir das 18h do dia 20; estreia dia 6 de novembro.
+        
+        Observação: os documentos não informam o valor exato do ingresso infantil nem a política de meia-entrada/gratuidade para crianças — apenas o preço médio por pessoa. Para confirmar, vale consultar no local ou com os organizadores.
+
+  [5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto) | Latência R1: 4233 ms (R2: 5289 ms) | Custo: R$ 0.001455
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Vitorino', 'Vale Encantado', 'ExpoFlores 2026'] | recall@3=1.0 | mrr=0.5 | pos_gabarito=2
+      • Auditoria  : Base Citados=['Vale Encantado'] | Inventados=[] | Trace ID=bdcc3dba56c23dbc1947f338c4eb6d8a | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/bdcc3dba56c23dbc1947f338c4eb6d8a
+      • Resposta   :
+        O lugar que atende ao seu pedido é o **Vale Encantado** [FONTE #2]:
+        
+        - **Nome:** Vale Encantado
+        - **Região administrativa:** Taguatinga
+        - **Endereço:** Complexo Quireibara, em Taguatinga, perto do avião, Brasília – DF
+        - **Preço médio por pessoa:** R$ 19,90 (faixa “Barato”)
+        - **Horário de funcionamento:** Vendas a partir das 18h do dia 20; estreia dia 6 de novembro
+        
+        A descrição confirma evento natalino imersivo com mega árvore, túnel de luzes e show de neve artificial, com área de alimentação e temática familiar [FONTE #2]. Portanto, o ingresso custa em média **R$ 19,90 por pessoa** [FONTE #2].
+        
+        Observação: os documentos não informam valores diferenciados para crianças nem detalhes sobre meia-entrada; isso eu não sei.
+
+  [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 5255 ms (R2: 4996 ms) | Custo: R$ 0.000999
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Busca RAG  : Fontes=['Vale Encantado', 'ExpoFlores 2026', 'ExpoFlores 2026'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
+      • Auditoria  : Base Citados=['Vale Encantado'] | Inventados=[] | Trace ID=42212e67a7c0d674eaccf0ba99aa0580 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/42212e67a7c0d674eaccf0ba99aa0580
+      • Resposta   :
+        A base tem uma opção que atende ao pedido:
+        
+        **Vale Encantado** — Taguatinga
+        Endereço: Complexo Quireibara, em Taguatinga, perto do avião, Brasília - DF
+        Preço médio por pessoa: **R$ 19,90**
+        Horário: vendas a partir das 18h do dia 20; estreia dia 6 de novembro
+        Descrição: evento natalino imersivo com mega árvore, túnel de luzes e show de neve artificial, com personagens e área de alimentação [FONTE #1].
+        
+        Observação: os documentos não informam o valor exato do ingresso infantil nem a data de encerramento do evento — apenas o preço médio por pessoa e a data de estreia.
+
+
+#########################################################################################################
+CASO #14 [golden_14] | Categoria: precisao_financeira | RA Esperada: Samambaia
+#########################################################################################################
+Pergunta : "Moro em Samambaia e posso gastar no máximo R$ 30, nem um centavo a mais. Onde almoçar um prato executivo numa sexta?"
+Gabarito : Locais=['Saguari Gastro House'] | Preço Máx=R$ 24.9 | Horário=Executivo só às sextas, no almoço (a casa abre às 12h de sexta a domingo e às 16h de segunda a quinta)
+---------------------------------------------------------------------------------------------------------
+  [1] LLM pura, sem raciocínio (1_llm_pura_sem_raciocinio) | Latência R1: 4205 ms (R2: 3965 ms) | Custo: R$ 0.000902
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=0.0 | fora_da_base=1.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Auditoria  : Base Citados=[] | Inventados=['Feira Central de Samambaia', 'Praça de alimentação de shopping próximo'] | Trace ID=b309e37f1b144d80dc0cbd2583da714a | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/b309e37f1b144d80dc0cbd2583da714a
+      • Resposta   :
+        Não tenho certeza de valores e horários atualizados o suficiente para garantir algo dentro de R$ 30 em Samambaia — e como você não pode passar disso, prefiro não arriscar indicações que possam furar seu orçamento.
+        
+        O que posso sugerir com segurança:
+        
+        1. **Restaurantes de comida caseira no centro de Samambaia** (Samambaia) — endereços e preços variam muito; não sei informar nome/endereço exato com certeza. Pratos executivos costumam ficar na faixa de R$ 20–30, mas confirme antes.
+        
+        2. **Feira Central de Samambaia** (Samambaia) — opções de almoço popular; não sei horários exatos nem preços atuais.
+        
+        3. **Praça de alimentação de shopping próximo** — costuma passar de R$ 30, então não recomendo.
+        
+        Sugiro ligar ou passar em restaurantes perto da estação de Samambaia e confirmar o preço do executivo antes de sentar.
+
+  [2] LLM pura, raciocínio alto (2_llm_pura_raciocinio_alto) | Latência R1: 8671 ms (R2: 19527 ms) | Custo: R$ 0.002028
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=1.0 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=54050180bac47cc4ec3b8ca68cb7c645 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/54050180bac47cc4ec3b8ca68cb7c645
+      • Resposta   :
+        Não consigo indicar 3 lugares com segurança em Samambaia que tenham prato executivo na sexta por até R$ 30, porque não tenho dados confiáveis e atualizados de nome, endereço, preço médio e horário. Para não inventar, prefiro dizer que não sei.
+        
+        Uma alternativa segura é procurar, no dia, restaurantes de comida caseira/self-service por quilo em Samambaia e confirmar o preço do executivo por telefone ou WhatsApp antes de ir. Peça o valor fechado do prato do dia e se há taxa de serviço; assim você não passa dos R$ 30. Se quiser, posso montar um roteiro de perguntas para ligar e confirmar.
+
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 16 ms (R2: 26 ms) | Custo: R$ 0.000170
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=[] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=64689307c169d2e8900412a666643943 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/64689307c169d2e8900412a666643943
+      • Resposta   :
+        Não encontrei na base de 93 lugares do DF nenhum lugar que atenda bem a esse pedido (maior aderência 0,62, abaixo do mínimo de 0,65). Para não recomendar um lugar aleatório, prefiro não sugerir nada. Tente descrever o tipo de rolê, a região ou o clima.
+
+  [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 9 ms (R2: 10 ms) | Custo: R$ 0.000000
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=[] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=b309e37f1b144d80dc0cbd2583da714a | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/b309e37f1b144d80dc0cbd2583da714a
+      • Resposta   :
+        Não encontrei na base de 93 lugares do DF nenhum lugar que atenda bem a esse pedido (maior aderência 0,62, abaixo do mínimo de 0,65). Para não recomendar um lugar aleatório, prefiro não sugerir nada. Tente descrever o tipo de rolê, a região ou o clima.
+
+  [5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto) | Latência R1: 12 ms (R2: 10 ms) | Custo: R$ 0.000000
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=[] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=54050180bac47cc4ec3b8ca68cb7c645 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/54050180bac47cc4ec3b8ca68cb7c645
+      • Resposta   :
+        Não encontrei na base de 93 lugares do DF nenhum lugar que atenda bem a esse pedido (maior aderência 0,62, abaixo do mínimo de 0,65). Para não recomendar um lugar aleatório, prefiro não sugerir nada. Tente descrever o tipo de rolê, a região ou o clima.
+
+  [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 4823 ms (R2: 5501 ms) | Custo: R$ 0.001509
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Saguari Gastro House', 'Espaguete', 'Casa Bar'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
+      • Auditoria  : Base Citados=['Espaguete', 'Saguari Gastro House', 'Casa Bar', 'Casa Bari'] | Inventados=[] | Trace ID=d7b8d0aa28a389fa28f3b5ba034f8d54 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/d7b8d0aa28a389fa28f3b5ba034f8d54
+      • Resposta   :
+        Com base na base auditada, nenhum lugar atende exatamente ao pedido: prato executivo no almoço de sexta, em Samambaia, por até R$ 30.
+        
+        O que a base tem:
+        
+        - **Saguari Gastro House** — Samambaia, QS 310, Conj. 5, Lote 7. Preço médio R$ 24,90. Sexta: 12h às 20h. Porém a descrição não confirma prato executivo. [FONTE #1]
+        - **Espaguete** — Taguatinga (perto do Taguatinga Shopping). Preço médio R$ 18,45. Tem almoço executivo, mas o horário informado é "sexta a domingo (promoção de massas); almoço (executivos); segunda a quinta (prato do dia)" — não fica claro se o executivo é servido na sexta. [FONTE #2]
+        - **Casa Bar** — Taguatinga, EQNL 21/23, Bloco D. R$ 29,99. Só abre domingo no almoço, então não serve para sexta. [FONTE #3]
+        
+        Se aceitar sair de Samambaia, o Espaguete é a opção mais próxima do que você quer, mas confirme o executivo na sexta.
+
+
+#########################################################################################################
+CASO #15 [golden_15] | Categoria: precisao_financeira | RA Esperada: Vicente Pires
+#########################################################################################################
+Pergunta : "Tenho só R$ 30, nem um centavo a mais. Dá para almoçar no buffet à vontade com tempero nordestino em Vicente Pires numa terça-feira?"
+Gabarito : Locais=['Restaurante do Daniel'] | Preço Máx=R$ 32.99 | Horário=Segunda a sábado, das 7h às 15h; buffet a R$ 32,99 de segunda a quinta e R$ 34,99 às sextas, sábados e feriados
+---------------------------------------------------------------------------------------------------------
+  [1] LLM pura, sem raciocínio (1_llm_pura_sem_raciocinio) | Latência R1: 4214 ms (R2: 4084 ms) | Custo: R$ 0.000892
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=0.0 | fora_da_base=1.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Auditoria  : Base Citados=[] | Inventados=['Feira de Vicente Pires', 'Quiosques de comida nordestina em Taguatinga'] | Trace ID=77e31aeff3396e72d90dbc66686fa910 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/77e31aeff3396e72d90dbc66686fa910
+      • Resposta   :
+        Não tenho certeza de nenhum buffet nordestino à vontade em Vicente Pires que caiba em R$ 30 numa terça. Buffets à vontade costumam passar disso. O que posso sugerir com ressalvas (confirme preços e horários por telefone):
+        
+        1. **Feira de Vicente Pires** – Vicente Pires. Endereço: não sei exato. Preço: refeições simples a partir de ~R$ 20–30. Funcionamento: não sei se abre terça.
+        
+        2. **Restaurantes de comida caseira no comércio da Rua 3** – Vicente Pires. Endereço: não sei específico. Preço: prato feito ~R$ 25–35. Horário: não sei.
+        
+        3. **Quiosques de comida nordestina em Taguatinga** – Taguatinga. Endereço: não sei. Preço: ~R$ 25–40. Horário: não sei.
+        
+        Recomendo ligar antes e confirmar o valor.
+
+  [2] LLM pura, raciocínio alto (2_llm_pura_raciocinio_alto) | Latência R1: 6615 ms (R2: 7619 ms) | Custo: R$ 0.001569
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=1.0 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=c264c1f454de2af0cc398d533abe9264 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/c264c1f454de2af0cc398d533abe9264
+      • Resposta   :
+        Não consigo confirmar com segurança um buffet à vontade de tempero nordestino em Vicente Pires por até R$ 30 numa terça-feira. Esse tipo de preço varia muito, e buffets nordestinos podem não abrir ou não ter rodízio nesse dia. Como não tenho dados verificados de nome, endereço, preço e horário, não vou inventar recomendações.
+        
+        Para não estourar o orçamento, sugiro confirmar por telefone/Instagram antes de ir: pergunte se há buffet à vontade na terça, o valor exato e se há taxa de serviço. Se o valor passar de R$ 30, não recomendo arriscar. Não sei indicar um lugar específico em Vicente Pires que atenda a todos esses critérios com certeza.
+
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 27 ms (R2: 33 ms) | Custo: R$ 0.001120
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Restaurante do Daniel', 'New Mercadito', 'Costella Brasília'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
+      • Auditoria  : Base Citados=['New Mercadito', 'Costella Brasília', 'Restaurante do Daniel'] | Inventados=[] | Trace ID=62a159bcf8c537815807515913dfc454 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/62a159bcf8c537815807515913dfc454
+      • Resposta   :
+        Para o seu pedido (Tenho só R$ 30, nem um centavo a mais. Dá para almoçar no buffet à vontade com tempero nordestino em Vicente Pires numa terça-feira?), a recomendação oficial na base auditada do TikTok é o 'Restaurante do Daniel' em Vicente Pires (Vicente Pires, Rua 12, chácara 312a, Lt 34 Lj 3, Brasília - DF)! Restaurante com decoração retrô e itens antigos, oferecendo buffet de almoço à vontade com tempero nordestino e café colonial. Inclui caipirinha no almoço e dias com música ao vivo, além de cortesia de cafezinho ou leite com canela. Preço médio estimado: R$ 32.99 (Barato ($)). Outras opções auditadas no DF: New Mercadito (Plano Piloto (Asa Sul)), Costella Brasília (Vicente Pires).
+
+  [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 3990 ms (R2: 2650 ms) | Custo: R$ 0.001187
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Restaurante do Daniel', 'New Mercadito', 'Costella Brasília'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
+      • Auditoria  : Base Citados=['New Mercadito', 'Costella Brasília', 'Restaurante do Daniel'] | Inventados=[] | Trace ID=77e31aeff3396e72d90dbc66686fa910 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/77e31aeff3396e72d90dbc66686fa910
+      • Resposta   :
+        Sim, dá — mas por pouco. O **Restaurante do Daniel** (Vicente Pires) tem buffet de almoço à vontade com tempero nordestino, abre de segunda a sábado das 7h às 15h (terça incluída) e o preço médio por pessoa é **R$ 32,99** [FONTE #1]. Atenção: isso ultrapassa seus R$ 30 em cerca de R$ 3 — não há garantia, nos documentos, de valor menor. Endereço: Rua 12, chácara 312a, Lt 34 Lj 3, Brasília - DF [FONTE #1].
+        
+        Os outros dois documentos não atendem ao pedido: **New Mercadito** (Asa Sul, R$ 54,99) [FONTE #2] e **Costella Brasília** (Vicente Pires, R$ 50,00, horário "consultar no local") [FONTE #3] custam acima do seu orçamento.
+
+  [5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto) | Latência R1: 6130 ms (R2: 5124 ms) | Custo: R$ 0.001986
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Busca RAG  : Fontes=['Restaurante do Daniel', 'New Mercadito', 'Costella Brasília'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
+      • Auditoria  : Base Citados=['Restaurante do Daniel'] | Inventados=[] | Trace ID=c264c1f454de2af0cc398d533abe9264 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/c264c1f454de2af0cc398d533abe9264
+      • Resposta   :
+        Não há, na base, um lugar que atenda integralmente ao seu pedido com R$ 30. O único com buffet à vontade de tempero nordestino em Vicente Pires é o **Restaurante do Daniel** [FONTE #1], mas o preço médio por pessoa é **R$ 32,99**, acima do seu orçamento.
+        
+        - **Nome:** Restaurante do Daniel [FONTE #1]
+        - **Região administrativa:** Vicente Pires [FONTE #1]
+        - **Endereço:** Rua 12, chácara 312a, Lt 34 Lj 3, Brasília - DF [FONTE #1]
+        - **Preço médio por pessoa:** R$ 32,99 [FONTE #1]
+        - **Horário:** segunda a sábado, 7h às 15h — portanto abre na terça [FONTE #1]
+        
+        Assim, o local existe e funcionaria na terça, mas não cabe em R$ 30. Não há outro documento que atenda.
+
+  [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 5339 ms (R2: 4646 ms) | Custo: R$ 0.000832
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Busca RAG  : Fontes=['Restaurante do Daniel', 'Casa Bar', 'Gordeixos Delivery'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
+      • Auditoria  : Base Citados=['Restaurante do Daniel'] | Inventados=[] | Trace ID=59d2edd14af5e669d61ff061b978c7d4 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/59d2edd14af5e669d61ff061b978c7d4
+      • Resposta   :
+        Sim, dá. O **Restaurante do Daniel** ([FONTE #1]) fica em Vicente Pires, no endereço Rua 12, chácara 312a, Lt 34 Lj 3, e tem preço médio por pessoa de **R$ 32,99** — porém isso ultrapassa seu limite de R$ 30. O buffet à vontade com tempero nordestino é servido de **segunda a sábado, das 7h às 15h**, então funciona na terça-feira. Atenção: o valor informado é acima do que você tem, e a base não traz outro lugar em Vicente Pires com buffet nordestino dentro de R$ 30.
+
+
+#########################################################################################################
+CASO #16 [golden_16] | Categoria: vibes_e_restricoes | RA Esperada: Plano Piloto (Asa Sul)
+#########################################################################################################
+Pergunta : "Quero uma gelateria ou doceria aconchegante em Brasília onde tudo seja sem trigo, sem lactose e sem açúcar refinado. Qual é e em que horário abre?"
+Gabarito : Locais=['Lefit Gelatos e Doces Saudáveis'] | Preço Máx=R$ 28.0 | Horário=Todos os dias, das 10h às 19h
+---------------------------------------------------------------------------------------------------------
+  [1] LLM pura, sem raciocínio (1_llm_pura_sem_raciocinio) | Latência R1: 5278 ms (R2: 4211 ms) | Custo: R$ 0.001085
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=0.0909 | fora_da_base=0.9091 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Auditoria  : Base Citados=[] | Inventados=['Ludovico Gelateria', 'Sorveteria Dona Rosa', 'Empório Natural'] | Trace ID=02f18eac9de14706fd7b2bdfcbfe451d | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/02f18eac9de14706fd7b2bdfcbfe451d
+      • Resposta   :
+        Não tenho certeza de uma gelateria ou doceria em Brasília que garanta **100% sem trigo, sem lactose e sem açúcar refinado** — esse é um conjunto bem restritivo e não quero indicar um lugar errado. O que posso sugerir, com ressalvas para confirmar no local:
+        
+        1. **Ludovico Gelateria** – Asa Sul. Endereço: CLS 405, Bloco C, Loja 12. Preço médio: R$ 25–40. Funcionamento: cerca de 12h às 22h (confirmar). Tem opções sem lactose, mas não sei se toda a linha é sem açúcar/trigo.
+        2. **Sorveteria Dona Rosa** – Águas Claras. Endereço: Av. Araucárias, próximo à Praça das Araucárias (não sei o número exato). Preço médio: R$ 20–35. Horário: não sei ao certo.
+        3. **Empório Natural** – Asa Norte. Endereço: CLN 407, Bloco B (confirmar loja). Preço médio: R$ 30–50. Horário: não sei.
+        
+        Recomendo ligar antes e perguntar sobre contaminação cruzada.
+
+  [2] LLM pura, raciocínio alto (2_llm_pura_raciocinio_alto) | Latência R1: 6414 ms (R2: 6970 ms) | Custo: R$ 0.001633
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=0.0 | fora_da_base=1.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=a458347e98d1a36d1f4627ad5d4a46c4 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/a458347e98d1a36d1f4627ad5d4a46c4
+      • Resposta   :
+        Não sei de uma gelateria ou doceria em Brasília que garanta **tudo** sem trigo, sem lactose e sem açúcar refinado. Para responder com segurança, eu precisaria confirmar ingredientes e contaminação cruzada diretamente com o estabelecimento, e não tenho essa informação.
+        
+        Por isso, não vou indicar nome, endereço, preço ou horário sem certeza. Se você aceitar lugares com **opções** restritas (mas não 100% do cardápio), posso tentar ajudar com alternativas mais seguras — desde que você confirme as restrições no local.
+
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 31 ms (R2: 17 ms) | Custo: R$ 0.001150
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.8889 | taxa_alucinacao=0.0 | fora_da_base=0.1111 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Fábrica de Bolos Valzira', 'Denise Suítez', 'The Coffee Talk'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
+      • Auditoria  : Base Citados=['Fábrica de Bolos Valzira', 'Denise Suítez', 'The Coffee Talk'] | Inventados=[] | Trace ID=9ef88c3476c64b10520d8501958ae2be | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/9ef88c3476c64b10520d8501958ae2be
+      • Resposta   :
+        Para o seu pedido (Quero uma gelateria ou doceria aconchegante em Brasília onde tudo seja sem trigo, sem lactose e sem açúcar refinado. Qual é e em que horário abre?), a recomendação oficial na base auditada do TikTok é o 'Fábrica de Bolos Valzira' em Águas Claras (Águas Claras — Águas Claras, Distrito Federal, Região Centro-Oeste, Brasil)! Loja de bolos com preços acessíveis, oferecendo fatias a partir de R$ 6,90 e bolos no pote por R$ 12,90, com destaque para coberturas gratuitas e opções variadas como red velvet e frutas vermelhas. O ambiente é acolhedor, com recepção feita por um cachorro da dona, criando uma experiência simpática e descontraída. Preço médio estimado: R$ 12.9 (Barato ($)). Outras opções auditadas no DF: Denise Suítez (Vicente Pires), The Coffee Talk (Plano Piloto (Asa Sul)).
+
+  [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 2729 ms (R2: 3354 ms) | Custo: R$ 0.001205
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.9231 | taxa_alucinacao=0.0769 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Fábrica de Bolos Valzira', 'Denise Suítez', 'The Coffee Talk'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
+      • Auditoria  : Base Citados=['Fábrica de Bolos Valzira', 'Denise Suítez', 'The Coffee Talk'] | Inventados=[] | Trace ID=02f18eac9de14706fd7b2bdfcbfe451d | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/02f18eac9de14706fd7b2bdfcbfe451d
+      • Resposta   :
+        A base não tem um lugar que atenda ao pedido: nenhum dos documentos indica opções sem trigo, sem lactose e sem açúcar refinado. Os locais disponíveis são cafeterias/doceria, mas sem essa informação:
+        
+        - **Fábrica de Bolos Valzira** — Águas Claras; endereço: Águas Claras, Distrito Federal; preço médio R$ 12,90; horário: consultar no local [FONTE #1].
+        - **Denise Suítez** — Vicente Pires; Rua 3, Área central Vicente Pires; preço médio R$ 17,99; horário: consultar no local [FONTE #2].
+        - **The Coffee Talk** — Plano Piloto (Asa Sul); endereço informado como Sudoeste; preço médio R$ 50,00; horário: consultar no local [FONTE #3].
+        
+        Não sei informar restrições alimentares nem horários exatos, pois não constam nos documentos.
+
+  [5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto) | Latência R1: 4829 ms (R2: 5240 ms) | Custo: R$ 0.001566
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.9286 | taxa_alucinacao=0.0714 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Fábrica de Bolos Valzira', 'Denise Suítez', 'The Coffee Talk'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
+      • Auditoria  : Base Citados=['Fábrica de Bolos Valzira', 'Denise Suítez', 'The Coffee Talk'] | Inventados=[] | Trace ID=a458347e98d1a36d1f4627ad5d4a46c4 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/a458347e98d1a36d1f4627ad5d4a46c4
+      • Resposta   :
+        A base auditada não tem um lugar que atenda ao seu pedido: nenhum dos documentos informa opções sem trigo, sem lactose e sem açúcar refinado.
+        
+        Os documentos trazem apenas docerias/cafeterias:
+        
+        - **Fábrica de Bolos Valzira** – Águas Claras; endereço: Águas Claras, Distrito Federal; preço médio R$ 12,90; horário: consultar no local [FONTE #1].
+        - **Denise Suítez** – Vicente Pires; Rua 3 de Vicente Pires, Área central, Colônia Agrícola Vicente Pires; preço médio R$ 17,99; horário: consultar no local [FONTE #2].
+        - **The Coffee Talk** – Plano Piloto (Asa Sul); endereço: Sudoeste e Octogonal, Distrito Federal; preço médio R$ 50,00; horário: consultar no local [FONTE #3].
+        
+        Nenhum deles confirma restrições alimentares nem horário de funcionamento.
+
+  [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 4289 ms (R2: 4642 ms) | Custo: R$ 0.000941
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Lefit Gelatos e Doces Saudáveis', 'Quer Café', 'Crioula Café'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
+      • Auditoria  : Base Citados=['Lefit Gelatos e Doces Saudáveis'] | Inventados=[] | Trace ID=b988a652394ae6c6b2460675810acde4 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/b988a652394ae6c6b2460675810acde4
+      • Resposta   :
+        A **Lefit Gelatos e Doces Saudáveis** atende ao seu pedido: é uma gelateria e confeitaria autoral focada em doces saudáveis **sem trigo, lactose ou açúcar refinado**, em ambiente aconchegante [FONTE #1].
+        
+        - **Nome:** Lefit Gelatos e Doces Saudáveis
+        - **Região administrativa:** Plano Piloto (Asa Sul)
+        - **Endereço:** Asa Sul CLS 116, Bloco A, Brasília - DF
+        - **Preço médio por pessoa:** R$ 28,00
+        - **Horário de funcionamento:** Todos os dias, das 10h às 19h
+        
+        [FONTE #1]
+
+
+#########################################################################################################
+CASO #17 [golden_17] | Categoria: vibes_e_restricoes | RA Esperada: Águas Claras
+#########################################################################################################
+Pergunta : "Quero comer feijoada à vontade num sábado em Águas Claras com as crianças, num lugar com brinquedoteca e monitora. Onde é e quanto custa?"
+Gabarito : Locais=['Vila Carioca'] | Preço Máx=R$ 59.97 | Horário=Feijoada às sextas (com rabada) e aos sábados (com samba ao vivo); domingo é festival de sabores; happy hour todos os dias
+---------------------------------------------------------------------------------------------------------
+  [1] LLM pura, sem raciocínio (1_llm_pura_sem_raciocinio) | Latência R1: 3165 ms (R2: 3165 ms) | Custo: R$ 0.000770
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=1.0
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=c76280ac6f164ac4ee825918e2e8cd5d | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/c76280ac6f164ac4ee825918e2e8cd5d
+      • Resposta   :
+        Não tenho certeza de um lugar em Águas Claras que combine feijoada à vontade, brinquedoteca e monitora no sábado. Para não inventar dados (endereço, preço e horário), prefiro dizer que não sei indicar com segurança.
+        
+        Sugestões do que fazer:
+        - Ligar para restaurantes de feijoada em Águas Claras e perguntar especificamente sobre brinquedoteca com monitora aos sábados.
+        - Verificar buffets infantis da região que sirvam feijoada no fim de semana.
+        - Considerar restaurantes em outras RAs próximas (Taguatinga, Guará), confirmando estrutura kids.
+        
+        Se você aceitar opções sem brinquedoteca monitorada, posso sugerir lugares de feijoada em Brasília que eu conheça, deixando claro o que não sei.
+
+  [2] LLM pura, raciocínio alto (2_llm_pura_raciocinio_alto) | Latência R1: 8156 ms (R2: 8156 ms) | Custo: R$ 0.002100
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=0.0 | fora_da_base=1.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=332651126685247f44f1a6b86619751d | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/332651126685247f44f1a6b86619751d
+      • Resposta   :
+        Não sei indicar com segurança um restaurante em Águas Claras que ofereça, aos sábados, feijoada à vontade **e** brinquedoteca com monitora. Não tenho dados confirmados de nome, endereço, preço médio por pessoa nem horário de funcionamento para esse combo. Para não inventar informação, não vou recomendar lugares aleatórios. Sugiro confirmar diretamente com restaurantes de Águas Claras por telefone/Instagram se têm feijoada aos sábados, espaço kids e monitora nesse dia. Se você aceitar opções sem brinquedoteca com monitora, posso tentar ajudar com outros critérios.
+
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 18 ms (R2: 16 ms) | Custo: R$ 0.001190
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.8333 | taxa_alucinacao=0.1667 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Restaurante Dona Cleide', 'Vila Carioca', 'Peixe na Rede'] | recall@3=1.0 | mrr=0.5 | pos_gabarito=2
+      • Auditoria  : Base Citados=['Restaurante Dona Cleide', 'Vila Carioca', 'Peixe na Rede'] | Inventados=[] | Trace ID=cab893187080959c56a0cb09ce662724 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/cab893187080959c56a0cb09ce662724
+      • Resposta   :
+        Para o seu pedido (Quero comer feijoada à vontade num sábado em Águas Claras com as crianças, num lugar com brinquedoteca e monitora. Onde é e quanto custa?), a recomendação oficial na base auditada do TikTok é o 'Restaurante Dona Cleide' em Águas Claras (Águas Claras - Avenida das Araucárias, Mirante Plaza Gourmet, lote 885, loja 12, Brasília - DF)! Restaurante com rodízio de caldos variados e pizzas de forno a lenha, oferecendo ambiente agradável com música ao vivo aos finais de semana. Destaca-se pela brinquedoteca ampla com monitora, ideal para famílias com crianças. Preço médio estimado: R$ 54.9 (Moderado ($$)). Outras opções auditadas no DF: Vila Carioca (Águas Claras), Peixe na Rede (Águas Claras).
+
+  [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 3419 ms (R2: 3419 ms) | Custo: R$ 0.000992
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Restaurante Dona Cleide', 'Vila Carioca', 'Peixe na Rede'] | recall@3=1.0 | mrr=0.5 | pos_gabarito=2
+      • Auditoria  : Base Citados=['Restaurante Dona Cleide', 'Vila Carioca', 'Peixe na Rede'] | Inventados=[] | Trace ID=c76280ac6f164ac4ee825918e2e8cd5d | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/c76280ac6f164ac4ee825918e2e8cd5d
+      • Resposta   :
+        A base tem uma opção que atende ao seu pedido:
+        
+        **Vila Carioca** [FONTE #2]
+        - Região administrativa: Águas Claras
+        - Endereço: Águas Claras, Distrito Federal (endereço não detalhado na base)
+        - Preço médio por pessoa: R$ 59,97
+        - Horário: sábados com feijoada; happy hour todos os dias (horários exatos não informados na base)
+        - Tem samba ao vivo, buffet completo de feijoada e espaço kids com monitoras.
+        
+        Observação: o Restaurante Dona Cleide [FONTE #1] tem brinquedoteca com monitora e rodízio, mas a base não informa feijoada. O Peixe na Rede [FONTE #3] tem brinquedoteca, mas o preço é R$ 159,00 e não há feijoada na descrição.
+
+  [5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto) | Latência R1: 6922 ms (R2: 6922 ms) | Custo: R$ 0.002442
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Busca RAG  : Fontes=['Restaurante Dona Cleide', 'Vila Carioca', 'Peixe na Rede'] | recall@3=1.0 | mrr=0.5 | pos_gabarito=2
+      • Auditoria  : Base Citados=['Restaurante Dona Cleide', 'Vila Carioca', 'Peixe na Rede'] | Inventados=[] | Trace ID=332651126685247f44f1a6b86619751d | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/332651126685247f44f1a6b86619751d
+      • Resposta   :
+        A melhor opção na base é o **Vila Carioca** [FONTE #2]: fica em **Águas Claras**, com endereço registrado apenas como “Águas Claras — Distrito Federal” [FONTE #2]. Oferece **feijoada aos sábados**, buffet completo de feijoada e **espaço kids com monitoras** [FONTE #2]. O **preço médio por pessoa é R$ 59,97** [FONTE #2]. Sobre o horário, a base informa “Sábados (feijoada)” e “happy hour todos os dias”, mas **não traz o horário exato de funcionamento** [FONTE #2].
+        
+        O Restaurante Dona Cleide também tem brinquedoteca com monitora e fica em Águas Claras, mas o foco é rodízio de caldos e pizzas, não feijoada [FONTE #1]. O Peixe na Rede tem brinquedoteca, mas não indica feijoada e é mais caro [FONTE #3].
+
+  [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 5295 ms (R2: 5295 ms) | Custo: R$ 0.001217
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.9091 | taxa_alucinacao=0.0 | fora_da_base=0.0909 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Busca RAG  : Fontes=['Vila Carioca', 'Restaurante Dona Cleide', 'Peixe na Rede'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
+      • Auditoria  : Base Citados=['Restaurante Dona Cleide', 'Vila Carioca', 'Peixe na Rede'] | Inventados=[] | Trace ID=a7600851c94a0e6f1737bf48d4952eb5 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/a7600851c94a0e6f1737bf48d4952eb5
+      • Resposta   :
+        A **Vila Carioca** ([FONTE #1]) é a opção que atende: fica em **Águas Claras** (endereço: Águas Claras, Distrito Federal — a base não traz endereço detalhado), serve **feijoada aos sábados** e tem **espaços kids com monitoras**. Preço médio por pessoa: **R$ 59,97**. Horário: a base informa apenas "Sábados (feijoada)" e happy hour todos os dias, sem horário exato de abertura — esse dado não está nos documentos.
+        
+        As outras opções não atendem completamente: **Restaurante Dona Cleide** ([FONTE #2]) tem brinquedoteca com monitora, mas não há feijoada no cardápio; **Peixe na Rede** ([FONTE #3]) tem brinquedoteca, mas o foco é moqueca e o preço é R$ 159,00.
+
+
+#########################################################################################################
+CASO #18 [golden_18] | Categoria: vibes_e_restricoes | RA Esperada: Plano Piloto (Asa Sul)
+#########################################################################################################
+Pergunta : "Quero um jantar romântico a dois num restaurante chique ao lado da Torre de TV numa terça, com buffet de massas frescas. Onde é e quanto custa por pessoa?"
+Gabarito : Locais=['Lucca Restaurante'] | Preço Máx=R$ 89.0 | Horário=Jantar de segunda a sábado, das 19h às 22h (buffet de massas só às terças); almoço de segunda a sexta, das 12h às 15h
+---------------------------------------------------------------------------------------------------------
+  [1] LLM pura, sem raciocínio (1_llm_pura_sem_raciocinio) | Latência R1: 4860 ms (R2: 4860 ms) | Custo: R$ 0.000812
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=0.0 | fora_da_base=1.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Auditoria  : Base Citados=[] | Inventados=['Coco Bambu Brasília', 'Nonna Cucina'] | Trace ID=8cc34c2328bbfd34225ad1c23cff48e3 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/8cc34c2328bbfd34225ad1c23cff48e3
+      • Resposta   :
+        Não tenho certeza de um restaurante chique com buffet de massas frescas exatamente ao lado da Torre de TV em Brasília. Para não inventar dados (endereço, preço e horário), prefiro ser honesto: não sei indicar um lugar que atenda a todos esses critérios.
+        
+        Sugestões dentro do que sei, mas sem garantir buffet de massas:
+        - **Coco Bambu Brasília** (Plano Piloto, Setor Comercial Sul) — frutos do mar, clima sofisticado; preço médio alto (não sei o valor exato). Funciona à noite, inclusive terças.
+        - **Nonna Cucina** (Asa Sul) — massas artesanais; não sei confirmar buffet nem preço atual.
+        
+        Recomendo ligar antes para confirmar buffet na terça e reservar. Quer que eu sugira opções românticas em outras regiões administrativas?
+
+  [2] LLM pura, raciocínio alto (2_llm_pura_raciocinio_alto) | Latência R1: 9038 ms (R2: 9038 ms) | Custo: R$ 0.001925
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=0.0 | fora_da_base=1.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=fd37c63a6d5d98fdffb0420e7b6dcf84 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/fd37c63a6d5d98fdffb0420e7b6dcf84
+      • Resposta   :
+        Não sei indicar com segurança um restaurante chique **ao lado da Torre de TV** que ofereça **buffet de massas frescas na terça**. Não tenho dados confiáveis sobre nome, endereço, preço médio e horário de funcionamento de um lugar que atenda exatamente a esses critérios, e não quero inventar.
+        
+        Para não errar, sugiro confirmar diretamente em restaurantes do **Plano Piloto** próximos à Torre de TV/Setor Hoteleiro Norte se há buffet de massas às terças. Se você aceitar outras regiões administrativas ou um jantar à la carte (sem buffet), posso recomendar opções com mais segurança.
+
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 6 ms (R2: 13 ms) | Custo: R$ 0.001170
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.8571 | taxa_alucinacao=0.1429 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Farol Restaurante', 'Dudu Bar', 'Farol Gastronomia'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
+      • Auditoria  : Base Citados=['Farol Restaurante', 'Dudu Bar', 'Farol Gastronomia'] | Inventados=[] | Trace ID=bd39e398b714634b182b8a68e327b239 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/bd39e398b714634b182b8a68e327b239
+      • Resposta   :
+        Para o seu pedido (Quero um jantar romântico a dois num restaurante chique ao lado da Torre de TV numa terça, com buffet de massas frescas. Onde é e quanto custa por pessoa?), a recomendação oficial na base auditada do TikTok é o 'Farol Restaurante' em Lago Sul (Lago Paranoá (Yacht Club), Brasília - DF)! Buffet de almoço à vontade comandado pelo chef Tiago Paraíso, com opções variadas como moqueca e feijoada completa. Ambiente na beira do lago dentro do Yacht Club, oferecendo também um menu degustação de três etapas à noite. Preço médio estimado: R$ 59.9 (Moderado ($$)). Outras opções auditadas no DF: Dudu Bar (Plano Piloto (Asa Sul)), Farol Gastronomia (Lago Sul).
+
+  [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 3414 ms (R2: 3414 ms) | Custo: R$ 0.001270
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.9231 | taxa_alucinacao=0.0769 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Farol Restaurante', 'Dudu Bar', 'Farol Gastronomia'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
+      • Auditoria  : Base Citados=['Farol Restaurante', 'Dudu Bar', 'Farol Gastronomia'] | Inventados=[] | Trace ID=8cc34c2328bbfd34225ad1c23cff48e3 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/8cc34c2328bbfd34225ad1c23cff48e3
+      • Resposta   :
+        A base consultada não tem um lugar que atenda ao pedido: não há documento que descreva restaurante chique ao lado da Torre de TV, com buffet de massas frescas, aberto para jantar numa terça. Os documentos disponíveis trazem opções no Lago Sul e na Asa Sul, sem esse perfil:
+        
+        - **Farol Restaurante** — Lago Sul; Lago Paranoá (Yacht Club), Brasília - DF; R$ 59,90 por pessoa; almoço de terça a sexta e jantar de quinta a sábado [FONTE #1].
+        - **Dudu Bar** — Plano Piloto (Asa Sul); 303 Sul; R$ 89,90 por pessoa; todos os dias no almoço e jantar [FONTE #2].
+        - **Farol Gastronomia** — Lago Sul; Clube Naval de Brasília, SCES Trecho 2; R$ 95,00 por pessoa; horário não informado na base [FONTE #3].
+        
+        Não sei informar endereço, preço ou horário de um lugar que corresponda exatamente ao que você procura.
+
+  [5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto) | Latência R1: 5724 ms (R2: 5724 ms) | Custo: R$ 0.001430
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.8182 | taxa_alucinacao=0.1818 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Busca RAG  : Fontes=['Farol Restaurante', 'Dudu Bar', 'Farol Gastronomia'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
+      • Auditoria  : Base Citados=['Farol Restaurante', 'Dudu Bar', 'Farol Gastronomia'] | Inventados=[] | Trace ID=fd37c63a6d5d98fdffb0420e7b6dcf84 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/fd37c63a6d5d98fdffb0420e7b6dcf84
+      • Resposta   :
+        A base não tem um lugar que atenda a todos os critérios: restaurante chique ao lado da Torre de TV, com jantar romântico numa terça e buffet de massas frescas.
+        
+        Os documentos enviados mencionam apenas:
+        - **Farol Restaurante** — Lago Sul; almoço de terça a sexta e jantar de quinta a sábado; buffet de almoço; R$ 59,90 por pessoa [FONTE #1].
+        - **Dudu Bar** — Asa Sul; almoço e jantar todos os dias; R$ 89,90 [FONTE #2].
+        - **Farol Gastronomia** — Lago Sul; horário “consultar no local”; R$ 95,00 [FONTE #3].
+        
+        Nenhum informa buffet de massas frescas nem localização ao lado da Torre de TV. Portanto, não sei indicar um lugar que cumpra seu pedido com base nos documentos.
+
+  [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 5226 ms (R2: 5226 ms) | Custo: R$ 0.001282
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.8571 | taxa_alucinacao=0.0 | fora_da_base=0.1429 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Busca RAG  : Fontes=['Lucca Restaurante', 'Restaurante Tete a Tete', 'Espaguete'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
+      • Auditoria  : Base Citados=['Lucca Restaurante'] | Inventados=[] | Trace ID=bb6f403965d95a8addf9bad982dd5142 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/bb6f403965d95a8addf9bad982dd5142
+      • Resposta   :
+        A base não tem um lugar que atenda a todos os critérios do seu pedido (restaurante chique ao lado da Torre de TV, com buffet de massas frescas, aberto para jantar numa terça).
+        
+        O mais próximo é o **Lucca Restaurante** [FONTE #1]:
+        - Região administrativa: Plano Piloto (Asa Sul)
+        - Endereço: SHS, Quadra 6, Cj. A, Bloco F, 1º andar (Brasil 21 Suítes), Brasília - DF
+        - Preço médio por pessoa: R$ 89,00
+        - Horário: almoço de segunda a sexta, 12h às 15h; jantar de segunda a sábado, 19h às 22h
+        
+        Ele é descrito como chique e oferece buffet de massas, mas não fica ao lado da Torre de TV — o endereço informado é no Brasil 21 Suítes, na Asa Sul. Não sei informar se as massas são "frescas", pois esse dado não consta no documento.
+
+
+#########################################################################################################
+CASO #19 [golden_19] | Categoria: conflito_e_girias | RA Esperada: Plano Piloto (Asa Norte)
+#########################################################################################################
+Pergunta : "Quero comemorar meu aniversário num rodízio japonês completo na Asa Norte, mas sem pagar nada. Existe rodízio caro totalmente de graça?"
+Gabarito : Locais=['Blue Sushi'] | Preço Máx=R$ 109.99 | Horário=Todos os dias, das 11h30 às 23h (rodízio a R$ 109,99 no almoço e R$ 129,99 no jantar)
+---------------------------------------------------------------------------------------------------------
+  [1] LLM pura, sem raciocínio (1_llm_pura_sem_raciocinio) | Latência R1: 3633 ms (R2: 3633 ms) | Custo: R$ 0.000923
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=0.2 | fora_da_base=0.8 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Auditoria  : Base Citados=[] | Inventados=['Koharu Sushi', 'Sushi Yassu', 'Nazo Sushi'] | Trace ID=57611e641b4f4b008daf871dfe3358f0 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/57611e641b4f4b008daf871dfe3358f0
+      • Resposta   :
+        Não existe rodízio japonês completo totalmente de graça na Asa Norte — nenhum restaurante oferece esse serviço sem cobrança. O que costuma existir são promoções de aniversariante (desconto ou cortesia parcial), mas variam e não posso confirmar sem checar cada casa.
+        
+        Sugestões na Asa Norte (preços e horários aproximados, sujeitos a confirmação):
+        
+        1. **Koharu Sushi** – Asa Norte, CLN 408/409 (não tenho certeza do endereço exato). Preço médio: R$ 90–130. Horário: almoço e jantar; não sei os horários exatos.
+        2. **Sushi Yassu** – Asa Norte, CLN 210 (confirmar). Preço médio: R$ 80–120. Horário: não sei.
+        3. **Nazo Sushi** – Asa Norte (endereço e preço: não sei).
+        
+        Recomendo ligar e perguntar sobre cortesia de aniversariante.
+
+  [2] LLM pura, raciocínio alto (2_llm_pura_raciocinio_alto) | Latência R1: 7254 ms (R2: 7254 ms) | Custo: R$ 0.001818
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=0.0
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=8b029d54bc38320895d29de69f2a4904 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/8b029d54bc38320895d29de69f2a4904
+      • Resposta   :
+        Não existe rodízio japonês completo totalmente de graça na Asa Norte — e, pelo que sei com segurança, também não há no DF. Rodízios cobram por pessoa; no máximo, alguns estabelecimentos oferecem desconto ou cortesia ao aniversariante, mas isso varia e exige confirmação no local.
+        
+        Como não tenho certeza de endereços, preços médios e horários atualizados de rodízios japoneses na Asa Norte, não vou inventar recomendações. Para não te induzir a erro, sugiro confirmar diretamente em apps de reserva ou no Instagram dos restaurantes se há promoção de aniversário.
+        
+        Se você aceitar uma opção paga, posso montar uma lista com 3 lugares usando apenas dados que eu saiba — mas, para endereço/preço/horário exatos, o ideal é checar na fonte oficial.
+
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 11 ms (R2: 50 ms) | Custo: R$ 0.000100
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=1.0 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=[] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=23d281d77f2c734304e887886f566826 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/23d281d77f2c734304e887886f566826
+      • Resposta   :
+        Nenhum lugar da base é grátis: o mais barato custa, em média, R$ 1,99. Quer aumentar o limite?
+
+  [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 5 ms (R2: 8 ms) | Custo: R$ 0.000000
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=1.0 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=[] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=57611e641b4f4b008daf871dfe3358f0 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/57611e641b4f4b008daf871dfe3358f0
+      • Resposta   :
+        Nenhum lugar da base é grátis: o mais barato custa, em média, R$ 1,99. Quer aumentar o limite?
+
+  [5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto) | Latência R1: 15 ms (R2: 21 ms) | Custo: R$ 0.000000
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=1.0 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=[] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=8b029d54bc38320895d29de69f2a4904 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/8b029d54bc38320895d29de69f2a4904
+      • Resposta   :
+        Nenhum lugar da base é grátis: o mais barato custa, em média, R$ 1,99. Quer aumentar o limite?
+
+  [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 19 ms (R2: 23 ms) | Custo: R$ 0.000000
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=1.0 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=[] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=bdc3b5acbfe3e7e7c43c005bb0335321 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/bdc3b5acbfe3e7e7c43c005bb0335321
+      • Resposta   :
+        Nenhum lugar da base é grátis: o mais barato custa, em média, R$ 1,99. Quer aumentar o limite?
+
+
+#########################################################################################################
+CASO #20 [golden_20] | Categoria: conflito_e_girias | RA Esperada: Plano Piloto (Noroeste)
+#########################################################################################################
+Pergunta : "Saindo do trampo na Asa Norte, ali perto da tesourinha, bora num rolê baratinho de espetinho na brasa no Noroeste numa segunda? Coisa de uns 30 conto."
+Gabarito : Locais=['Brasa Meat Burger'] | Preço Máx=R$ 30.0 | Horário=Segunda a sexta, das 18h às 23h
+---------------------------------------------------------------------------------------------------------
+  [1] LLM pura, sem raciocínio (1_llm_pura_sem_raciocinio) | Latência R1: 3726 ms (R2: 3726 ms) | Custo: R$ 0.000858
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=0.0 | fora_da_base=1.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Auditoria  : Base Citados=[] | Inventados=['Espetinho do Zé', 'Boteco do Espeto', 'Churrasquinho da Quadra'] | Trace ID=7e360d3dd9cae744121f8e4772b53133 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/7e360d3dd9cae744121f8e4772b53133
+      • Resposta   :
+        Não tenho certeza de espetinhos específicos no Noroeste com esses dados (endereço, preço e horário confiáveis), então não vou inventar. Mas posso indicar caminhos seguros:
+        
+        1. **Espetinho do Zé (Asa Norte)** – CLN 110, próximo à Tesourinha. Preço médio: R$ 25–35. Funciona à noite, mas não sei se abre segunda — confirme por telefone.
+        
+        2. **Boteco do Espeto (Noroeste)** – não tenho certeza do endereço exato nem do funcionamento na segunda. Não sei informar preço.
+        
+        3. **Churrasquinho da Quadra (Noroeste)** – também não tenho dados confirmados.
+        
+        Sugestão: procure no Google Maps "espetinho Noroeste" e ligue antes, já que segunda é dia de muitos fecharem. Quer que eu monte um roteiro alternativo na Asa Norte?
+
+  [2] LLM pura, raciocínio alto (2_llm_pura_raciocinio_alto) | Latência R1: 8598 ms (R2: 8598 ms) | Custo: R$ 0.002139
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=1.0 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=47277f8c427c4cc5bb0c8433a5830071 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/47277f8c427c4cc5bb0c8433a5830071
+      • Resposta   :
+        Não tenho indicação confiável de espetinho na brasa no Noroeste, aberto numa segunda, com média de ~R$ 30 por pessoa. Não sei nomes, endereços e horários nesse perfil, então não vou inventar.
+        
+        Para não te mandar errado, não listo lugares. Sugiro buscar no Google Maps por “espetinho Noroeste Brasília”, filtrar “aberto agora” e faixa de preço, e confirmar horário por WhatsApp/telefone antes de sair da Asa Norte.
+        
+        Se você aceitar alternativas fora do Noroeste ou outro tipo de rolê baratinho, posso tentar lembrar opções — mas só passo nome/endereço/preço/horário se eu tiver certeza.
+
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 32 ms (R2: 9 ms) | Custo: R$ 0.001230
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.8333 | taxa_alucinacao=0.1667 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Mr. John', 'Detroit American Steakhouse', 'Meatz Asa Norte'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
+      • Auditoria  : Base Citados=['Mr. John', 'Detroit American Steakhouse', 'Meatz Asa Norte'] | Inventados=[] | Trace ID=b50e1fc30d32f018e34e5c090a8a25ee | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/b50e1fc30d32f018e34e5c090a8a25ee
+      • Resposta   :
+        Para o seu pedido (Saindo do trampo na Asa Norte, ali perto da tesourinha, bora num rolê baratinho de espetinho na brasa no Noroeste numa segunda? Coisa de uns 30 conto.), a recomendação oficial na base auditada do TikTok é o 'Mr. John' em Plano Piloto (Asa Norte) (Asa Norte 203 Norte — Caminito Parrilla Asa Norte, CLN 402/403, SQN 403, Asa Norte, Brasília, Plano Piloto, Dist)! Lanternagem de hamburgueria com pegada americana oferecendo smash burgers grandes e criativos, como os de queijo coalho e tropical. O ambiente é animado e os preços são acessíveis, com hambúrgueres a partir de R$ 24,99 e milkshakes gigantes por R$ 23,00. Preço médio estimado: R$ 24.99 (Barato ($)). Outras opções auditadas no DF: Detroit American Steakhouse (Plano Piloto (Asa Norte)), Meatz Asa Norte (Plano Piloto (Asa Norte)).
+
+  [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 3620 ms (R2: 3620 ms) | Custo: R$ 0.001396
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.8182 | taxa_alucinacao=0.1818 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Mr. John', 'Detroit American Steakhouse', 'Meatz Asa Norte'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
+      • Auditoria  : Base Citados=['Mr. John', 'Detroit American Steakhouse', 'Meatz Asa Norte'] | Inventados=[] | Trace ID=7e360d3dd9cae744121f8e4772b53133 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/7e360d3dd9cae744121f8e4772b53133
+      • Resposta   :
+        A base não tem um lugar que atenda ao pedido: não há nenhum documento com espetinho na brasa no Noroeste. Os três lugares disponíveis são hamburgueria/steakhouse na Asa Norte (Plano Piloto), não no Noroeste:
+        
+        - **Mr. John** — Plano Piloto (Asa Norte), Caminito Parrilla Asa Norte, CLN 402/403, SQN 403; preço médio R$ 24,99; horário: consultar no local [FONTE #1].
+        - **Detroit American Steakhouse** — Plano Piloto (Asa Norte), Pier 21; preço médio R$ 39,95; horário: seg–sex (buffet R$ 39,95) e fins de semana/feriados (R$ 49,95) [FONTE #2].
+        - **Meatz Asa Norte** — Plano Piloto (Asa Norte), CLN 110, Bloco D, Loja 18; preço médio R$ 13,50; horário: válido o dia todo (11/04), DJ das 18h30 às 22h30 [FONTE #3].
+        
+        Não sei informar sobre espetinhos no Noroeste.
+
+  [5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto) | Latência R1: 4807 ms (R2: 4807 ms) | Custo: R$ 0.001722
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.8 | taxa_alucinacao=0.2 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Busca RAG  : Fontes=['Mr. John', 'Detroit American Steakhouse', 'Meatz Asa Norte'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
+      • Auditoria  : Base Citados=['Mr. John', 'Detroit American Steakhouse', 'Meatz Asa Norte'] | Inventados=[] | Trace ID=47277f8c427c4cc5bb0c8433a5830071 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/47277f8c427c4cc5bb0c8433a5830071
+      • Resposta   :
+        A base não tem um lugar que atenda ao pedido: não há nenhum espetinho na brasa no Noroeste entre os documentos enviados. Os três registros disponíveis são restaurantes na Asa Norte e não correspondem ao tipo de rolê nem à região pedida:
+        
+        - Mr. John — Plano Piloto (Asa Norte), Asa Norte 203 Norte, Caminito Parrilla Asa Norte, CLN 402/403; preço médio R$ 24,99; horário: consultar no local [FONTE #1].
+        - Detroit American Steakhouse — Plano Piloto (Asa Norte), Pier 21; preço médio R$ 39,95; horário: segunda a sexta (buffet R$ 39,95) e fins de semana/feriados (R$ 49,95) [FONTE #2].
+        - Meatz Asa Norte — Plano Piloto (Asa Norte), CLN 110, Bloco D, Loja 18; preço médio R$ 13,50; horário informado apenas para evento em 11/04, com DJ das 18h30 às 22h30 [FONTE #3].
+        
+        Não sei informar opções de espetinho no Noroeste, pois não constam na base.
+
+  [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 5348 ms (R2: 5348 ms) | Custo: R$ 0.001226
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Busca RAG  : Fontes=['Brasa Meat Burger', 'Meatz Asa Norte', 'Blue Sushi'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
+      • Auditoria  : Base Citados=['Brasa Meat Burger', 'Meatz Asa Norte', 'Blue Sushi'] | Inventados=[] | Trace ID=8a1e8fd7d978405107585a454101eeaa | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/8a1e8fd7d978405107585a454101eeaa
+      • Resposta   :
+        A base tem uma opção que combina com o pedido:
+        
+        **Brasa Meat Burger** [FONTE #1]
+        - Região administrativa: Plano Piloto (Noroeste)
+        - Endereço: Noroeste, SQNW 105 — Via de Acesso Montparnasse e Reserva Noroeste, SQNW 311, Setor Noroeste, Brasília
+        - Preço médio por pessoa: R$ 30,00
+        - Horário: segunda a sexta, 18h às 23h
+        
+        É um quiosque de churrasco e burgers artesanais com espetinhos e choripan, ambiente informal e focado em delivery — atende bem ao "rolê baratinho de espetinho" numa segunda à noite.
+        
+        Observação: os demais documentos da base são hamburgueria na Asa Norte [FONTE #2] e rodízio japonês caro [FONTE #3], que não se encaixam no pedido.
+

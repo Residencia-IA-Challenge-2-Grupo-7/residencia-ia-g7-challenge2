@@ -3,11 +3,17 @@
 > Arquivo vivo. Toda sessão (humana ou de agente) lê no início e atualiza no fim.
 > Mantenha curto: o histórico fica em `docs/semanas/` e no `git log`.
 
-**Atualizado em:** 2026-11-12
+**Atualizado em:** 2026-11-13
 **Semana do roadmap:** 3 — Comparação RAG × LLM pura, com as Telas 1 a 3 do app em paralelo
 
 ## Agora
 
+- **Benchmark oficial A/B das 20 consultas (Letícia Miti, 13/11), issue #38:**
+  - `scripts/executar_benchmark_semana3.py` executa as 20 perguntas de `data/golden_dataset_semana3.json` nas 6 configurações da Semana 3 em 2 rodadas, aciona o avaliador híbrido (`src/telemetria/evals_semana3.py`) e registra os 6 experimentos no dataset `golden_dataset_semana3` do Langfuse Cloud via `run_experiment`;
+  - resultados detalhados salvos em `data/resultados_benchmark_semana3.json`, `data/resultados_benchmark_semana3.csv`, `docs/entregas/semana-03/BENCHMARK_LLM_VS_RAG_LOG.txt` e documentados em [docs/experimentos/2026-11-13-benchmark-semana3.md](docs/experimentos/2026-11-13-benchmark-semana3.md);
+  - **configuração vencedora pelo critério da #38** (p90 <= 5 s, 0 lugares inventados, maior acerto do gabarito, menor custo no desempate): **#4 — RAG + LLM, busca léxica (`4_rag_llm_busca_lexica`)**, com **12 de 20** de acerto geral (10 de 18 no DF, 2 de 2 fora do DF), **0 lugares inventados**, **88,8% de fidelidade factual** (96,5% em RAs fora do centro e 95,0% em janela de horário), **p50 de 3,15 s / p90 de 3,61 s** (20 de 20 dentro dos 5 s do RNF-14) e custo médio de **R$ 0,00081**;
+  - a **#6 — RAG + LLM, busca vetorial** alcança **18 de 20 (90,0%)** de acerto (16 de 18 no DF, Recall@3 de 88,9% e MRR de 0,8333) e **91,0% de fidelidade factual**, mas o embedding adiciona ~1,5 s e leva o p90 a **5,83 s**; a **#1 — LLM pura sem raciocínio** acerta **0 de 18** no DF e inventa **32 lugares em 13 de 20 casos**;
+  - `tests/test_resultados_benchmark.py` adicionado (10 testes validando completude dos 20 casos × 6 configurações, métricas, CSV e log TXT).
 - **Fonte da verdade sobre o app: [GUIA_OFICIAL_PROJETO.md](GUIA_OFICIAL_PROJETO.md)** (10/11). Resumo do que ele fechou:
   - ciclo completo do rolê: sala, 4 campos secretos, 3 a 4 cartões, votação múltipla e, depois, foto da nota fiscal, divisão e Pix;
   - **sem voz** ([ADR 0009](docs/decisoes/0009-entrada-pelos-4-campos-de-texto.md)); a multimodalidade da semana 5 é a foto da nota fiscal;
