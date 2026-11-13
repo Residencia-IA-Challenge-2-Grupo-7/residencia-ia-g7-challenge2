@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#6d28d9">
+  <meta name="description" content="Crie uma sala, preencha os 4 campos secretos e vote no melhor rolê do DF.">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="icon" href="/static/telas/icone.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="/static/telas/icone.svg">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Orquestrador de Rolês — App</title>
+  <link rel="stylesheet" href="/static/telas/app.css">
+</head>
+<body>
+  <a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
+  <header class="topo">
+    <a class="marca" href="/app">🎭 Orquestrador de Rolês</a>
+    <div class="controles-fonte" role="group" aria-label="Tamanho da letra">
+      <button type="button" id="fonteMenor" aria-label="Diminuir a letra">A−</button>
+      <button type="button" id="fonteMaior" aria-label="Aumentar a letra">A+</button>
+    </div>
+  </header>
+
+  <main id="conteudo">
+    <!-- Guia com 3 abas para navegar entre as 3 telas no mesmo HTTP -->
+    <nav class="abas" role="tablist" aria-label="Etapas do rolê">
+      <button type="button" class="aba" role="tab" id="abaCriar" aria-controls="painelCriar" aria-selected="true">
+        1. Criar Sala
+      </button>
+      <button type="button" class="aba" role="tab" id="abaPerfil" aria-controls="painelPerfil" aria-selected="false">
+        2. Meus Dados
+      </button>
+      <button type="button" class="aba" role="tab" id="abaSala" aria-controls="painelSala" aria-selected="false">
+        3. Painel e Votação
+      </button>
+    </nav>
+
+    <!-- ============================================================ ABA 1: CRIAR SALA -->
+    <div id="painelCriar" role="tabpanel" aria-labelledby="abaCriar">
+      <h1>Bora marcar o rolê?</h1>
+      <p class="subtitulo">Crie a sala, mande o link no grupo e cada um conta, em segredo, de onde sai, quando pode e quanto quer gastar. A gente sugere 3 ou 4 lugares justos para todo mundo e vocês votam.</p>
+
+      <section class="cartao" id="secaoCriar" aria-labelledby="tituloCriar">
+        <h2 id="tituloCriar">Criar sala</h2>
+        <div id="avisoCriar" class="aviso" aria-live="polite"></div>
+        <form id="formCriar" novalidate>
+          <div class="campo">
+            <label for="organizador">Seu nome</label>
+            <input type="text" id="organizador" name="organizador" maxlength="40" autocomplete="given-name"
+                   placeholder="Ex.: Rafaela" required>
+          </div>
+          <div class="campo">
+            <label for="nomeRole">Nome do rolê</label>
+            <input type="text" id="nomeRole" name="nome_role" maxlength="80"
+                   placeholder="Ex.: Aniversário da Galera" required>
+          </div>
+          <div class="campo">
+            <label class="caixa-marcar" for="criarMaiorIdade">
+              <input type="checkbox" id="criarMaiorIdade" name="maior_de_idade" required>
+              <span>Tenho 18 anos ou mais. O app é só para adultos.</span>
+            </label>
+          </div>
+          <button type="submit" class="botao botao-primario botao-largo" id="botaoCriar">Criar Sala</button>
+        </form>
+      </section>
+
+      <section class="cartao" id="secaoConvite" aria-labelledby="tituloConvite" hidden tabindex="-1">
+        <h2 id="tituloConvite">✅ Sala criada!</h2>
+        <p>Código da sala: <span class="codigo-sala" id="codigoSala"></span></p>
+        <p class="rotulo">Link de convite para mandar no grupo (2 a 20 pessoas):</p>
+        <div class="link-convite" id="linkConvite"></div>
+        <div id="avisoConvite" class="aviso" aria-live="polite"></div>
+        <div class="grupo-botoes">
+          <button type="button" class="botao botao-secundario" id="botaoCopiar">📋 Copiar link</button>
+          <a class="botao botao-whatsapp" id="botaoWhatsApp" target="_blank" rel="noopener">💬 Mandar no WhatsApp</a>
+        </div>
+        <p class="subtitulo" style="margin-top:16px">Você também participa: preencha seus dados antes de gerar as sugestões.</p>
+        <div class="grupo-botoes">
+          <button type="button" class="botao botao-primario" id="botaoMeusDados">🔒 Preencher meus dados</button>
+          <button type="button" class="botao botao-secundario" id="botaoPainel">Abrir painel da sala</button>
+        </div>
+      </section>
+
+      <section class="cartao" aria-labelledby="tituloEntrar">
+        <h2 id="tituloEntrar">Recebeu um código?</h2>
+        <form id="formEntrar" novalidate>
+          <div class="campo">
+            <label for="codigoEntrar">Código da sala</label>
+            <input type="text" id="codigoEntrar" maxlength="12" autocapitalize="characters" autocomplete="off"
+                   placeholder="Ex.: ROLE-7KQ2" required>
+          </div>
+          <div id="avisoEntrar" class="aviso" aria-live="polite"></div>
+          <button type="submit" class="botao botao-secundario botao-largo">Entrar na sala</button>
+        </form>
+      </section>
+
+      <section class="cartao" aria-labelledby="tituloComo">
+        <h2 id="tituloComo">Como funciona</h2>
+        <ol class="passos">
+          <li><span><strong>Crie a sala</strong> e mande o link no grupo do WhatsApp.</span></li>
+          <li><span><strong>Cada um preenche 4 campos</strong>: de onde sai no DF, quando pode, quanto quer gastar (ninguém vê) e o que anima fazer.</span></li>
+          <li><span><strong>Vocês votam</strong> em 3 ou 4 sugestões de lugares reais do DF, com horário, gasto e tempo de chegada.</span></li>
+        </ol>
+        <p style="margin:14px 0 0"><button type="button" class="botao botao-secundario" id="botaoVerDemo">Ver uma sala de exemplo (DEMO)</button></p>
+      </section>
+    </div>
+
+    <!-- ============================================================ ABA 2: MEUS DADOS SECRETOS -->
+    <div id="painelPerfil" role="tabpanel" aria-labelledby="abaPerfil" hidden>
+      <p style="margin:0"><button type="button" class="botao botao-secundario" id="linkPainel" style="min-height:40px; padding:6px 12px">← Ir para o painel da sala</button></p>
+      <h1 id="perfilTituloRole">Meus dados secretos</h1>
+      <p class="subtitulo" id="perfilSubtituloRole">Carregando a sala…</p>
+
+      <div id="perfilAvisoGeral" class="aviso" aria-live="polite"></div>
+
+      <div class="aviso aviso-segredo">
+        🔒 <strong>Só você vê o que escrever aqui.</strong> O grupo vê apenas que você já preencheu. Seu limite de gasto nunca aparece para ninguém: ele só serve para a gente não sugerir lugar caro demais para você.
+      </div>
+
+      <section class="cartao" id="secaoFormulario" aria-labelledby="tituloForm">
+        <h2 id="tituloForm">Conte do seu jeito</h2>
+        <form id="formPerfil" novalidate>
+          <div id="blocoIdentificacao">
+            <div class="campo">
+              <label for="nome">Seu nome ou apelido</label>
+              <input type="text" id="nome" maxlength="40" autocomplete="given-name" placeholder="Ex.: Bia" required>
+            </div>
+            <div class="campo">
+              <label class="caixa-marcar" for="perfilMaiorIdade">
+                <input type="checkbox" id="perfilMaiorIdade" required>
+                <span>Tenho 18 anos ou mais.</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="campo">
+            <label for="origem">1. De onde você sai no DF?</label>
+            <span class="dica" id="dicaOrigem">Pode ser a região, a quadra ou um ponto de referência.</span>
+            <textarea id="origem" maxlength="200" rows="2" aria-describedby="dicaOrigem pendOrigem"
+                      placeholder="Ex.: Águas Claras perto da estação"></textarea>
+            <div class="pergunta-pendente" id="pendOrigem" hidden></div>
+          </div>
+
+          <div class="campo">
+            <label for="horarios">2. Quais dias e horários você pode?</label>
+            <span class="dica" id="dicaHorarios">Escreva como falaria no grupo.</span>
+            <textarea id="horarios" maxlength="300" rows="2" aria-describedby="dicaHorarios pendHorarios"
+                      placeholder="Ex.: sexta depois das 19h ou sábado à tarde"></textarea>
+            <div class="pergunta-pendente" id="pendHorarios" hidden></div>
+          </div>
+
+          <div class="campo">
+            <label for="teto">3. Qual seu limite de gasto em R$? <span class="selo selo-segredo">🔒 Secreto</span></label>
+            <span class="dica" id="dicaTeto">Quanto você topa gastar no total, com transporte. Ninguém da sala vê este valor.</span>
+            <div class="entrada-reais">
+              <span aria-hidden="true">R$</span>
+              <input type="text" id="teto" maxlength="40" autocomplete="off" inputmode="decimal"
+                     aria-describedby="dicaTeto pendTeto" placeholder="Ex.: 60">
+            </div>
+            <div class="pergunta-pendente" id="pendTeto" hidden></div>
+          </div>
+
+          <div class="campo">
+            <label for="preferencias">4. O que você anima fazer e como vai?</label>
+            <span class="dica" id="dicaPreferencias">Tipo de lugar, clima, restrições (vegetariano, acessibilidade, pet) e transporte.</span>
+            <textarea id="preferencias" maxlength="300" rows="3" aria-describedby="dicaPreferencias pendPreferencias"
+                      placeholder="Ex.: barzinho ou café calmo, sou vegetariana, vou de metrô/Uber"></textarea>
+            <div class="pergunta-pendente" id="pendPreferencias" hidden></div>
+          </div>
+
+          <button type="submit" class="botao botao-primario botao-largo" id="botaoEnviar">Ver o que o app entendeu</button>
+        </form>
+      </section>
+
+      <section class="cartao" id="secaoResumo" aria-labelledby="tituloResumo" hidden tabindex="-1">
+        <h2 id="tituloResumo">Foi isso que entendi</h2>
+        <p id="resumoTexto" class="aviso aviso-info"></p>
+        <ul class="resumo-lista" id="resumoLista"></ul>
+        <div id="avisoResumo" class="aviso" aria-live="polite" style="margin-top:14px"></div>
+        <div class="grupo-botoes" style="margin-top:14px">
+          <button type="button" class="botao botao-sucesso" id="botaoConfirmar">✅ Confirmar em Segredo</button>
+          <button type="button" class="botao botao-secundario" id="botaoCorrigir">✏️ Corrigir</button>
+        </div>
+      </section>
+    </div>
+
+    <!-- ============================================================ ABA 3: PAINEL E VOTAÇÃO -->
+    <div id="painelSala" role="tabpanel" aria-labelledby="abaSala" hidden>
+      <div class="cabecalho-sala">
+        <div>
+          <h1 id="salaTituloRole">Carregando sala…</h1>
+          <p class="subtitulo" id="salaSubtituloRole" style="margin-bottom:4px"></p>
+        </div>
+        <div class="grupo-botoes" style="flex:0 1 auto">
+          <button type="button" class="botao botao-secundario" id="botaoCopiarConvite">📋 Copiar convite</button>
+          <button type="button" class="botao botao-secundario" id="botaoAtualizar" aria-label="Atualizar painel">🔄 Atualizar</button>
+          <button type="button" class="botao botao-secundario" id="botaoReiniciarDemo" hidden>↺ Reiniciar exemplo</button>
+        </div>
+      </div>
+
+      <div id="salaAvisoGeral" class="aviso" aria-live="polite" style="margin-top:10px"></div>
+      <div id="avisosSala" class="aviso aviso-info" aria-live="polite"></div>
+
+      <section class="banner-sucesso" id="secaoResultado" aria-labelledby="tituloResultado" hidden tabindex="-1">
+        <h2 id="tituloResultado">🎉 Rolê orquestrado com sucesso!</h2>
+        <p id="textoVencedor" style="font-size:1.1rem; font-weight:700; margin:6px 0 14px"></p>
+        <div class="grupo-botoes" style="justify-content:center">
+          <button type="button" class="botao botao-primario" id="botaoCopiarResumo">📋 Copiar resumo para o WhatsApp</button>
+          <a class="botao botao-whatsapp" id="botaoWhatsAppResumo" target="_blank" rel="noopener">💬 Mandar no WhatsApp</a>
+          <a class="botao botao-secundario" id="botaoAgenda" target="_blank" rel="noopener" hidden>📅 Adicionar na Agenda</a>
+        </div>
+        <div id="avisoResumoCopiado" class="aviso" aria-live="polite" style="margin-top:12px; margin-bottom:0"></div>
+      </section>
+
+      <section class="cartao" aria-labelledby="tituloParticipantes">
+        <div class="cabecalho-sala" style="margin-bottom:10px">
+          <h2 id="tituloParticipantes" style="margin:0">Quem está na sala (<span id="contagemPreencheram">0 de 0</span>)</h2>
+          <button type="button" class="botao botao-primario" id="linkMeuPerfil">🔒 Preencher meus dados</button>
+        </div>
+        <p class="subtitulo" style="margin-bottom:10px">
+          Ninguém vê o orçamento, o endereço ou os horários de ninguém. Só aparece quem já respondeu.
+        </p>
+        <ul class="lista-pessoas" id="listaParticipantes"></ul>
+
+        <div id="blocoOrganizadorColeta" style="margin-top:14px" hidden>
+          <button type="button" class="botao botao-sucesso botao-largo" id="botaoGerarSugestoes">
+            ✨ Gerar Sugestões de Rolê
+          </button>
+          <p class="subtitulo" id="dicaGerar" style="margin:6px 0 0; font-size:0.88rem"></p>
+        </div>
+      </section>
+
+      <section id="secaoSugestoes" aria-labelledby="tituloSugestoes" hidden>
+        <div class="cabecalho-sala" style="margin-bottom:10px">
+          <div>
+            <h2 id="tituloSugestoes" style="margin:0">Sugestões para o grupo</h2>
+            <p class="subtitulo" id="subtituloSugestoes" style="margin:2px 0 0"></p>
+          </div>
+          <span class="selo" id="seloVotaram">0 de 0 votaram</span>
+        </div>
+
+        <form id="formVotacao">
+          <div class="grade-cartoes" id="gradeCartoes"></div>
+
+          <div class="barra-acoes" id="barraVotacao" hidden>
+            <div id="avisoVoto" class="aviso" aria-live="polite"></div>
+            <div class="grupo-botoes">
+              <button type="submit" class="botao botao-primario" id="botaoVotar">🗳️ Confirmar meu voto</button>
+              <button type="button" class="botao botao-secundario" id="botaoFecharVotacao" hidden>
+                🏁 Fechar votação agora
+              </button>
+            </div>
+          </div>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <footer class="rodape">Residência em IA — Instituto Eldorado &amp; UnB · Grupo 7</footer>
+
+  <script src="/static/telas/comum.js"></script>
+  <script src="/static/telas/demo.js"></script>
+  <script src="/static/telas/app.js"></script>
+  <script src="/static/telas/perfil.js"></script>
+  <script src="/static/telas/sala.js"></script>
+</body>
+</html>

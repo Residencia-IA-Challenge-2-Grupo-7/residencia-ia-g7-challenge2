@@ -1,0 +1,19 @@
+{
+  "name": "Orquestrador de Rolês",
+  "short_name": "Rolês DF",
+  "description": "Combine rolês no DF com amigos: 4 campos secretos, 3 a 4 sugestões justas e votação.",
+  "start_url": "/app",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#faf7f2",
+  "theme_color": "#6d28d9",
+  "lang": "pt-BR",
+  "icons": [
+    {
+      "src": "/static/telas/icone.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

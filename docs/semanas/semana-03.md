@@ -12,6 +12,7 @@
   - 59 testes novos; 99 no total. O CI passou a rodar todos.
   - ADR 0008 (base de 93 lugares e LGPD) e ADR 0009 (4 campos, sem voz); requisitos v0.4 com a voz removida.
 - 2026-11-10: a leitura do horário de funcionamento dos 93 lugares, num sábado à noite, deu 32 abertos, 5 prováveis, 23 incertos, 19 fechados e 14 encerrados (eventos e promoções com datas passadas). Os 2 eventos do Gama têm coordenadas no Plano Piloto, e o lugar de Planaltina não tem coordenadas.
+- 2026-11-12: Telas 1 a 3 do aplicativo web/PWA implementadas em `src/telas/` (issue #42): `/app` (criar sala e gerar convite), `/sala/{codigo}/perfil` (4 campos secretos + resumo para confirmar), `/sala/{codigo}` (painel, 3 a 4 cartões, votação múltipla e banner oficial), além de `/sala/demo` offline e `tests/test_interface_app.py`.
 
 ## Decisões da semana
 

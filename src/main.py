@@ -7,6 +7,8 @@ from pydantic import BaseModel
 
 from src.interface import ENTREGAVEIS_PAGE, HTML_PAGE, LANDING_PAGE
 from src.salas.rotas import router as salas_router
+from src.telas.rotas import estaticos as telas_estaticos
+from src.telas.rotas import router as telas_router
 from src.telemetria.telemetria import (
     checar_conexao_langfuse,
     disparar_primeiro_trace,
@@ -22,6 +24,8 @@ app = FastAPI(
     version="0.2.0",
 )
 app.include_router(salas_router)
+app.include_router(telas_router)  # Telas 1 a 3 do app (issue #42): /app, /sala/{codigo}, /sala/{codigo}/perfil
+app.mount("/static/telas", telas_estaticos, name="telas_estaticos")
 
 
 class ConsultaRAGRequest(BaseModel):

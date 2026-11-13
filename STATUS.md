@@ -3,10 +3,12 @@
 > Arquivo vivo. Toda sessão (humana ou de agente) lê no início e atualiza no fim.
 > Mantenha curto: o histórico fica em `docs/semanas/` e no `git log`.
 
-**Atualizado em:** 2026-11-10
+**Atualizado em:** 2026-11-12
 **Semana do roadmap:** 3 — Comparação RAG × LLM pura, com as Telas 1 a 3 do app em paralelo
 
 ## Agora
+
+- **Telas 1 a 3 do aplicativo (issue #42)** implementadas em [src/telas/](src/telas/rotas.py) (branch `feat/42-telas-app`): `/app` (criar sala e convite), `/sala/{codigo}/perfil` (4 campos secretos + confirmação do resumo), `/sala/{codigo}` (painel sem valores individuais, cartões de sugestão, votação múltipla e banner oficial), modo demonstração `/sala/demo`, manifesto/service worker PWA (`/manifest.webmanifest`, `/sw.js`) e testes em [tests/test_interface_app.py](tests/test_interface_app.py) (pendente rodar `pytest` no CI ou ambiente com `pytest` instalado).
 
 - **Fonte da verdade sobre o app: [GUIA_OFICIAL_PROJETO.md](GUIA_OFICIAL_PROJETO.md)** (10/11). Resumo do que ele fechou:
   - ciclo completo do rolê: sala, 4 campos secretos, 3 a 4 cartões, votação múltipla e, depois, foto da nota fiscal, divisão e Pix;
