@@ -36,6 +36,7 @@ Programa de Residência em IA (Instituto Eldorado + UnB), metodologia CBL (Chall
 | `src/rag/`, `src/telemetria/` | Coleta 2FA do TikTok, busca vetorial e telemetria Langfuse (semana 2) |
 | `src/interpretador/` | Os 4 campos da Tela 2 (`campos.py`, ADR 0009) e o interpretador de mensagens livres (ADR 0007), com o contrato da busca em `contrato.py` |
 | `src/main.py`, `src/state.py` | API FastAPI (rotas de RAG, entregáveis e salas) e onde as salas ficam guardadas |
+| `src/financas/` | Orçamento sigiloso, divisão da conta do pós-rolê e código Pix (BR Code), sem LLM; detalhes no `README.md` da pasta |
 | `src/salas/` | Salas, cruzamento de horários, cartões de sugestão e votação; rotas em `/api/salas`; encaixe das peças de finanças, transporte e busca no `README.md` da pasta |
 | `eval/` | Conjuntos de teste com gabarito (50 frases), roteiro de gravação e resultados das medições; os áudios ficam em `data/raw/voz/` |
 | `tests/` | Testes da API, do interpretador, dos 4 campos e das salas (`python -m pytest tests`; o `conftest.py` ajusta o caminho) |
