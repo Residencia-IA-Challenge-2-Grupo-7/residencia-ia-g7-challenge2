@@ -120,7 +120,11 @@ const Orq = (() => {
 
   function codigoDaUrl() {
     const partes = location.pathname.split('/').filter(Boolean); // ["sala", "ROLE-XXXX", "perfil"?]
-    return decodeURIComponent(partes[1] || '').trim().toUpperCase();
+    if (partes[0] === 'sala' && partes[1]) {
+      const c = decodeURIComponent(partes[1]).trim().toUpperCase();
+      if (c && c !== 'NULL' && c !== 'UNDEFINED') return c;
+    }
+    return '';
   }
 
   function ehDemo(codigo) { return codigo === CODIGO_DEMO; }
@@ -173,22 +177,31 @@ const Orq = (() => {
   let abaAtual = 'criar';
   let codigoEmUso = (() => {
     const daUrl = codigoDaUrl();
-    if (daUrl) return daUrl;
-    try { return (sessionStorage.getItem(CHAVE_CODIGO) || CODIGO_DEMO).toUpperCase(); } catch (_) { return CODIGO_DEMO; }
+    if (daUrl && daUrl !== 'NULL' && daUrl !== 'UNDEFINED') return daUrl;
+    try {
+      const salvo = (sessionStorage.getItem(CHAVE_CODIGO) || '').trim().toUpperCase();
+      if (salvo && salvo !== 'NULL' && salvo !== 'UNDEFINED') return salvo;
+    } catch (_) {}
+    return CODIGO_DEMO;
   })();
 
   function codigoAtivo() {
-    return codigoEmUso || CODIGO_DEMO;
+    if (!codigoEmUso || codigoEmUso === 'NULL' || codigoEmUso === 'UNDEFINED') {
+      codigoEmUso = CODIGO_DEMO;
+    }
+    return codigoEmUso;
   }
 
   function definirCodigoAtivo(codigo) {
-    codigoEmUso = (codigo || CODIGO_DEMO).trim().toUpperCase();
+    const limpo = (codigo || '').trim().toUpperCase();
+    codigoEmUso = (limpo && limpo !== 'NULL' && limpo !== 'UNDEFINED') ? limpo : CODIGO_DEMO;
     try { sessionStorage.setItem(CHAVE_CODIGO, codigoEmUso); } catch (_) { /* modo privado */ }
     return codigoEmUso;
   }
 
   function aoMudarAba(fn) {
     ouvintesAba.push(fn);
+    try { fn(abaAtual, codigoAtivo()); } catch (err) { console.error('Erro em ouvinte de aba:', err); }
   }
 
   function irParaAba(nome, novoCodigo) {
@@ -203,20 +216,55 @@ const Orq = (() => {
       const ativa = chave === nome;
       const btn = document.getElementById(idAba);
       const painel = document.getElementById(idPainel);
-      if (btn) btn.setAttribute('aria-selected', ativa ? 'true' : 'false');
+      if (btn) {
+        btn.setAttribute('aria-selected', ativa ? 'true' : 'false');
+        btn.classList.toggle('ativa', ativa);
+      }
       if (painel) painel.hidden = !ativa;
     }
     const main = document.getElementById('conteudo');
     if (main) main.classList.toggle('largo', nome === 'sala');
-    for (const fn of ouvintesAba) fn(nome, codigoAtivo());
+
+    const cod = codigoAtivo();
+    try {
+      if (window.history && window.history.pushState) {
+        const novaUrl = nome === 'criar' ? '/app' : (nome === 'perfil' ? `/sala/${cod}/perfil` : `/sala/${cod}`);
+        if (location.pathname !== novaUrl) {
+          window.history.pushState({ aba: nome, codigo: cod }, '', novaUrl);
+        }
+      }
+    } catch (_) {}
+
+    for (const fn of ouvintesAba) {
+      try { fn(nome, cod); } catch (err) { console.error('Erro em ouvinte de aba:', err); }
+    }
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   function iniciarAbas() {
     const abas = { abaCriar: 'criar', abaPerfil: 'perfil', abaSala: 'sala' };
     for (const [id, nome] of Object.entries(abas)) {
       const btn = document.getElementById(id);
-      if (btn) btn.addEventListener('click', () => irParaAba(nome));
+      if (btn) {
+        const tratarClique = (ev) => {
+          if (ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+          }
+          irParaAba(nome);
+        };
+        btn.onclick = tratarClique;
+        btn.addEventListener('click', tratarClique);
+      }
     }
+
+    window.addEventListener('popstate', () => {
+      const partes = location.pathname.split('/').filter(Boolean);
+      if (partes[0] === 'sala' && partes[2] === 'perfil') irParaAba('perfil', partes[1]);
+      else if (partes[0] === 'sala' && partes[1]) irParaAba('sala', partes[1]);
+      else irParaAba('criar');
+    });
+
     const partes = location.pathname.split('/').filter(Boolean);
     if (partes[0] === 'sala' && partes[2] === 'perfil') irParaAba('perfil', partes[1]);
     else if (partes[0] === 'sala' && partes[1]) irParaAba('sala', partes[1]);
@@ -231,11 +279,17 @@ const Orq = (() => {
     }
   }
 
-  document.addEventListener('DOMContentLoaded', () => {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+      iniciarFonte();
+      iniciarAbas();
+      registrarServiceWorker();
+    });
+  } else {
     iniciarFonte();
     iniciarAbas();
     registrarServiceWorker();
-  });
+  }
 
   return {
     CODIGO_DEMO, ErroApi, api, credenciais, salvarCredenciais, esquecerParticipante, el, mostrarAviso,
@@ -243,3 +297,7 @@ const Orq = (() => {
     codigoAtivo, definirCodigoAtivo, irParaAba, aoMudarAba,
   };
 })();
+
+// Exposição global para chamadas diretas via onclick no HTML
+window.Orq = Orq;
+window.irParaAba = Orq.irParaAba;

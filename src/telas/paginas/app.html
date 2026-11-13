@@ -11,31 +11,34 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <title>Orquestrador de Rolês — App</title>
   <link rel="stylesheet" href="/static/telas/app.css">
+  <script src="/static/telas/comum.js"></script>
 </head>
 <body>
   <a class="pular-conteudo" href="#conteudo">Pular para o conteúdo</a>
   <header class="topo">
-    <a class="marca" href="/app">🎭 Orquestrador de Rolês</a>
-    <div class="controles-fonte" role="group" aria-label="Tamanho da letra">
-      <button type="button" id="fonteMenor" aria-label="Diminuir a letra">A−</button>
-      <button type="button" id="fonteMaior" aria-label="Aumentar a letra">A+</button>
+    <div class="topo-linha">
+      <a class="marca" href="/app">🎭 Orquestrador de Rolês</a>
+      <div class="controles-fonte" role="group" aria-label="Tamanho da letra">
+        <button type="button" id="fonteMenor" aria-label="Diminuir a letra">A−</button>
+        <button type="button" id="fonteMaior" aria-label="Aumentar a letra">A+</button>
+      </div>
+    </div>
+    <div class="topo-abas">
+      <nav class="abas" role="tablist" aria-label="Etapas do rolê">
+        <button type="button" class="aba ativa" role="tab" id="abaCriar" aria-controls="painelCriar" aria-selected="true" onclick="Orq.irParaAba('criar')">
+          1. Criar Sala
+        </button>
+        <button type="button" class="aba" role="tab" id="abaPerfil" aria-controls="painelPerfil" aria-selected="false" onclick="Orq.irParaAba('perfil')">
+          2. Meus Dados
+        </button>
+        <button type="button" class="aba" role="tab" id="abaSala" aria-controls="painelSala" aria-selected="false" onclick="Orq.irParaAba('sala')">
+          3. Painel e Votação
+        </button>
+      </nav>
     </div>
   </header>
 
   <main id="conteudo">
-    <!-- Guia com 3 abas para navegar entre as 3 telas no mesmo HTTP -->
-    <nav class="abas" role="tablist" aria-label="Etapas do rolê">
-      <button type="button" class="aba" role="tab" id="abaCriar" aria-controls="painelCriar" aria-selected="true">
-        1. Criar Sala
-      </button>
-      <button type="button" class="aba" role="tab" id="abaPerfil" aria-controls="painelPerfil" aria-selected="false">
-        2. Meus Dados
-      </button>
-      <button type="button" class="aba" role="tab" id="abaSala" aria-controls="painelSala" aria-selected="false">
-        3. Painel e Votação
-      </button>
-    </nav>
-
     <!-- ============================================================ ABA 1: CRIAR SALA -->
     <div id="painelCriar" role="tabpanel" aria-labelledby="abaCriar">
       <h1>Bora marcar o rolê?</h1>
@@ -259,7 +262,6 @@
 
   <footer class="rodape">Residência em IA — Instituto Eldorado &amp; UnB · Grupo 7</footer>
 
-  <script src="/static/telas/comum.js"></script>
   <script src="/static/telas/demo.js"></script>
   <script src="/static/telas/app.js"></script>
   <script src="/static/telas/perfil.js"></script>

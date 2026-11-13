@@ -28,10 +28,17 @@
     try {
       sala = demo ? Demo.painel() : await Orq.api('GET', '/api/salas/' + encodeURIComponent(codigo));
     } catch (e) {
-      $('salaTituloRole').textContent = 'Sala não encontrada';
-      $('salaSubtituloRole').textContent = '';
-      Orq.mostrarAviso($('salaAvisoGeral'), e.status === 404 ? 'Confira o código ou o link do convite.' : e.message, 'erro');
-      return;
+      // Se a sala ainda não existe no servidor (ou servidor foi reiniciado), entra no modo demonstração para permitir testar
+      codigo = Orq.definirCodigoAtivo(Orq.CODIGO_DEMO);
+      demo = true;
+      creds = {};
+      sala = Demo.painel();
+      $('botaoReiniciarDemo').hidden = false;
+      Orq.mostrarAviso(
+        $('salaAvisoGeral'),
+        'Você está visualizando a sala de exemplo (DEMO). Crie sua sala na aba "1. Criar Sala" ou vote abaixo para testar a orquestração.',
+        'info'
+      );
     }
     salaAtual = sala;
 
