@@ -119,12 +119,14 @@ def test_metadados_e_escolha_da_configuracao(dados_benchmark: dict):
     assert meta.get("modelo_juiz")
 
     escolha = dados_benchmark.get("configuracao_escolhida") or {}
-    assert escolha.get("id_configuracao") in CONFIGURACOES_ESPERADAS
+    assert escolha.get("id_configuracao") == "3_rag_sem_llm_texto_fixo"
     assert escolha.get("nome")
+    assert escolha.get("custo_medio_brl") == 0.0
     assert isinstance(escolha.get("atende_rnf14_p90_ate_5s"), bool)
     assert isinstance(escolha.get("zero_lugares_inventados"), bool)
     assert " de 20" in str(escolha.get("acerto_gabarito_contagem"))
     assert len(str(escolha.get("justificativa") or "")) >= 40
+    assert isinstance(escolha.get("decisao_produto_com_llm"), dict)
 
 
 def test_resumo_de_todas_as_configuracoes_preenchido(dados_benchmark: dict):
@@ -233,6 +235,8 @@ def test_lista_casos_consolidados_e_csv_e_log(dados_benchmark: dict):
         for cid in CONFIGURACOES_ESPERADAS:
             assert cid in cfgs
             assert "rodada_2" in cfgs[cid]
+            assert isinstance(cfgs[cid]["rodada_2"].get("resposta"), str)
+            assert len(cfgs[cid]["rodada_2"]["resposta"].strip()) > 0
 
     with open(CAMINHO_CSV, "r", encoding="utf-8") as f:
         linhas_csv = list(csv.DictReader(f))

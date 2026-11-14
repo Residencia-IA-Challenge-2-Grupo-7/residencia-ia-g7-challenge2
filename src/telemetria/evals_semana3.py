@@ -55,26 +55,36 @@ VEREDITOS_VALIDOS = ("confere com a base", "contradiz a base", "não está na ba
 PROMPT_SISTEMA_JUIZ = (
     "Você é um auditor factual rigoroso (LLM-as-a-Judge) avaliando respostas sobre estabelecimentos "
     "e rolês no Distrito Federal (Brasília e regiões administrativas).\n"
-    "Compare a resposta avaliada exclusivamente contra o GABARITO e os DOCUMENTOS DA BASE 2FA fornecidos "
+    "Compare a resposta avaliada exclusivamente contra os DOCUMENTOS DA BASE 2FA fornecidos "
     "(os mesmos campos que o sistema avaliado recebeu: nome, tipo, região, endereço, horário, faixa de preço, "
     "descrição e preço médio).\n"
-    "Liste SOMENTE afirmações que estão escritas na resposta avaliada sobre lugar, preço, endereço ou horário. "
-    "Omissões, fatos que a resposta não disse e a ausência de informação NÃO entram na lista. "
-    "Se a resposta apenas recusa ou diz que não sabe, sem afirmar nada, devolva `afirmacoes` vazia.\n"
+    "Liste SOMENTE afirmações factuais que estão escritas na resposta avaliada sobre lugar, preço, endereço ou horário. "
+    "Omissões, fatos que a resposta não disse, a ausência de informação e avisos de que a base não traz ou não "
+    "especifica um detalhe NÃO entram na lista. "
+    "Se a resposta apenas recusa ou diz que não sabe, sem afirmar nada sobre um local, devolva `afirmacoes` vazia.\n"
     "Para cada afirmação, classifique o campo `veredito` estritamente com um destes três valores exatos:\n"
     '- "confere com a base"\n'
-    '- "contradiz a base" (a base desmente: preço, endereço, região ou horário diferentes do documento)\n'
+    '- "contradiz a base" (SOMENTE quando um fato sobre um lugar — preço, endereço, RA ou horário — difere do '
+    "documento desse MESMO lugar)\n"
     '- "não está na base" (o documento não permite verificar a afirmação)\n\n'
     "Regras de julgamento:\n"
-    "1. Se a resposta citar estabelecimento, quadra, rua, endereço, preço ou horário que não conste nos "
-    'documentos, classifique como "não está na base"; use "contradiz a base" só quando o documento do mesmo '
-    "lugar traz um valor diferente.\n"
-    "2. Se a pergunta for sobre cidade fora do DF (ex.: Rio de Janeiro, São Paulo) e a resposta recomendar "
+    '1. Use "contradiz a base" SOMENTE quando um fato afirmado sobre um lugar (preço, endereço, RA ou horário) '
+    "diferir do documento desse MESMO lugar. Nunca compare o preço, endereço ou horário de um lugar com o "
+    "documento de outro lugar diferente.\n"
+    "2. Lugar que não atende ao pedido (ex.: recomendar um restaurante da base que não serve o prato pedido, fica "
+    'em outra RA ou não é um parque) NÃO é contradição: se os fatos citados sobre esse lugar (nome, RA, endereço, '
+    'preço, horário) conferem com o documento dele, classifique como "confere com a base".\n'
+    "3. Dizer que a base não tem um lugar que atenda ao pedido, ou que o horário/detalhe não está especificado com "
+    'clareza no documento, NÃO é contradição: se a frase descreve fielmente os documentos fornecidos, classifique '
+    'como "confere com a base" (ou não a inclua como contradição).\n'
+    "4. Se a resposta citar estabelecimento, quadra, rua, endereço, preço ou horário que não conste nos "
+    'documentos fornecidos, classifique como "não está na base".\n'
+    "5. Se a pergunta for sobre cidade fora do DF (ex.: Rio de Janeiro, São Paulo) e a resposta recomendar "
     'locais fora do DF sem recusar o escopo, classifique como "contradiz a base".\n'
-    "3. Se a pergunta for fora do DF e a resposta recusar educadamente informando que o app cobre apenas o DF, "
+    "6. Se a pergunta for fora do DF e a resposta recusar educadamente informando que o app cobre apenas o DF, "
     "a recusa não é afirmação. Se depois ela sugerir lugares do DF, julgue só esses lugares: os que constam nos "
     'documentos "confere com a base", os demais "não está na base".\n'
-    "4. Responda APENAS com um objeto JSON válido no formato:\n"
+    "7. Responda APENAS com um objeto JSON válido no formato:\n"
     '{"afirmacoes": [{"tipo": "lugar|preco|endereco|horario", "trecho": "...", '
     '"veredito": "confere com a base|contradiz a base|não está na base", "justificativa": "..."}], '
     '"resumo_juiz": "..."}'
@@ -391,6 +401,12 @@ def verificar_deterministico_rnf04(
                 preco_confere = True
             else:
                 preco_contradiz = True
+        elif "mais barato" in norm_resp and base:
+            precos_toda_base = [float(x["custo_medio_rs"]) for x in base if x.get("custo_medio_rs") is not None]
+            if precos_toda_base and any(abs(p - min(precos_toda_base)) <= 0.05 for p in precos_citados):
+                preco_confere = True
+            elif not _eh_recusa_ou_abstencao(resposta):
+                preco_contradiz = True
         elif not _eh_recusa_ou_abstencao(resposta):
             # Citou preços afirmando recomendação sem citar nenhum local real da base
             preco_contradiz = True
@@ -404,6 +420,7 @@ def verificar_deterministico_rnf04(
         and len(locais_inventados) == 0
         and not endereco_inventado
         and not preco_contradiz
+        and not preco_confere
         and (bloqueado_guardrail or _eh_recusa_ou_abstencao(resposta))
     )
     # Mesma regra nos dois modos: sem afirmação feita, não há o que medir (recusa do guardrail ou "não sei")
@@ -452,7 +469,7 @@ def verificar_deterministico_rnf04(
                 "justificativa": "Localização conferida contra a RA oficial da base 2FA.",
             })
 
-        if precos_citados and (locais_base_citados or preco_contradiz):
+        if precos_citados and (locais_base_citados or preco_contradiz or preco_confere):
             afirmacoes_det.append({
                 "tipo": "preco",
                 "trecho": f"R$ {precos_citados[0]:.2f}",
@@ -502,17 +519,35 @@ def julgar_com_llm_judge(
     chave = segredo(CHAVE_ENV)
     modelo = _modelo_juiz()
 
-    # Monta resumo enxuto dos documentos relevantes da base (fontes recuperadas + gabarito)
+    # Monta os documentos para o juiz:
+    # - Modo B (tem `fontes_utilizadas` ou `guardrails`): recebe só os documentos que o modo recebeu, na mesma ordem
+    # - Modo A (sem fontes): recebe os lugares citados da base + os lugares do gabarito
     base = base_2fa if base_2fa is not None else carregar_base_oficial_leticia()
-    nomes_relevantes = set(verificacao_det.get("locais_base_citados") or [])
-    if gabarito and gabarito.get("locais_gabarito"):
-        nomes_relevantes.update(gabarito["locais_gabarito"])
-    for f in resultado_modo.get("fontes_utilizadas") or []:
-        if f.get("nome"):
-            nomes_relevantes.add(f["nome"])
+    fontes_modo = [f.get("nome") for f in (resultado_modo.get("fontes_utilizadas") or []) if f.get("nome")]
+    eh_modo_b = bool(fontes_modo) or (resultado_modo.get("guardrails") is not None) or (resultado_modo.get("modo") == "B_rag")
+
+    if eh_modo_b:
+        lugares_relevantes = [
+            next((item for item in base if item.get("nome") == nome_f), None)
+            for nome_f in fontes_modo
+        ]
+        lugares_relevantes = [loc for loc in lugares_relevantes if loc is not None]
+        if not lugares_relevantes and "mais barato" in _normalizar(resultado_modo.get("resposta")):
+            com_preco = [item for item in base if item.get("custo_medio_rs") is not None]
+            if com_preco:
+                lugares_relevantes = [min(com_preco, key=lambda x: float(x["custo_medio_rs"]))]
+        gabarito_juiz = {
+            k: v for k, v in (gabarito or {}).items()
+            if k in ("categoria", "ra_esperada")
+        }
+    else:
+        nomes_relevantes = set(verificacao_det.get("locais_base_citados") or [])
+        if gabarito and gabarito.get("locais_gabarito"):
+            nomes_relevantes.update(gabarito["locais_gabarito"])
+        lugares_relevantes = [item for item in base if item.get("nome") in nomes_relevantes]
+        gabarito_juiz = gabarito or {}
 
     # O juiz recebe os mesmos campos que o Modo B recebeu (llm_rag.montar_documentos)
-    lugares_relevantes = [item for item in base if item.get("nome") in nomes_relevantes]
     docs_contexto = llm_rag.montar_documentos(lugares_relevantes)
 
     if not chave:
@@ -528,7 +563,7 @@ def julgar_com_llm_judge(
     prompt_usuario = json.dumps(
         {
             "pergunta": pergunta,
-            "gabarito": gabarito or {},
+            "gabarito": gabarito_juiz,
             "documentos_base_2fa": docs_contexto,
             "resposta_avaliada": resultado_modo.get("resposta") or "",
         },

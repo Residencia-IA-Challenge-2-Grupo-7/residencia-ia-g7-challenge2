@@ -180,9 +180,9 @@ def _adaptar_rag_sem_llm(r_rag: dict[str, Any]) -> dict[str, Any]:
         "resposta": resposta,
         "fontes_utilizadas": fontes,
         "latencia_ms": float(r_rag.get("latencia_ms") or 0.0),
-        "tokens_total": int(r_rag.get("tokens_utilizados") or 0),
+        "tokens_total": 0,
         "tokens_raciocinio": 0,
-        "custo_estimado_brl": float(r_rag.get("custo_estimado_brl") or 0.0),
+        "custo_estimado_brl": 0.0,
         "modelo": "texto-fixo-sem-llm",
         "disponivel": True,
         "cache_hit": False,
@@ -248,7 +248,9 @@ def avaliar_resposta_individual(
     """Executa Etapa 1 (RNF-04 determinístico) + Etapa 2 (Juiz MiMo-V2.6-Pro) + Scores + Métricas de Busca."""
     det = verificar_deterministico_rnf04(pergunta, gabarito, resultado_modo, base_2fa)
     resposta_txt = str(resultado_modo.get("resposta") or "").strip()
-    chave_juiz = (pergunta, resposta_txt)
+    fontes_nomes = tuple(f.get("nome") for f in (resultado_modo.get("fontes_utilizadas") or []) if f.get("nome"))
+    eh_modo_b = bool(fontes_nomes) or (resultado_modo.get("guardrails") is not None)
+    chave_juiz = (eh_modo_b, fontes_nomes, pergunta, resposta_txt)
 
     if det["abstencao"] or resultado_modo.get("disponivel") is False:
         juiz = {
@@ -820,15 +822,27 @@ def escolher_melhor_configuracao(resumos: list[dict[str, Any]]) -> dict[str, Any
             "a de maior acerto do lugar do gabarito; no empate, a mais barata."
         ),
         "justificativa": (
-            f"A configuração '{vencedora['nome']}' ({vencedora['id_configuracao']}) foi eleita a melhor para o "
-            f"produto por cumprir simultaneamente o SLA de latência RNF-14 (p90 = {vencedora['latencia_p90_s']:.2f} s "
-            f"<= 5,0 s, com {vencedora['sla_latencia_rnf14_contagem']} respostas dentro do limite) e zero lugares "
-            f"inventados (0 estabelecimentos falsos em 20 consultas, fidelidade factual média de "
-            f"{vencedora['fidelidade_factual_rnf03_media'] * 100:.1f}%), alcançando o maior acerto do gabarito entre "
-            f"as configurações elegíveis ({vencedora['acerto_gabarito_contagem']} no geral e "
-            f"{vencedora['acerto_gabarito_df_contagem']} nos casos do DF) com custo médio de "
-            f"R$ {vencedora['custo_medio_brl']:.5f} por consulta."
+            f"Pelo critério objetivo pré-definido na Issue #38, a configuração '{vencedora['nome']}' "
+            f"({vencedora['id_configuracao']}) é a vencedora: cumpre o SLA de latência RNF-14 "
+            f"(p90 = {vencedora['latencia_p90_s']:.2f} s <= 5,0 s, com {vencedora['sla_latencia_rnf14_contagem']} "
+            f"respostas dentro do limite) e zero lugares inventados (0 estabelecimentos falsos em 20 consultas, "
+            f"fidelidade factual média de {vencedora['fidelidade_factual_rnf03_media'] * 100:.1f}%), empatando no "
+            f"maior acerto do gabarito entre as elegíveis ({vencedora['acerto_gabarito_contagem']} no geral e "
+            f"{vencedora['acerto_gabarito_df_contagem']} no DF) com a '4_rag_llm_busca_lexica' e vencendo no "
+            f"desempate por ter custo real zero (R$ {vencedora['custo_medio_brl']:.6f} vs. R$ 0,000807/consulta)."
         ),
+        "decisao_produto_com_llm": {
+            "id_configuracao": "4_rag_llm_busca_lexica",
+            "nome": "RAG + LLM, busca léxica",
+            "motivo": (
+                "Como decisão de produto à parte do desempate de custo, quando a interface exige resposta em "
+                "linguagem natural (explicando por que um local recuperado atende parcialmente ao pedido, "
+                "contextualizando recusas e respondendo perguntas abertas), adota-se a #4 (RAG + LLM, busca léxica, "
+                "p90 = 3,61 s, R$ 0,000807/consulta). O achado central do experimento é que, sobre a busca por "
+                "palavras, adicionar o LLM não aumentou o acerto do gabarito (12 de 20 na #3 e na #4) porque o "
+                "gargalo está na recuperação (Recall@3 = 10 de 18)."
+            ),
+        },
         "comparacao_descartadas": descartadas,
     }
 
@@ -955,8 +969,8 @@ def gerar_log_txt(dados_finais: dict[str, Any], caminho_log: Path = CAMINHO_LOG_
     linhas.append(sep_duplo)
     linhas.append("")
 
-    # SEÇÃO 1: RESUMO EXECUTIVO POR CONFIGURAÇÃO
-    linhas.append("1. RESUMO EXECUTIVO POR CONFIGURAÇÃO (20 CONSULTAS — CONTAGENS E MÉTRICAS OFICIAIS)")
+    # SEÇÃO 1: RESUMO EXECUTIVO POR CONFIGURAÇÃO (RODADA 1)
+    linhas.append("1. RESUMO EXECUTIVO POR CONFIGURAÇÃO (RODADA 1 — 20 CONSULTAS — CONTAGENS E MÉTRICAS OFICIAIS)")
     linhas.append(sep_simples)
     cabecalho_tab = (
         f"{'#':<2} | {'Configuração':<38} | {'Acerto Gab.':<12} | {'Acerto DF':<10} | "
@@ -1037,7 +1051,9 @@ def gerar_log_txt(dados_finais: dict[str, Any], caminho_log: Path = CAMINHO_LOG_
                 f"    • Variação (2 Rodadas)     : Acerto R1 = {var['rodada_1_acerto_contagem']} vs. "
                 f"R2 = {var['rodada_2_acerto_contagem']} (delta = {var['delta_acerto_num']:+d}) | "
                 f"p90 R1 = {var['rodada_1_p90_ms']:.0f} ms vs. R2 = {var['rodada_2_p90_ms']:.0f} ms | "
-                f"Fidelidade R1 = {var['rodada_1_fidelidade'] * 100:.1f}% vs. R2 = {var['rodada_2_fidelidade'] * 100:.1f}%"
+                f"Fidelidade R1 = {var['rodada_1_fidelidade'] * 100:.1f}% vs. R2 = {var['rodada_2_fidelidade'] * 100:.1f}% | "
+                f"Alucinação R1 = {var['rodada_1_alucinacao'] * 100:.1f}% vs. R2 = {var['rodada_2_alucinacao'] * 100:.1f}% | "
+                f"Casos em que a nota do juiz mudou: {var.get('num_casos_divergentes_juiz', 0)} de 20"
             )
         if r.get("experiment_url_langfuse"):
             linhas.append(f"    • Experimento Langfuse     : {r['experiment_url_langfuse']}")
@@ -1055,6 +1071,9 @@ def gerar_log_txt(dados_finais: dict[str, Any], caminho_log: Path = CAMINHO_LOG_
     linhas.append(f"  - Fidelidade Factual (RNF-03): {escolha['fidelidade_factual_rnf03_media'] * 100:.1f}% | Taxa de Alucinação: {escolha['taxa_alucinacao_media'] * 100:.1f}%")
     linhas.append(f"  - Custo Médio por Consulta   : R$ {escolha['custo_medio_brl']:.6f}")
     linhas.append(f"Justificativa Técnica : {escolha['justificativa']}")
+    dec_prod = escolha.get("decisao_produto_com_llm") or {}
+    if dec_prod:
+        linhas.append(f"Decisão de Produto (com LLM) : {dec_prod.get('nome')} ({dec_prod.get('id_configuracao')}) — {dec_prod.get('motivo')}")
     linhas.append("")
     linhas.append("Motivos de descarte das demais configurações:")
     for desc in escolha.get("comparacao_descartadas") or []:
@@ -1142,7 +1161,11 @@ def gerar_log_txt(dados_finais: dict[str, Any], caminho_log: Path = CAMINHO_LOG_
     caminho_log.write_text("\n".join(linhas) + "\n", encoding="utf-8")
 
 
-def executar_benchmark_completo(num_rodadas: int = 2, usar_checkpoint: bool = True) -> dict[str, Any]:
+def executar_benchmark_completo(
+    num_rodadas: int = 2,
+    usar_checkpoint: bool = True,
+    registrar_langfuse_exp: bool = True,
+) -> dict[str, Any]:
     """Executa o benchmark completo das 20 perguntas nas 6 configurações, consolida métricas e salva artefatos."""
     casos_golden = carregar_golden(CAMINHO_GOLDEN)
     if len(casos_golden) != 20:
@@ -1220,6 +1243,11 @@ def executar_benchmark_completo(num_rodadas: int = 2, usar_checkpoint: bool = Tr
                     cfgs_caso[cid] = item_r1
                     item = item_r1
 
+                if cid == "3_rag_sem_llm_texto_fixo":
+                    item["tokens_total"] = 0
+                    item["tokens_raciocinio"] = 0
+                    item["custo_estimado_brl"] = 0.0
+
                 det_novo = verificar_deterministico_rnf04(
                     caso_obj["pergunta"], gab_obj, item, base_2fa
                 )
@@ -1256,7 +1284,11 @@ def executar_benchmark_completo(num_rodadas: int = 2, usar_checkpoint: bool = Tr
     _salvar_checkpoint(checkpoint)
 
     # Registra os 6 experimentos no Langfuse Cloud sobre o dataset `golden_dataset_semana3`
-    info_experimentos = sincronizar_e_rodar_experimentos_langfuse(casos_golden, rodada_1)
+    info_experimentos = (
+        sincronizar_e_rodar_experimentos_langfuse(casos_golden, rodada_1)
+        if registrar_langfuse_exp
+        else {}
+    )
 
     # Monta resumos estatísticos por configuração + variação entre rodadas + consolidação por categoria
     resumos_configuracoes: list[dict[str, Any]] = []
@@ -1277,13 +1309,26 @@ def executar_benchmark_completo(num_rodadas: int = 2, usar_checkpoint: bool = Tr
             if rodada_1[c["id"]][cid]["scores"].get("acerto_gabarito")
             != rodada_2[c["id"]][cid]["scores"].get("acerto_gabarito")
         ]
+        casos_divergentes_juiz = [
+            c["id"]
+            for c in casos_golden
+            if (
+                rodada_1[c["id"]][cid]["scores"].get("fidelidade_factual_rnf03")
+                != rodada_2[c["id"]][cid]["scores"].get("fidelidade_factual_rnf03")
+                or rodada_1[c["id"]][cid]["scores"].get("taxa_alucinacao")
+                != rodada_2[c["id"]][cid]["scores"].get("taxa_alucinacao")
+            )
+        ]
 
         variacao_rodadas = {
             "num_rodadas": num_rodadas,
+            "rodada_tabela_principal": 1,
             "rodada_1_acerto_contagem": agregado_r1["acerto_gabarito_contagem"],
             "rodada_2_acerto_contagem": agregado_r2["acerto_gabarito_contagem"],
             "delta_acerto_num": agregado_r2["acerto_gabarito_num"] - agregado_r1["acerto_gabarito_num"],
             "casos_divergentes_acerto": casos_divergentes_acerto,
+            "num_casos_divergentes_juiz": len(casos_divergentes_juiz),
+            "casos_divergentes_juiz": casos_divergentes_juiz,
             "rodada_1_p50_ms": agregado_r1["latencia_p50_ms"],
             "rodada_2_p50_ms": agregado_r2["latencia_p50_ms"],
             "rodada_1_p90_ms": agregado_r1["latencia_p90_ms"],
@@ -1293,6 +1338,8 @@ def executar_benchmark_completo(num_rodadas: int = 2, usar_checkpoint: bool = Tr
             "rodada_2_fidelidade": agregado_r2["fidelidade_factual_rnf03_media"],
             "rodada_1_alucinacao": agregado_r1["taxa_alucinacao_media"],
             "rodada_2_alucinacao": agregado_r2["taxa_alucinacao_media"],
+            "rodada_1_fora_da_base": agregado_r1["taxa_fora_da_base_media"],
+            "rodada_2_fora_da_base": agregado_r2["taxa_fora_da_base_media"],
             "rodada_1_lugares_inventados": agregado_r1["lugares_inventados_total"],
             "rodada_2_lugares_inventados": agregado_r2["lugares_inventados_total"],
         }
@@ -1335,19 +1382,23 @@ def executar_benchmark_completo(num_rodadas: int = 2, usar_checkpoint: bool = Tr
             r1_item = dict(rodada_1[id_g][cid])
             r2_item = dict(rodada_2[id_g][cid])
             r1_item["rodada_2"] = {
+                "resposta": r2_item.get("resposta") or "",
                 "latencia_ms": r2_item["latencia_ms"],
                 "custo_estimado_brl": r2_item["custo_estimado_brl"],
                 "tokens_total": r2_item["tokens_total"],
+                "tokens_raciocinio": r2_item.get("tokens_raciocinio", 0),
                 "scores": r2_item["scores"],
                 "locais_base_citados": r2_item["verificacao_deterministica"]["locais_base_citados"],
                 "locais_inventados": r2_item["verificacao_deterministica"]["locais_inventados"],
+                "verificacao_deterministica": r2_item["verificacao_deterministica"],
+                "julgamento_juiz": r2_item["julgamento_juiz"],
                 "trace_id": r2_item.get("trace_id"),
                 "trace_url": r2_item.get("trace_url"),
             }
             resultados_cfgs[cid] = r1_item
 
         modo_a_ref = resultados_cfgs["1_llm_pura_sem_raciocinio"]
-        modo_b_ref = resultados_cfgs[id_vencedora]
+        modo_b_ref = resultados_cfgs["4_rag_llm_busca_lexica"]
         sc_a = modo_a_ref["scores"]
         sc_b = modo_b_ref["scores"]
 

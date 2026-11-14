@@ -2,7 +2,7 @@
 LOG COMPROBATÓRIO OFICIAL — BENCHMARK A/B: LLM PURA vs. RAG ANCORADO 2FA (SEMANA 3 — ISSUE #38)
    RESIDÊNCIA EM IA (INSTITUTO ELDORADO / UnB) | GRUPO 7 — ORQUESTRADOR DE ROLÊS
 =========================================================================================================
-Data/Hora da Consolidação : 2026-11-13T19:18:48Z
+Data/Hora da Consolidação : 2026-11-14T01:42:38Z
 Golden Dataset Avaliado   : data/golden_dataset_semana3.json (20 consultas auditadas)
 Base Oficial de Conhecim. : data/banco_aprovado_2fa.json (93 locais DF validados em 2 fatores)
 Modelo Gerador Avaliado   : deepseek/deepseek-v4.1-flash-1017 (OpenRouter, temperatura 0, ZDR ativo)
@@ -10,16 +10,16 @@ Modelo Avaliador (Juiz)   : xiaomi/mimo-v2.6-pro (Etapa 1 RNF-04 Código + Etapa
 Dataset Langfuse Cloud    : golden_dataset_semana3 (6 configurações × 2 rodadas)
 =========================================================================================================
 
-1. RESUMO EXECUTIVO POR CONFIGURAÇÃO (20 CONSULTAS — CONTAGENS E MÉTRICAS OFICIAIS)
+1. RESUMO EXECUTIVO POR CONFIGURAÇÃO (RODADA 1 — 20 CONSULTAS — CONTAGENS E MÉTRICAS OFICIAIS)
 ---------------------------------------------------------------------------------------------------------
 #  | Configuração                           | Acerto Gab.  | Acerto DF  | Fidelid.  | Alucin.  | Inv.   | Prec. RA   | p50 / p90     | Custo Méd.
 ---------------------------------------------------------------------------------------------------------
 1  | LLM pura, sem raciocínio               | 2 de 20      | 0 de 18    |   0.0%    |   3.0%   | 32     | 0 de 15    | 3.8s / 5.3s   | R$ 0.00079
 2  | LLM pura, raciocínio alto              | 2 de 20      | 0 de 18    |   0.0%    |  28.6%   | 2      | 0 de 14    | 6.8s / 14.6s  | R$ 0.00198
-3  | RAG sem LLM (busca + texto fixo da semana 2) | 12 de 20     | 10 de 18   |  84.4%    |  13.9%   | 0      | 13 de 16   | 0.0s / 0.0s   | R$ 0.00087
-4  | RAG + LLM, busca léxica                | 12 de 20     | 10 de 18   |  88.8%    |  10.6%   | 0      | 13 de 16   | 3.1s / 3.6s   | R$ 0.00081
-5  | RAG + LLM, busca léxica, raciocínio alto | 12 de 20     | 10 de 18   |  83.5%    |  16.5%   | 0      | 13 de 16   | 4.5s / 6.9s   | R$ 0.00121
-6  | RAG + LLM, busca vetorial              | 18 de 20     | 16 de 18   |  91.0%    |   7.2%   | 0      | 16 de 17   | 5.1s / 5.8s   | R$ 0.00092
+3  | RAG sem LLM (busca + texto fixo da semana 2) | 12 de 20     | 10 de 18   |  99.2%    |   0.0%   | 0      | 13 de 16   | 0.0s / 0.0s   | R$ 0.00000
+4  | RAG + LLM, busca léxica                | 12 de 20     | 10 de 18   |  98.7%    |   0.0%   | 0      | 13 de 16   | 3.1s / 3.6s   | R$ 0.00081
+5  | RAG + LLM, busca léxica, raciocínio alto | 12 de 20     | 10 de 18   | 100.0%    |   0.0%   | 0      | 13 de 16   | 4.5s / 6.9s   | R$ 0.00121
+6  | RAG + LLM, busca vetorial              | 18 de 20     | 16 de 18   |  96.8%    |   0.7%   | 0      | 16 de 17   | 5.1s / 5.8s   | R$ 0.00092
 ---------------------------------------------------------------------------------------------------------
 
 1.1. DETALHAMENTO COMPLETO E VARIAÇÃO ENTRE RODADAS (RODADA 1 vs. RODADA 2)
@@ -34,8 +34,8 @@ Dataset Langfuse Cloud    : golden_dataset_semana3 (6 configurações × 2 rodad
     • Métricas da Busca (RAG)  : N/A (configuração sem recuperação de documentos)
     • Latência (RNF-14 <= 5s)  : p50 = 3748 ms (3.75 s) | p90 = 5259 ms (5.26 s) | Dentro de 5 s: 17 de 20 (acima de 5 s: 3 de 20)
     • Custo e Tokens           : Custo médio = R$ 0.000789 (Total 20 casos = R$ 0.01578) | Tokens médios = 369 (raciocínio = 0)
-    • Variação (2 Rodadas)     : Acerto R1 = 2 de 20 vs. R2 = 2 de 20 (delta = +0) | p90 R1 = 5259 ms vs. R2 = 4834 ms | Fidelidade R1 = 0.0% vs. R2 = 0.0%
-    • Experimento Langfuse     : https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/experiments/results?baseline=af974ccfc3fb9189
+    • Variação (2 Rodadas)     : Acerto R1 = 2 de 20 vs. R2 = 2 de 20 (delta = +0) | p90 R1 = 5259 ms vs. R2 = 4834 ms | Fidelidade R1 = 0.0% vs. R2 = 0.0% | Alucinação R1 = 3.0% vs. R2 = 7.9% | Casos em que a nota do juiz mudou: 7 de 20
+    • Experimento Langfuse     : https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/experiments/results?baseline=0481620abb5ac8a4
 
 [2] LLM pura, raciocínio alto (2_llm_pura_raciocinio_alto)
     • Como rodar               : executar_comparacao_ab(..., raciocinio="high")["modo_a_llm_pura"]
@@ -47,91 +47,92 @@ Dataset Langfuse Cloud    : golden_dataset_semana3 (6 configurações × 2 rodad
     • Métricas da Busca (RAG)  : N/A (configuração sem recuperação de documentos)
     • Latência (RNF-14 <= 5s)  : p50 = 6844 ms (6.84 s) | p90 = 14582 ms (14.58 s) | Dentro de 5 s: 1 de 20 (acima de 5 s: 19 de 20)
     • Custo e Tokens           : Custo médio = R$ 0.001978 (Total 20 casos = R$ 0.03957) | Tokens médios = 708 (raciocínio = 380)
-    • Variação (2 Rodadas)     : Acerto R1 = 2 de 20 vs. R2 = 2 de 20 (delta = +0) | p90 R1 = 14582 ms vs. R2 = 18115 ms | Fidelidade R1 = 0.0% vs. R2 = 3.6%
-    • Experimento Langfuse     : https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/experiments/results?baseline=d03b9b9c2810a776
+    • Variação (2 Rodadas)     : Acerto R1 = 2 de 20 vs. R2 = 2 de 20 (delta = +0) | p90 R1 = 14582 ms vs. R2 = 18115 ms | Fidelidade R1 = 0.0% vs. R2 = 3.6% | Alucinação R1 = 28.6% vs. R2 = 25.0% | Casos em que a nota do juiz mudou: 4 de 20
+    • Experimento Langfuse     : https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/experiments/results?baseline=997d811abfc48763
 
 [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo)
     • Como rodar               : simular_recuperacao_rag / POST /rag/buscar
     • Acerto do Gabarito       : 12 de 20 (60.0%) | Casos dentro do DF: 10 de 18 (55.6%) | Recusa fora do DF: 2 de 2
-    • Fidelidade Factual RNF-03: 84.4% (casos com afirmações avaliadas: 16 de 20; 100% fiéis: 6 de 16; meta RNF-03 >= 95%: NÃO ATINGIDA)
-    • Taxa de Alucinação       : 13.9% (casos com contradição factual: 8 de 20; preço contraditório: 1 de 20; endereço contraditório/inventado: 0 de 20)
-    • Taxa Fora da Base / Inv. : 1.7% fora da base | Lugares inventados: 0 em 0 de 20 casos (nenhum)
+    • Fidelidade Factual RNF-03: 99.2% (casos com afirmações avaliadas: 16 de 20; 100% fiéis: 15 de 16; meta RNF-03 >= 95%: ATINGIDA)
+    • Taxa de Alucinação       : 0.0% (casos com contradição factual: 0 de 20; preço contraditório: 0 de 20; endereço contraditório/inventado: 0 de 20)
+    • Taxa Fora da Base / Inv. : 0.8% fora da base | Lugares inventados: 0 em 0 de 20 casos (nenhum)
     • Precisão Geoespacial (RA): 81.2% (13 de 16 respostas com recomendação na RA esperada) | Abstenções ('não sei'/recusa): 4 de 20
     • Métricas da Busca (RAG)  : Recall@3 = 10 de 18 (55.6%) | MRR = 0.3704 | Recusa correta fora DF = 2 de 2 | Recusa indevida DF = 3 de 18
     • Latência (RNF-14 <= 5s)  : p50 = 20 ms (0.02 s) | p90 = 32 ms (0.03 s) | Dentro de 5 s: 20 de 20 (acima de 5 s: 0 de 20)
-    • Custo e Tokens           : Custo médio = R$ 0.000872 (Total 20 casos = R$ 0.01743) | Tokens médios = 1593 (raciocínio = 0)
-    • Variação (2 Rodadas)     : Acerto R1 = 12 de 20 vs. R2 = 12 de 20 (delta = +0) | p90 R1 = 32 ms vs. R2 = 42 ms | Fidelidade R1 = 84.4% vs. R2 = 84.4%
-    • Experimento Langfuse     : https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/experiments/results?baseline=e35f318c5947b644
+    • Custo e Tokens           : Custo médio = R$ 0.000000 (Total 20 casos = R$ 0.00000) | Tokens médios = 0 (raciocínio = 0)
+    • Variação (2 Rodadas)     : Acerto R1 = 12 de 20 vs. R2 = 12 de 20 (delta = +0) | p90 R1 = 32 ms vs. R2 = 42 ms | Fidelidade R1 = 99.2% vs. R2 = 99.2% | Alucinação R1 = 0.0% vs. R2 = 0.0% | Casos em que a nota do juiz mudou: 0 de 20
+    • Experimento Langfuse     : https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/experiments/results?baseline=2aa5455b8748ea6a
 
 [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica)
     • Como rodar               : executar_comparacao_ab(...)["modo_b_rag"]
     • Acerto do Gabarito       : 12 de 20 (60.0%) | Casos dentro do DF: 10 de 18 (55.6%) | Recusa fora do DF: 2 de 2
-    • Fidelidade Factual RNF-03: 88.8% (casos com afirmações avaliadas: 16 de 20; 100% fiéis: 8 de 16; meta RNF-03 >= 95%: NÃO ATINGIDA)
-    • Taxa de Alucinação       : 10.6% (casos com contradição factual: 7 de 20; preço contraditório: 1 de 20; endereço contraditório/inventado: 0 de 20)
-    • Taxa Fora da Base / Inv. : 0.6% fora da base | Lugares inventados: 0 em 0 de 20 casos (nenhum)
+    • Fidelidade Factual RNF-03: 98.7% (casos com afirmações avaliadas: 16 de 20; 100% fiéis: 14 de 16; meta RNF-03 >= 95%: ATINGIDA)
+    • Taxa de Alucinação       : 0.0% (casos com contradição factual: 0 de 20; preço contraditório: 0 de 20; endereço contraditório/inventado: 0 de 20)
+    • Taxa Fora da Base / Inv. : 1.4% fora da base | Lugares inventados: 0 em 0 de 20 casos (nenhum)
     • Precisão Geoespacial (RA): 81.2% (13 de 16 respostas com recomendação na RA esperada) | Abstenções ('não sei'/recusa): 4 de 20
     • Métricas da Busca (RAG)  : Recall@3 = 10 de 18 (55.6%) | MRR = 0.3704 | Recusa correta fora DF = 2 de 2 | Recusa indevida DF = 3 de 18
     • Latência (RNF-14 <= 5s)  : p50 = 3151 ms (3.15 s) | p90 = 3609 ms (3.61 s) | Dentro de 5 s: 20 de 20 (acima de 5 s: 0 de 20)
     • Custo e Tokens           : Custo médio = R$ 0.000807 (Total 20 casos = R$ 0.01614) | Tokens médios = 755 (raciocínio = 0)
-    • Variação (2 Rodadas)     : Acerto R1 = 12 de 20 vs. R2 = 12 de 20 (delta = +0) | p90 R1 = 3609 ms vs. R2 = 3899 ms | Fidelidade R1 = 88.8% vs. R2 = 87.7%
-    • Experimento Langfuse     : https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/experiments/results?baseline=0b1b9b704ad0be14
+    • Variação (2 Rodadas)     : Acerto R1 = 12 de 20 vs. R2 = 12 de 20 (delta = +0) | p90 R1 = 3609 ms vs. R2 = 3899 ms | Fidelidade R1 = 98.7% vs. R2 = 99.1% | Alucinação R1 = 0.0% vs. R2 = 0.9% | Casos em que a nota do juiz mudou: 3 de 20
+    • Experimento Langfuse     : https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/experiments/results?baseline=d816ca9bab2301ef
 
 [5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto)
     • Como rodar               : executar_comparacao_ab(..., raciocinio="high")["modo_b_rag"]
     • Acerto do Gabarito       : 12 de 20 (60.0%) | Casos dentro do DF: 10 de 18 (55.6%) | Recusa fora do DF: 2 de 2
-    • Fidelidade Factual RNF-03: 83.5% (casos com afirmações avaliadas: 16 de 20; 100% fiéis: 10 de 16; meta RNF-03 >= 95%: NÃO ATINGIDA)
-    • Taxa de Alucinação       : 16.5% (casos com contradição factual: 6 de 20; preço contraditório: 1 de 20; endereço contraditório/inventado: 0 de 20)
+    • Fidelidade Factual RNF-03: 100.0% (casos com afirmações avaliadas: 16 de 20; 100% fiéis: 16 de 16; meta RNF-03 >= 95%: ATINGIDA)
+    • Taxa de Alucinação       : 0.0% (casos com contradição factual: 0 de 20; preço contraditório: 0 de 20; endereço contraditório/inventado: 0 de 20)
     • Taxa Fora da Base / Inv. : 0.0% fora da base | Lugares inventados: 0 em 0 de 20 casos (nenhum)
     • Precisão Geoespacial (RA): 81.2% (13 de 16 respostas com recomendação na RA esperada) | Abstenções ('não sei'/recusa): 4 de 20
     • Métricas da Busca (RAG)  : Recall@3 = 10 de 18 (55.6%) | MRR = 0.3704 | Recusa correta fora DF = 2 de 2 | Recusa indevida DF = 3 de 18
     • Latência (RNF-14 <= 5s)  : p50 = 4513 ms (4.51 s) | p90 = 6877 ms (6.88 s) | Dentro de 5 s: 13 de 20 (acima de 5 s: 7 de 20)
     • Custo e Tokens           : Custo médio = R$ 0.001208 (Total 20 casos = R$ 0.02417) | Tokens médios = 892 (raciocínio = 149)
-    • Variação (2 Rodadas)     : Acerto R1 = 12 de 20 vs. R2 = 12 de 20 (delta = +0) | p90 R1 = 6877 ms vs. R2 = 8231 ms | Fidelidade R1 = 83.5% vs. R2 = 83.3%
-    • Experimento Langfuse     : https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/experiments/results?baseline=bdf3d7b813e9be8c
+    • Variação (2 Rodadas)     : Acerto R1 = 12 de 20 vs. R2 = 12 de 20 (delta = +0) | p90 R1 = 6877 ms vs. R2 = 8231 ms | Fidelidade R1 = 100.0% vs. R2 = 100.0% | Alucinação R1 = 0.0% vs. R2 = 0.0% | Casos em que a nota do juiz mudou: 0 de 20
+    • Experimento Langfuse     : https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/experiments/results?baseline=c23d39cd3af1113f
 
 [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial)
     • Como rodar               : executar_comparacao_ab(..., busca="vetorial")["modo_b_rag"]
     • Acerto do Gabarito       : 18 de 20 (90.0%) | Casos dentro do DF: 16 de 18 (88.9%) | Recusa fora do DF: 2 de 2
-    • Fidelidade Factual RNF-03: 91.0% (casos com afirmações avaliadas: 17 de 20; 100% fiéis: 11 de 17; meta RNF-03 >= 95%: NÃO ATINGIDA)
-    • Taxa de Alucinação       : 7.2% (casos com contradição factual: 3 de 20; preço contraditório: 1 de 20; endereço contraditório/inventado: 0 de 20)
-    • Taxa Fora da Base / Inv. : 1.8% fora da base | Lugares inventados: 0 em 0 de 20 casos (nenhum)
+    • Fidelidade Factual RNF-03: 96.8% (casos com afirmações avaliadas: 17 de 20; 100% fiéis: 12 de 17; meta RNF-03 >= 95%: ATINGIDA)
+    • Taxa de Alucinação       : 0.7% (casos com contradição factual: 1 de 20; preço contraditório: 0 de 20; endereço contraditório/inventado: 0 de 20)
+    • Taxa Fora da Base / Inv. : 2.5% fora da base | Lugares inventados: 0 em 0 de 20 casos (nenhum)
     • Precisão Geoespacial (RA): 94.1% (16 de 17 respostas com recomendação na RA esperada) | Abstenções ('não sei'/recusa): 3 de 20
     • Métricas da Busca (RAG)  : Recall@3 = 16 de 18 (88.9%) | MRR = 0.8333 | Recusa correta fora DF = 2 de 2 | Recusa indevida DF = 2 de 18
     • Latência (RNF-14 <= 5s)  : p50 = 5104 ms (5.10 s) | p90 = 5826 ms (5.83 s) | Dentro de 5 s: 9 de 20 (acima de 5 s: 11 de 20)
     • Custo e Tokens           : Custo médio = R$ 0.000915 (Total 20 casos = R$ 0.01829) | Tokens médios = 814 (raciocínio = 0)
-    • Variação (2 Rodadas)     : Acerto R1 = 18 de 20 vs. R2 = 18 de 20 (delta = +0) | p90 R1 = 5826 ms vs. R2 = 5346 ms | Fidelidade R1 = 91.0% vs. R2 = 91.2%
-    • Experimento Langfuse     : https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/experiments/results?baseline=916c6e5bce59b56d
+    • Variação (2 Rodadas)     : Acerto R1 = 18 de 20 vs. R2 = 18 de 20 (delta = +0) | p90 R1 = 5826 ms vs. R2 = 5346 ms | Fidelidade R1 = 96.8% vs. R2 = 97.7% | Alucinação R1 = 0.7% vs. R2 = 0.8% | Casos em que a nota do juiz mudou: 3 de 20
+    • Experimento Langfuse     : https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/experiments/results?baseline=878b91bd953f23d5
 
 =========================================================================================================
 2. CONFIGURAÇÃO ESCOLHIDA PARA O PRODUTO (CRITÉRIO OFICIAL DA ISSUE #38)
 =========================================================================================================
 Critério Pré-Definido : Entre as configurações com p90 <= 5 s (RNF-14) e nenhum lugar inventado (0 locais falsos), a de maior acerto do lugar do gabarito; no empate, a mais barata.
-Configuração Vencedora: [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica)
-  - Cumpre RNF-14 (p90 <= 5 s) : SIM (p50 = 3151 ms | p90 = 3609 ms)
+Configuração Vencedora: [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo)
+  - Cumpre RNF-14 (p90 <= 5 s) : SIM (p50 = 20 ms | p90 = 32 ms)
   - Zero Lugares Inventados    : SIM (0 locais falsos nas 20 consultas)
   - Acerto do Lugar Gabarito   : 12 de 20 (60.0%) | DF: 10 de 18
-  - Fidelidade Factual (RNF-03): 88.8% | Taxa de Alucinação: 10.6%
-  - Custo Médio por Consulta   : R$ 0.000807
-Justificativa Técnica : A configuração 'RAG + LLM, busca léxica' (4_rag_llm_busca_lexica) foi eleita a melhor para o produto por cumprir simultaneamente o SLA de latência RNF-14 (p90 = 3.61 s <= 5,0 s, com 20 de 20 respostas dentro do limite) e zero lugares inventados (0 estabelecimentos falsos em 20 consultas, fidelidade factual média de 88.8%), alcançando o maior acerto do gabarito entre as configurações elegíveis (12 de 20 no geral e 10 de 18 nos casos do DF) com custo médio de R$ 0.00081 por consulta.
+  - Fidelidade Factual (RNF-03): 99.2% | Taxa de Alucinação: 0.0%
+  - Custo Médio por Consulta   : R$ 0.000000
+Justificativa Técnica : Pelo critério objetivo pré-definido na Issue #38, a configuração 'RAG sem LLM (busca + texto fixo da semana 2)' (3_rag_sem_llm_texto_fixo) é a vencedora: cumpre o SLA de latência RNF-14 (p90 = 0.03 s <= 5,0 s, com 20 de 20 respostas dentro do limite) e zero lugares inventados (0 estabelecimentos falsos em 20 consultas, fidelidade factual média de 99.2%), empatando no maior acerto do gabarito entre as elegíveis (12 de 20 no geral e 10 de 18 no DF) com a '4_rag_llm_busca_lexica' e vencendo no desempate por ter custo real zero (R$ 0.000000 vs. R$ 0,000807/consulta).
+Decisão de Produto (com LLM) : RAG + LLM, busca léxica (4_rag_llm_busca_lexica) — Como decisão de produto à parte do desempate de custo, quando a interface exige resposta em linguagem natural (explicando por que um local recuperado atende parcialmente ao pedido, contextualizando recusas e respondendo perguntas abertas), adota-se a #4 (RAG + LLM, busca léxica, p90 = 3,61 s, R$ 0,000807/consulta). O achado central do experimento é que, sobre a busca por palavras, adicionar o LLM não aumentou o acerto do gabarito (12 de 20 na #3 e na #4) porque o gargalo está na recuperação (Recall@3 = 10 de 18).
 
 Motivos de descarte das demais configurações:
   • LLM pura, sem raciocínio (1_llm_pura_sem_raciocinio): p90 = 5.26 s (> 5,0 s do RNF-14); inventou 32 local(is) (13 de 20 casos); menor acerto do gabarito (2 de 20 vs. 12 de 20)
   • LLM pura, raciocínio alto (2_llm_pura_raciocinio_alto): p90 = 14.58 s (> 5,0 s do RNF-14); inventou 2 local(is) (1 de 20 casos); menor acerto do gabarito (2 de 20 vs. 12 de 20)
-  • RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo): maior custo médio (R$ 0.000872 vs. R$ 0.000807)
-  • RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto): p90 = 6.88 s (> 5,0 s do RNF-14); maior custo médio (R$ 0.001208 vs. R$ 0.000807)
-  • RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial): p90 = 5.83 s (> 5,0 s do RNF-14); maior custo médio (R$ 0.000915 vs. R$ 0.000807)
+  • RAG + LLM, busca léxica (4_rag_llm_busca_lexica): maior custo médio (R$ 0.000807 vs. R$ 0.000000)
+  • RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto): p90 = 6.88 s (> 5,0 s do RNF-14); maior custo médio (R$ 0.001208 vs. R$ 0.000000)
+  • RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial): p90 = 5.83 s (> 5,0 s do RNF-14); maior custo médio (R$ 0.000915 vs. R$ 0.000000)
 
 =========================================================================================================
 3. CONSOLIDAÇÃO DE MÉTRICAS POR CATEGORIA DE PERGUNTA (RNF-10 — MODO A vs. MODO B VENCEDOR)
 =========================================================================================================
 Categoria                      | Casos | Acerto Modo A  | Acerto Modo B  | Fidel. A  | Fidel. B  | Aluc. A  | Aluc. B
 ---------------------------------------------------------------------------------------------------------
-geoespacial_ra_fora_centro     | 5     | 0 de 5         | 4 de 5         |    0.0%  |   96.5%  |   0.0%  |   1.5%
-janela_horario                 | 3     | 0 de 3         | 2 de 3         |    0.0%  |   95.0%  |   5.6%  |   5.0%
+geoespacial_ra_fora_centro     | 5     | 0 de 5         | 4 de 5         |    0.0%  |  100.0%  |   0.0%  |   0.0%
+janela_horario                 | 3     | 0 de 3         | 2 de 3         |    0.0%  |  100.0%  |   5.6%  |   0.0%
 fora_de_escopo_df              | 2     | 2 de 2         | 2 de 2         |    0.0%  |    0.0%  |   0.0%  |   0.0%
-precisao_financeira            | 5     | 0 de 5         | 3 de 5         |    0.0%  |   95.5%  |   0.0%  |   4.5%
-vibes_e_restricoes             | 3     | 0 de 3         | 1 de 3         |    0.0%  |   94.9%  |   4.5%  |   5.1%
-conflito_e_girias              | 2     | 0 de 2         | 0 de 2         |    0.0%  |   40.9%  |  10.0%  |  59.1%
+precisao_financeira            | 5     | 0 de 5         | 3 de 5         |    0.0%  |   96.9%  |   0.0%  |   0.0%
+vibes_e_restricoes             | 3     | 0 de 3         | 1 de 3         |    0.0%  |  100.0%  |   4.5%  |   0.0%
+conflito_e_girias              | 2     | 0 de 2         | 0 de 2         |    0.0%  |  100.0%  |  10.0%  |   0.0%
 ---------------------------------------------------------------------------------------------------------
 
 =========================================================================================================
@@ -162,7 +163,7 @@ Gabarito : Locais=['Filomenambúrguer'] | Preço Máx=R$ 49.99 | Horário=Todos 
       • Resposta   :
         Não sei indicar com segurança um lugar em Taguatinga que faça **rodízio de mini hambúrguer e pão de queijo** para ir com amigos. Não tenho dados confirmados de nome, endereço, preço médio por pessoa e horário de funcionamento para nenhum estabelecimento com esse combo. Para não inventar informação, prefiro não recomendar nomes. Sugiro confirmar no Google Maps, Instagram ou WhatsApp de hamburguerias de Taguatinga se oferecem rodízio de mini hambúrguer e se incluem pão de queijo; vale perguntar também sobre valor por pessoa e horário.
 
-  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 23 ms (R2: 21 ms) | Custo: R$ 0.001060
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 23 ms (R2: 21 ms) | Custo: R$ 0.000000
       • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['Casa Bari', 'Filomenambúrguer', 'Espaguete'] | recall@3=1.0 | mrr=0.5 | pos_gabarito=2
       • Auditoria  : Base Citados=['Casa Bari', 'Espaguete', 'Filomenambúrguer'] | Inventados=[] | Trace ID=9ad94675b5a13c6e482c02b126758526 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/9ad94675b5a13c6e482c02b126758526
@@ -251,7 +252,7 @@ Gabarito : Locais=['Restaurante Dona Cleide'] | Preço Máx=R$ 54.9 | Horário=R
         
         Se você aceitar opções sem brinquedoteca, posso tentar ajudar com rodízios de pizza em Águas Claras — mas também só indicarei dados dos quais eu tenha certeza.
 
-  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 23 ms (R2: 22 ms) | Custo: R$ 0.001130
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 23 ms (R2: 22 ms) | Custo: R$ 0.000000
       • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['Restaurante Dona Cleide', 'Casa Bari', 'Vitorino'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
       • Auditoria  : Base Citados=['Restaurante Dona Cleide', 'Casa Bari', 'Vitorino'] | Inventados=[] | Trace ID=acc2488aa30786961a64586a97997c37 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/acc2488aa30786961a64586a97997c37
@@ -259,7 +260,7 @@ Gabarito : Locais=['Restaurante Dona Cleide'] | Preço Máx=R$ 54.9 | Horário=R
         Para o seu pedido (Onde tem rodízio de caldos ou de pizza com brinquedoteca em Águas Claras?), a recomendação oficial na base auditada do TikTok é o 'Restaurante Dona Cleide' em Águas Claras (Águas Claras - Avenida das Araucárias, Mirante Plaza Gourmet, lote 885, loja 12, Brasília - DF)! Restaurante com rodízio de caldos variados e pizzas de forno a lenha, oferecendo ambiente agradável com música ao vivo aos finais de semana. Destaca-se pela brinquedoteca ampla com monitora, ideal para famílias com crianças. Preço médio estimado: R$ 54.9 (Moderado ($$)). Outras opções auditadas no DF: Casa Bari (Taguatinga), Vitorino (Plano Piloto (Asa Sul)).
 
   [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 3105 ms (R2: 3391 ms) | Custo: R$ 0.001194
-      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.9 | taxa_alucinacao=0.0 | fora_da_base=0.1 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.875 | taxa_alucinacao=0.0 | fora_da_base=0.125 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['Restaurante Dona Cleide', 'Casa Bari', 'Vitorino'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
       • Auditoria  : Base Citados=['Restaurante Dona Cleide', 'Casa Bari', 'Vitorino'] | Inventados=[] | Trace ID=cca2b5c06951f8f0619d5566c919fa4d | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/cca2b5c06951f8f0619d5566c919fa4d
       • Resposta   :
@@ -289,7 +290,7 @@ Gabarito : Locais=['Restaurante Dona Cleide'] | Preço Máx=R$ 54.9 | Horário=R
         Não há outro lugar em Águas Claras com esses critérios nos documentos enviados.
 
   [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 4749 ms (R2: 5131 ms) | Custo: R$ 0.001117
-      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.875 | taxa_alucinacao=0.0 | fora_da_base=0.125 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['Restaurante Dona Cleide', 'Peixe na Rede', 'Vila Carioca'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
       • Auditoria  : Base Citados=['Restaurante Dona Cleide', 'Vila Carioca', 'Peixe na Rede'] | Inventados=[] | Trace ID=6e67510bbb163e3f795ace45db714191 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/6e67510bbb163e3f795ace45db714191
       • Resposta   :
@@ -324,7 +325,7 @@ Gabarito : Locais=['Santo Bifidele'] | Preço Máx=R$ 39.9 | Horário=Executivos
         
         Sugiro confirmar no Google Maps/Instagram buscando “barbecue defumado Guará” e checar cardápio, preço e funcionamento atualizados. Se você aceitar opções fora do Guará, posso tentar recomendar, mas também só com dados que eu tiver segurança.
 
-  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 8 ms (R2: 44 ms) | Custo: R$ 0.001090
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 8 ms (R2: 44 ms) | Custo: R$ 0.000000
       • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['Santo Bifidele', 'New Mercadito', 'Jucata e Verofato Pizza e Pasta'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
       • Auditoria  : Base Citados=['New Mercadito', 'Santo Bifidele', 'Jucata e Verofato Pizza e Pasta'] | Inventados=[] | Trace ID=c144edae85a0cdb36bcffd24f4673929 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/c144edae85a0cdb36bcffd24f4673929
@@ -402,8 +403,8 @@ Gabarito : Locais=['Royal Burger'] | Preço Máx=R$ 29.9 | Horário=Almoço às 
       • Resposta   :
         Não tenho informação confiável sobre rodízio de almoço com parmegiana no Riacho Fundo. Para não inventar nome, endereço, preço médio ou horário, não vou indicar lugares específicos. Sugiro confirmar em apps de mapas/delivery, Instagram de restaurantes locais ou grupos do bairro, perguntando por “rodízio de parmegiana no Riacho Fundo”. Se você aceitar opções fora do Riacho Fundo, posso tentar ajudar com alternativas no DF, mas também só indicarei o que eu souber com segurança.
 
-  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 20 ms (R2: 20 ms) | Custo: R$ 0.001120
-      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.8 | taxa_alucinacao=0.2 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 20 ms (R2: 20 ms) | Custo: R$ 0.000000
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['Restaurante Dona Cleide', 'Casa Bari', 'Royal Burger'] | recall@3=1.0 | mrr=0.3333 | pos_gabarito=3
       • Auditoria  : Base Citados=['Restaurante Dona Cleide', 'Casa Bari', 'Royal Burger'] | Inventados=[] | Trace ID=f914f80a720833d9b56fa5658c67242d | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/f914f80a720833d9b56fa5658c67242d
       • Resposta   :
@@ -480,15 +481,15 @@ Gabarito : Locais=['VBQ'] | Preço Máx=R$ 44.9 | Horário=Noite (rodízio com r
         
         Sugestão prática: procure no Google Maps ou iFood por “rodízio pizza sushi Samambaia”, filtre por “aberto agora” e confirme por telefone se há rodízio conjunto de pizza e sushi, valor por pessoa e se o ambiente é adequado para família. Se você me disser um bairro específico ou uma faixa de preço, posso ajudar a montar critérios de escolha, mas não posso garantir nomes e dados sem consulta.
 
-  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 34 ms (R2: 26 ms) | Custo: R$ 0.001130
-      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.8 | taxa_alucinacao=0.2 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 34 ms (R2: 26 ms) | Custo: R$ 0.000000
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['Restaurante Dona Cleide', 'Casa Bari', 'Vitorino'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
       • Auditoria  : Base Citados=['Restaurante Dona Cleide', 'Casa Bari', 'Vitorino'] | Inventados=[] | Trace ID=c2bdd9f0ded599bcaeb95d971bfe073e | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/c2bdd9f0ded599bcaeb95d971bfe073e
       • Resposta   :
         Para o seu pedido (Onde comer rodízio de pizza e sushi à noite em Samambaia com a família?), a recomendação oficial na base auditada do TikTok é o 'Restaurante Dona Cleide' em Águas Claras (Águas Claras - Avenida das Araucárias, Mirante Plaza Gourmet, lote 885, loja 12, Brasília - DF)! Restaurante com rodízio de caldos variados e pizzas de forno a lenha, oferecendo ambiente agradável com música ao vivo aos finais de semana. Destaca-se pela brinquedoteca ampla com monitora, ideal para famílias com crianças. Preço médio estimado: R$ 54.9 (Moderado ($$)). Outras opções auditadas no DF: Casa Bari (Taguatinga), Vitorino (Plano Piloto (Asa Sul)).
 
   [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 3199 ms (R2: 2984 ms) | Custo: R$ 0.000908
-      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.9231 | taxa_alucinacao=0.0769 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.9091 | taxa_alucinacao=0.0 | fora_da_base=0.0909 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['Restaurante Dona Cleide', 'Casa Bari', 'Vitorino'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
       • Auditoria  : Base Citados=['Restaurante Dona Cleide', 'Casa Bari', 'Vitorino'] | Inventados=[] | Trace ID=8f749b6408cf22a3af51d4939603ee5b | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/8f749b6408cf22a3af51d4939603ee5b
       • Resposta   :
@@ -501,14 +502,14 @@ Gabarito : Locais=['VBQ'] | Preço Máx=R$ 44.9 | Horário=Noite (rodízio com r
         Nenhum é em Samambaia; não sei informar horário noturno específico da Casa Bari.
 
   [5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto) | Latência R1: 4029 ms (R2: 7634 ms) | Custo: R$ 0.000940
-      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=1.0 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['Restaurante Dona Cleide', 'Casa Bari', 'Vitorino'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
       • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=7dfec44e3ccaa9f002affd28653f992a | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/7dfec44e3ccaa9f002affd28653f992a
       • Resposta   :
         A base não tem um lugar que atenda ao pedido: não há nenhum documento com restaurante em **Samambaia** que ofereça rodízio de pizza e sushi à noite para família. Por isso, não posso recomendar um lugar nessa região administrativa sem inventar informações.
 
   [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 5074 ms (R2: 5326 ms) | Custo: R$ 0.001191
-      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.9 | taxa_alucinacao=0.0 | fora_da_base=0.1 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
       • Busca RAG  : Fontes=['VBQ', 'Omura Sushi', 'Saguari Gastro House'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
       • Auditoria  : Base Citados=['Omura Sushi', 'VBQ'] | Inventados=[] | Trace ID=af24aae6045be809e78bd2265b51f9ff | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/af24aae6045be809e78bd2265b51f9ff
       • Resposta   :
@@ -551,7 +552,7 @@ Gabarito : Locais=['New Mercadito'] | Preço Máx=R$ 54.99 | Horário=Sexta a do
         
         Alternativa segura: às 1h, filtrar “aberto agora” no Google Maps/Instagram e ligar antes. Asa Norte (CLN 107/108) e Setor Comercial Sul são áreas com mais chance, mas não afirmo. Se aceitar lugares que fecham antes de 1h, posso montar 3 opções com dados que eu saiba.
 
-  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 21 ms (R2: 5 ms) | Custo: R$ 0.000170
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 21 ms (R2: 5 ms) | Custo: R$ 0.000000
       • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=[] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
       • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=bca290cbb53821a5d51ece4c435a083a | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/bca290cbb53821a5d51ece4c435a083a
@@ -606,7 +607,7 @@ Gabarito : Locais=['Casa Bar'] | Preço Máx=R$ 29.99 | Horário=Somente aos dom
       • Resposta   :
         Não tenho informação confiável para indicar buffet de almoço à vontade por menos de R$ 30 no domingo em Taguatinga. Para não inventar, não vou citar nomes, endereços, preços ou horários que não posso confirmar. Recomendo verificar em apps de delivery/mapas, grupos locais ou ligar para restaurantes de Taguatinga e confirmar: (1) se o buffet é à vontade; (2) se funciona no domingo; (3) preço por pessoa; (4) horário. Se você puder informar nomes de locais que já conhece, posso ajudar a avaliar os dados que você tiver.
 
-  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 12 ms (R2: 15 ms) | Custo: R$ 0.000980
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 12 ms (R2: 15 ms) | Custo: R$ 0.000000
       • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['Casa Bar', 'Hamburgueria Espacial', 'Espaguete'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
       • Auditoria  : Base Citados=['Hamburgueria Espacial', 'Espaguete', 'Casa Bar', 'Casa Bari'] | Inventados=[] | Trace ID=fda7b9fb27dec0aed7780d89e1a7d1a4 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/fda7b9fb27dec0aed7780d89e1a7d1a4
@@ -614,7 +615,7 @@ Gabarito : Locais=['Casa Bar'] | Preço Máx=R$ 29.99 | Horário=Somente aos dom
         Para o seu pedido (Onde tem buffet de almoço à vontade por menos de R$ 30 no domingo em Taguatinga?), a recomendação oficial na base auditada do TikTok é o 'Casa Bar' em Taguatinga (Taguatinga, EQNL 21/23, Bloco D, Brasília - DF)! Buffet de almoço à vontade com sobremesa liberada e ambiente espaçoso e bonito. Inclui opções de proteínas na parrilla como picanha e sobrecoxa grelhada. Preço médio estimado: R$ 29.99 (Barato ($)). Outras opções auditadas no DF: Hamburgueria Espacial (Taguatinga), Espaguete (Taguatinga).
 
   [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 3328 ms (R2: 2536 ms) | Custo: R$ 0.001083
-      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.9 | taxa_alucinacao=0.1 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['Casa Bar', 'Hamburgueria Espacial', 'Espaguete'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
       • Auditoria  : Base Citados=['Hamburgueria Espacial', 'Espaguete', 'Casa Bar', 'Casa Bari'] | Inventados=[] | Trace ID=4148dff59614faa0e666cfbdaa61b701 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/4148dff59614faa0e666cfbdaa61b701
       • Resposta   :
@@ -636,7 +637,7 @@ Gabarito : Locais=['Casa Bar'] | Preço Máx=R$ 29.99 | Horário=Somente aos dom
         A base tem uma opção que atende: **Casa Bar** — Taguatinga. Endereço: Taguatinga, EQNL 21/23, Bloco D, Brasília - DF. Preço médio por pessoa: R$ 29,99 (barato). Horário de funcionamento: somente aos domingos no almoço. A descrição informa buffet de almoço à vontade com sobremesa liberada, incluindo proteínas na parrilla [FONTE #1].
 
   [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 5273 ms (R2: 4589 ms) | Custo: R$ 0.001105
-      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.9 | taxa_alucinacao=0.1 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
       • Busca RAG  : Fontes=['Casa Bar', 'Espaguete', 'Hamburgueria Espacial'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
       • Auditoria  : Base Citados=['Hamburgueria Espacial', 'Espaguete', 'Casa Bar', 'Casa Bari'] | Inventados=[] | Trace ID=6b77e7b322a9f0da02006377454c17fd | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/6b77e7b322a9f0da02006377454c17fd
       • Resposta   :
@@ -675,7 +676,7 @@ Gabarito : Locais=['Spelunca DF'] | Preço Máx=R$ 65.5 | Horário=Domingo a par
         
         Se você me disser a região administrativa de preferência (Asa Sul, Asa Norte, Águas Claras, Taguatinga etc.), posso sugerir até 3 opções para você checar horário e preço — deixando claro o que eu não sei.
 
-  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 20 ms (R2: 12 ms) | Custo: R$ 0.001060
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 20 ms (R2: 12 ms) | Custo: R$ 0.000000
       • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['Casa Bari', 'Vitorino', 'Spelunca DF'] | recall@3=1.0 | mrr=0.3333 | pos_gabarito=3
       • Auditoria  : Base Citados=['Casa Bari', 'Vitorino', 'Spelunca DF'] | Inventados=[] | Trace ID=d7310c00d1349c3f5abec50112faf3dc | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/d7310c00d1349c3f5abec50112faf3dc
@@ -709,7 +710,7 @@ Gabarito : Locais=['Spelunca DF'] | Preço Máx=R$ 65.5 | Horário=Domingo a par
         Ele é um bar temático com gastronomia que inclui pizzas da casa, sanduíches na massa de pizza e fritas especiais, além de happy hour e promoções de dose dupla [FONTE #3]. Portanto, para domingo à tarde, abre **a partir das 16h**.
 
   [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 5266 ms (R2: 4928 ms) | Custo: R$ 0.001067
-      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.875 | taxa_alucinacao=0.125 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
       • Busca RAG  : Fontes=['Jucata e Verofato Pizza e Pasta', 'Spelunca DF', 'Pizzaria Natureto'] | recall@3=1.0 | mrr=0.5 | pos_gabarito=2
       • Auditoria  : Base Citados=['Pizzaria Natureto', 'Spelunca DF', 'Jucata e Verofato Pizza e Pasta'] | Inventados=[] | Trace ID=ee40a403955801ad4cb4b62f7421713d | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/ee40a403955801ad4cb4b62f7421713d
       • Resposta   :
@@ -740,7 +741,7 @@ Gabarito : Locais=[] | Preço Máx=R$ None | Horário=None
         
         Se você quiser, posso indicar bares em Brasília/DF para sexta à noite com amigos, informando região administrativa, endereço, preço médio por pessoa e horário — desde que eu tenha certeza dos dados.
 
-  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 2 ms (R2: 4 ms) | Custo: R$ 0.000170
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 2 ms (R2: 4 ms) | Custo: R$ 0.000000
       • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=[] | recall@3=None | mrr=None | pos_gabarito=None
       • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=34af986f4257609fd1150bbb6fc7e5dc | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/34af986f4257609fd1150bbb6fc7e5dc
@@ -791,7 +792,7 @@ Gabarito : Locais=[] | Preço Máx=R$ None | Horário=None
         
         Se você estiver no DF ou quiser opções por aqui, posso recomendar hamburguerias artesanais em Brasília e regiões administrativas. Nesse caso, me diga a região de preferência (ex.: Plano Piloto, Águas Claras, Taguatinga, Guará) e o limite de preço. Aí eu indico até 3 lugares com nome, região administrativa, endereço, preço médio por pessoa e horário de funcionamento — sinalizando quando não tiver certeza de algum dado.
 
-  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 1 ms (R2: 2 ms) | Custo: R$ 0.000160
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 1 ms (R2: 2 ms) | Custo: R$ 0.000000
       • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=[] | recall@3=None | mrr=None | pos_gabarito=None
       • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=bb281db6104fcf98e7d5cfe5c3153db9 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/bb281db6104fcf98e7d5cfe5c3153db9
@@ -846,15 +847,15 @@ Gabarito : Locais=['Yaki Nikuya'] | Preço Máx=R$ 124.9 | Horário=Almoço e ja
         
         Sugestão: buscar no Google Maps/Instagram por “rodízio yakiniku Asa Sul” e confirmar diretamente com o restaurante o valor sem bebidas e o funcionamento. Se você aceitar outras regiões administrativas do DF, posso tentar ajudar com base apenas no que eu souber com segurança.
 
-  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 25 ms (R2: 9 ms) | Custo: R$ 0.001010
-      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.8333 | taxa_alucinacao=0.0 | fora_da_base=0.1667 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 25 ms (R2: 9 ms) | Custo: R$ 0.000000
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.875 | taxa_alucinacao=0.0 | fora_da_base=0.125 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['New Mercadito', 'Vitorino', 'Leduce Gastronomia'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
       • Auditoria  : Base Citados=['New Mercadito', 'Vitorino', 'Leduce Gastronomia'] | Inventados=[] | Trace ID=dd6cf2a3aeca7bdcd7cfd18b5c381a4b | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/dd6cf2a3aeca7bdcd7cfd18b5c381a4b
       • Resposta   :
         Para o seu pedido (Onde tem rodízio de churrasco japonês na Asa Sul e quanto custa por pessoa, sem bebida?), a recomendação oficial na base auditada do TikTok é o 'New Mercadito' em Plano Piloto (Asa Sul) (Asa Sul, CLS 201, Bloco A, Loja 1, Brasília - DF)! Buffet de almoço com churrasco nobre, feijoada e rabada à vontade, com preços acessíveis para a quantidade oferecida. Ambiente animado com happy hour diário de chopp e drinks, ideal para grupos. Preço médio estimado: R$ 54.99 (Moderado ($$)). Outras opções auditadas no DF: Vitorino (Plano Piloto (Asa Sul)), Leduce Gastronomia (Plano Piloto (Asa Sul)).
 
   [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 3197 ms (R2: 3265 ms) | Custo: R$ 0.001230
-      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.8182 | taxa_alucinacao=0.1818 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['New Mercadito', 'Vitorino', 'Leduce Gastronomia'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
       • Auditoria  : Base Citados=['New Mercadito', 'Vitorino', 'Leduce Gastronomia'] | Inventados=[] | Trace ID=ebc9ffe7aef16f0fa61a213091cbf3fb | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/ebc9ffe7aef16f0fa61a213091cbf3fb
       • Resposta   :
@@ -867,7 +868,7 @@ Gabarito : Locais=['Yaki Nikuya'] | Preço Máx=R$ 124.9 | Horário=Almoço e ja
         Não há informação sobre preço sem bebida nem sobre churrasco japonês.
 
   [5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto) | Latência R1: 4793 ms (R2: 5621 ms) | Custo: R$ 0.001395
-      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.8182 | taxa_alucinacao=0.1818 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['New Mercadito', 'Vitorino', 'Leduce Gastronomia'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
       • Auditoria  : Base Citados=['New Mercadito', 'Vitorino', 'Leduce Gastronomia'] | Inventados=[] | Trace ID=c77bd11ca646ceeb7a23463ea75ef1c9 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/c77bd11ca646ceeb7a23463ea75ef1c9
       • Resposta   :
@@ -878,7 +879,7 @@ Gabarito : Locais=['Yaki Nikuya'] | Preço Máx=R$ 124.9 | Horário=Almoço e ja
         Há também o **[FONTE #2] Vitorino** (Asa Sul; endereço 116 Sul — Lago Sul; R$ 79,90; horário: consultar no local), com rodízio de pizzas premium, sushi e massas, e o **[FONTE #3] Leduce Gastronomia** (Asa Sul; SBS Quadra 3, Bloco B; R$ 79,90; horário: consultar no local), com rodízio de frutos do mar. Nenhum é rodízio de churrasco japonês.
 
   [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 6085 ms (R2: 5016 ms) | Custo: R$ 0.001426
-      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.9231 | taxa_alucinacao=0.0 | fora_da_base=0.0769 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
       • Busca RAG  : Fontes=['Yaki Nikuya', 'Uzuki Sushi', 'Blue Sushi'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
       • Auditoria  : Base Citados=['Blue Sushi', 'Uzuki Sushi', 'Yaki Nikuya'] | Inventados=[] | Trace ID=27fdb524eac606e486b0e328bc7c4ac1 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/27fdb524eac606e486b0e328bc7c4ac1
       • Resposta   :
@@ -932,8 +933,8 @@ Gabarito : Locais=['Casa Bari'] | Preço Máx=R$ 69.9 | Horário=Aberto todos os
       • Resposta   :
         Não sei informar esse valor. Não tenho certeza de nenhum estabelecimento em Taguatinga que ofereça, num sábado, rodízio de pizza **com buffet de mini burger**, nem do preço médio por pessoa, endereço ou horário. Para não inventar informação, não vou recomendar lugares específicos nem estimar preço. Sugiro confirmar diretamente com pizzarias/rodízios de Taguatinga por telefone ou Instagram, perguntando se há essa combinação aos sábados e qual o valor atualizado.
 
-  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 13 ms (R2: 19 ms) | Custo: R$ 0.001140
-      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.8 | taxa_alucinacao=0.2 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 13 ms (R2: 19 ms) | Custo: R$ 0.000000
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['Restaurante Dona Cleide', 'Casa Bari', 'Vitorino'] | recall@3=1.0 | mrr=0.5 | pos_gabarito=2
       • Auditoria  : Base Citados=['Restaurante Dona Cleide', 'Casa Bari', 'Vitorino'] | Inventados=[] | Trace ID=afdbf1096b77b15886f5dc6a2da118ed | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/afdbf1096b77b15886f5dc6a2da118ed
       • Resposta   :
@@ -993,8 +994,8 @@ Gabarito : Locais=['Vale Encantado'] | Preço Máx=R$ 19.9 | Horário=Estreia em
         
         Não consigo indicar 3 lugares com nome, região administrativa, endereço, preço médio e horário sem ter certeza desses dados.
 
-  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 24 ms (R2: 15 ms) | Custo: R$ 0.001080
-      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.8571 | taxa_alucinacao=0.1429 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 24 ms (R2: 15 ms) | Custo: R$ 0.000000
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['Vitorino', 'Vale Encantado', 'ExpoFlores 2026'] | recall@3=1.0 | mrr=0.5 | pos_gabarito=2
       • Auditoria  : Base Citados=['Vitorino', 'ExpoFlores 2026', 'Vale Encantado'] | Inventados=[] | Trace ID=97dd908fc7a40657f66779e916f7b92f | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/97dd908fc7a40657f66779e916f7b92f
       • Resposta   :
@@ -1072,7 +1073,7 @@ Gabarito : Locais=['Saguari Gastro House'] | Preço Máx=R$ 24.9 | Horário=Exec
         
         Uma alternativa segura é procurar, no dia, restaurantes de comida caseira/self-service por quilo em Samambaia e confirmar o preço do executivo por telefone ou WhatsApp antes de ir. Peça o valor fechado do prato do dia e se há taxa de serviço; assim você não passa dos R$ 30. Se quiser, posso montar um roteiro de perguntas para ligar e confirmar.
 
-  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 16 ms (R2: 26 ms) | Custo: R$ 0.000170
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 16 ms (R2: 26 ms) | Custo: R$ 0.000000
       • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=None | taxa_alucinacao=None | fora_da_base=None | precisao_ra=None | abstencao=1.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=[] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
       • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=64689307c169d2e8900412a666643943 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/64689307c169d2e8900412a666643943
@@ -1094,7 +1095,7 @@ Gabarito : Locais=['Saguari Gastro House'] | Preço Máx=R$ 24.9 | Horário=Exec
         Não encontrei na base de 93 lugares do DF nenhum lugar que atenda bem a esse pedido (maior aderência 0,62, abaixo do mínimo de 0,65). Para não recomendar um lugar aleatório, prefiro não sugerir nada. Tente descrever o tipo de rolê, a região ou o clima.
 
   [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 4823 ms (R2: 5501 ms) | Custo: R$ 0.001509
-      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.9231 | taxa_alucinacao=0.0 | fora_da_base=0.0769 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['Saguari Gastro House', 'Espaguete', 'Casa Bar'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
       • Auditoria  : Base Citados=['Espaguete', 'Saguari Gastro House', 'Casa Bar', 'Casa Bari'] | Inventados=[] | Trace ID=d7b8d0aa28a389fa28f3b5ba034f8d54 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/d7b8d0aa28a389fa28f3b5ba034f8d54
       • Resposta   :
@@ -1137,7 +1138,7 @@ Gabarito : Locais=['Restaurante do Daniel'] | Preço Máx=R$ 32.99 | Horário=Se
         
         Para não estourar o orçamento, sugiro confirmar por telefone/Instagram antes de ir: pergunte se há buffet à vontade na terça, o valor exato e se há taxa de serviço. Se o valor passar de R$ 30, não recomendo arriscar. Não sei indicar um lugar específico em Vicente Pires que atenda a todos esses critérios com certeza.
 
-  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 27 ms (R2: 33 ms) | Custo: R$ 0.001120
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 27 ms (R2: 33 ms) | Custo: R$ 0.000000
       • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['Restaurante do Daniel', 'New Mercadito', 'Costella Brasília'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
       • Auditoria  : Base Citados=['New Mercadito', 'Costella Brasília', 'Restaurante do Daniel'] | Inventados=[] | Trace ID=62a159bcf8c537815807515913dfc454 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/62a159bcf8c537815807515913dfc454
@@ -1169,7 +1170,7 @@ Gabarito : Locais=['Restaurante do Daniel'] | Preço Máx=R$ 32.99 | Horário=Se
         Assim, o local existe e funcionaria na terça, mas não cabe em R$ 30. Não há outro documento que atenda.
 
   [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 5339 ms (R2: 4646 ms) | Custo: R$ 0.000832
-      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.875 | taxa_alucinacao=0.125 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
       • Busca RAG  : Fontes=['Restaurante do Daniel', 'Casa Bar', 'Gordeixos Delivery'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
       • Auditoria  : Base Citados=['Restaurante do Daniel'] | Inventados=[] | Trace ID=59d2edd14af5e669d61ff061b978c7d4 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/59d2edd14af5e669d61ff061b978c7d4
       • Resposta   :
@@ -1202,15 +1203,15 @@ Gabarito : Locais=['Lefit Gelatos e Doces Saudáveis'] | Preço Máx=R$ 28.0 | H
         
         Por isso, não vou indicar nome, endereço, preço ou horário sem certeza. Se você aceitar lugares com **opções** restritas (mas não 100% do cardápio), posso tentar ajudar com alternativas mais seguras — desde que você confirme as restrições no local.
 
-  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 31 ms (R2: 17 ms) | Custo: R$ 0.001150
-      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.8889 | taxa_alucinacao=0.0 | fora_da_base=0.1111 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 31 ms (R2: 17 ms) | Custo: R$ 0.000000
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['Fábrica de Bolos Valzira', 'Denise Suítez', 'The Coffee Talk'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
       • Auditoria  : Base Citados=['Fábrica de Bolos Valzira', 'Denise Suítez', 'The Coffee Talk'] | Inventados=[] | Trace ID=9ef88c3476c64b10520d8501958ae2be | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/9ef88c3476c64b10520d8501958ae2be
       • Resposta   :
         Para o seu pedido (Quero uma gelateria ou doceria aconchegante em Brasília onde tudo seja sem trigo, sem lactose e sem açúcar refinado. Qual é e em que horário abre?), a recomendação oficial na base auditada do TikTok é o 'Fábrica de Bolos Valzira' em Águas Claras (Águas Claras — Águas Claras, Distrito Federal, Região Centro-Oeste, Brasil)! Loja de bolos com preços acessíveis, oferecendo fatias a partir de R$ 6,90 e bolos no pote por R$ 12,90, com destaque para coberturas gratuitas e opções variadas como red velvet e frutas vermelhas. O ambiente é acolhedor, com recepção feita por um cachorro da dona, criando uma experiência simpática e descontraída. Preço médio estimado: R$ 12.9 (Barato ($)). Outras opções auditadas no DF: Denise Suítez (Vicente Pires), The Coffee Talk (Plano Piloto (Asa Sul)).
 
   [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 2729 ms (R2: 3354 ms) | Custo: R$ 0.001205
-      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.9231 | taxa_alucinacao=0.0769 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['Fábrica de Bolos Valzira', 'Denise Suítez', 'The Coffee Talk'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
       • Auditoria  : Base Citados=['Fábrica de Bolos Valzira', 'Denise Suítez', 'The Coffee Talk'] | Inventados=[] | Trace ID=02f18eac9de14706fd7b2bdfcbfe451d | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/02f18eac9de14706fd7b2bdfcbfe451d
       • Resposta   :
@@ -1223,7 +1224,7 @@ Gabarito : Locais=['Lefit Gelatos e Doces Saudáveis'] | Preço Máx=R$ 28.0 | H
         Não sei informar restrições alimentares nem horários exatos, pois não constam nos documentos.
 
   [5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto) | Latência R1: 4829 ms (R2: 5240 ms) | Custo: R$ 0.001566
-      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.9286 | taxa_alucinacao=0.0714 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['Fábrica de Bolos Valzira', 'Denise Suítez', 'The Coffee Talk'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
       • Auditoria  : Base Citados=['Fábrica de Bolos Valzira', 'Denise Suítez', 'The Coffee Talk'] | Inventados=[] | Trace ID=a458347e98d1a36d1f4627ad5d4a46c4 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/a458347e98d1a36d1f4627ad5d4a46c4
       • Resposta   :
@@ -1278,8 +1279,8 @@ Gabarito : Locais=['Vila Carioca'] | Preço Máx=R$ 59.97 | Horário=Feijoada à
       • Resposta   :
         Não sei indicar com segurança um restaurante em Águas Claras que ofereça, aos sábados, feijoada à vontade **e** brinquedoteca com monitora. Não tenho dados confirmados de nome, endereço, preço médio por pessoa nem horário de funcionamento para esse combo. Para não inventar informação, não vou recomendar lugares aleatórios. Sugiro confirmar diretamente com restaurantes de Águas Claras por telefone/Instagram se têm feijoada aos sábados, espaço kids e monitora nesse dia. Se você aceitar opções sem brinquedoteca com monitora, posso tentar ajudar com outros critérios.
 
-  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 18 ms (R2: 16 ms) | Custo: R$ 0.001190
-      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.8333 | taxa_alucinacao=0.1667 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 18 ms (R2: 16 ms) | Custo: R$ 0.000000
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['Restaurante Dona Cleide', 'Vila Carioca', 'Peixe na Rede'] | recall@3=1.0 | mrr=0.5 | pos_gabarito=2
       • Auditoria  : Base Citados=['Restaurante Dona Cleide', 'Vila Carioca', 'Peixe na Rede'] | Inventados=[] | Trace ID=cab893187080959c56a0cb09ce662724 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/cab893187080959c56a0cb09ce662724
       • Resposta   :
@@ -1311,7 +1312,7 @@ Gabarito : Locais=['Vila Carioca'] | Preço Máx=R$ 59.97 | Horário=Feijoada à
         O Restaurante Dona Cleide também tem brinquedoteca com monitora e fica em Águas Claras, mas o foco é rodízio de caldos e pizzas, não feijoada [FONTE #1]. O Peixe na Rede tem brinquedoteca, mas não indica feijoada e é mais caro [FONTE #3].
 
   [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 5295 ms (R2: 5295 ms) | Custo: R$ 0.001217
-      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.9091 | taxa_alucinacao=0.0 | fora_da_base=0.0909 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
       • Busca RAG  : Fontes=['Vila Carioca', 'Restaurante Dona Cleide', 'Peixe na Rede'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
       • Auditoria  : Base Citados=['Restaurante Dona Cleide', 'Vila Carioca', 'Peixe na Rede'] | Inventados=[] | Trace ID=a7600851c94a0e6f1737bf48d4952eb5 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/a7600851c94a0e6f1737bf48d4952eb5
       • Resposta   :
@@ -1346,15 +1347,15 @@ Gabarito : Locais=['Lucca Restaurante'] | Preço Máx=R$ 89.0 | Horário=Jantar 
         
         Para não errar, sugiro confirmar diretamente em restaurantes do **Plano Piloto** próximos à Torre de TV/Setor Hoteleiro Norte se há buffet de massas às terças. Se você aceitar outras regiões administrativas ou um jantar à la carte (sem buffet), posso recomendar opções com mais segurança.
 
-  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 6 ms (R2: 13 ms) | Custo: R$ 0.001170
-      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.8571 | taxa_alucinacao=0.1429 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 6 ms (R2: 13 ms) | Custo: R$ 0.000000
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['Farol Restaurante', 'Dudu Bar', 'Farol Gastronomia'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
       • Auditoria  : Base Citados=['Farol Restaurante', 'Dudu Bar', 'Farol Gastronomia'] | Inventados=[] | Trace ID=bd39e398b714634b182b8a68e327b239 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/bd39e398b714634b182b8a68e327b239
       • Resposta   :
         Para o seu pedido (Quero um jantar romântico a dois num restaurante chique ao lado da Torre de TV numa terça, com buffet de massas frescas. Onde é e quanto custa por pessoa?), a recomendação oficial na base auditada do TikTok é o 'Farol Restaurante' em Lago Sul (Lago Paranoá (Yacht Club), Brasília - DF)! Buffet de almoço à vontade comandado pelo chef Tiago Paraíso, com opções variadas como moqueca e feijoada completa. Ambiente na beira do lago dentro do Yacht Club, oferecendo também um menu degustação de três etapas à noite. Preço médio estimado: R$ 59.9 (Moderado ($$)). Outras opções auditadas no DF: Dudu Bar (Plano Piloto (Asa Sul)), Farol Gastronomia (Lago Sul).
 
   [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 3414 ms (R2: 3414 ms) | Custo: R$ 0.001270
-      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.9231 | taxa_alucinacao=0.0769 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['Farol Restaurante', 'Dudu Bar', 'Farol Gastronomia'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
       • Auditoria  : Base Citados=['Farol Restaurante', 'Dudu Bar', 'Farol Gastronomia'] | Inventados=[] | Trace ID=8cc34c2328bbfd34225ad1c23cff48e3 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/8cc34c2328bbfd34225ad1c23cff48e3
       • Resposta   :
@@ -1367,7 +1368,7 @@ Gabarito : Locais=['Lucca Restaurante'] | Preço Máx=R$ 89.0 | Horário=Jantar 
         Não sei informar endereço, preço ou horário de um lugar que corresponda exatamente ao que você procura.
 
   [5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto) | Latência R1: 5724 ms (R2: 5724 ms) | Custo: R$ 0.001430
-      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.8182 | taxa_alucinacao=0.1818 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
       • Busca RAG  : Fontes=['Farol Restaurante', 'Dudu Bar', 'Farol Gastronomia'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
       • Auditoria  : Base Citados=['Farol Restaurante', 'Dudu Bar', 'Farol Gastronomia'] | Inventados=[] | Trace ID=fd37c63a6d5d98fdffb0420e7b6dcf84 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/fd37c63a6d5d98fdffb0420e7b6dcf84
       • Resposta   :
@@ -1381,7 +1382,7 @@ Gabarito : Locais=['Lucca Restaurante'] | Preço Máx=R$ 89.0 | Horário=Jantar 
         Nenhum informa buffet de massas frescas nem localização ao lado da Torre de TV. Portanto, não sei indicar um lugar que cumpra seu pedido com base nos documentos.
 
   [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 5226 ms (R2: 5226 ms) | Custo: R$ 0.001282
-      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.8571 | taxa_alucinacao=0.0 | fora_da_base=0.1429 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
+      • Scores     : acerto_gabarito=1.0 | fidelidade_rnf03=0.875 | taxa_alucinacao=0.0 | fora_da_base=0.125 | precisao_ra=1.0 | abstencao=0.0 | sla_rnf14=0.0
       • Busca RAG  : Fontes=['Lucca Restaurante', 'Restaurante Tete a Tete', 'Espaguete'] | recall@3=1.0 | mrr=1.0 | pos_gabarito=1
       • Auditoria  : Base Citados=['Lucca Restaurante'] | Inventados=[] | Trace ID=bb6f403965d95a8addf9bad982dd5142 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/bb6f403965d95a8addf9bad982dd5142
       • Resposta   :
@@ -1426,29 +1427,29 @@ Gabarito : Locais=['Blue Sushi'] | Preço Máx=R$ 109.99 | Horário=Todos os dia
         
         Se você aceitar uma opção paga, posso montar uma lista com 3 lugares usando apenas dados que eu saiba — mas, para endereço/preço/horário exatos, o ideal é checar na fonte oficial.
 
-  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 11 ms (R2: 50 ms) | Custo: R$ 0.000100
-      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=1.0 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 11 ms (R2: 50 ms) | Custo: R$ 0.000000
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=[] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
       • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=23d281d77f2c734304e887886f566826 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/23d281d77f2c734304e887886f566826
       • Resposta   :
         Nenhum lugar da base é grátis: o mais barato custa, em média, R$ 1,99. Quer aumentar o limite?
 
   [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 5 ms (R2: 8 ms) | Custo: R$ 0.000000
-      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=1.0 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=[] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
       • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=57611e641b4f4b008daf871dfe3358f0 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/57611e641b4f4b008daf871dfe3358f0
       • Resposta   :
         Nenhum lugar da base é grátis: o mais barato custa, em média, R$ 1,99. Quer aumentar o limite?
 
   [5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto) | Latência R1: 15 ms (R2: 21 ms) | Custo: R$ 0.000000
-      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=1.0 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=[] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
       • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=8b029d54bc38320895d29de69f2a4904 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/8b029d54bc38320895d29de69f2a4904
       • Resposta   :
         Nenhum lugar da base é grátis: o mais barato custa, em média, R$ 1,99. Quer aumentar o limite?
 
   [6] RAG + LLM, busca vetorial (6_rag_llm_busca_vetorial) | Latência R1: 19 ms (R2: 23 ms) | Custo: R$ 0.000000
-      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.0 | taxa_alucinacao=1.0 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=[] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
       • Auditoria  : Base Citados=[] | Inventados=[] | Trace ID=bdc3b5acbfe3e7e7c43c005bb0335321 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/bdc3b5acbfe3e7e7c43c005bb0335321
       • Resposta   :
@@ -1485,15 +1486,15 @@ Gabarito : Locais=['Brasa Meat Burger'] | Preço Máx=R$ 30.0 | Horário=Segunda
         
         Se você aceitar alternativas fora do Noroeste ou outro tipo de rolê baratinho, posso tentar lembrar opções — mas só passo nome/endereço/preço/horário se eu tiver certeza.
 
-  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 32 ms (R2: 9 ms) | Custo: R$ 0.001230
-      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.8333 | taxa_alucinacao=0.1667 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+  [3] RAG sem LLM (busca + texto fixo da semana 2) (3_rag_sem_llm_texto_fixo) | Latência R1: 32 ms (R2: 9 ms) | Custo: R$ 0.000000
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['Mr. John', 'Detroit American Steakhouse', 'Meatz Asa Norte'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
       • Auditoria  : Base Citados=['Mr. John', 'Detroit American Steakhouse', 'Meatz Asa Norte'] | Inventados=[] | Trace ID=b50e1fc30d32f018e34e5c090a8a25ee | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/b50e1fc30d32f018e34e5c090a8a25ee
       • Resposta   :
         Para o seu pedido (Saindo do trampo na Asa Norte, ali perto da tesourinha, bora num rolê baratinho de espetinho na brasa no Noroeste numa segunda? Coisa de uns 30 conto.), a recomendação oficial na base auditada do TikTok é o 'Mr. John' em Plano Piloto (Asa Norte) (Asa Norte 203 Norte — Caminito Parrilla Asa Norte, CLN 402/403, SQN 403, Asa Norte, Brasília, Plano Piloto, Dist)! Lanternagem de hamburgueria com pegada americana oferecendo smash burgers grandes e criativos, como os de queijo coalho e tropical. O ambiente é animado e os preços são acessíveis, com hambúrgueres a partir de R$ 24,99 e milkshakes gigantes por R$ 23,00. Preço médio estimado: R$ 24.99 (Barato ($)). Outras opções auditadas no DF: Detroit American Steakhouse (Plano Piloto (Asa Norte)), Meatz Asa Norte (Plano Piloto (Asa Norte)).
 
   [4] RAG + LLM, busca léxica (4_rag_llm_busca_lexica) | Latência R1: 3620 ms (R2: 3620 ms) | Custo: R$ 0.001396
-      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.8182 | taxa_alucinacao=0.1818 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['Mr. John', 'Detroit American Steakhouse', 'Meatz Asa Norte'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
       • Auditoria  : Base Citados=['Mr. John', 'Detroit American Steakhouse', 'Meatz Asa Norte'] | Inventados=[] | Trace ID=7e360d3dd9cae744121f8e4772b53133 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/7e360d3dd9cae744121f8e4772b53133
       • Resposta   :
@@ -1506,7 +1507,7 @@ Gabarito : Locais=['Brasa Meat Burger'] | Preço Máx=R$ 30.0 | Horário=Segunda
         Não sei informar sobre espetinhos no Noroeste.
 
   [5] RAG + LLM, busca léxica, raciocínio alto (5_rag_llm_busca_lexica_raciocinio_alto) | Latência R1: 4807 ms (R2: 4807 ms) | Custo: R$ 0.001722
-      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=0.8 | taxa_alucinacao=0.2 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
+      • Scores     : acerto_gabarito=0.0 | fidelidade_rnf03=1.0 | taxa_alucinacao=0.0 | fora_da_base=0.0 | precisao_ra=0.0 | abstencao=0.0 | sla_rnf14=1.0
       • Busca RAG  : Fontes=['Mr. John', 'Detroit American Steakhouse', 'Meatz Asa Norte'] | recall@3=0.0 | mrr=0.0 | pos_gabarito=None
       • Auditoria  : Base Citados=['Mr. John', 'Detroit American Steakhouse', 'Meatz Asa Norte'] | Inventados=[] | Trace ID=47277f8c427c4cc5bb0c8433a5830071 | Trace URL=https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/47277f8c427c4cc5bb0c8433a5830071
       • Resposta   :
