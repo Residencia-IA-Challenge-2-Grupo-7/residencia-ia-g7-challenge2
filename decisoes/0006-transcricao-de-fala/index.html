@@ -1,0 +1,1378 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentação Oficial de Engenharia, DevOps e Arquitetura do Grupo 7 (Residência em IA Eldorado/UnB)">
+      
+      
+        <meta name="author" content="Grupo 7">
+      
+      
+        <link rel="canonical" href="https://residencia-ia-challenge-2-grupo-7.github.io/residencia-ia-g7-challenge2/decisoes/0006-transcricao-de-fala/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>0006 — Transcrição de fala (entrada por voz) - Orquestrador de Rolês — Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#0006-transcricao-de-fala-entrada-por-voz" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Orquestrador de Rolês — Docs" class="md-header__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Orquestrador de Rolês — Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              0006 — Transcrição de fala (entrada por voz)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Orquestrador de Rolês — Docs" class="md-nav__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Orquestrador de Rolês — Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guia-contribuicao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Contribuição
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arquitetura & Decisões
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Arquitetura & Decisões
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../produto/visao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visão do Produto
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../produto/requisitos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Requisitos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisões Técnicas (ADRs)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dados & RAG
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Dados & RAG
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dados/esquema-base/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Esquema da Base
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dados/guia-curadoria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Curadoria
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dados/golden-dataset-semana3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Golden Dataset (Semana 3)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semanas & Entregas
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Semanas & Entregas
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../semanas/semana-01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 01
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../semanas/semana-02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 02
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../entregas/semana-02/RELATORIO_TECNICO_RAG_SEMANA_02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Relatório Semana 2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#contexto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contexto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#opcoes-consideradas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Opções consideradas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decisão
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#justificativa-e-evidencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Justificativa e evidências
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#riscos-e-limitacoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Riscos e limitações
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-vamos-validar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como vamos validar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resultados" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resultados
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Resultados">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#previa-com-voz-sintetica-0511-notebook-windows-cpu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prévia com voz sintética (05/11, notebook Windows, CPU)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#gravacoes-da-equipe-0511-primeira-parte" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gravações da equipe (05/11, primeira parte)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rodada-no-macbook-m4-0511" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rodada no MacBook M4 (05/11)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#historico" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Histórico
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="0006-transcricao-de-fala-entrada-por-voz">0006 — Transcrição de fala (entrada por voz)<a class="headerlink" href="#0006-transcricao-de-fala-entrada-por-voz" title="Permanent link">&para;</a></h1>
+<ul>
+<li><strong>Status:</strong> substituída pelo <a href="../0009-entrada-pelos-4-campos-de-texto/">ADR 0009</a> em 2026-11-10 (o grupo tirou a voz do app; <code>src/voz/</code> removido). Antes: proposta, com o padrão escolhido em 05/11: <strong>Groq</strong> (<code>whisper-large-v3-turbo</code>, com retenção zero). Falta a revisão do grupo e a voz dos demais integrantes</li>
+<li><strong>Data:</strong> 2026-11-05</li>
+<li><strong>Semana do roadmap:</strong> 2 (preparação). A entrada multimodal é entrega da semana 5 (RNF-12)</li>
+<li><strong>Requisitos:</strong> RF-39, RF-40 (fora deste ADR), RNF-01, RNF-07, RNF-08, RNF-12, RNF-14, RNF-15</li>
+<li><strong>Relacionado:</strong> <a href="../0007-interpretador-e-contrato-de-busca/">ADR 0007</a>, que recebe o texto transcrito</li>
+</ul>
+<h2 id="contexto">Contexto<a class="headerlink" href="#contexto" title="Permanent link">&para;</a></h2>
+<p>O RF-39 pede voz em toda conversa com a IA, pensando principalmente no Márcio, a persona com pouca prática em apps (RNF-07). A transcrição alimenta o interpretador do ADR 0007. Por isso, o que mais importa é acertar os termos que viram ação: dias, horas, valores, nomes, regiões administrativas e gírias ("rolê", "bora", "rachar", "conto", "pila").</p>
+<p>Restrições que não mudam:</p>
+<ul>
+<li><strong>RNF-01:</strong> o áudio é descartado logo depois da transcrição.</li>
+<li><strong>RF-39:</strong> a transcrição sempre passa por confirmação antes de qualquer ação com data, valor ou presença. Quem confirma é a pessoa, então um erro de transcrição não vira dado sem ser visto.</li>
+<li><strong>RNF-12:</strong> o provedor é trocável por configuração.</li>
+<li><strong>RNF-14:</strong> a resposta na conversa sai em até 5 s no p90, o que inclui a transcrição e a interpretação.</li>
+<li><strong>RNF-15 e P12:</strong> os testes do MVP precisam caber em créditos gratuitos.</li>
+</ul>
+<p><strong>Hardware disponível:</strong></p>
+<ul>
+<li>notebook Windows com i5-1334U, 16 GB e sem GPU NVIDIA;</li>
+<li>um MacBook M4, acessível ao Cauan;</li>
+<li>o servidor do MVP ainda não foi escolhido.</li>
+</ul>
+<h2 id="opcoes-consideradas">Opções consideradas<a class="headerlink" href="#opcoes-consideradas" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Opção</th>
+<th>Prós</th>
+<th>Contras</th>
+<th>Viabilidade</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A. faster-whisper local</strong> (CTranslate2, int8 na CPU): <code>small</code>, <code>medium</code>, <code>large-v3-turbo</code></td>
+<td>Custo zero; o áudio não sai da máquina; roda em Windows, Linux e Mac</td>
+<td>Lento em CPU fraca: os modelos maiores podem estourar os 5 s; o servidor do MVP precisaria de CPU boa ou GPU</td>
+<td>Alta; mede-se a latência</td>
+</tr>
+<tr>
+<td><strong>B. mlx-whisper no Mac M4</strong> (<code>whisper-large-v3-turbo</code> em MLX)</td>
+<td>Usa a GPU do Apple Silicon, perto do tempo real com o modelo grande; o áudio não sai da máquina</td>
+<td>Só roda em Mac; serve para o experimento e as demonstrações, não para um servidor Linux</td>
+<td>Alta para medir, baixa como produção</td>
+</tr>
+<tr>
+<td><strong>C. Groq, <code>whisper-large-v3-turbo</code> por API</strong></td>
+<td>Muito rápido; US$ 0,04 por hora de áudio com cobrança mínima de 10 s por pedido (cerca de US$ 0,0001 por frase); tem faixa gratuita</td>
+<td>O áudio vai para terceiros nos EUA; a retenção zero precisa ser ligada nos Data Controls da conta; depende de rede e de chave</td>
+<td>Alta</td>
+</tr>
+<tr>
+<td>D. API da OpenAI (<code>gpt-4o-transcribe</code>)</td>
+<td>Costuma ter o menor erro em português</td>
+<td>Paga, sem crédito gratuito garantido; áudio para terceiros</td>
+<td>Média; fora da primeira rodada</td>
+</tr>
+<tr>
+<td>E. Web Speech API do navegador</td>
+<td>Grátis, sem servidor</td>
+<td>O Chrome manda o áudio ao Google sem controle de retenção, o Safari no iOS se comporta de outro jeito e a medição não é reproduzível</td>
+<td>Baixa</td>
+</tr>
+</tbody>
+</table>
+<p>A primeira rodada mede <strong>A, B e C</strong> (escolha do grupo em 05/11). D fica como reserva se nenhuma passar na meta de erro. E fica fora pelos problemas de privacidade e de reprodutibilidade.</p>
+<h2 id="decisao">Decisão<a class="headerlink" href="#decisao" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Família Whisper</strong>, atrás de uma interface única (<code>src/voz/</code>): <code>transcrever(áudio) → texto</code>, com o provedor escolhido em <code>src/voz/config.toml</code> (<code>faster_whisper</code>, <code>mlx_whisper</code> ou <code>groq</code>).</li>
+<li><strong>Escolha por medição, não por reputação:</strong> fica o provedor e o modelo que cumprirem as metas abaixo nas gravações da equipe, com esta ordem de desempate: (1) erro nos termos críticos, (2) p90 de latência, (3) privacidade (local antes de API) e (4) custo.</li>
+<li><strong>Padrão (escolhido em 05/11, depois das medições): Groq, <code>whisper-large-v3-turbo</code></strong>, com a retenção zero ligada na conta. Ele tem o mesmo acerto do melhor modelo local grande, com p90 abaixo de 1 s, roda em qualquer servidor sem GPU e custa cerca de US$ 0,0001 por frase.</li>
+<li><strong>Opção local:</strong> MLX <code>whisper-medium</code> num Mac com Apple Silicon, para demonstrações e testes sem mandar áudio a terceiros.</li>
+<li><strong>Descartado:</strong> faster-whisper na CPU. O <code>small</code> erra demais, e os grandes passam de 3 s por frase.</li>
+<li><strong>Se o Groq falhar</strong> (rede, limite por minuto, fora do ar), não há reserva local automática: a IA pede para a pessoa repetir ou digitar (RNF-07, RNF-15). Um modelo local fraco registraria erros com aparência de acerto.</li>
+<li><strong>Revisão da escolha:</strong> com as gravações dos outros integrantes, ou se um servidor com GPU entrar no plano de hospedagem.</li>
+<li>O critério de desempate (2) acima pôs a privacidade depois do acerto e da latência. Por isso o Groq ganhou do local empatado, já que o local só existe em Mac. A retenção zero e o descarte imediato reduzem o risco, mas o áudio ainda passa por um terceiro nos EUA, e isso precisa constar do aviso de privacidade (RNF-01).</li>
+<li><strong>Vocabulário do domínio no prompt inicial</strong> do Whisper: gírias, nomes de RAs e "Pix" e "Uber". O efeito é medido com e sem o prompt, porque o prompt também pode induzir alucinação em trechos de silêncio.</li>
+<li><strong>Descarte do áudio:</strong></li>
+<li>no fluxo do app, o áudio chega em bytes e vai para um arquivo temporário, apagado num <code>finally</code> depois da transcrição, com ou sem erro;</li>
+<li>nada é registrado com o áudio, nem com o texto transcrito antes da confirmação (RNF-10 guarda só eventos).</li>
+<li><strong>Confirmação sempre:</strong> quem chama a transcrição recebe só texto. A ação com data, valor ou presença sai do interpretador marcada como <code>requer_confirmacao</code> (ADR 0007).</li>
+</ol>
+<h2 id="justificativa-e-evidencias">Justificativa e evidências<a class="headerlink" href="#justificativa-e-evidencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li>O Whisper aceita português sem ajuste e tem implementações locais e por API com a mesma família de modelos. Assim, a troca de provedor muda latência, custo e privacidade, mas não o comportamento.</li>
+<li>O WER sozinho engana. "Sexta" trocado por "sesta", ou "90" por "19", vale uma palavra no WER e estraga a ação. Por isso o critério principal é o <strong>erro nos termos críticos</strong>, marcados no gabarito de cada frase. A confirmação do RF-39 é a segunda trava.</li>
+<li>Preços e retenção do Groq foram conferidos em 05/11/2026, na <a href="https://groq.com/pricing">página de preços</a> e na página <a href="https://console.groq.com/docs/your-data">Your Data</a>. As fontes divergem sobre o padrão de retenção dos endpoints de áudio, então a retenção zero precisa ser ligada explicitamente.</li>
+</ul>
+<h2 id="riscos-e-limitacoes">Riscos e limitações<a class="headerlink" href="#riscos-e-limitacoes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Risco</th>
+<th>Ligação</th>
+<th>Mitigação</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sotaque, ruído e gíria derrubam o acerto</td>
+<td>R-09, RNF-08</td>
+<td>Gravações reais da equipe, em ambiente comum; vocabulário no prompt; confirmação do RF-39; tudo que se faz por voz também se faz por texto (RNF-07)</td>
+</tr>
+<tr>
+<td>Voz é dado pessoal</td>
+<td>RNF-01</td>
+<td>Descarte imediato no app. As gravações de teste só com consentimento escrito, fora do git, apagadas depois da medição final, com os nomes trocados por m1 a m5 nos arquivos</td>
+</tr>
+<tr>
+<td>Áudio enviado ao Groq</td>
+<td>RNF-01</td>
+<td>Retenção zero ligada; a medição diz se o ganho justifica a API; o padrão local continua disponível</td>
+</tr>
+<tr>
+<td>Latência local em servidor sem GPU</td>
+<td>RNF-14</td>
+<td>Medida no notebook (pior caso) e no M4; se nenhum local cumprir a meta, a API vira o padrão e o local a reserva (RNF-15)</td>
+</tr>
+<tr>
+<td>Medição com só 5 vozes</td>
+<td>—</td>
+<td>Resultado reportado com intervalo de confiança; o teste com usuários do MVP mede de novo</td>
+</tr>
+<tr>
+<td>Voz sintética parece mais fácil do que é</td>
+<td>—</td>
+<td>O TTS (vozes pt-BR do Windows e do macOS) só testa o pipeline e a latência; não entra no WER oficial</td>
+</tr>
+</tbody>
+</table>
+<h2 id="como-vamos-validar">Como vamos validar<a class="headerlink" href="#como-vamos-validar" title="Permanent link">&para;</a></h2>
+<p><strong>Conjunto:</strong> as 50 frases de <a href="../../eval/interpretador/frases.jsonl">eval/interpretador/frases.jsonl</a>, 10 lidas por cada um dos 5 integrantes (<a href="../../eval/voz/roteiro.md">roteiro de gravação</a>). Cada frase tem o texto exato e a lista de termos críticos.</p>
+<table>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Como medir</th>
+<th>Meta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Erro nos termos críticos</td>
+<td>Termos do gabarito ausentes na transcrição normalizada ÷ termos críticos</td>
+<td>≤ 5%</td>
+</tr>
+<tr>
+<td>WER</td>
+<td>Distância de edição por palavra, com texto normalizado (minúsculas, sem pontuação, números por extenso viram dígitos)</td>
+<td>≤ 15%</td>
+</tr>
+<tr>
+<td>Latência</td>
+<td>Tempo da transcrição com o modelo já carregado, p50 e p90 por frase</td>
+<td>p90 ≤ 2,5 s, metade do orçamento do RNF-14</td>
+</tr>
+<tr>
+<td>Custo</td>
+<td>Local: zero. API: preço por hora × duração faturada (mínimo de 10 s)</td>
+<td>Dentro dos créditos gratuitos (P12)</td>
+</tr>
+<tr>
+<td>Acerto da intenção a partir da voz</td>
+<td>O interpretador do ADR 0007 aplicado à transcrição</td>
+<td>Diferença de no máximo 5 pontos para o acerto com o texto digitado</td>
+</tr>
+</tbody>
+</table>
+<p>Como rodar: <code>python -m voz medir</code> (<a href="../../src/voz/README.md">src/voz/README.md</a>). Os resultados vão para <code>eval/resultados/</code>.</p>
+<h2 id="resultados">Resultados<a class="headerlink" href="#resultados" title="Permanent link">&para;</a></h2>
+<h3 id="previa-com-voz-sintetica-0511-notebook-windows-cpu">Prévia com voz sintética (05/11, notebook Windows, CPU)<a class="headerlink" href="#previa-com-voz-sintetica-0511-notebook-windows-cpu" title="Permanent link">&para;</a></h3>
+<p><strong>Condições da prévia:</strong></p>
+<ul>
+<li>só testa o pipeline e a latência; não é o resultado oficial;</li>
+<li>50 frases lidas pela voz "Microsoft Maria Desktop" (local);</li>
+<li>faster-whisper com int8, feixe 1, VAD e 8 threads, no i5-1334U sem GPU;</li>
+<li>detalhes por frase em <a href="../../eval/resultados/">eval/resultados/</a>.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Modelo</th>
+<th>Prompt de vocabulário</th>
+<th>WER</th>
+<th>Erro nos termos críticos</th>
+<th>Latência p50 / p90</th>
+<th>Tempo ÷ duração</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>small</code></td>
+<td>sim</td>
+<td>5,1%</td>
+<td>7,2% (9 frases)</td>
+<td>4,2 / 5,5 s</td>
+<td>1,0</td>
+</tr>
+<tr>
+<td><code>small</code></td>
+<td>não</td>
+<td>7,6%</td>
+<td>10,8% (12 frases)</td>
+<td>3,1 / 3,8 s</td>
+<td>0,8</td>
+</tr>
+<tr>
+<td><code>medium</code></td>
+<td>sim</td>
+<td>7,3%</td>
+<td>5,0% (7 frases)</td>
+<td>10,4 / 11,0 s</td>
+<td>2,3</td>
+</tr>
+<tr>
+<td><code>large-v3-turbo</code></td>
+<td>sim</td>
+<td>4,1%</td>
+<td>3,6% (5 frases)</td>
+<td>16,3 / 17,5 s</td>
+<td>3,6</td>
+</tr>
+<tr>
+<td><strong>Groq</strong> <code>whisper-large-v3-turbo</code></td>
+<td>sim</td>
+<td>3,8%</td>
+<td>3,6% (5 frases)</td>
+<td>0,8 / 1,0 s</td>
+<td>0,2</td>
+</tr>
+</tbody>
+</table>
+<p>O Groq custou US$ 0,0056 pelas 50 frases, porque cada pedido é cobrado por no mínimo 10 s. O plano gratuito devolveu HTTP 429 depois de cerca de 20 pedidos seguidos. Por isso, a transcrição tenta de novo respeitando o <code>retry-after</code>, e a medição faz uma pausa de 3,5 s entre os pedidos, fora do tempo medido.</p>
+<p><strong>Caminho completo com voz sintética</strong> (Groq e depois o interpretador do ADR 0007): 32 de 34 frases certas no RNF-08 (94,1%), contra 33 de 34 com o texto digitado. A diferença está dentro da meta de 5 pontos. Os dois erros que a voz acrescentou:</p>
+<ul>
+<li>"Aza Sul": a RA não casou;</li>
+<li>"Só de noite?": a interrogação fez a frase virar conversa.</li>
+</ul>
+<p>A transcrição levou até 1 s e a interpretação até 2,1 s, ambas no p90, dentro dos 5 s do RNF-14.</p>
+<p><strong>Leitura:</strong></p>
+<ul>
+<li><strong>Nenhum modelo local cumpre a latência neste notebook.</strong> As latências são pessimistas, porque outra sessão usava cerca de um núcleo durante a rodada. Isolado, com a máquina livre, o <code>small</code> levou cerca de 2,5 s por frase. O piso vem do Whisper, que sempre codifica uma janela de 30 s: frase curta custa quase o mesmo que frase longa.</li>
+<li><strong>O <code>large-v3-turbo</code> é o único abaixo da meta de 5% nos termos críticos</strong>, mas leva mais de 16 s na CPU. Para usá-lo, ele precisa de GPU (o M4 ou um servidor) ou da API do Groq.</li>
+<li><strong>"Sexta" virou "6."</strong> no <code>small</code> (D01, D16, M01, P02). Some com o <code>large-v3-turbo</code>. É um erro que muda o dia da ação e que o WER conta como uma palavra.</li>
+<li><strong>O prompt de vocabulário ajuda:</strong> sem ele, o <code>small</code> perdeu "Ceilândia", "Sudoeste", "Airbnb", "chácara" e "conto". O erro nos termos críticos subiu de 7,2% para 10,8%, e ele fica ligado.</li>
+<li><strong>Gírias seguem difíceis:</strong> "topa", "vamo", "liso" e "pila" falharam em quase todos. Parte disso é a voz sintética, que pronuncia gíria mal, e as gravações reais vão dizer quanto.</li>
+<li><strong>Decodificação:</strong> chamar o ffmpeg como processo custava mais de 1 s por frase no Windows. O PyAV no mesmo processo leva cerca de 15 ms, com a mesma saída.</li>
+</ul>
+<p><strong>Consequência provisória:</strong> com voz sintética, o Groq cumpre todas as metas: 3,6% de erro nos termos críticos, p90 de 1,0 s e custo desprezível. O <code>large-v3-turbo</code> local só empata no acerto com GPU (M4), e o <code>small</code> local fica como reserva sem rede. Trocar o padrão da configuração para o Groq depende de duas coisas:</p>
+<ul>
+<li>a retenção zero ligada na conta;</li>
+<li>a confirmação do resultado com as gravações reais.</li>
+</ul>
+<h3 id="gravacoes-da-equipe-0511-primeira-parte">Gravações da equipe (05/11, primeira parte)<a class="headerlink" href="#gravacoes-da-equipe-0511-primeira-parte" title="Permanent link">&para;</a></h3>
+<p><strong>Condições:</strong></p>
+<ul>
+<li>22 gravações de <strong>uma só pessoa</strong> (m1), em celular, das 50 frases;</li>
+<li>o Groq já com a retenção zero ligada;</li>
+<li>o <code>small</code> no notebook Windows, com a máquina livre;</li>
+<li>falta a voz dos outros integrantes;</li>
+<li>detalhes por frase em <a href="../../eval/resultados/">eval/resultados/</a>.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Provedor e modelo</th>
+<th>WER</th>
+<th>Erro nos termos críticos</th>
+<th>Latência p50 / p90</th>
+<th>Custo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Groq</strong> <code>whisper-large-v3-turbo</code></td>
+<td>11,5%</td>
+<td>5,9% (4 frases)</td>
+<td>0,7 / 0,8 s</td>
+<td>US$ 0,0024</td>
+</tr>
+<tr>
+<td>faster-whisper <code>small</code> (CPU)</td>
+<td>15,7%</td>
+<td>13,2% (8 frases)</td>
+<td>2,0 / 2,1 s</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Leitura:</strong></p>
+<ul>
+<li><strong>A voz real é mais difícil que a sintética.</strong> O WER do Groq subiu de 3,8% para 11,5%, mas o erro nos termos críticos ficou perto da meta (5,9% contra 5%).</li>
+<li><strong>Erros do Groq que importam:</strong> "Itaguatinga" (Taguatinga) e "livre de todo" (dia todo). "Vamos" e "ignora", no lugar de "vamo" e "ignore", podem ter sido ditos assim e não mudam a ação.</li>
+<li><strong>O <code>small</code> erra o que muda a ação:</strong> "sexta" virou "6º" e "cesta", "Caio" virou "caiu", "cem" virou "sem", "Bia" virou "via". Fica descartado como modelo principal.</li>
+<li><strong>Caminho completo</strong> (Groq e depois o interpretador do ADR 0007): as 13 frases de disponibilidade e gastos certas. O interpretador entendeu até "livre de todo". O único erro foi "Itaguatinga", que não casou com a RA.</li>
+</ul>
+<h3 id="rodada-no-macbook-m4-0511">Rodada no MacBook M4 (05/11)<a class="headerlink" href="#rodada-no-macbook-m4-0511" title="Permanent link">&para;</a></h3>
+<p>As mesmas 22 gravações, medidas no M4 por outra sessão (commit <code>04d1b83</code>, só resultados). O erro nos termos críticos foi recalculado com o gabarito atual, para todas as linhas ficarem comparáveis.</p>
+<table>
+<thead>
+<tr>
+<th>Máquina</th>
+<th>Provedor e modelo</th>
+<th>WER</th>
+<th>Erro nos termos críticos</th>
+<th>Latência p50 / p90</th>
+<th>Caminho completo: RNF-08</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M4 (GPU)</td>
+<td><strong>MLX <code>whisper-medium</code></strong></td>
+<td><strong>7,3%</strong></td>
+<td><strong>2,9% (2 frases)</strong></td>
+<td>0,77 / 0,88 s</td>
+<td>13/13</td>
+</tr>
+<tr>
+<td>M4 (GPU)</td>
+<td>MLX <code>whisper-medium</code>, sem prompt</td>
+<td>9,4%</td>
+<td>7,4% (5 frases)</td>
+<td>0,74 / 0,86 s</td>
+<td>—</td>
+</tr>
+<tr>
+<td>M4 (GPU)</td>
+<td>MLX <code>whisper-large-v3-turbo</code></td>
+<td>12,0%</td>
+<td>5,9% (4 frases)</td>
+<td>0,94 / 0,98 s</td>
+<td>13/13</td>
+</tr>
+<tr>
+<td>M4 (GPU)</td>
+<td>MLX <code>whisper-small</code></td>
+<td>16,2%</td>
+<td>11,8% (7 frases)</td>
+<td>0,27 / 0,30 s</td>
+<td>—</td>
+</tr>
+<tr>
+<td>M4 (CPU)</td>
+<td>faster-whisper <code>large-v3-turbo</code></td>
+<td>12,6%</td>
+<td>7,4% (5 frases)</td>
+<td>3,66 / 3,76 s</td>
+<td>—</td>
+</tr>
+<tr>
+<td>M4 (CPU)</td>
+<td>faster-whisper <code>small</code></td>
+<td>15,2%</td>
+<td>14,7% (9 frases)</td>
+<td>0,82 / 0,91 s</td>
+<td>12/13</td>
+</tr>
+<tr>
+<td>API</td>
+<td>Groq <code>whisper-large-v3-turbo</code></td>
+<td>11,5%</td>
+<td>5,9% (4 frases)</td>
+<td>0,71 / 0,80 s</td>
+<td>13/13</td>
+</tr>
+<tr>
+<td>Windows (CPU)</td>
+<td>faster-whisper <code>small</code></td>
+<td>15,7%</td>
+<td>13,2% (8 frases)</td>
+<td>2,0 / 2,1 s</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>Com voz sintética (Luciana, 50 frases), o MLX <code>large-v3-turbo</code> errou 3,6% dos termos críticos, como o Groq, e o MLX <code>medium</code> errou 6,5%.</p>
+<p><strong>Leitura:</strong></p>
+<ul>
+<li><strong>Na GPU do M4, os modelos locais cumprem a latência</strong>, com p90 abaixo de 1 s. Na CPU, só o <code>small</code> cumpre, e ele erra demais.</li>
+<li><strong>O MLX <code>medium</code> teve o menor erro nas gravações reais</strong> (2,9%). As duas frases que falharam foram "vamo" e "ignore", que podem ter sido ditas como "vamos" e "ignora". Mas a vantagem sobre o Groq é de 2 frases em 22, de uma só voz, e com voz sintética o <code>medium</code> foi pior. Isso não sustenta uma escolha.</li>
+<li><strong>O MLX <code>large-v3-turbo</code> empatou com o Groq</strong> (5,9%), como esperado, porque é o mesmo modelo.</li>
+<li><strong>O prompt de vocabulário volta a ajudar:</strong> sem ele, o <code>medium</code> perdeu "Ceilândia", "sexta" e "Caio".</li>
+<li><strong>O caminho completo cumpriu o RNF-08</strong> em todos os modelos grandes: 13 de 13. O <code>small</code> perdeu uma frase.</li>
+</ul>
+<p><strong>O que isso muda na decisão:</strong></p>
+<ul>
+<li><strong>Local com GPU fica no páreo:</strong> um modelo grande rodando no Apple Silicon alcança a API em acerto e latência, sem o áudio sair da máquina.</li>
+<li><strong>O MLX só roda em Mac.</strong> O servidor do MVP ainda não foi escolhido, e dificilmente será um Mac. No app, as opções reais são o Groq (com retenção zero) ou um servidor com GPU NVIDIA rodando faster-whisper.</li>
+<li><strong>O MLX <code>medium</code> vira a opção local</strong> para demonstrações e testes no Mac.</li>
+<li><strong>O <code>small</code> está descartado</strong> como modelo principal, em qualquer máquina.</li>
+</ul>
+<p><strong>Pendente:</strong></p>
+<ul>
+<li>as outras 28 frases e a voz dos demais integrantes, para confirmar se o <code>medium</code> ganha mesmo do <code>large-v3-turbo</code>;</li>
+<li>a escolha do padrão: Groq ou local.</li>
+</ul>
+<h2 id="historico">Histórico<a class="headerlink" href="#historico" title="Permanent link">&para;</a></h2>
+<ul>
+<li>2026-11-05: proposta, depois de três rodadas de perguntas com o Cauan (candidatos, conjunto de teste, gravações).</li>
+<li>2026-11-05: prévia com voz sintética (faster-whisper <code>small</code>, <code>medium</code> e <code>large-v3-turbo</code>, com e sem prompt).</li>
+<li>2026-11-05: Groq e <code>small</code> nas 22 primeiras gravações reais; rodada no MacBook M4 (MLX e faster-whisper).</li>
+<li>2026-11-05: Groq escolhido como padrão pelo Cauan; MLX <code>medium</code> como opção local no Mac.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "content.code.copy"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

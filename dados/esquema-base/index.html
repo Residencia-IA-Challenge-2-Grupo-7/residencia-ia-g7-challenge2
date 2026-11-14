@@ -1,0 +1,1524 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentação Oficial de Engenharia, DevOps e Arquitetura do Grupo 7 (Residência em IA Eldorado/UnB)">
+      
+      
+        <meta name="author" content="Grupo 7">
+      
+      
+        <link rel="canonical" href="https://residencia-ia-challenge-2-grupo-7.github.io/residencia-ia-g7-challenge2/dados/esquema-base/">
+      
+      
+        <link rel="prev" href="../../decisoes/">
+      
+      
+        <link rel="next" href="../guia-curadoria/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>Esquema da Base - Orquestrador de Rolês — Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#esquema-da-base-de-lugares-e-eventos" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Orquestrador de Rolês — Docs" class="md-header__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Orquestrador de Rolês — Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Esquema da Base
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Orquestrador de Rolês — Docs" class="md-nav__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Orquestrador de Rolês — Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guia-contribuicao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Contribuição
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arquitetura & Decisões
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Arquitetura & Decisões
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../produto/visao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visão do Produto
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../produto/requisitos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Requisitos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../decisoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisões Técnicas (ADRs)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dados & RAG
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Dados & RAG
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Esquema da Base
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Esquema da Base
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#regras-gerais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras gerais
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lugar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lugar
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Lugar">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#atributos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Atributos
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#evento" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evento
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#texto-que-vai-para-o-indice-vetorial" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Texto que vai para o índice vetorial
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#arquivos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arquivos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-de-dados-relacional-da-aplicacao-supabase-postgresql-semana-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo de Dados Relacional da Aplicação (Supabase / PostgreSQL) — Semana 3
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Modelo de Dados Relacional da Aplicação (Supabase / PostgreSQL) — Semana 3">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regras-de-negocio-fundamentais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras de Negócio Fundamentais:
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#diagrama-entidade-relacionamento-der" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama Entidade-Relacionamento (DER):
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guia-curadoria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Curadoria
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../golden-dataset-semana3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Golden Dataset (Semana 3)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semanas & Entregas
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Semanas & Entregas
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../semanas/semana-01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 01
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../semanas/semana-02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 02
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../entregas/semana-02/RELATORIO_TECNICO_RAG_SEMANA_02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Relatório Semana 2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#regras-gerais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras gerais
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#lugar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Lugar
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Lugar">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#atributos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Atributos
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#evento" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evento
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#texto-que-vai-para-o-indice-vetorial" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Texto que vai para o índice vetorial
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#arquivos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arquivos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#modelo-de-dados-relacional-da-aplicacao-supabase-postgresql-semana-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo de Dados Relacional da Aplicação (Supabase / PostgreSQL) — Semana 3
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Modelo de Dados Relacional da Aplicação (Supabase / PostgreSQL) — Semana 3">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#regras-de-negocio-fundamentais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras de Negócio Fundamentais:
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#diagrama-entidade-relacionamento-der" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diagrama Entidade-Relacionamento (DER):
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="esquema-da-base-de-lugares-e-eventos">Esquema da base de lugares e eventos<a class="headerlink" href="#esquema-da-base-de-lugares-e-eventos" title="Permanent link">&para;</a></h1>
+<ul>
+<li><strong>Versão:</strong> 0.1 (provisória até o piloto da semana 2), 2026-11-03</li>
+<li><strong>Decisão de origem:</strong> <a href="../../decisoes/0004-fonte-e-manutencao-da-base/">ADR 0004</a></li>
+<li><strong>Como preencher:</strong> pelo pipeline automático do <a href="../../decisoes/0005-coleta-automatica-e-base-vetorial/">ADR 0005</a>; as definições do <a href="../guia-curadoria/">guia de curadoria</a> são as regras de extração</li>
+</ul>
+<h2 id="regras-gerais">Regras gerais<a class="headerlink" href="#regras-gerais" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Todo campo volátil tem <code>fonte</code> (URL da página), <code>evidencia</code> (trecho literal de até 200 caracteres, interno, nunca exibido nem indexado) e <code>verificado_em</code> (data da última extração com evidência confirmada). A API de conferência nunca altera esses campos.</li>
+<li>Valores em reais, datas em <code>AAAA-MM-DD</code>, horários em <code>HH:MM</code> no fuso <code>America/Sao_Paulo</code>.</li>
+<li>Enumerações fechadas. Todo atributo aceita <code>sem_informacao</code>.</li>
+<li>Nenhum dado pessoal: sem telefone, e-mail, rede social ou nome de pessoa.</li>
+<li><code>metodo</code> de cada campo: <code>overture</code>, <code>extracao_site</code>, <code>extracao_agenda</code> ou <code>calculado</code>. Nenhum campo é digitado por uma pessoa.</li>
+</ul>
+<h2 id="lugar">Lugar<a class="headerlink" href="#lugar" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Observação</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>texto</td>
+<td>Identificador nosso, estável (ex.: <code>lug-0001</code>)</td>
+</tr>
+<tr>
+<td><code>nome</code></td>
+<td>texto</td>
+<td>Nome comercial, como o lugar se apresenta</td>
+</tr>
+<tr>
+<td><code>tipo_role</code></td>
+<td><code>comer_beber</code>, <code>ar_livre_gratuito</code>, <code>local_evento</code></td>
+<td>Rolê em casa não tem lugar</td>
+</tr>
+<tr>
+<td><code>categoria</code></td>
+<td><code>restaurante</code>, <code>bar</code>, <code>cafe</code>, <code>lanchonete</code>, <code>sorveteria</code>, <code>parque</code>, <code>mirante</code>, <code>feira</code>, <code>museu</code>, <code>centro_cultural</code>, <code>teatro</code>, <code>casa_de_show</code>, <code>outro</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>endereco</code></td>
+<td>texto</td>
+<td>Endereço publicado pelo próprio lugar</td>
+</tr>
+<tr>
+<td><code>ra</code>, <code>regiao</code></td>
+<td>texto</td>
+<td><code>regiao</code> conforme a tabela de 6 regiões do ADR</td>
+</tr>
+<tr>
+<td><code>lat</code>, <code>lon</code>, <code>coord_fonte</code></td>
+<td>número, número, <code>overture</code> ou <code>manual</code></td>
+<td>Nunca da Google</td>
+</tr>
+<tr>
+<td><code>site_oficial</code></td>
+<td>URL</td>
+<td>Site ou perfil oficial</td>
+</tr>
+<tr>
+<td><code>ids_externos</code></td>
+<td><code>overture_id</code>, <code>fsq_place_id</code></td>
+<td>O <code>google_place_id</code> fica em arquivo separado (ver "Arquivos")</td>
+</tr>
+<tr>
+<td><code>horarios</code></td>
+<td>lista de <code>{dia, abre, fecha}</code></td>
+<td><code>dia</code> de <code>seg</code> a <code>dom</code>. <code>fecha</code> menor que <code>abre</code> significa que passa da meia-noite. Dia sem entrada = fechado</td>
+</tr>
+<tr>
+<td><code>horarios_excecoes</code></td>
+<td>lista de <code>{data, abre, fecha}</code> ou <code>{data, fechado: true}</code></td>
+<td>Feriados e datas especiais</td>
+</tr>
+<tr>
+<td><code>horarios_fonte</code>, <code>horarios_verificado_em</code></td>
+<td>URL ou canal, data</td>
+<td></td>
+</tr>
+<tr>
+<td><code>itens_referencia</code></td>
+<td>lista de <code>{item, preco, papel}</code></td>
+<td><code>papel</code>: <code>principal</code>, <code>bebida_nao_alcoolica</code>, <code>bebida</code>, <code>porcao</code>, <code>acompanhamento</code>, <code>ingresso</code></td>
+</tr>
+<tr>
+<td><code>couvert</code>, <code>taxa_servico_pct</code>, <code>consumacao_minima</code></td>
+<td>número ou <code>null</code></td>
+<td><code>null</code> = não cobra</td>
+</tr>
+<tr>
+<td><code>precos_fonte</code>, <code>precos_verificado_em</code></td>
+<td>URL, data</td>
+<td></td>
+</tr>
+<tr>
+<td><code>custo_pessoa_min</code>, <code>custo_pessoa_tipico</code></td>
+<td>número</td>
+<td><strong>Calculados pelo script</strong> com a fórmula do guia; nunca digitados</td>
+</tr>
+<tr>
+<td><code>taxa_entrada</code></td>
+<td>número</td>
+<td>Zero quando é gratuito</td>
+</tr>
+<tr>
+<td><code>atributos</code></td>
+<td>ver abaixo</td>
+<td>Cada um com <code>sim</code>, <code>nao</code> ou <code>sem_informacao</code></td>
+</tr>
+<tr>
+<td><code>atributos_verificado_em</code></td>
+<td>data</td>
+<td></td>
+</tr>
+<tr>
+<td><code>itens_para_levar</code></td>
+<td>lista de texto</td>
+<td>Herdada da categoria (ex.: parque: água, protetor), ajustável</td>
+</tr>
+<tr>
+<td><code>status</code></td>
+<td><code>ativo</code>, <code>fechado_temporariamente</code>, <code>fechado</code>, <code>em_reconferencia</code></td>
+<td></td>
+</tr>
+<tr>
+<td><code>status_verificado_em</code>, <code>status_fonte</code></td>
+<td>data, URL ou canal</td>
+<td>Só verificação humana</td>
+</tr>
+<tr>
+<td><code>descricao</code></td>
+<td>texto de até 300 caracteres</td>
+<td>Gerada pelo LLM só a partir dos campos validados, com o modelo do guia; não copia texto do site</td>
+</tr>
+<tr>
+<td><code>licenca_origem</code></td>
+<td>texto</td>
+<td>Licença do registro da Overture (ex.: <code>CDLA-Permissive-2.0</code>)</td>
+</tr>
+<tr>
+<td><code>pipeline_versao</code>, <code>modelo_extracao</code>, <code>criado_em</code>, <code>atualizado_em</code></td>
+<td>texto, texto, data, data</td>
+<td>Rastreabilidade de quem (qual versão do pipeline) gerou o registro</td>
+</tr>
+</tbody>
+</table>
+<h3 id="atributos">Atributos<a class="headerlink" href="#atributos" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Atributo</th>
+<th>Valores</th>
+<th>Uso</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ar_livre</code></td>
+<td>sim, não, sem informação</td>
+<td>RF-44, preferências</td>
+</tr>
+<tr>
+<td><code>coberto</code></td>
+<td>sim, não, sem informação</td>
+<td>RF-46 (chuva)</td>
+</tr>
+<tr>
+<td><code>ruido</code></td>
+<td><code>baixo</code>, <code>medio</code>, <code>alto</code>, <code>sem_informacao</code></td>
+<td>RF-44</td>
+</tr>
+<tr>
+<td><code>foco_alcool</code></td>
+<td>sim, não, sem informação</td>
+<td>RNF-16</td>
+</tr>
+<tr>
+<td><code>acess_entrada_sem_degrau</code></td>
+<td>sim, não, sem informação</td>
+<td>Filtro duro (RF-17)</td>
+</tr>
+<tr>
+<td><code>acess_banheiro_adaptado</code></td>
+<td>sim, não, sem informação</td>
+<td>Filtro duro (RF-17)</td>
+</tr>
+<tr>
+<td><code>alim_vegetariano</code>, <code>alim_vegano</code>, <code>alim_sem_gluten</code>, <code>alim_sem_lactose</code></td>
+<td>sim, não, sem informação</td>
+<td>Filtro duro (RF-17); mesma lista do perfil (RF-01)</td>
+</tr>
+<tr>
+<td><code>grupo_max</code></td>
+<td>número ou <code>sem_informacao</code></td>
+<td>Salas grandes</td>
+</tr>
+<tr>
+<td><code>exige_reserva</code></td>
+<td>sim, não, sem informação</td>
+<td>Texto do plano</td>
+</tr>
+</tbody>
+</table>
+<h2 id="evento">Evento<a class="headerlink" href="#evento" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Observação</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code>, <code>local_id</code></td>
+<td>texto</td>
+<td><code>local_id</code> aponta para um lugar de <code>tipo_role = local_evento</code> ou de outro tipo (ex.: feira num parque)</td>
+</tr>
+<tr>
+<td><code>titulo</code></td>
+<td>texto</td>
+<td></td>
+</tr>
+<tr>
+<td><code>inicio</code>, <code>fim</code></td>
+<td>data e hora</td>
+<td></td>
+</tr>
+<tr>
+<td><code>preco_min</code>, <code>preco_max</code>, <code>meia_entrada</code></td>
+<td>número, número, sim ou não</td>
+<td>Zero = gratuito</td>
+</tr>
+<tr>
+<td><code>lote</code></td>
+<td>texto ou <code>null</code></td>
+<td>Lote vigente na verificação</td>
+</tr>
+<tr>
+<td><code>esgotado</code>, <code>cancelado</code></td>
+<td>sim ou não</td>
+<td></td>
+</tr>
+<tr>
+<td><code>local_alterado</code></td>
+<td>sim ou não</td>
+<td>Se sim, <code>local_id</code> já aponta para o novo local</td>
+</tr>
+<tr>
+<td><code>foco_alcool</code></td>
+<td>sim, não, sem informação</td>
+<td>RNF-16</td>
+</tr>
+<tr>
+<td><code>link_oficial</code></td>
+<td>URL</td>
+<td>Mostrado no plano ("confirme no link oficial")</td>
+</tr>
+<tr>
+<td><code>fonte</code>, <code>evidencia</code>, <code>verificado_em</code>, <code>pipeline_versao</code></td>
+<td>URL, texto, data, texto</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h2 id="texto-que-vai-para-o-indice-vetorial">Texto que vai para o índice vetorial<a class="headerlink" href="#texto-que-vai-para-o-indice-vetorial" title="Permanent link">&para;</a></h2>
+<p>Gerado pelo script, nunca escrito à mão:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>{nome} — {categoria} em {ra} ({regiao}). {descricao}
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>Ambiente: ruído {ruido}; {ao ar livre | coberto}; {com | sem} foco em álcool.
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>Preço típico por pessoa: R$ {custo_pessoa_tipico}. Opções: {lista dos atributos alimentares = sim}.
+</code></pre></div>
+<p>Os filtros (região, tipo, horário, preço, restrições) usam os campos estruturados, não o texto. Se o texto e um atributo divergirem, vale o atributo.</p>
+<h2 id="arquivos">Arquivos<a class="headerlink" href="#arquivos" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Arquivo</th>
+<th>Onde</th>
+<th>Conteúdo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>data/base/lugares.csv</code>, <code>data/base/eventos.csv</code></td>
+<td>Repositório (versionado)</td>
+<td>Exportação validada pelo script, sem dados pessoais e sem IDs da Google</td>
+</tr>
+<tr>
+<td><code>data/base/google_ids.csv</code></td>
+<td>Repositório privado, nunca em versão publicada</td>
+<td><code>id</code> → <code>google_place_id</code> e data do casamento</td>
+</tr>
+<tr>
+<td>Páginas brutas e hashes</td>
+<td>Fora do git</td>
+<td>Apagadas depois de 30 dias; só os hashes ficam</td>
+</tr>
+<tr>
+<td>PostgreSQL com pgvector</td>
+<td>Fora do git</td>
+<td>Tabelas, vetores e índices, recriáveis a partir dos CSVs (ADR 0005)</td>
+</tr>
+</tbody>
+</table>
+<p>A versão usada na comparação LLM × RAG da semana 3 é marcada com uma tag no git (<code>base-semana-03</code>).</p>
+<hr />
+<h2 id="modelo-de-dados-relacional-da-aplicacao-supabase-postgresql-semana-3">Modelo de Dados Relacional da Aplicação (Supabase / PostgreSQL) — Semana 3<a class="headerlink" href="#modelo-de-dados-relacional-da-aplicacao-supabase-postgresql-semana-3" title="Permanent link">&para;</a></h2>
+<p>Para viabilizar as 4 telas do aplicativo final, foi estruturado o esquema relacional oficial em <code>src/db/schema.sql</code> suportado pelo cliente <code>src/db/supabase_client.py</code> e modelos Pydantic em <code>src/db/models.py</code>.</p>
+<h3 id="regras-de-negocio-fundamentais">Regras de Negócio Fundamentais:<a class="headerlink" href="#regras-de-negocio-fundamentais" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Cadastro Fixo vs. Participação Dinâmica:</strong> O usuário cadastra uma vez seu perfil e seus múltiplos locais frequentes no DF (Casa, Trabalho, UnB).</li>
+<li><strong>Origem Amarrada à Janela de Horário:</strong> Como o dia do rolê ainda não foi definido, o usuário pode indicar de onde sairá em cada dia (ex: na sexta sai do Trabalho no Plano Piloto; no sábado sai de Casa em Águas Claras).</li>
+<li><strong>Blindagem de Sigilo Orçamentário (RNF-01 e RNF-02):</strong> O teto financeiro (<code>limite_gasto_rs</code>) nunca é exposto nas listagens públicas da sala, sendo usado apenas pelo mediador para calcular a <em>Menor Miséria</em>.</li>
+</ol>
+<h3 id="diagrama-entidade-relacionamento-der">Diagrama Entidade-Relacionamento (DER):<a class="headerlink" href="#diagrama-entidade-relacionamento-der" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>erDiagram
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    USUARIOS ||--o{ USUARIO_ENDERECOS : "possui locais salvos"
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    USUARIOS ||--o{ SALAS : "cria (administra)"
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    USUARIOS ||--o{ SALA_PARTICIPANTES : "participa"
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    SALAS ||--|{ SALA_PARTICIPANTES : "possui amigos"
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    SALAS ||--o{ SUGESTOES_ROLE : "recebe 3 a 4 opcoes"
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    SUGESTOES_ROLE ||--o{ VOTOS : "recebe votos"
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    SALA_PARTICIPANTES ||--o{ VOTOS : "vota em multiplas opcoes"
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    SALAS ||--o{ DESPESAS_POS_ROLE : "tem acerto de conta"
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    USUARIOS ||--o{ DESPESAS_POS_ROLE : "paga a comanda"
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    USUARIOS {
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        uuid id PK
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>        string nome
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>        string email UK
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>        string telefone
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>        boolean maior_18_anos "Exclusivo 18+ (ADR 0002)"
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>        string transporte_padrao "carro, metro_onibus, uber, misto"
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>        string restricoes_permanentes "Ex: vegetariano"
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>        string chave_pix_padrao
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>        timestamp criado_em
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>    }
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>    USUARIO_ENDERECOS {
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>        uuid id PK
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>        uuid usuario_id FK
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>        string rotulo "Casa, Trabalho, Faculdade/UnB"
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>        string regiao_ra "Qual das 35 RAs do DF"
+<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>        string ponto_referencia "Perto do metrô, quadra"
+<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>        boolean is_padrao "Marca local principal"
+<a id="__codelineno-1-31" name="__codelineno-1-31" href="#__codelineno-1-31"></a>    }
+<a id="__codelineno-1-32" name="__codelineno-1-32" href="#__codelineno-1-32"></a>
+<a id="__codelineno-1-33" name="__codelineno-1-33" href="#__codelineno-1-33"></a>    SALAS {
+<a id="__codelineno-1-34" name="__codelineno-1-34" href="#__codelineno-1-34"></a>        uuid id PK
+<a id="__codelineno-1-35" name="__codelineno-1-35" href="#__codelineno-1-35"></a>        string codigo_sala UK "Ex: ROLE123"
+<a id="__codelineno-1-36" name="__codelineno-1-36" href="#__codelineno-1-36"></a>        string nome_role "Ex: Aniversário Cadu"
+<a id="__codelineno-1-37" name="__codelineno-1-37" href="#__codelineno-1-37"></a>        uuid criador_id FK
+<a id="__codelineno-1-38" name="__codelineno-1-38" href="#__codelineno-1-38"></a>        string criador_nome
+<a id="__codelineno-1-39" name="__codelineno-1-39" href="#__codelineno-1-39"></a>        string status "aberta, votando, fechada"
+<a id="__codelineno-1-40" name="__codelineno-1-40" href="#__codelineno-1-40"></a>        timestamp criado_em
+<a id="__codelineno-1-41" name="__codelineno-1-41" href="#__codelineno-1-41"></a>    }
+<a id="__codelineno-1-42" name="__codelineno-1-42" href="#__codelineno-1-42"></a>
+<a id="__codelineno-1-43" name="__codelineno-1-43" href="#__codelineno-1-43"></a>    SALA_PARTICIPANTES {
+<a id="__codelineno-1-44" name="__codelineno-1-44" href="#__codelineno-1-44"></a>        uuid id PK
+<a id="__codelineno-1-45" name="__codelineno-1-45" href="#__codelineno-1-45"></a>        uuid sala_id FK
+<a id="__codelineno-1-46" name="__codelineno-1-46" href="#__codelineno-1-46"></a>        uuid usuario_id FK
+<a id="__codelineno-1-47" name="__codelineno-1-47" href="#__codelineno-1-47"></a>        string nome
+<a id="__codelineno-1-48" name="__codelineno-1-48" href="#__codelineno-1-48"></a>        jsonb janelas_disponiveis_json "Horário com Ponto de Partida associado"
+<a id="__codelineno-1-49" name="__codelineno-1-49" href="#__codelineno-1-49"></a>        decimal limite_gasto_rs "100% SIGILOSO (RNF-01/02)"
+<a id="__codelineno-1-50" name="__codelineno-1-50" href="#__codelineno-1-50"></a>        string vibe_hoje
+<a id="__codelineno-1-51" name="__codelineno-1-51" href="#__codelineno-1-51"></a>        string transporte_hoje
+<a id="__codelineno-1-52" name="__codelineno-1-52" href="#__codelineno-1-52"></a>        timestamp respondeu_em
+<a id="__codelineno-1-53" name="__codelineno-1-53" href="#__codelineno-1-53"></a>    }
+<a id="__codelineno-1-54" name="__codelineno-1-54" href="#__codelineno-1-54"></a>
+<a id="__codelineno-1-55" name="__codelineno-1-55" href="#__codelineno-1-55"></a>    SUGESTOES_ROLE {
+<a id="__codelineno-1-56" name="__codelineno-1-56" href="#__codelineno-1-56"></a>        uuid id PK
+<a id="__codelineno-1-57" name="__codelineno-1-57" href="#__codelineno-1-57"></a>        uuid sala_id FK
+<a id="__codelineno-1-58" name="__codelineno-1-58" href="#__codelineno-1-58"></a>        string local_id "Ref 93 locais do TikTok"
+<a id="__codelineno-1-59" name="__codelineno-1-59" href="#__codelineno-1-59"></a>        string nome_local
+<a id="__codelineno-1-60" name="__codelineno-1-60" href="#__codelineno-1-60"></a>        string regiao_ra
+<a id="__codelineno-1-61" name="__codelineno-1-61" href="#__codelineno-1-61"></a>        string endereco
+<a id="__codelineno-1-62" name="__codelineno-1-62" href="#__codelineno-1-62"></a>        string dia_horario_sugerido
+<a id="__codelineno-1-63" name="__codelineno-1-63" href="#__codelineno-1-63"></a>        decimal faixa_gasto_rs "Consumo + transporte"
+<a id="__codelineno-1-64" name="__codelineno-1-64" href="#__codelineno-1-64"></a>        string mobility_summary "Estimativa de tempo e rota"
+<a id="__codelineno-1-65" name="__codelineno-1-65" href="#__codelineno-1-65"></a>        decimal ranking_justica "Score Menor Miséria"
+<a id="__codelineno-1-66" name="__codelineno-1-66" href="#__codelineno-1-66"></a>        text motivo_escolha
+<a id="__codelineno-1-67" name="__codelineno-1-67" href="#__codelineno-1-67"></a>    }
+<a id="__codelineno-1-68" name="__codelineno-1-68" href="#__codelineno-1-68"></a>
+<a id="__codelineno-1-69" name="__codelineno-1-69" href="#__codelineno-1-69"></a>    VOTOS {
+<a id="__codelineno-1-70" name="__codelineno-1-70" href="#__codelineno-1-70"></a>        uuid id PK
+<a id="__codelineno-1-71" name="__codelineno-1-71" href="#__codelineno-1-71"></a>        uuid sala_id FK
+<a id="__codelineno-1-72" name="__codelineno-1-72" href="#__codelineno-1-72"></a>        uuid participante_id FK
+<a id="__codelineno-1-73" name="__codelineno-1-73" href="#__codelineno-1-73"></a>        uuid sugestao_id FK
+<a id="__codelineno-1-74" name="__codelineno-1-74" href="#__codelineno-1-74"></a>        timestamp votado_em
+<a id="__codelineno-1-75" name="__codelineno-1-75" href="#__codelineno-1-75"></a>    }
+<a id="__codelineno-1-76" name="__codelineno-1-76" href="#__codelineno-1-76"></a>
+<a id="__codelineno-1-77" name="__codelineno-1-77" href="#__codelineno-1-77"></a>    DESPESAS_POS_ROLE {
+<a id="__codelineno-1-78" name="__codelineno-1-78" href="#__codelineno-1-78"></a>        uuid id PK
+<a id="__codelineno-1-79" name="__codelineno-1-79" href="#__codelineno-1-79"></a>        uuid sala_id FK
+<a id="__codelineno-1-80" name="__codelineno-1-80" href="#__codelineno-1-80"></a>        string pagador_nome
+<a id="__codelineno-1-81" name="__codelineno-1-81" href="#__codelineno-1-81"></a>        decimal valor_total_rs
+<a id="__codelineno-1-82" name="__codelineno-1-82" href="#__codelineno-1-82"></a>        string chave_pix
+<a id="__codelineno-1-83" name="__codelineno-1-83" href="#__codelineno-1-83"></a>        jsonb itens_json "Discriminação da nota fiscal"
+<a id="__codelineno-1-84" name="__codelineno-1-84" href="#__codelineno-1-84"></a>        boolean quitado
+<a id="__codelineno-1-85" name="__codelineno-1-85" href="#__codelineno-1-85"></a>    }
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "content.code.copy"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

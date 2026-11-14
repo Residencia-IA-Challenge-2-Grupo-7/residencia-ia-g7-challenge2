@@ -1,0 +1,2018 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentação Oficial de Engenharia, DevOps e Arquitetura do Grupo 7 (Residência em IA Eldorado/UnB)">
+      
+      
+        <meta name="author" content="Grupo 7">
+      
+      
+        <link rel="canonical" href="https://residencia-ia-challenge-2-grupo-7.github.io/residencia-ia-g7-challenge2/decisoes/0005-coleta-automatica-e-base-vetorial/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>0005 — Coleta automática e base vetorial de lugares e eventos - Orquestrador de Rolês — Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#0005-coleta-automatica-e-base-vetorial-de-lugares-e-eventos" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Orquestrador de Rolês — Docs" class="md-header__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Orquestrador de Rolês — Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              0005 — Coleta automática e base vetorial de lugares e eventos
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Orquestrador de Rolês — Docs" class="md-nav__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Orquestrador de Rolês — Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guia-contribuicao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Contribuição
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arquitetura & Decisões
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Arquitetura & Decisões
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../produto/visao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visão do Produto
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../produto/requisitos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Requisitos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisões Técnicas (ADRs)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dados & RAG
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Dados & RAG
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dados/esquema-base/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Esquema da Base
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dados/guia-curadoria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Curadoria
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dados/golden-dataset-semana3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Golden Dataset (Semana 3)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semanas & Entregas
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Semanas & Entregas
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../semanas/semana-01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 01
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../semanas/semana-02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 02
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../entregas/semana-02/RELATORIO_TECNICO_RAG_SEMANA_02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Relatório Semana 2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#contexto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contexto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decisão
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parte-a-coleta-automatica" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parte A — Coleta automática
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parte A — Coleta automática">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#fontes-permitidas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Fontes permitidas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#regras-do-robo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras do robô
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#extracao-por-llm-com-evidencia-literal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Extração por LLM com evidência literal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#selecao-dos-lugares-sem-escolha-humana" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Seleção dos lugares, sem escolha humana
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cadencia" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cadência
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#parte-b-base-vetorial" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Parte B — Base vetorial
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Parte B — Base vetorial">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#opcoes-consideradas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Opções consideradas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#modelo-de-embeddings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Modelo de embeddings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#documentos-indexados" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentos indexados
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#como-o-banco-e-populado" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como o banco é populado
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#como-os-llms-consultam-resumo-o-contrato-fica-para-o-proximo-adr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como os LLMs consultam (resumo; o contrato fica para o próximo ADR)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#justificativa-e-evidencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Justificativa e evidências
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#riscos-e-limitacoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Riscos e limitações
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-vamos-validar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como vamos validar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#plano-de-execucao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Plano de execução
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mudancas-em-outros-documentos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mudanças em outros documentos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resultado-do-piloto-0311" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resultado do piloto (03/11)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Resultado do piloto (03/11)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#varredura-ampliada-0311" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Varredura ampliada (03/11)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#opcao-a-ocr-de-cardapio-testada-em-0311" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Opção A: OCR de cardápio (testada em 03/11)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openstreetmap-como-fonte-complementar-medido-em-0311" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OpenStreetMap como fonte complementar (medido em 03/11)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#o-que-a-google-places-new-entrega-comparado-com-a-base" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        O que a Google Places (New) entrega, comparado com a base
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tripadvisor-estudado-em-0511" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tripadvisor (estudado em 05/11)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#perguntas-para-o-grupo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Perguntas para o grupo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#historico" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Histórico
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="0005-coleta-automatica-e-base-vetorial-de-lugares-e-eventos">0005 — Coleta automática e base vetorial de lugares e eventos<a class="headerlink" href="#0005-coleta-automatica-e-base-vetorial-de-lugares-e-eventos" title="Permanent link">&para;</a></h1>
+<ul>
+<li><strong>Status:</strong> substituída pelo <a href="../0008-base-2fa-de-93-lugares-e-lgpd/">ADR 0008</a> em 2026-11-10 (base oficial de 93 lugares do TikTok; <code>src/base/</code> removido)</li>
+<li><strong>Data:</strong> 2026-11-03</li>
+<li><strong>Semana do roadmap:</strong> 2 — Base de conhecimento e recuperação</li>
+<li><strong>Substitui do <a href="../0004-fonte-e-manutencao-da-base/">ADR 0004</a>:</strong> a curadoria humana (Pergunta 1, fontes primárias lidas por pessoas), as rotinas manuais da Pergunta 3, o orçamento de horas da Pergunta 4 e o <a href="../../dados/guia-curadoria/">guia de curadoria</a> como procedimento</li>
+<li><strong>Mantém do ADR 0004:</strong></li>
+<li>a Overture como fonte de candidatos, sem importar campos do OSM;</li>
+<li>a Google só na hora do plano, com as cinco condições;</li>
+<li>os estados exato, aproximado e vencido e seus limites;</li>
+<li>os filtros com "sem informação";</li>
+<li>o teste de cobertura por estrato como critério de aceite;</li>
+<li>a amostra de validação do RNF-03;</li>
+<li>as regras de LGPD</li>
+<li><strong>Fica para outro ADR:</strong> o contrato da API de busca usada pelos agentes da semana 4 (aqui só o fluxo de consulta). Definido no <a href="../0007-interpretador-e-contrato-de-busca/">ADR 0007</a></li>
+</ul>
+<h2 id="contexto">Contexto<a class="headerlink" href="#contexto" title="Permanent link">&para;</a></h2>
+<p>O ADR 0004 previa que pessoas da equipe lessem sites e cardápios e preenchessem a base, a cerca de 15 a 25 minutos por lugar. O grupo quer <strong>eliminar a coleta manual</strong>. Também falta decidir <strong>onde e como a base é indexada</strong> para as consultas dos LLMs, que é o "primeiro mecanismo RAG" do roadmap.</p>
+<p>Na conversa de 03/11 ficou claro que consultar uma API de lugares na hora da pergunta também é recuperação. Mesmo assim, ela não substitui uma base própria, por três motivos:</p>
+<ul>
+<li><strong>Exigência dos tutores:</strong> o roadmap pede "base de conhecimento e recuperação" na semana 2 e a comparação LLM × RAG na semana 3 (P14).</li>
+<li><strong>Termos da Google:</strong> limitam o que pode ser mostrado e lido em voz e proíbem o uso com mapa não Google (ADR 0004).</li>
+<li><strong>Dados que as APIs não têm:</strong> preço do cardápio por pessoa (RF-15), agenda de eventos do DF e controle da cobertura por região (RNF-13).</li>
+</ul>
+<h2 id="decisao">Decisão<a class="headerlink" href="#decisao" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Coleta 100% automática, num pipeline reproduzível:</strong></li>
+<li>candidatos da Overture, filtrados e sorteados por estrato;</li>
+<li>robô que lê só o site oficial de cada lugar e as agendas oficiais de eventos;</li>
+<li>extração dos campos por LLM, com evidência literal;</li>
+<li>validação por código.</li>
+</ol>
+<p><strong>Nenhum campo é digitado por uma pessoa.</strong> O que o pipeline não consegue extrair com evidência fica "sem informação". Se faltar um campo obrigatório, o lugar fica fora da base.
+2. <strong>Atualização automática:</strong> o pipeline roda de novo toda semana, e duas vezes por semana para eventos. Só reprocessa as páginas que mudaram. A data de verificação do RF-16 passa a ser a data da última extração com evidência.
+3. <strong>Base vetorial em PostgreSQL com pgvector:</strong> busca híbrida (vetor e texto em português) com filtros estruturados, e embeddings de um modelo aberto multilíngue rodando localmente, trocável por configuração (RNF-12).
+4. <strong>O trabalho humano fica só na medição de qualidade:</strong>
+   - a amostra de validação do RNF-03, cerca de 125 itens nas semanas 3 e 6, que mede o pipeline e não preenche dados;
+   - a leitura dos relatórios do pipeline.</p>
+<p>Nenhuma pessoa corrige um campo à mão. Um erro encontrado vira ajuste nas regras de extração, e o pipeline roda de novo.</p>
+<h2 id="parte-a-coleta-automatica">Parte A — Coleta automática<a class="headerlink" href="#parte-a-coleta-automatica" title="Permanent link">&para;</a></h2>
+<h3 id="fontes-permitidas">Fontes permitidas<a class="headerlink" href="#fontes-permitidas" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Fonte</th>
+<th>Para quê</th>
+<th>Regra</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://docs.overturemaps.org/guides/places/">Overture Maps Places</a></td>
+<td>Candidatos, nome, categoria, coordenadas e site (<code>websites</code>)</td>
+<td>Download por recorte do DF; licença por registro guardada; telefone, e-mail e redes nunca são importados</td>
+</tr>
+<tr>
+<td>Site oficial do próprio lugar</td>
+<td>Horário, cardápio e preços, atributos</td>
+<td>Só o domínio do site listado na Overture e páginas desse domínio</td>
+</tr>
+<tr>
+<td>Cardápio em PDF ou imagem no site oficial</td>
+<td>Itens e preços</td>
+<td>Leitura multimodal pelo mesmo extrator</td>
+</tr>
+<tr>
+<td>Agendas oficiais (CCBB, Caixa Cultural, Sesc-DF, Complexo Cultural da República, Cine Brasília, Clube do Choro, Secretaria de Cultura e Economia Criativa do DF, administrações regionais)</td>
+<td>Eventos</td>
+<td>Lista de URLs semente mantida no repositório; iCal ou RSS quando houver</td>
+</tr>
+<tr>
+<td>Sites do Ibram, do ICMBio e de cada parque</td>
+<td>Parques e áreas protegidas</td>
+<td>Lista semente; <a href="https://www.ibram.df.gov.br/unidades-de-conservacao">tabela de unidades de conservação do Ibram</a> como ponto de partida</td>
+</tr>
+<tr>
+<td>Google Places, na hora do plano</td>
+<td>Status e horário de hoje dos finalistas</td>
+<td>Sem guardar nada, nas condições do ADR 0004</td>
+</tr>
+<tr>
+<td>Retorno dos usuários (RF-37)</td>
+<td>Sinal de divergência</td>
+<td>Põe o lugar na fila de reprocessamento prioritário, sem identificar quem respondeu</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Nunca entram no robô:</strong> Google Maps, Instagram, Facebook, iFood, TripAdvisor, Sympla e outros agregadores. Os termos dessas plataformas proíbem ou limitam a coleta automatizada, ou o conteúdo não é do lugar. O caso do Tripadvisor, inclusive pela API oficial, está em <a href="#tripadvisor-estudado-em-0511">Tripadvisor</a>.</p>
+<h3 id="regras-do-robo">Regras do robô<a class="headerlink" href="#regras-do-robo" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>robots.txt:</strong> é obedecido, e um domínio que proíbe a coleta fica de fora.</li>
+<li><strong>Ritmo:</strong> no máximo uma requisição a cada 2 segundos por domínio, com até 10 páginas por lugar (início, cardápio, horário, contato, sobre).</li>
+<li><strong>Identificação:</strong> um user-agent próprio, com o nome do projeto e um e-mail de contato do grupo.</li>
+<li><strong>Páginas brutas:</strong> ficam fora do git e são apagadas depois de 30 dias. O hash de cada página fica guardado para detectar mudança.</li>
+<li><strong>Páginas que exigem JavaScript:</strong> são abertas por um navegador sem interface (Playwright) só quando o HTML simples vier vazio.</li>
+</ul>
+<h3 id="extracao-por-llm-com-evidencia-literal">Extração por LLM com evidência literal<a class="headerlink" href="#extracao-por-llm-com-evidencia-literal" title="Permanent link">&para;</a></h3>
+<p>O extrator recebe o texto da página e devolve um JSON no <a href="../../dados/esquema-base/">esquema</a>. <strong>Cada valor vem acompanhado de <code>evidencia</code></strong>: um trecho copiado da página, de até 200 caracteres, mais a URL.</p>
+<p>Um validador em código, não no LLM, aceita o valor só se:</p>
+<ol>
+<li>o trecho de <code>evidencia</code> existe literalmente no texto da página baixada (é isso que barra alucinação);</li>
+<li>o valor normalizado aparece no trecho, por exemplo "18h às 23h" → <code>18:00–23:00</code> e "R$ 39,90" → <code>39.90</code>;</li>
+<li>o valor passa nas regras de plausibilidade:</li>
+<li>horário bem formado, com no máximo 20 horas abertas por dia;</li>
+<li>preço de item entre R$ 1 e R$ 500;</li>
+<li>evento com data futura;</li>
+<li>não há contradição entre páginas do mesmo site. Se houver, o campo fica "sem informação".</li>
+</ol>
+<p>Nos atributos (vegano, ar livre, ruído, foco em álcool, acessibilidade), o extrator só marca "sim" com evidência explícita, como "opções veganas" ou "rampa de acesso". As definições do <a href="../../dados/guia-curadoria/">guia de curadoria</a> viram as regras do prompt de extração. Ruído e foco em álcool sem frase explícita ficam "sem informação".</p>
+<p><strong>Campos obrigatórios</strong> para o lugar entrar na base:
+- <strong>Comer e beber fora:</strong> horário e pelo menos 3 itens com preço.
+- <strong>Ao ar livre ou gratuitos:</strong> horário, mais a taxa de entrada ou a indicação de "gratuito".
+- <strong>Eventos:</strong> data, horário, local e preço (ou "gratuito").</p>
+<p>O custo por pessoa continua calculado por código, com a fórmula do guia (RNF-04).</p>
+<p><strong>Modelo de extração:</strong> um modelo pequeno e barato, com saída estruturada, atrás da mesma interface trocável dos outros provedores (RNF-12). O consumo é registrado (RNF-15). A descrição curta de cada lugar também é gerada pelo LLM, <strong>só a partir dos campos validados</strong>, com o modelo de descrição do guia, sem copiar o texto do site.</p>
+<h3 id="selecao-dos-lugares-sem-escolha-humana">Seleção dos lugares, sem escolha humana<a class="headerlink" href="#selecao-dos-lugares-sem-escolha-humana" title="Permanent link">&para;</a></h3>
+<ol>
+<li>Filtrar a Overture: DF, categorias mapeadas para os tipos de rolê, registros com site e com confiança acima de um limite a calibrar no piloto.</li>
+<li>Deduplicar por domínio do site e por proximidade com nome parecido, em código.</li>
+<li>Sortear dentro de cada estrato (região × categoria), com as cotas iniciais do ADR 0004.</li>
+<li>Rodar o robô e a extração. Os lugares sem os campos obrigatórios saem, e o sorteio repõe a vaga no mesmo estrato, até a cota ou até acabarem os candidatos.</li>
+<li>Gerar o relatório de cobertura: candidatos, lugares aprovados e motivos de falha por estrato.</li>
+</ol>
+<p><strong>Meta:</strong> até 300 lugares, com no mínimo 150. A automação permite passar dos 200 do ADR 0004, e o limite real passa a ser quantos candidatos têm site com dados. O piloto mede essa taxa.</p>
+<h3 id="cadencia">Cadência<a class="headerlink" href="#cadencia" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Rotina</th>
+<th>Frequência</th>
+<th>Observação</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Descoberta (Overture)</td>
+<td>Mensal ou a cada nova versão da Overture</td>
+<td>Novos candidatos entram no sorteio dos estratos com falta</td>
+</tr>
+<tr>
+<td>Robô e extração dos lugares</td>
+<td>Semanal</td>
+<td>Só reextrai páginas cujo hash mudou; as outras só renovam a data de verificação</td>
+</tr>
+<tr>
+<td>Robô e extração dos eventos</td>
+<td>Duas vezes por semana</td>
+<td>Eventos realizados ou cancelados saem automaticamente</td>
+</tr>
+<tr>
+<td>Fila prioritária</td>
+<td>Diária</td>
+<td>Lugares fechados ou não encontrados na conferência do plano, ou com divergência relatada no RF-37</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Renovar a data de verificação:</strong> é válido quando a página foi baixada de novo, o hash não mudou e a evidência continua lá. O fato foi confirmado na fonte naquela data.</p>
+<p><strong>Efeito nos estados do ADR 0004:</strong> com a rodada semanal, horário e preço ficam "exatos" enquanto o site estiver no ar. Os estados "aproximado" e "vencido" passam a sinalizar sites fora do ar ou páginas que deixaram de ter a informação.</p>
+<h2 id="parte-b-base-vetorial">Parte B — Base vetorial<a class="headerlink" href="#parte-b-base-vetorial" title="Permanent link">&para;</a></h2>
+<h3 id="opcoes-consideradas">Opções consideradas<a class="headerlink" href="#opcoes-consideradas" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Opção</th>
+<th>Prós</th>
+<th>Contras</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A. PostgreSQL + pgvector</td>
+<td>Um só banco para a base e para os dados do app (salas, rolês); filtros em SQL; busca em texto em português nativa (<code>tsvector</code>); grátis e local em Docker</td>
+<td>Exige operar um Postgres; menos recursos de busca que um banco vetorial dedicado</td>
+</tr>
+<tr>
+<td>B. Chroma</td>
+<td>Simples, embutido em Python</td>
+<td>Segundo banco ao lado do do app; filtros mais limitados; busca textual fraca</td>
+</tr>
+<tr>
+<td>C. Qdrant</td>
+<td>Filtros fortes e busca híbrida</td>
+<td>Mais um serviço para hospedar</td>
+</tr>
+<tr>
+<td>D. FAISS ou índice em memória</td>
+<td>Zero infraestrutura</td>
+<td>Sem filtros nem persistência; tudo à mão</td>
+</tr>
+<tr>
+<td>E. Gerenciado (Pinecone e similares)</td>
+<td>Sem operação</td>
+<td>Dependência de fornecedor; dados saem da equipe; faixa gratuita sujeita a mudança</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Decisão: A, PostgreSQL com pgvector.</strong> Para algumas centenas de documentos, qualquer opção é rápida o bastante. O que decide são filtros duros em SQL (RNF-04), busca textual em português e um banco só para o projeto. Na semana 2 roda localmente em Docker. A hospedagem é decidida com a do app.</p>
+<h3 id="modelo-de-embeddings">Modelo de embeddings<a class="headerlink" href="#modelo-de-embeddings" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Opção</th>
+<th>Prós</th>
+<th>Contras</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>BGE-M3 (BAAI), aberto, rodando localmente</td>
+<td>Multilíngue, com bom português; sem custo; nenhum dado sai da equipe</td>
+<td>Exige baixar o modelo (alguns GB); um pouco lento em CPU, irrelevante para centenas de documentos</td>
+</tr>
+<tr>
+<td>multilingual-e5-large, aberto</td>
+<td>Mesmo perfil, menor</td>
+<td>Recuperação a comparar</td>
+</tr>
+<tr>
+<td>API de embeddings de um provedor de LLM</td>
+<td>Sem infraestrutura</td>
+<td>Custo e dependência; texto enviado a terceiros</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Decisão:</strong> BGE-M3 como padrão e multilingual-e5-large como alternativa. Os dois são comparados no piloto com os pedidos de teste, e fica o de maior recall@10. O modelo e a dimensão ficam na configuração (RNF-12). Trocar de modelo exige regerar todos os vetores, o que leva minutos.</p>
+<h3 id="documentos-indexados">Documentos indexados<a class="headerlink" href="#documentos-indexados" title="Permanent link">&para;</a></h3>
+<p>Um documento é uma ficha curta e autossuficiente, gerada por código a partir dos campos validados. Nada é escrito à mão, e nada é copiado do site.</p>
+<table>
+<thead>
+<tr>
+<th>Coleção</th>
+<th>Um documento por</th>
+<th>Texto do embedding</th>
+<th>Metadados para filtro</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lugares</code></td>
+<td>lugar</td>
+<td>Nome, categoria, RA e região, descrição gerada, ambiente (ruído, ar livre, coberto, foco em álcool), opções alimentares, faixa de custo por pessoa</td>
+<td><code>tipo_role</code>, <code>categoria</code>, <code>regiao</code>, <code>ra</code>, <code>lat</code>, <code>lon</code>, <code>custo_pessoa_tipico</code>, <code>taxa_entrada</code>, atributos, <code>horarios</code> (JSON), <code>status</code>, <code>estado</code>, <code>verificado_em</code>, <code>fonte</code></td>
+</tr>
+<tr>
+<td><code>eventos</code></td>
+<td>evento</td>
+<td>Título, tipo, local, RA, faixa de preço, foco em álcool</td>
+<td><code>inicio</code>, <code>fim</code>, <code>preco_min</code>, <code>gratuito</code>, <code>local_id</code>, <code>regiao</code>, <code>cancelado</code>, <code>esgotado</code></td>
+</tr>
+<tr>
+<td><code>regioes</code></td>
+<td>RA (35)</td>
+<td>Nome, região, vizinhança, principais eixos de transporte e estações de metrô (de fontes públicas, quando o GTFS for decidido)</td>
+<td><code>regiao</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Cardápios inteiros não viram documento: os itens ficam em tabela, e o "comida vegana barata" sai dos filtros.</li>
+<li>Os documentos de <code>regioes</code> ajudam o LLM a entender pedidos como "perto do metrô" ou "lá pelos lados de Taguatinga".</li>
+</ul>
+<h3 id="como-o-banco-e-populado">Como o banco é populado<a class="headerlink" href="#como-o-banco-e-populado" title="Permanent link">&para;</a></h3>
+<p>O pipeline é idempotente e versionado. Cada etapa grava a sua saída, e uma rodada pode recomeçar de qualquer etapa.</p>
+<ol>
+<li><strong>Descobrir:</strong> baixar o recorte do DF da Overture, mapear as categorias e gravar <code>candidatos</code>.</li>
+<li><strong>Selecionar:</strong> deduplicar e sortear por estrato.</li>
+<li><strong>Rastrear:</strong> robô com as regras acima; gravar as páginas e os hashes.</li>
+<li><strong>Extrair:</strong> LLM com saída estruturada e evidência.</li>
+<li><strong>Validar:</strong> evidência literal, plausibilidade, contradições e campos obrigatórios. Aprovado ou reprovado, com o motivo.</li>
+<li><strong>Casar com a Google (opcional):</strong> place ID por Text Search de IDs, confirmado pelo endereço (ADR 0004). Guardado em tabela separada.</li>
+<li><strong>Calcular:</strong> custo por pessoa, estados por idade e texto da ficha.</li>
+<li><strong>Vetorizar:</strong> gerar o embedding só quando o hash do texto da ficha mudou.</li>
+<li><strong>Gravar:</strong> <code>upsert</code> nas tabelas e nos vetores, com <code>versao_base</code>. Os lugares que saíram ficam marcados como inativos, não são apagados, para manter o histórico dos rolês.</li>
+<li>
+<p><strong>Relatar:</strong> contagens por estrato, taxa de aprovação, motivos de falha, consumo de tokens e resultado do teste de cobertura.</p>
+</li>
+<li>
+<p><strong>Saídas e versões:</strong> o CSV aprovado vai para o git (sem páginas brutas e sem IDs da Google). Uma tag marca a versão usada na comparação LLM × RAG da semana 3.</p>
+</li>
+<li><strong>Banco descartável:</strong> o banco é sempre recriável a partir do CSV e da configuração, então os vetores não vão para o git.</li>
+</ol>
+<h3 id="como-os-llms-consultam-resumo-o-contrato-fica-para-o-proximo-adr">Como os LLMs consultam (resumo; o contrato fica para o próximo ADR)<a class="headerlink" href="#como-os-llms-consultam-resumo-o-contrato-fica-para-o-proximo-adr" title="Permanent link">&para;</a></h3>
+<ol>
+<li>O agente planejador chama a busca com o pedido em texto ("lugar tranquilo para 6 pessoas, sábado à noite") e as restrições já resolvidas: região dos participantes, janela, teto de custo e restrições alimentares e de acessibilidade.</li>
+<li><strong>Filtros duros em SQL:</strong> status ativo, estado diferente de vencido, aberto na janela, custo dentro do teto e atributos exigidos iguais a "sim".</li>
+<li><strong>Busca híbrida</strong> só entre os que passaram: similaridade vetorial e busca textual em português, combinadas por Reciprocal Rank Fusion. Saem 20 candidatos.</li>
+<li>O código calcula deslocamento e custo por pessoa (RNF-04). O LLM recebe só as fichas, com fonte e data da verificação, e monta os planos. Lugar que não veio da busca é descartado (RF-16).</li>
+<li>Na hora de mostrar o plano, os finalistas passam pela conferência da Google (ADR 0004).</li>
+</ol>
+<h2 id="justificativa-e-evidencias">Justificativa e evidências<a class="headerlink" href="#justificativa-e-evidencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Coleta automática com evidência literal:</strong></li>
+<li>tira o trabalho manual sem abrir mão do RNF-03, porque um valor sem trecho correspondente na página é descartado por código, não pelo LLM;</li>
+<li>faz a extração por LLM servir de leitor, nunca de fonte;</li>
+<li>é a mesma separação do RNF-04: o LLM interpreta, o código decide.</li>
+<li><strong>Só o site oficial:</strong> é a fonte que o próprio lugar controla. Agregadores e redes têm termos que proíbem a coleta automatizada; o do <a href="https://help.instagram.com/581066165581870">Instagram</a>, por exemplo, proíbe coleta automatizada sem permissão.</li>
+<li><strong>pgvector:</strong> escolhido porque o problema é pequeno e filtrado. A vantagem de um banco vetorial dedicado aparece com milhões de vetores, não com centenas.</li>
+<li><strong>Embedding aberto e local:</strong> custo zero e nenhum dado enviado (P12, RNF-01). O modelo é escolhido por medição nos pedidos de teste, não por reputação.</li>
+</ul>
+<h2 id="riscos-e-limitacoes">Riscos e limitações<a class="headerlink" href="#riscos-e-limitacoes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Risco</th>
+<th>Ligação</th>
+<th>Mitigação</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Lugares sem site ficam de fora.</strong> Bares e restaurantes pequenos, comuns fora do Plano Piloto, costumam ter só Instagram ou iFood. A base pode ficar mais central e mais cara</td>
+<td>R-02, RNF-13</td>
+<td>Medir a taxa de aprovação por região no piloto. Os parques, feiras e eventos públicos das administrações regionais ajudam a cobrir a periferia. Se um estrato falhar no teste de cobertura, o grupo escolhe entre aceitar a limitação, declarada no relatório, ou mudar o RF-16 para permitir candidatos da API na hora do plano, com os limites dos termos</td>
+</tr>
+<tr>
+<td>Extração errada que passa no validador (trecho certo, interpretação errada, como horário de cozinha tomado por horário da casa)</td>
+<td>R-03</td>
+<td>Amostra de validação do RNF-03 com intervalo de confiança; cada erro vira regra no prompt e teste automatizado</td>
+</tr>
+<tr>
+<td>Site desatualizado (o lugar mudou o horário no Instagram, mas não no site)</td>
+<td>R-03</td>
+<td>Conferência dos finalistas pela Google; retorno dos usuários; estado "não conferido agora"</td>
+</tr>
+<tr>
+<td>Coleta vista como abusiva por algum site</td>
+<td>—</td>
+<td>robots.txt, ritmo baixo, user-agent com contato; páginas brutas não publicadas</td>
+</tr>
+<tr>
+<td>Direito autoral sobre o texto do site</td>
+<td>—</td>
+<td>Guardamos fatos e trechos curtos de evidência, internos e não exibidos; a descrição é gerada a partir dos fatos</td>
+</tr>
+<tr>
+<td>Dados pessoais em páginas ("fale com a Joana")</td>
+<td>R-01, RNF-01</td>
+<td>Lista fechada de campos; os trechos de evidência ficam fora do índice, do CSV público e das respostas</td>
+</tr>
+<tr>
+<td>Custo de tokens da extração</td>
+<td>R-07, P12</td>
+<td>Modelo pequeno; reextrair só páginas que mudaram; consumo registrado; teto por rodada na configuração</td>
+</tr>
+<tr>
+<td>Overture com poucos sites no DF</td>
+<td>—</td>
+<td>O piloto mede; FSQ OS Places como fonte adicional de sites, se preciso (Apache 2.0)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Limitações declaradas:</strong>
+- Lugares sem site oficial não entram no MVP.
+- Atributos subjetivos (ruído, foco em álcool) só existem quando o próprio lugar os descreve, então muitos ficam "sem informação".
+- Lotação em tempo real continua fora (RF-44).</p>
+<h2 id="como-vamos-validar">Como vamos validar<a class="headerlink" href="#como-vamos-validar" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>O que</th>
+<th>Como medir</th>
+<th>Critério</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Taxa de aprovação</td>
+<td>Lugares aprovados ÷ candidatos rastreados, por estrato, no piloto (100 candidatos sorteados)</td>
+<td>Base para a meta; não tem mínimo, mas o teste de cobertura precisa passar</td>
+</tr>
+<tr>
+<td>Exatidão da extração (RNF-03)</td>
+<td>Amostra de cerca de 125 itens exibidos, conferidos por uma pessoa no site de origem, nas semanas 3 e 6. Só mede, não corrige</td>
+<td>≥ 95% pelo limite inferior de Clopper-Pearson; senão, acerto observado com intervalo</td>
+</tr>
+<tr>
+<td>Alucinação barrada</td>
+<td>Valores rejeitados porque a evidência não existia na página</td>
+<td>Só monitorado; uma taxa alta indica prompt ou modelo ruim</td>
+</tr>
+<tr>
+<td>Recuperação</td>
+<td>20 a 30 pedidos de teste com os lugares esperados</td>
+<td>recall@10 ≥ 0,8 com o modelo escolhido; comparar BGE-M3 e e5</td>
+</tr>
+<tr>
+<td>Cobertura (RNF-13, RNF-16)</td>
+<td>Teste por estrato do ADR 0004</td>
+<td>Os mesmos critérios</td>
+</tr>
+<tr>
+<td>Custo</td>
+<td>Tokens por rodada e chamadas à Google</td>
+<td>Dentro dos créditos gratuitos (P12)</td>
+</tr>
+<tr>
+<td>Trabalho manual</td>
+<td>Horas gastas em coleta e correção de dados</td>
+<td>Zero; a medição de qualidade é contada à parte</td>
+</tr>
+</tbody>
+</table>
+<h2 id="plano-de-execucao">Plano de execução<a class="headerlink" href="#plano-de-execucao" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Semana</th>
+<th>Entrega</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2</td>
+<td>Pedidos de teste escritos; Postgres com pgvector em Docker; etapas 1 a 5 do pipeline com 100 candidatos; taxa de aprovação por estrato; comparação dos dois embeddings</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Pipeline completo; base congelada por tag; comparação LLM × RAG; primeira amostra de validação</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Rodada semanal automática; fila prioritária; busca usada pelos agentes</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Leitura de cardápio em PDF e imagem (multimodal) no extrator; meta de lugares</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Segunda amostra de validação; teste de cobertura final</td>
+</tr>
+</tbody>
+</table>
+<h2 id="mudancas-em-outros-documentos">Mudanças em outros documentos<a class="headerlink" href="#mudancas-em-outros-documentos" title="Permanent link">&para;</a></h2>
+<ul>
+<li>ADR 0004: marcar as partes substituídas.</li>
+<li><a href="../../dados/esquema-base/">Esquema da base</a>: <code>curador</code> sai e entram <code>evidencia</code>, <code>metodo</code> e <code>pipeline_versao</code>.</li>
+<li><a href="../../dados/guia-curadoria/">Guia de curadoria</a>: deixa de ser procedimento; as definições viram regras de extração.</li>
+<li>Requisitos: a questão em aberto 4 aponta também para este ADR. O RF-16 não muda: a fonte é a URL do site, e a data é a da última extração com evidência.</li>
+<li>Mapa da arquitetura: a curadoria vira pipeline automático; banco vetorial e embeddings decididos (pendente, aqui e no repositório público).</li>
+</ul>
+<h2 id="resultado-do-piloto-0311">Resultado do piloto (03/11)<a class="headerlink" href="#resultado-do-piloto-0311" title="Permanent link">&para;</a></h2>
+<p>Pipeline implementado em <a href="../../src/base/">src/base/</a>, com extração feita por subagentes Claude Haiku 5.5. Números completos em <a href="../../data/base/relatorio.md">data/base/relatorio.md</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Etapa</th>
+<th>Lugares</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Candidatos da Overture nos tipos de rolê, no DF</td>
+<td>11.255</td>
+</tr>
+<tr>
+<td>Com site próprio (sem redes, agregadores e delivery)</td>
+<td>3.357</td>
+</tr>
+<tr>
+<td>Elegíveis (confiança ≥ 0,5, um por domínio)</td>
+<td>1.744</td>
+</tr>
+<tr>
+<td>Sorteados no piloto (17 ou 16 por região)</td>
+<td>100</td>
+</tr>
+<tr>
+<td>Site respondeu com conteúdo</td>
+<td>33</td>
+</tr>
+<tr>
+<td>Aprovados com os campos obrigatórios</td>
+<td><strong>0</strong></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>O validador e o LLM funcionaram:</strong> nenhum trecho inventado (zero "evidência ausente"); o Haiku recusou os sites que eram de outro negócio.</li>
+<li><strong>A fonte não entrega:</strong></li>
+<li><strong>Domínios mortos:</strong> 52 dos 100 sites listados na Overture não existem mais.</li>
+<li><strong>Agregadores:</strong> 140 dos elegíveis eram páginas geradas por agregadores (placeweb.site), hoje bloqueadas.</li>
+<li><strong>Site de outro negócio:</strong> ao menos 5 dos 33 que responderam eram de outro negócio (uma clínica, o Jardim Botânico do Rio, um domínio revendido).</li>
+<li><strong>Preço é o gargalo:</strong> nenhum dos 33 sites tem preço em texto. Os cardápios são imagem, PDF sem texto ou JavaScript. Horário apareceu em 4.</li>
+<li><strong>Bares:</strong> todos os 18 sorteados estavam fora do ar ou sem site.</li>
+</ul>
+<p><strong>Consequência:</strong> com as regras atuais, nem os 1.744 elegíveis chegariam aos 150 lugares da meta. Antes de mais rodadas, o grupo precisa escolher uma das opções:</p>
+<table>
+<thead>
+<tr>
+<th>Opção</th>
+<th>O que muda</th>
+<th>Custo e risco</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A. Ler cardápio em imagem e PDF agora, adiantando a semana 5</td>
+<td>O robô baixa as imagens de cardápio; um OCR local gera o texto contra o qual o validador confere; o Haiku extrai desse texto</td>
+<td>Mantém a coleta sem pessoas e a conferência em código; erro de OCR vira "sem informação"</td>
+</tr>
+<tr>
+<td>B. Preço deixa de ser obrigatório em comer e beber</td>
+<td>Entra com horário; custo "sem informação"</td>
+<td>O lugar some de todo filtro de orçamento (RF-15), justo o diferencial</td>
+</tr>
+<tr>
+<td>C. Agendas oficiais primeiro</td>
+<td>Eventos e equipamentos públicos (CCBB, Sesc, parques), que publicam em texto</td>
+<td>Cobre o tipo "ao ar livre ou gratuitos" e eventos, não comer e beber</td>
+</tr>
+<tr>
+<td>D. Mudar o RF-16</td>
+<td>Candidatos de comer e beber vêm de uma API na hora do plano, com os limites do ADR 0004</td>
+<td>Sai do RAG próprio para esse tipo; os termos da Google limitam o que se mostra</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Recomendação do autor:</strong> C já, para ter base na semana 3, e A como experimento medido nos 33 sites do piloto. B e D ficam como plano de contingência.</p>
+<h3 id="varredura-ampliada-0311">Varredura ampliada (03/11)<a class="headerlink" href="#varredura-ampliada-0311" title="Permanent link">&para;</a></h3>
+<p>A reposição do sorteio levou o robô a <strong>todos</strong> os elegíveis do Oeste, Sul, Norte e Leste e a parte do Centro e do Oeste próximo. Uma triagem em código passou a mandar ao LLM só os sites com sinais de preço e horário no texto.</p>
+<table>
+<thead>
+<tr>
+<th>Etapa</th>
+<th>Lugares</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sorteados (piloto mais reposição)</td>
+<td>811</td>
+</tr>
+<tr>
+<td>Site respondeu com conteúdo</td>
+<td>234 (388 domínios mortos)</td>
+</tr>
+<tr>
+<td>Passaram na triagem</td>
+<td>41</td>
+</tr>
+<tr>
+<td><strong>Aprovados</strong></td>
+<td><strong>10</strong>: 8 no Centro, 1 no Oeste próximo, 1 no Leste e nenhum no Oeste, Sul ou Norte</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Validador:</strong> 172 valores conferidos, 150 aceitos e 22 barrados. Só 1 por evidência inexistente; os outros eram valores que não estavam no trecho citado.</li>
+<li><strong>Erros que passaram:</strong> são de interpretação e só a amostra humana do RNF-03 mede:</li>
+<li>pizza inteira contada como prato de uma pessoa;</li>
+<li>sobremesa classificada como prato principal;</li>
+<li>horário tirado de um post de blog de 2015.</li>
+<li><strong>Consumo:</strong> cerca de 1,7 milhão de tokens do Haiku, em 13 lotes de extração e 1 de descrições.</li>
+<li><strong>Teto da rota:</strong> se a mesma taxa valer para os cerca de 930 elegíveis que faltam, quase todos no Centro e no Oeste próximo, a rota "Overture + site oficial" chega a uns 20 lugares, longe dos 150 da meta. Na periferia, ela não entrega nada.</li>
+</ul>
+<h3 id="opcao-a-ocr-de-cardapio-testada-em-0311">Opção A: OCR de cardápio (testada em 03/11)<a class="headerlink" href="#opcao-a-ocr-de-cardapio-testada-em-0311" title="Permanent link">&para;</a></h3>
+<p>O OCR roda localmente, com EasyOCR em português, sobre imagens e PDFs escaneados de cardápio achados nas páginas já salvas (<a href="../../src/base/ocr.py">src/base/ocr.py</a>). O texto entra no manifesto como mais uma página, e o validador confere as evidências contra ele.</p>
+<table>
+<thead>
+<tr>
+<th>Etapa</th>
+<th>Lugares</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Comer e beber com site no ar, ainda não aprovados</td>
+<td>147</td>
+</tr>
+<tr>
+<td>Com imagem ou PDF que parecia cardápio</td>
+<td>43 (159 arquivos)</td>
+</tr>
+<tr>
+<td>OCR rendeu texto</td>
+<td>17 (33 imagens)</td>
+</tr>
+<tr>
+<td>Passaram a ter 3 ou mais preços</td>
+<td>9</td>
+</tr>
+<tr>
+<td><strong>Aprovados a mais</strong></td>
+<td><strong>2</strong>; outros 2 ganharam preços, mas o site não tem horário</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Fotos de prato:</strong> muitas imagens chamadas "cardápio" são fotos de prato.</li>
+<li><strong>Cardápio em colunas:</strong> o OCR embaralha a ordem e separa nome e preço.</li>
+<li><strong>O Haiku "corrigiu" o OCR:</strong> mesmo instruído a copiar, trocou "rs 34" por "R$ 34".</li>
+<li><strong>Ajustes no validador:</strong></li>
+<li>as confusões típicas do OCR passam a ser normalizadas igual dos dois lados;</li>
+<li>partes de uma evidência separadas por "..." precisam estar próximas e <strong>sem outro preço no meio</strong>.</li>
+<li>A segunda regra também derrubou uma aprovação errada da rodada anterior: um hambúrguer pareado com um preço a 3 mil caracteres de distância.</li>
+<li><strong>Conclusão:</strong> o OCR melhora a precisão do validador, mas acrescenta pouco à cobertura. A base fica com 11 lugares, 9 deles no Centro.</li>
+</ul>
+<h3 id="openstreetmap-como-fonte-complementar-medido-em-0311">OpenStreetMap como fonte complementar (medido em 03/11)<a class="headerlink" href="#openstreetmap-como-fonte-complementar-medido-em-0311" title="Permanent link">&para;</a></h3>
+<p>A medição foi feita pelo Overpass, como consulta: nada foi importado (<a href="../../src/base/osm.py">src/base/osm.py</a>). O OSM tem 3.338 lugares com nome no DF nos tipos de rolê (a Overture tem 11.255).</p>
+<table>
+<thead>
+<tr>
+<th>Dado</th>
+<th>Comer e beber (2.668)</th>
+<th>Ao ar livre ou gratuitos (567)</th>
+<th>Locais de evento (103)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Horário (<code>opening_hours</code>)</td>
+<td>316 (12%)</td>
+<td>54 (10%)</td>
+<td>6</td>
+</tr>
+<tr>
+<td>Site</td>
+<td>182</td>
+<td>9</td>
+<td>10</td>
+</tr>
+<tr>
+<td>Cozinha (<code>cuisine</code>)</td>
+<td>1.045 (39%)</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Vegetariano / vegano</td>
+<td>39 / 26</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Cadeira de rodas</td>
+<td>138</td>
+<td>13</td>
+<td>7</td>
+</tr>
+<tr>
+<td>Área externa</td>
+<td>121</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Preço</td>
+<td><strong>0</strong></td>
+<td>6 com <code>fee</code></td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Datas de conferência:</strong> só 57 dos 376 horários têm data de conferência (<code>check_date</code>), 52 delas de 2025 ou 2026. Os outros não dizem quando foram vistos.</li>
+<li><strong>Sites vivos:</strong> 80% dos sites do OSM ainda existem, contra cerca de 50% dos da Overture no piloto.</li>
+<li><strong>Cruzamento:</strong></li>
+<li>dos 100 do piloto, 14 estão no OSM e 3 com horário;</li>
+<li>dos 1.744 elegíveis da Overture, 403 estão no OSM e 59 com horário.</li>
+<li><strong>Conclusão:</strong> o OSM completa horário e cozinha de uma parte pequena dos lugares e não resolve preço. Usar esses dados obriga a cumprir a ODbL: atribuição e a base derivada publicada na mesma licença (seções 4.4 e 4.6). Isso é viável para um projeto acadêmico, mas exige uma decisão do grupo, porque muda o ADR 0004.</li>
+</ul>
+<h3 id="o-que-a-google-places-new-entrega-comparado-com-a-base">O que a Google Places (New) entrega, comparado com a base<a class="headerlink" href="#o-que-a-google-places-new-entrega-comparado-com-a-base" title="Permanent link">&para;</a></h3>
+<p>A comparação é pela documentação dos campos (<a href="https://developers.google.com/maps/documentation/places/web-service/reference/rest/v1/places">recurso Place</a>, <a href="https://developers.google.com/maps/documentation/places/web-service/text-search">Text Search e SKUs</a>). Não houve chamada à API, porque não existe conta de faturamento.</p>
+<table>
+<thead>
+<tr>
+<th>Dado do plano</th>
+<th>Nossa base (quando o site tem)</th>
+<th>Google Places (New)</th>
+<th>SKU</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Aberto ou fechado</td>
+<td>Status pelo site no ar</td>
+<td><code>businessStatus</code></td>
+<td>Pro</td>
+</tr>
+<tr>
+<td>Horário</td>
+<td>Por dia, com o trecho do site</td>
+<td><code>regularOpeningHours</code>, e <code>currentOpeningHours</code> com feriados</td>
+<td>Enterprise</td>
+</tr>
+<tr>
+<td>Preço</td>
+<td>Itens com preço e custo por pessoa calculado</td>
+<td><code>priceRange</code> (faixa em reais) e <code>priceLevel</code></td>
+<td>Enterprise</td>
+</tr>
+<tr>
+<td>Vegetariano</td>
+<td>Sim, com evidência</td>
+<td><code>servesVegetarianFood</code></td>
+<td>Enterprise + Atmosphere</td>
+</tr>
+<tr>
+<td>Vegano, sem glúten, sem lactose</td>
+<td>Sim, com evidência</td>
+<td>Não existe</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Área externa, música ao vivo</td>
+<td>Com evidência</td>
+<td><code>outdoorSeating</code>, <code>liveMusic</code></td>
+<td>Enterprise + Atmosphere</td>
+</tr>
+<tr>
+<td>Acessibilidade</td>
+<td>Entrada e banheiro</td>
+<td><code>accessibilityOptions</code> (entrada, banheiro, assento, estacionamento)</td>
+<td>Pro</td>
+</tr>
+<tr>
+<td>Reserva, grupos</td>
+<td><code>exige_reserva</code>, <code>grupo_max</code></td>
+<td><code>reservable</code>, <code>goodForGroups</code></td>
+<td>Enterprise + Atmosphere</td>
+</tr>
+<tr>
+<td>Fonte e data verificáveis</td>
+<td>URL e data de cada campo</td>
+<td>Não informa a origem nem a data</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Mais completa, mas presa aos termos:</strong> a Google provavelmente cobre muito mais lugares que a nossa base. Só que nada pode ser guardado além do place ID (3.2.3(a)(iii)), mostrado ou lido em voz, nem usado com mapa não Google (ADR 0004).</li>
+<li><strong>Comparação de exatidão vetada:</strong> comparar a exatidão do nosso extrator com a Google é usar conteúdo da Google para validar IA (3.2.3(c)(vii)), o que os termos proíbem. Dá para medir só a cobertura dos finalistas, internamente.</li>
+<li><strong>Na hora do plano:</strong> a Google pode filtrar os finalistas por horário e faixa de preço sem que o dado entre na base. O custo é o SKU Enterprise, com 1.000 chamadas gratuitas por mês, contra 5.000 do Pro previsto hoje.</li>
+</ul>
+<h3 id="tripadvisor-estudado-em-0511">Tripadvisor (estudado em 05/11)<a class="headerlink" href="#tripadvisor-estudado-em-0511" title="Permanent link">&para;</a></h3>
+<p>O estudo leu os termos de uso do site, o robots.txt e a documentação da API oficial (Terra). Nenhuma página de lugar foi aberta, porque os termos proíbem o acesso por sistema de IA. Os indícios de cobertura vêm de resultados de busca.</p>
+<p><strong>Pelo site (robô, raspagem ou computer use): proibido.</strong>
+- <strong>Acesso automatizado:</strong> os Termos de Utilização (seção "Atividades interditas", de 16/02/2024) vedam usar robô, aranha, "sistema de inteligência artificial (IA)" ou outro meio automatizado para acessar, copiar, raspar ou agregar conteúdo, salvo permissão por escrito. Um agente de computer use cai nessa regra.
+- <strong>Cópia manual:</strong> outro item da mesma seção veda copiar ou explorar o conteúdo "por meio automático ou processo manual" fora do contrato. Uma pessoa transcrevendo o Tripadvisor para a base também fica fora.
+- <strong>Links profundos:</strong> fazer link para qualquer parte do site exige autorização por escrito. Nem um botão "ver no Tripadvisor" na ficha é permitido sem ela.
+- <strong>robots.txt:</strong> o do .com.br bloqueia por inteiro ClaudeBot, GPTBot, CCBot, Google-Extended e outros robôs de IA.</p>
+<p><strong>Pela API oficial (Terra, pacote Discover):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Ponto</th>
+<th>O que dizem os termos e a documentação</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>API antiga (Content API)</td>
+<td>Desativada em 31/08/2026. O plano de 5.000 chamadas grátis por mês acabou com ela</td>
+</tr>
+<tr>
+<td>Custo</td>
+<td>1.000 lugares grátis uma única vez por conta; depois, de US$ 0,015 a US$ 0,009 por lugar devolvido. Uma busca por proximidade devolve até 20 lugares e conta 20</td>
+</tr>
+<tr>
+<td>Guardar</td>
+<td>Só o location ID (<a href="https://docs.terra.tripadvisor.com/docs/caching-policy">Caching Policy</a>). Nada pode ir para a nossa base</td>
+</tr>
+<tr>
+<td>Uso com IA</td>
+<td>Nenhuma licença para usar o conteúdo com IA ou aprendizado de máquina, incluindo bancos de dados ligados a eles (3.1.2). A única exceção é o grounding por RAG em teste interno, não comercial e sem usuários</td>
+</tr>
+<tr>
+<td>Exclusividade</td>
+<td>Enquanto o contrato valer, o cliente não pode coletar nem exibir conteúdo parecido com o licenciado (3.4.5)</td>
+</tr>
+<tr>
+<td>Exibição</td>
+<td>Tudo como veio, com a marca e link para o Tripadvisor, sem combinar com outro conteúdo (3.4.2) e fora do alcance de buscadores (3.4.3)</td>
+</tr>
+<tr>
+<td>Quem contrata</td>
+<td>Uma entidade constituída (6.1). Um grupo de alunos teria de contratar em nome de uma pessoa ou da universidade</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Campos de Location Details:</strong></li>
+<li>horário por dia (<code>opening_hours</code>) e status (aberto, fechado ou fechado temporariamente);</li>
+<li>categorias e atributos (comodidades);</li>
+<li>links do site oficial e do cardápio;</li>
+<li>nota e ranking;</li>
+<li>aceita <code>locale=pt-BR</code>.</li>
+<li><strong>O que falta:</strong></li>
+<li>preço em reais: a API dá só uma de três faixas (<code>Cheap Eats</code>, <code>Mid Range</code>, <code>Fine Dining</code>);</li>
+<li>itens com preço;</li>
+<li>tipo de cozinha: a versão nova não tem mais esse campo.</li>
+<li><strong>Cobertura no DF</strong> (pelos resultados de busca, não medida): a página de Brasília fala em cerca de 4.400 restaurantes, e a de Ceilândia lista de 30 a 40, com avaliações em geral de 2013 a 2018. O Tripadvisor também se concentra no Centro e envelhece fora dele.</li>
+<li><strong>Conclusão: o Tripadvisor é mais restritivo que a Google para este projeto.</strong></li>
+<li><strong>Comparado com a Google:</strong> a Google deixa usar o dado na hora do plano, com condições. O Tripadvisor veda qualquer uso com IA no produto e, durante o contrato, impede coletar dado parecido, o que bate de frente com o pipeline.</li>
+<li><strong>Nem a base nem o plano:</strong> o Tripadvisor não entra na base nem na hora do plano, e continua na lista "Nunca entram no robô".</li>
+<li><strong>Única via:</strong> uma permissão por escrito para uso acadêmico, prevista tanto nos termos da API (3.1.2) quanto nos do site. A resposta pode não chegar a tempo do MVP.</li>
+</ul>
+<h2 id="perguntas-para-o-grupo">Perguntas para o grupo<a class="headerlink" href="#perguntas-para-o-grupo" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Aceitam que lugares sem site oficial fiquem fora do MVP? Se o teste de cobertura falhar numa região, preferem declarar a limitação ou mudar o RF-16?</li>
+<li>Qual e-mail do grupo vai no user-agent do robô?</li>
+<li>Qual provedor de LLM, com créditos gratuitos, faz a extração?</li>
+</ol>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li>GOOGLE. <strong>Google Maps Platform Terms of Service</strong>. Disponível em: https://cloud.google.com/maps-platform/terms. Acesso em: 3 nov. 2026.</li>
+<li>IBRAM. <strong>Unidades de conservação</strong>. Disponível em: https://www.ibram.df.gov.br/unidades-de-conservacao. Acesso em: 3 nov. 2026.</li>
+<li>INSTAGRAM. <strong>Termos de Uso</strong>. Disponível em: https://help.instagram.com/581066165581870. Acesso em: 3 nov. 2026.</li>
+<li>OVERTURE MAPS FOUNDATION. <strong>Places guide</strong>; <strong>Attribution</strong>. Disponível em: https://docs.overturemaps.org/. Acesso em: 3 nov. 2026.</li>
+<li>TRIPADVISOR. <strong>API Master Terms and Conditions</strong>; <strong>Caching Policy</strong>; <strong>Usage-based pricing</strong>; <strong>FAQ</strong> (migração da Content API). Disponível em: https://docs.terra.tripadvisor.com/. Acesso em: 5 nov. 2026.</li>
+<li>TRIPADVISOR. <strong>Termos de Utilização do Tripadvisor</strong>. Disponível em: https://tripadvisor.mediaroom.com/BR-terms-of-use. Acesso em: 5 nov. 2026.</li>
+<li>pgvector. <strong>Open-source vector similarity search for Postgres</strong>. Disponível em: https://github.com/pgvector/pgvector. Acesso em: 3 nov. 2026.</li>
+<li>BAAI. <strong>BGE-M3</strong>. Disponível em: https://huggingface.co/BAAI/bge-m3. Acesso em: 3 nov. 2026.</li>
+<li>CORMACK, G. V.; CLARKE, C. L. A.; BÜTTCHER, S. Reciprocal rank fusion outperforms Condorcet and individual rank learning methods. In: <strong>SIGIR</strong>, 2009.</li>
+</ul>
+<h2 id="historico">Histórico<a class="headerlink" href="#historico" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Data</th>
+<th>Mudança</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2026-11-03</td>
+<td>Versão inicial</td>
+</tr>
+<tr>
+<td>2026-11-03</td>
+<td>Resultado do piloto e opções para o grupo; pipeline em <code>src/base/</code></td>
+</tr>
+<tr>
+<td>2026-11-03</td>
+<td>Varredura ampliada (811 sorteados, 10 aprovados), medição do OSM e comparação com os campos da Google Places</td>
+</tr>
+<tr>
+<td>2026-11-03</td>
+<td>Opção A (OCR de cardápio) testada: +2 aprovados, validador mais rígido; base com 11 lugares</td>
+</tr>
+<tr>
+<td>2026-11-05</td>
+<td>Estudo do Tripadvisor (site e API Terra): fica fora da base e do plano</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "content.code.copy"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

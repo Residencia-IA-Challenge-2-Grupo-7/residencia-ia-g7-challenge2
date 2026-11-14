@@ -1,0 +1,1609 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentação Oficial de Engenharia, DevOps e Arquitetura do Grupo 7 (Residência em IA Eldorado/UnB)">
+      
+      
+        <meta name="author" content="Grupo 7">
+      
+      
+        <link rel="canonical" href="https://residencia-ia-challenge-2-grupo-7.github.io/residencia-ia-g7-challenge2/entregas/semana-02/RELATORIO_TECNICO_RAG_SEMANA_02/">
+      
+      
+        <link rel="prev" href="../../../semanas/semana-02/">
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>Relatório Semana 2 - Orquestrador de Rolês — Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#relatorio-tecnico-base-de-conhecimento-prototipo-de-rag-e-telemetria" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../../.." title="Orquestrador de Rolês — Docs" class="md-header__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Orquestrador de Rolês — Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Relatório Semana 2
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Orquestrador de Rolês — Docs" class="md-nav__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Orquestrador de Rolês — Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guia-contribuicao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Contribuição
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arquitetura & Decisões
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Arquitetura & Decisões
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../produto/visao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visão do Produto
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../produto/requisitos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Requisitos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../decisoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisões Técnicas (ADRs)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dados & RAG
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Dados & RAG
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../dados/esquema-base/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Esquema da Base
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../dados/guia-curadoria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Curadoria
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../dados/golden-dataset-semana3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Golden Dataset (Semana 3)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semanas & Entregas
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Semanas & Entregas
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../semanas/semana-01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 01
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../semanas/semana-02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 02
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Relatório Semana 2
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Relatório Semana 2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-resumo-executivo-e-checklist-dos-artefatos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Resumo Executivo e Checklist dos Artefatos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-estrategia-de-chunking-entity-centric-semantic-chunking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Estratégia de Chunking (Entity-Centric Semantic Chunking)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Estratégia de Chunking (Entity-Centric Semantic Chunking)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-por-que-nao-utilizar-fixed-size-chunking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1. Por que não utilizar Fixed-Size Chunking?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-solucao-adotada-1-documento-fonte-1-chunk-autocontido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2. Solução Adotada: 1 Documento-Fonte = 1 Chunk Autocontido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-estrategia-de-embeddings-e-banco-vetorial" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Estratégia de Embeddings e Banco Vetorial
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-pipeline-de-ingestao-de-dados-curadoria-em-2-fatores-2fa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Pipeline de Ingestão de Dados (Curadoria em 2 Fatores - 2FA)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-arquitetura-do-sistema-e-telemetria-em-tempo-de-execucao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Arquitetura do Sistema e Telemetria em Tempo de Execução
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-telemetria-observabilidade-e-auditoria-de-rnfs-langfuse-cloud" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Telemetria, Observabilidade e Auditoria de RNFs (Langfuse Cloud)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Telemetria, Observabilidade e Auditoria de RNFs (Langfuse Cloud)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-casos-de-teste-auditados-com-traces-rastreaveis-no-langfuse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1. Casos de Teste Auditados com Traces Rastreáveis no Langfuse:
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-analise-tecnica-e-qualitativa-dos-resultados" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2. Análise Técnica e Qualitativa dos Resultados
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-governanca-de-custos-e-consumo-de-tokens-rnf-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3. Governança de Custos e Consumo de Tokens (RNF-15)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-demonstracao-e-como-testar-o-prototipo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Demonstração e Como Testar o Protótipo
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Demonstração e Como Testar o Protótipo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-opcao-1-demonstracao-online-direta-no-navegador-recomendada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1. Opção 1: Demonstração Online Direta no Navegador (Recomendada)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-opcao-2-bateria-de-testes-via-terminal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2. Opção 2: Bateria de Testes via Terminal
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-preparacao-para-a-semana-3-baseline-llm-pura-vs-rag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Preparação para a Semana 3 (Baseline LLM pura vs. RAG)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Preparação para a Semana 3 (Baseline LLM pura vs. RAG)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-metodologia-do-benchmark-comparativo-golden-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1. Metodologia do Benchmark Comparativo (Golden Dataset)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-matriz-de-tratamento-de-casos-de-borda-e-guardrails-do-rag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2. Matriz de Tratamento de Casos de Borda e Guardrails do RAG
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-conclusao-e-links-de-acesso-ao-ecossistema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Conclusão e Links de Acesso ao Ecossistema
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-resumo-executivo-e-checklist-dos-artefatos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Resumo Executivo e Checklist dos Artefatos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-estrategia-de-chunking-entity-centric-semantic-chunking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Estratégia de Chunking (Entity-Centric Semantic Chunking)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Estratégia de Chunking (Entity-Centric Semantic Chunking)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-por-que-nao-utilizar-fixed-size-chunking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1. Por que não utilizar Fixed-Size Chunking?
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-solucao-adotada-1-documento-fonte-1-chunk-autocontido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2. Solução Adotada: 1 Documento-Fonte = 1 Chunk Autocontido
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-estrategia-de-embeddings-e-banco-vetorial" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Estratégia de Embeddings e Banco Vetorial
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-pipeline-de-ingestao-de-dados-curadoria-em-2-fatores-2fa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Pipeline de Ingestão de Dados (Curadoria em 2 Fatores - 2FA)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-arquitetura-do-sistema-e-telemetria-em-tempo-de-execucao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Arquitetura do Sistema e Telemetria em Tempo de Execução
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-telemetria-observabilidade-e-auditoria-de-rnfs-langfuse-cloud" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Telemetria, Observabilidade e Auditoria de RNFs (Langfuse Cloud)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Telemetria, Observabilidade e Auditoria de RNFs (Langfuse Cloud)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-casos-de-teste-auditados-com-traces-rastreaveis-no-langfuse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1. Casos de Teste Auditados com Traces Rastreáveis no Langfuse:
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-analise-tecnica-e-qualitativa-dos-resultados" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2. Análise Técnica e Qualitativa dos Resultados
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-governanca-de-custos-e-consumo-de-tokens-rnf-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3. Governança de Custos e Consumo de Tokens (RNF-15)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-demonstracao-e-como-testar-o-prototipo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Demonstração e Como Testar o Protótipo
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Demonstração e Como Testar o Protótipo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-opcao-1-demonstracao-online-direta-no-navegador-recomendada" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1. Opção 1: Demonstração Online Direta no Navegador (Recomendada)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-opcao-2-bateria-de-testes-via-terminal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2. Opção 2: Bateria de Testes via Terminal
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-preparacao-para-a-semana-3-baseline-llm-pura-vs-rag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Preparação para a Semana 3 (Baseline LLM pura vs. RAG)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Preparação para a Semana 3 (Baseline LLM pura vs. RAG)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-metodologia-do-benchmark-comparativo-golden-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1. Metodologia do Benchmark Comparativo (Golden Dataset)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-matriz-de-tratamento-de-casos-de-borda-e-guardrails-do-rag" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2. Matriz de Tratamento de Casos de Borda e Guardrails do RAG
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-conclusao-e-links-de-acesso-ao-ecossistema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Conclusão e Links de Acesso ao Ecossistema
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="relatorio-tecnico-base-de-conhecimento-prototipo-de-rag-e-telemetria">Relatório Técnico: Base de Conhecimento, Protótipo de RAG e Telemetria<a class="headerlink" href="#relatorio-tecnico-base-de-conhecimento-prototipo-de-rag-e-telemetria" title="Permanent link">&para;</a></h1>
+<p><strong>RES IA ELD UNB — Turma 2 | Grupo 7 — Orquestrador de Rolês (Brasília/DF)</strong><br />
+<strong>Equipe:</strong> Letícia Miti Takahashi (Engenharia de Dados &amp; RAG) e Maria Eduarda (DevOps, Infraestrutura &amp; LLMOps)<br />
+<strong>Prazo Oficial:</strong> 09/11/2026, às 08h00 | <strong>Demonstração Online:</strong> <a href="https://orquestrador-roles.onrender.com">https://orquestrador-roles.onrender.com</a> | <strong>Painel Langfuse:</strong> <a href="https://cloud.langfuse.com">Langfuse Cloud</a>  </p>
+<hr />
+<h2 id="1-resumo-executivo-e-checklist-dos-artefatos">1. Resumo Executivo e Checklist dos Artefatos<a class="headerlink" href="#1-resumo-executivo-e-checklist-dos-artefatos" title="Permanent link">&para;</a></h2>
+<p>O objetivo deste entregável da Semana 2 é construir e auditar o primeiro mecanismo de <strong>RAG (Retrieval-Augmented Generation)</strong> fundamentado em base de conhecimento curada de Brasília, assegurando qualidade na recuperação, fundamentação sem alucinações e rastreabilidade total das fontes.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Requisito do Edital</th>
+<th style="text-align: center;">Status</th>
+<th style="text-align: left;">Localização no Repositório</th>
+<th style="text-align: left;">Resumo Técnico</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>1. Base de conhecimento curada</strong></td>
+<td style="text-align: center;">Concluído</td>
+<td style="text-align: left;"><code>data/banco_aprovado_2fa.json</code> e <code>.csv</code></td>
+<td style="text-align: left;">93 estabelecimentos aprovados pelo protocolo 2FA.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>2. Mínimo de 20 documentos-fonte</strong></td>
+<td style="text-align: center;">Superado</td>
+<td style="text-align: left;"><code>data/banco_aprovado_2fa.json</code> (93 fontes)</td>
+<td style="text-align: left;">164 vídeos de 2026 do <code>@rolezandoembrasilia</code> (TikTok).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>3. Estratégia de chunking</strong></td>
+<td style="text-align: center;">Concluído</td>
+<td style="text-align: left;">Seção 2 + <code>src/rag/banco_vetorial.py</code></td>
+<td style="text-align: left;"><em>Entity-Centric Semantic Chunking</em> (1 chunk autocontido por local).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>4. Estratégia de embeddings</strong></td>
+<td style="text-align: center;">Concluído</td>
+<td style="text-align: left;">Seção 3 + <code>src/rag/banco_vetorial.py</code></td>
+<td style="text-align: left;"><code>models/gemini-embedding-001</code> (3.072 dimensões) + Similaridade Cosseno.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>5. Banco vetorial implementado</strong></td>
+<td style="text-align: center;">Concluído</td>
+<td style="text-align: left;"><code>data/banco_vetorial_embeddings.json</code></td>
+<td style="text-align: left;">93 vetores persistidos com busca por similaridade $K=3$.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>6. Demonstração completa</strong></td>
+<td style="text-align: center;">Concluído</td>
+<td style="text-align: left;"><code>src/rag/prototipo_rag.py</code> + <code>DEMONSTRACAO_RAG_ENTREGAVEL.txt</code></td>
+<td style="text-align: left;">4 passos: Consulta ➔ Chunks ➔ Resposta Fundamentada ➔ Fontes.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>7. Diagrama &amp; Pipeline</strong></td>
+<td style="text-align: center;">Concluído</td>
+<td style="text-align: left;">Seções 4 e 5 deste relatório</td>
+<td style="text-align: left;">Fluxogramas de Ingestão 2FA e Arquitetura de Runtime RAG.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>8. Telemetria e LLMOps</strong></td>
+<td style="text-align: center;">Concluído</td>
+<td style="text-align: left;">Seção 6 + <code>src/telemetria/telemetria.py</code></td>
+<td style="text-align: left;">Langfuse Cloud v5.x (Auditoria RNF-03 Zero Alucinação e RNF-14 Latência).</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-estrategia-de-chunking-entity-centric-semantic-chunking">2. Estratégia de Chunking (<em>Entity-Centric Semantic Chunking</em>)<a class="headerlink" href="#2-estrategia-de-chunking-entity-centric-semantic-chunking" title="Permanent link">&para;</a></h2>
+<h3 id="21-por-que-nao-utilizar-fixed-size-chunking">2.1. Por que não utilizar <em>Fixed-Size Chunking</em>?<a class="headerlink" href="#21-por-que-nao-utilizar-fixed-size-chunking" title="Permanent link">&para;</a></h3>
+<p>Vídeos curtos (30 a 60 segundos) apresentam estrutura narrativa não linear: o <strong>nome</strong> é citado no início, as <strong>vibes</strong> no meio e o <strong>preço e endereço</strong> nos segundos finais. Um particionamento cego por tamanho fixo (caracteres/tokens) fragmentaria endereço e preço do nome do estabelecimento, provocando <em>context fragmentation</em> e alucinações.</p>
+<h3 id="22-solucao-adotada-1-documento-fonte-1-chunk-autocontido">2.2. Solução Adotada: 1 Documento-Fonte = 1 Chunk Autocontido<a class="headerlink" href="#22-solucao-adotada-1-documento-fonte-1-chunk-autocontido" title="Permanent link">&para;</a></h3>
+<p>Cada registro aprovado consolida 4 camadas de informação em um único chunk semântico estruturado:
+1. <strong>Identidade e Categoria (Fator 1):</strong> Nome oficial e tipo (<code>Restaurante</code>, <code>Bar/Pub</code>, <code>Cafeteria</code>, <code>Evento</code>, <code>Ao Ar Livre</code>).
+2. <strong>Ancoragem Geoespacial e Financeira (Fator 2):</strong> Região Administrativa (RA), endereço validado, coordenadas GPS e faixa de preço (<code>Barato $</code>, <code>Moderado $$</code>, <code>Caro $$$</code>) com valor médio em R$.
+3. <strong>Atmosfera e Cultura (Fator 1):</strong> Tags de <em>Vibes</em> (<code>Romântico</code>, <code>Calmo</code>, <code>Baratinho</code>, <code>Alternativo</code>, <code>Kid Friendly</code>, <code>Animado</code>) + Resumo Sensorial.
+4. <strong>Evidência Oral Bruta (Whisper):</strong> Transcrição real do áudio falado (até 500 caracteres) preservando termos de cardápio (ex.: <em>"rodízio"</em>, <em>"parrilla"</em>, <em>"brinquedoteca"</em>).</p>
+<p><strong>Template do Chunk Indexado:</strong>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Local: {nome} | Categoria: {tipo} | Região: {RA} ({endereco}) | Preço: {faixa} (R$ {custo}) | Vibes: {vibes} | Experiência: {resumo} | TikTok: {audio_whisper}
+</code></pre></div></p>
+<hr />
+<h2 id="3-estrategia-de-embeddings-e-banco-vetorial">3. Estratégia de Embeddings e Banco Vetorial<a class="headerlink" href="#3-estrategia-de-embeddings-e-banco-vetorial" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Modelo:</strong> <code>models/gemini-embedding-001</code> (Google Generative Language API).</li>
+<li><strong>Dimensionalidade:</strong> <strong>3.072 dimensões</strong> (vetores densos de alta resolução).</li>
+<li><strong>Justificativa:</strong> Excelente compreensão semântica do Português Brasileiro e gírias/regionalismos de Brasília (associações como <em>"passeio ao ar livre com criança"</em> ➔ <em>"Eixão do Lazer / Kid Friendly"</em>).</li>
+<li><strong>Métrica de Busca:</strong> Similaridade de Cosseno:
+  $$\text{Similaridade}(\vec{q}, \vec{d}) = \frac{\vec{q} \cdot \vec{d}}{|\vec{q}| |\vec{d}|}$$</li>
+<li><strong>Persistência:</strong> 93 vetores persistidos em <code>data/banco_vetorial_embeddings.json</code> e <code>.csv</code>, permitindo recuperação instantânea em memória ($K=3$).</li>
+</ul>
+<hr />
+<h2 id="4-pipeline-de-ingestao-de-dados-curadoria-em-2-fatores-2fa">4. Pipeline de Ingestão de Dados (Curadoria em 2 Fatores - 2FA)<a class="headerlink" href="#4-pipeline-de-ingestao-de-dados-curadoria-em-2-fatores-2fa" title="Permanent link">&para;</a></h2>
+<p>Para impedir propagandas e registros incompletos, criamos um pipeline com <strong>Autenticação de Dois Fatores de Dados (2FA)</strong> em <code>src/rag/coletor_tiktok_2fa.py</code>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>flowchart TD
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    A["164 Vídeos TikTok (2026)&lt;br/&gt;@rolezandoembrasilia"] --&gt; B["Extração Áudio (yt-dlp) + Transcrição Groq (Whisper v3 Turbo)"]
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    B --&gt; C{"FATOR 1: Curadoria Cultural (LLM)&lt;br/&gt;É local de lazer/gastronomia?"}
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    C -- "Não (47 vídeos)" --&gt; D["Descartado (Óticas, Colchões, Roupas)"]
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    C -- "Sim: Extrai Nome + Vibes" --&gt; E{"FATOR 2: Validação Prática&lt;br/&gt;Endereço DF + Preço R$"}
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    E -- "Incompleto (24 vídeos)" --&gt; F["Quarentena (data/fila_quarentena_2fa.json)"]
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    E -- "Aprovado (93 fontes)" --&gt; G["Base Curada 2FA (data/banco_aprovado_2fa.json)"]
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    G --&gt; H["Chunking + Embeddings Gemini (3.072-d) ➔ Banco Vetorial (data/)"]
+</code></pre></div>
+<hr />
+<h2 id="5-arquitetura-do-sistema-e-telemetria-em-tempo-de-execucao">5. Arquitetura do Sistema e Telemetria em Tempo de Execução<a class="headerlink" href="#5-arquitetura-do-sistema-e-telemetria-em-tempo-de-execucao" title="Permanent link">&para;</a></h2>
+<p>O diagrama abaixo ilustra o fluxo de dados em runtime com observabilidade contínua via <strong>Langfuse Cloud (v5.x)</strong>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>flowchart LR
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>    Q["Consulta do Usuário"] --&gt; V["Vetorização (Gemini)"]
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>    V --&gt; RET["Busca Cosseno Top-3 (Banco Vetorial)"]
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>    RET --&gt; LLM["Geração Fundamentada (LLM)"]
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>    LLM --&gt; R["Resposta com Evidências e Links"]
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>    RET -.-&gt;|Span: retriever| LF["Langfuse Cloud"]
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>    LLM -.-&gt;|Span: generation| LF
+<a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>    LF --&gt; SC["Auditoria Automática: RNF-03 (Zero Alucinação) + RNF-14 (SLA Latência)"]
+</code></pre></div>
+<hr />
+<h2 id="6-telemetria-observabilidade-e-auditoria-de-rnfs-langfuse-cloud">6. Telemetria, Observabilidade e Auditoria de RNFs (Langfuse Cloud)<a class="headerlink" href="#6-telemetria-observabilidade-e-auditoria-de-rnfs-langfuse-cloud" title="Permanent link">&para;</a></h2>
+<p>A instrumentação ponta a ponta com <strong>Langfuse Cloud (v5.x)</strong> (<code>src/telemetria/telemetria.py</code>) audita matematicamente o pipeline a cada requisição:</p>
+<ol>
+<li><strong><code>fidelidade_rnf03_zero_alucinacao</code> (Meta: Zero Alucinação) — Score Obtido: 1.0 (100% ancorado):</strong> O validador garante que todas as recomendações pertencem estritamente aos 93 documentos do <code>data/banco_aprovado_2fa.json</code>.</li>
+<li><strong><code>sla_latencia_rnf14</code> (Meta $\le 5.0\text{ s}$) — Score Obtido: 1.0 (Conforme):</strong> Latência média de processamento entre <strong>2.8 ms e 21.9 ms</strong>, operando com mais de 200x de margem de segurança.</li>
+<li><strong><code>qualidade_recuperacao_rag</code> (Relevância Semântica) — Score Obtido: 0.87 a 0.98:</strong> Atesta alta precisão no casamento da intenção com os metadados e áudios.</li>
+</ol>
+<h3 id="61-casos-de-teste-auditados-com-traces-rastreaveis-no-langfuse">6.1. Casos de Teste Auditados com Traces Rastreáveis no Langfuse:<a class="headerlink" href="#61-casos-de-teste-auditados-com-traces-rastreaveis-no-langfuse" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">ID</th>
+<th style="text-align: left;">Consulta Submetida</th>
+<th style="text-align: left;">1º Lugar Recuperado</th>
+<th style="text-align: center;">Região</th>
+<th style="text-align: center;">Cosseno</th>
+<th style="text-align: center;">Latência</th>
+<th style="text-align: left;">Trace ID no Langfuse</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>#1</strong></td>
+<td style="text-align: left;"><em>"Qual o melhor boteco alternativo e animado na Asa Sul?"</em></td>
+<td style="text-align: left;"><strong>Spelunca DF</strong></td>
+<td style="text-align: center;">Asa Sul</td>
+<td style="text-align: center;"><strong>0.98</strong></td>
+<td style="text-align: center;">21.9 ms</td>
+<td style="text-align: left;"><code>ac2ece1889e84b72</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>#2</strong></td>
+<td style="text-align: left;"><em>"Quero um café romântico e calmo na Asa Norte"</em></td>
+<td style="text-align: left;"><strong>Café e Um Chêro</strong></td>
+<td style="text-align: center;">Asa Norte</td>
+<td style="text-align: center;"><strong>0.98</strong></td>
+<td style="text-align: center;">5.5 ms</td>
+<td style="text-align: left;"><code>2fe411a5e04f46ab</code></td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>#3</strong></td>
+<td style="text-align: left;"><em>"Opção ao ar livre, baratinha e kid friendly para domingo"</em></td>
+<td style="text-align: left;"><strong>Eixão do Lazer</strong></td>
+<td style="text-align: center;">Eixo Rodov.</td>
+<td style="text-align: center;"><strong>0.87</strong></td>
+<td style="text-align: center;">2.8 ms</td>
+<td style="text-align: left;"><code>0a0f08b4188045f1</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="62-analise-tecnica-e-qualitativa-dos-resultados">6.2. Análise Técnica e Qualitativa dos Resultados<a class="headerlink" href="#62-analise-tecnica-e-qualitativa-dos-resultados" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Desambiguação Semântica (Caso #1):</strong> Ao solicitar "boteco alternativo na Asa Sul", o modelo descartou cafeterias da Asa Norte e priorizou o <em>Spelunca DF</em> (Score 0.98), respeitando o filtro de tipo e o recorte geográfico.</li>
+<li><strong>Captura de Nuances de Atmosfera (Caso #2):</strong> A transcrição de áudio do Whisper capturou menções a café intimista e aconchegante, garantindo que o <em>Café e Um Chêro</em> liderasse o ranking com 0.98 de aderência.</li>
+<li><strong>Filtros Multifatoriais (Caso #3):</strong> A combinação de lazer aberto, gratuidade (<em>baratinho</em>) e adequação familiar ativou as tags <code>Kid Friendly</code> e <code>Ao Ar Livre</code>, ranqueando o <em>Eixão do Lazer</em> no topo.</li>
+</ul>
+<h3 id="63-governanca-de-custos-e-consumo-de-tokens-rnf-15">6.3. Governança de Custos e Consumo de Tokens (RNF-15)<a class="headerlink" href="#63-governanca-de-custos-e-consumo-de-tokens-rnf-15" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Tokens Médios de Entrada:</strong> ~280 tokens por consulta (Prompt estruturado + Top-3 Chunks recuperados).</li>
+<li><strong>Tokens Médios de Saída:</strong> ~65 tokens por consulta (Resposta direta e fundamentada com fontes).</li>
+<li><strong>Custo Estimado por Requisição:</strong> <strong>$0.000045 USD</strong> utilizando o modelo Google Gemini 1.5 Flash.</li>
+<li><strong>Sustentabilidade Operacional:</strong> Com esses parâmetros, a cota gratuita mensal suporta mais de 30.000 buscas sem custos para a UnB ou para o Instituto Eldorado.</li>
+</ul>
+<hr />
+<h2 id="7-demonstracao-e-como-testar-o-prototipo">7. Demonstração e Como Testar o Protótipo<a class="headerlink" href="#7-demonstracao-e-como-testar-o-prototipo" title="Permanent link">&para;</a></h2>
+<h3 id="71-opcao-1-demonstracao-online-direta-no-navegador-recomendada">7.1. Opção 1: Demonstração Online Direta no Navegador (Recomendada)<a class="headerlink" href="#71-opcao-1-demonstracao-online-direta-no-navegador-recomendada" title="Permanent link">&para;</a></h3>
+<p>Acesse a aplicação em produção: <strong><a href="https://orquestrador-roles.onrender.com">https://orquestrador-roles.onrender.com</a></strong><br />
+* Permite submeter perguntas, visualizar os cards com links do TikTok e conferir os metadados de telemetria e o link do trace no Langfuse em tempo real.</p>
+<h3 id="72-opcao-2-bateria-de-testes-via-terminal">7.2. Opção 2: Bateria de Testes via Terminal<a class="headerlink" href="#72-opcao-2-bateria-de-testes-via-terminal" title="Permanent link">&para;</a></h3>
+<p>Execute na raiz do projeto:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python3<span class="w"> </span>src/rag/prototipo_rag.py
+</code></pre></div>
+O comando executa os <strong>4 passos obrigatórios</strong>:
+1. Exibe a <strong>Consulta submetida</strong>;
+2. Exibe os <strong>Top-3 Chunks recuperados</strong> com seus scores de cosseno;
+3. Exibe a <strong>Resposta fundamentada da LLM</strong> citando <code>[FONTE #1]</code>, <code>[FONTE #2]</code>;
+4. Lista a <strong>Evidência das Fontes</strong> (ID, GPS, preço validado, transcrição Whisper e URL do TikTok).</p>
+<p><em>(O log completo de saída encontra-se salvo em <code>docs/entregas/semana-02/DEMONSTRACAO_RAG_ENTREGAVEL.txt</code>).</em></p>
+<hr />
+<h2 id="8-preparacao-para-a-semana-3-baseline-llm-pura-vs-rag">8. Preparação para a Semana 3 (Baseline LLM pura vs. RAG)<a class="headerlink" href="#8-preparacao-para-a-semana-3-baseline-llm-pura-vs-rag" title="Permanent link">&para;</a></h2>
+<p>Conforme o cronograma pedagógico do Challenge 2, a <strong>Semana 3</strong> terá como foco a comparação empírica entre respostas de modelos sem contexto (<em>LLM pura</em>) e respostas ancoradas (<em>RAG baseado em evidências</em>). A safra de 93 rolês auditados e o tracing instrumentado no Langfuse já estabelecem a <strong>linha de base quantitativa (Baseline)</strong> necessária para comprovar a eliminação de alucinações e a assertividade geoespacial no Distrito Federal.</p>
+<h3 id="81-metodologia-do-benchmark-comparativo-golden-dataset">8.1. Metodologia do Benchmark Comparativo (Golden Dataset)<a class="headerlink" href="#81-metodologia-do-benchmark-comparativo-golden-dataset" title="Permanent link">&para;</a></h3>
+<p>Para a Semana 3, foi estruturado um conjunto de 10 perguntas de teste com diferentes graus de complexidade e especificidade regional:
+1. <strong>Perguntas de Nicho Local:</strong> Testar estabelecimentos pouco conhecidos fora de Brasília para avaliar se a LLM pura inventa ruas ou quadras fictícias.
+2. <strong>Perguntas Multifatoriais de Preço e Horário:</strong> Avaliar a fidelidade aos valores médios (R$) e dias de funcionamento (ex: eventos de domingo no Eixão).
+3. <strong>Métricas de Avaliação no Langfuse:</strong> Cada par de respostas (<em>LLM Pura</em> vs. <em>RAG</em>) será comparado via LLM-as-a-Judge no Langfuse considerando:
+   * <strong>Fidelidade Factual (Hallucination Rate):</strong> Percentual de afirmações verificáveis no banco 2FA;
+   * <strong>Precisão de Endereçamento:</strong> Verificação se as quadras e RA indicadas existem e correspondem ao local;
+   * <strong>Rastreabilidade:</strong> Presença de links e transcrições comprovando a sugestão.</p>
+<h3 id="82-matriz-de-tratamento-de-casos-de-borda-e-guardrails-do-rag">8.2. Matriz de Tratamento de Casos de Borda e Guardrails do RAG<a class="headerlink" href="#82-matriz-de-tratamento-de-casos-de-borda-e-guardrails-do-rag" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Cenário de Borda</th>
+<th style="text-align: left;">Comportamento Observado</th>
+<th style="text-align: left;">Mecanismo de Salvaguarda (Guardrail)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Consulta Fora de Escopo</strong><br><em>(ex: "Onde jantar em Copacabana?")</em></td>
+<td style="text-align: left;">Similaridade de cosseno máxima inferior ao limiar mínimo ($\text{Score} &lt; 0.65$).</td>
+<td style="text-align: left;">O sistema rejeita educadamente alucinar e sinaliza que a base curada é exclusiva do Distrito Federal.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Restrições Conflitantes</strong><br><em>(ex: "Restaurante de luxo grátis")</em></td>
+<td style="text-align: left;">Recupera itens com semântica de gastronomia sofisticada, mas valida o metadado <code>faixa_preco</code>.</td>
+<td style="text-align: left;">A LLM avisa explicitamente que a categoria solicitada opera na faixa <code>$$$</code> ou <code>$$$$</code>, sugerindo alternativas.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Gírias Regionais Candangas</strong><br><em>(ex: "dar um rolê na tesourinha")</em></td>
+<td style="text-align: left;">O embedding de 3.072 dimensões associa vocabulário oral do Whisper à geografia local.</td>
+<td style="text-align: left;">Assegura que contextos informais encontrem locais pertinentes sem falha de recuperação lexical.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-conclusao-e-links-de-acesso-ao-ecossistema">9. Conclusão e Links de Acesso ao Ecossistema<a class="headerlink" href="#9-conclusao-e-links-de-acesso-ao-ecossistema" title="Permanent link">&para;</a></h2>
+<p>A entrega da Semana 2 cumpre integralmente os requisitos do Segundo Desafio: <strong>volume curado comprovado</strong> (93 fontes contra meta mínima de 20), <strong>chunking semântico estruturado</strong>, <strong>embeddings de 3.072 dimensões</strong>, <strong>respostas rastreáveis sem alucinação</strong>, <strong>observabilidade completa com Langfuse</strong> e <strong>orçamento viável</strong>, atestando qualidade e conformidade com os requisitos da Residência em IA (UnB / Instituto Eldorado).</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Recurso do Projeto</th>
+<th style="text-align: left;">Tipo de Acesso</th>
+<th style="text-align: left;">Endereço / Identificador</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Aplicação Web (Produção)</strong></td>
+<td style="text-align: left;">Nuvem pública (Render)</td>
+<td style="text-align: left;"><code>https://orquestrador-roles.onrender.com</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Interface Interativa do RAG</strong></td>
+<td style="text-align: left;">Nuvem pública (Render)</td>
+<td style="text-align: left;"><code>https://orquestrador-roles.onrender.com/rag</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Painel Langfuse (Observabilidade)</strong></td>
+<td style="text-align: left;">Langfuse Cloud v5</td>
+<td style="text-align: left;">Projeto <code>cmw59be2y01d8ad0jqbgsjut6</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Demonstração em Terminal (Logs)</strong></td>
+<td style="text-align: left;">Repositório</td>
+<td style="text-align: left;"><code>docs/entregas/semana-02/DEMONSTRACAO_RAG_ENTREGAVEL.txt</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Pacote Compactado da Entrega</strong></td>
+<td style="text-align: left;">Arquivo ZIP</td>
+<td style="text-align: left;"><code>docs/entregas/semana-02/Entregavel_Grupo7_Base_Conhecimento_e_RAG.zip</code></td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

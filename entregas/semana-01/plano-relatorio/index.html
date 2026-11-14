@@ -1,0 +1,1409 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentação Oficial de Engenharia, DevOps e Arquitetura do Grupo 7 (Residência em IA Eldorado/UnB)">
+      
+      
+        <meta name="author" content="Grupo 7">
+      
+      
+        <link rel="canonical" href="https://residencia-ia-challenge-2-grupo-7.github.io/residencia-ia-g7-challenge2/entregas/semana-01/plano-relatorio/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>Plano do relatório da semana 1: definições do projeto - Orquestrador de Rolês — Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#plano-do-relatorio-da-semana-1-definicoes-do-projeto" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../../.." title="Orquestrador de Rolês — Docs" class="md-header__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Orquestrador de Rolês — Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Plano do relatório da semana 1: definições do projeto
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Orquestrador de Rolês — Docs" class="md-nav__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Orquestrador de Rolês — Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guia-contribuicao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Contribuição
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arquitetura & Decisões
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Arquitetura & Decisões
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../produto/visao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visão do Produto
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../produto/requisitos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Requisitos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../decisoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisões Técnicas (ADRs)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dados & RAG
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Dados & RAG
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../dados/esquema-base/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Esquema da Base
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../dados/guia-curadoria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Curadoria
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../dados/golden-dataset-semana3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Golden Dataset (Semana 3)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semanas & Entregas
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Semanas & Entregas
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../semanas/semana-01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 01
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../semanas/semana-02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 02
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../semana-02/RELATORIO_TECNICO_RAG_SEMANA_02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Relatório Semana 2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-o-que-temos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. O que temos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-ordem-das-secoes-e-espaco-de-cada-uma" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Ordem das seções e espaço de cada uma
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-o-que-entra-de-cada-parte" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. O que entra de cada parte
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. O que entra de cada parte">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-cenario-escolhido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1 Cenário escolhido
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-problema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2 Problema
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-essential-question-da-equipe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3 Essential Question da equipe
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-mapa-de-stakeholders" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4 Mapa de stakeholders
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-personas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5 Personas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-premissas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6 Premissas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#7-requisitos-funcionais-e-nao-funcionais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7 Requisitos funcionais e não funcionais
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-riscos-espaco-reservado" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8 Riscos (espaço reservado)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-metricas-de-sucesso-espaco-reservado" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9 Métricas de sucesso (espaço reservado)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#10-guiding-questions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10 Guiding questions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-ajustes-de-consistencia-antes-de-montar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Ajustes de consistência antes de montar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-formatacao-abnt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Formatação ABNT
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-proximos-passos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Próximos passos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-revisao-de-consistencia-29102026" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Revisão de consistência (29/10/2026)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="plano-do-relatorio-da-semana-1-definicoes-do-projeto">Plano do relatório da semana 1: definições do projeto<a class="headerlink" href="#plano-do-relatorio-da-semana-1-definicoes-do-projeto" title="Permanent link">&para;</a></h1>
+<ul>
+<li><strong>Entregável:</strong> relatório em .docx, padrão ABNT, com <strong>até 5 páginas de texto</strong>. Capa e referências ficam fora da contagem.</li>
+<li><strong>Fontes:</strong> PDF da equipe "Grupo 07 - Orquestrador de Rolês" (29/10), exportado do <a href="https://docs.google.com/document/d/1mlxgJ9XoadAl4qKV28bw6qexQxF6xpwcSx5aENsRPF4/edit?tab=t.mm6pfcuj8dpt#heading=h.tyssdhkqxqfd">documento do grupo</a> (Google Docs), <a href="../../../produto/requisitos/">requisitos v0.2</a>, <a href="../../../produto/visao/">visão do produto</a> e ADRs <a href="../../../decisoes/0002-recorte-do-mvp/">0002</a> e <a href="../../../decisoes/0003-canal-app-web/">0003</a>.</li>
+<li><strong>Princípio de corte:</strong> o relatório mostra as decisões e o raciocínio; o detalhe fica no repositório. Toda lista vira quadro, e cada fato aparece em uma seção só.</li>
+</ul>
+<h2 id="1-o-que-temos">1. O que temos<a class="headerlink" href="#1-o-que-temos" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Parte</th>
+<th>Páginas no PDF</th>
+<th>Situação</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cenário, Problema, Essential Question</td>
+<td>2 a 4</td>
+<td>Pronto, mas o problema não cita nenhuma evidência</td>
+</tr>
+<tr>
+<td>Guiding questions</td>
+<td>4 e 5</td>
+<td>9 perguntas; uma delas é sobre jogos, fora do MVP</td>
+</tr>
+<tr>
+<td>Personas</td>
+<td>6 a 13</td>
+<td>7 personas com fundamentação; premissas operacionais desatualizadas (15 por sala, 18 a 40 anos)</td>
+</tr>
+<tr>
+<td>Premissas</td>
+<td>14 a 20</td>
+<td>P01 a P18, quase todas sobre o projeto (equipe, prazo, custo)</td>
+</tr>
+<tr>
+<td>Requisitos</td>
+<td>21 a 43</td>
+<td>41 RF e 16 RNF no PDF; o repositório já está na v0.2, com 45 RF</td>
+</tr>
+<tr>
+<td>Mapa de stakeholders</td>
+<td>44 a 47</td>
+<td>Lista em 3 níveis; inclui gamers e lojas de jogos, fora do MVP</td>
+</tr>
+<tr>
+<td>Riscos</td>
+<td>ausente</td>
+<td>Reservar espaço</td>
+</tr>
+<tr>
+<td>Métricas de sucesso</td>
+<td>ausente</td>
+<td>Reservar espaço</td>
+</tr>
+<tr>
+<td>Repetição de capa, cenário, problema e EQ</td>
+<td>48 em diante</td>
+<td>Descartar</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Conta de espaço.</strong> Em A4 com margens ABNT, corpo 12 e entrelinha 1,5, cabem cerca de 32 linhas (≈ 400 palavras) por página. Um quadro em fonte 10 com espaço simples cabe cerca de 55 linhas. São 5 páginas para cerca de 45 páginas de material, então a maior parte entra em quadros.</p>
+<h2 id="2-ordem-das-secoes-e-espaco-de-cada-uma">2. Ordem das seções e espaço de cada uma<a class="headerlink" href="#2-ordem-das-secoes-e-espaco-de-cada-uma" title="Permanent link">&para;</a></h2>
+<p>A ordem vai do porquê ao para quem, depois ao quê e, por fim, a como saberemos se deu certo. As guiding questions ficam por último porque o quadro delas aponta para requisitos, riscos e métricas já apresentados e termina no que continua em aberto, ligando o relatório à semana 2. Se os tutores esperarem a ordem canônica do CBL, com as GQs logo depois da EQ, a seção muda de lugar sem mudar o conteúdo.</p>
+<table>
+<thead>
+<tr>
+<th>Nº</th>
+<th>Seção</th>
+<th>Páginas</th>
+<th>Formato</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Cenário escolhido (com a solução proposta)</td>
+<td>0,45</td>
+<td>2 parágrafos</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Problema</td>
+<td>0,40</td>
+<td>3 barreiras + evidências</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Essential Question da equipe</td>
+<td>0,15</td>
+<td>2 níveis + ligação com a Big Idea</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Mapa de stakeholders</td>
+<td>0,35</td>
+<td>Quadro 1</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Personas</td>
+<td>1,00</td>
+<td>Quadro 2 + 1 parágrafo</td>
+</tr>
+<tr>
+<td>6</td>
+<td>Premissas</td>
+<td>0,45</td>
+<td>Quadro 3</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Requisitos funcionais e não funcionais</td>
+<td>1,00</td>
+<td>Quadros 4 e 5</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Riscos</td>
+<td>0,45</td>
+<td>Quadro 6 (reservado)</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Métricas de sucesso</td>
+<td>0,40</td>
+<td>Quadro 7 (reservado)</td>
+</tr>
+<tr>
+<td>10</td>
+<td>Guiding questions</td>
+<td>0,35</td>
+<td>Quadro 8</td>
+</tr>
+<tr>
+<td></td>
+<td><strong>Total</strong></td>
+<td><strong>5,00</strong></td>
+<td></td>
+</tr>
+<tr>
+<td></td>
+<td>Referências</td>
+<td>fora da contagem</td>
+<td>NBR 6023</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-o-que-entra-de-cada-parte">3. O que entra de cada parte<a class="headerlink" href="#3-o-que-entra-de-cada-parte" title="Permanent link">&para;</a></h2>
+<h3 id="1-cenario-escolhido">1 Cenário escolhido<a class="headerlink" href="#1-cenario-escolhido" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Entra:</strong> o parágrafo da equipe (hiperconectividade e distanciamento; atritos de agenda, dinheiro e decisão), reduzido a 4 linhas.</li>
+<li><strong>Acrescentar:</strong> uma evidência de qualidade de vida, a da OMS (2025): solidão como a distância entre a conexão desejada e a real; 1 em cada 6 pessoas afetadas.</li>
+<li><strong>Acrescentar:</strong> um parágrafo de 5 linhas sobre a <strong>solução proposta</strong>. Nenhuma das seções pedidas apresenta o produto, e sem isso stakeholders, personas e requisitos ficam sem chão. Conteúdo: app web em que uma IA conversa em particular com cada amigo, respeita o orçamento em sigilo, propõe 2 ou 3 planos com custo por pessoa, conduz uma decisão justa e divide os custos. Recorte: DF, adultos, salas de 2 a 20 pessoas. Fechar com os três verbos da Big Idea em uma frase.</li>
+</ul>
+<h3 id="2-problema">2 Problema<a class="headerlink" href="#2-problema" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Entra:</strong> as três barreiras (comunicação e constrangimento, carga burocrática e fadiga de decisão, fricção ferramental), com 2 linhas cada.</li>
+<li><strong>Ajustar:</strong> tirar "Steam para jogos" da fricção ferramental (jogos estão fora do MVP). Trocar por "WhatsApp para conversar, mapas para rotas e outro app para dividir a conta".</li>
+<li><strong>Acrescentar:</strong> 2 citações, para cumprir a restrição de "evidências confiáveis". CFP Board (2026): 67% recusaram eventos por custo, e 56% não disseram que o motivo era dinheiro (pesquisa nos EUA). Liu et al. (2022): quem convida subestima o quanto o outro gosta de ser chamado.</li>
+<li><strong>Se houver tempo:</strong> uma linha com o resultado do formulário "Pesquisa de Hábitos Sociais", com o n da amostra.</li>
+</ul>
+<h3 id="3-essential-question-da-equipe">3 Essential Question da equipe<a class="headerlink" href="#3-essential-question-da-equipe" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Entra:</strong> os níveis 1 e 2, como estão.</li>
+<li><strong>Sai:</strong> a EQ do Modo Descoberta (fora do MVP, ADR 0002).</li>
+</ul>
+<h3 id="4-mapa-de-stakeholders">4 Mapa de stakeholders<a class="headerlink" href="#4-mapa-de-stakeholders" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Formato:</strong> Quadro 1 com as colunas Nível · Quem · Interesse ou papel · Influência (alta, média ou baixa).</li>
+<li><strong>Primários:</strong> grupos de amigos já formados, divididos entre organizador e convidados.</li>
+<li><strong>Secundários:</strong> estabelecimentos e organizadores de eventos do DF; fontes de dados (mapas e rotas, agenda cultural, transporte público do DF).</li>
+<li><strong>Terciários:</strong> provedores de nuvem, LLM e voz; equipe do projeto; tutores da Residência (definem os critérios); ANPD e LGPD (regulação).</li>
+<li><strong>Sai:</strong> "gamers casuais" e "lojas digitais (Steam, Microsoft Store, PlayStation Store)", porque jogos estão fora do MVP; e "casais", porque o público são grupos de amigos.</li>
+</ul>
+<h3 id="5-personas">5 Personas<a class="headerlink" href="#5-personas" title="Permanent link">&para;</a></h3>
+<p>É a parte mais comprimida: 8 páginas viram 1.</p>
+<ul>
+<li><strong>Método:</strong> 1 frase citando Cooper (1999), Courage e Baxter (2005) e Barbosa et al. (2021).</li>
+<li><strong>Quadro 2:</strong> só as 4 personas do MVP, com as colunas Persona (nome, idade, região, papel) · Frase · Dor principal · O que exige do sistema (RF):</li>
+<li><strong>Rafaela</strong> (primária, organizadora): RF-03 a RF-06, RF-12, RF-24, RF-34, RF-45.</li>
+<li><strong>Cadu</strong> (convidado com restrições de tempo e dinheiro): RF-11, RF-18, RF-19, RF-21, RF-22, RF-43.</li>
+<li><strong>Bia</strong> (risco de isolamento): RF-17, RF-26 (recusa discreta), RF-44.</li>
+<li><strong>Márcio</strong> (inclusão digital): RF-39, RF-42, RNF-07.</li>
+<li><strong>Parágrafo "fronteiras do escopo", com 4 linhas:</strong></li>
+<li>Patrícia (antipersona) justifica o limite de 20 pessoas por sala e a ausência de ingressos, contratos e notas fiscais.</li>
+<li>Thiago (Modo Descoberta) e Lara (versão para menores, art. 14 da LGPD) ficam como expansões futuras.</li>
+<li><strong>Sai:</strong> os três níveis de objetivos, habilidades, relacionamentos, tarefas, modelo mental, a expansão de jogos da Bia e as referências que não forem citadas no texto.</li>
+<li><strong>Ajustar:</strong> as premissas operacionais das personas mudam para a seção 6, já corrigidas. O limite passa de 15 para 20 pessoas, o público passa a ser "adultos 18+" (as personas vão de 24 a 40 anos) e "instalam o aplicativo" vira "app web instalável, acessado pelo link de convite".</li>
+</ul>
+<h3 id="6-premissas">6 Premissas<a class="headerlink" href="#6-premissas" title="Permanent link">&para;</a></h3>
+<p>O Quadro 3 tem as colunas ID · Premissa · Confiança · Se for falsa. São cerca de 8 linhas, juntando as premissas de produto com as de projeto. Os IDs da equipe (P01 a P18) são mantidos, e as premissas novas começam em P19.</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Premissa (resumo)</th>
+<th>Origem</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P19</td>
+<td>Grupos fechados de amigos que já se conhecem; adultos 18+ no DF; salas de 2 a 20 pessoas</td>
+<td>Personas, RF-03</td>
+</tr>
+<tr>
+<td>P01</td>
+<td>App web responsivo e instalável, sem app nativo nem lojas de apps</td>
+<td>P01, ADR 0003</td>
+</tr>
+<tr>
+<td>P20</td>
+<td>Lugares, eventos e preços vêm de uma base curada pelo grupo (RAG), conferida por API</td>
+<td>Requisitos §8</td>
+</tr>
+<tr>
+<td>P02</td>
+<td>Entregamos um protótipo funcional, não um produto para muitos usuários</td>
+<td>P02</td>
+</tr>
+<tr>
+<td>P14</td>
+<td>RAG, multimodal e multiagentes são obrigatórios; a tecnologia é definida até 03/11</td>
+<td>P13, P14</td>
+</tr>
+<tr>
+<td>P08</td>
+<td>5 pessoas com cerca de 20 h por semana cada</td>
+<td>P08, P11</td>
+</tr>
+<tr>
+<td>P16</td>
+<td>Custo perto de zero: ferramentas gratuitas, até R$ 20 por membro e deploy só na semana da apresentação, com demo local de reserva</td>
+<td>P12, P15, P16</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Sai:</strong> P03 a P07, P09, P10, P17 e P18, que tratam do tema, do calendário e do processo interno da equipe, e as colunas Responsável, Validar até e Status. Tudo isso continua no documento da equipe.</li>
+</ul>
+<h3 id="7-requisitos-funcionais-e-nao-funcionais">7 Requisitos funcionais e não funcionais<a class="headerlink" href="#7-requisitos-funcionais-e-nao-funcionais" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Abertura (2 linhas):</strong> priorização MoSCoW, critérios de aceitação no formato QUANDO/ENTÃO e lista completa (45 RF e 16 RNF) no repositório.</li>
+<li><strong>Quadro 4:</strong> as 12 capacidades Must da <a href="../../../produto/requisitos/#412-agrupamento-para-o-documento-final">seção 4.12 dos requisitos</a>, com as colunas Capacidade · RF · Persona.</li>
+<li><strong>Quadro 5:</strong> os RNF Must agrupados em 8 linhas, com as colunas Grupo · RNF · Como verificar (meta):</li>
+<li>privacidade e LGPD (RNF-01, RNF-02);</li>
+<li>dados reais e cálculos fora do LLM (RNF-03, RNF-04);</li>
+<li>explicabilidade (RNF-05);</li>
+<li>usabilidade e acessibilidade (RNF-06 a RNF-09);</li>
+<li>registro para métricas (RNF-10);</li>
+<li>segurança (RNF-11);</li>
+<li>arquitetura do roadmap (RNF-12);</li>
+<li>justiça (RNF-13).</li>
+<li><strong>Uma frase com os Should de destaque:</strong> caronas, Pix, foto da nota fiscal e resposta em voz.</li>
+<li><strong>Sai:</strong> glossário, fluxo principal (resumido na solução proposta, seção 1), cenários QUANDO/ENTÃO, questões em aberto e extensões futuras (já cobertas no parágrafo de fronteiras da seção 5).</li>
+</ul>
+<h3 id="8-riscos-espaco-reservado">8 Riscos (espaço reservado)<a class="headerlink" href="#8-riscos-espaco-reservado" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Formato esperado:</strong> Quadro 6 com as colunas ID (R-01…) · Risco · Probabilidade · Impacto · Mitigação (RF/RNF), com 6 a 8 riscos.</li>
+<li><strong>Pontos de partida:</strong></li>
+<li>os 7 riscos da <a href="../../../produto/visao/#riscos-conhecidos">visão</a>;</li>
+<li>a coluna Riscos dos requisitos;</li>
+<li>a seção de riscos dos ADRs 0001 a 0003;</li>
+<li>as premissas de confiança média (P02, P12).</li>
+<li><strong>Depois:</strong> os IDs R-NN substituem os nomes dos riscos na coluna Riscos dos requisitos.</li>
+</ul>
+<h3 id="9-metricas-de-sucesso-espaco-reservado">9 Métricas de sucesso (espaço reservado)<a class="headerlink" href="#9-metricas-de-sucesso-espaco-reservado" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Formato esperado:</strong> Quadro 7 com as colunas ID (M-01…) · Métrica · Como medir (fonte do dado) · Meta · Quando, com cerca de 6 métricas.</li>
+<li><strong>Pontos de partida:</strong></li>
+<li>as metas provisórias dos RNF (RNF-02, RNF-03, RNF-06, RNF-13, RNF-14);</li>
+<li>a "taxa de planos que viram encontros" do ADR 0001, medida pelo RF-36;</li>
+<li>as hipóteses do questionário, que dão a linha de base.</li>
+<li><strong>Cuidado:</strong> incluir ao menos uma métrica de resultado em qualidade de vida (frequência real × desejada de encontros), e não só de uso, para evitar métricas de vaidade.</li>
+<li><strong>Depois:</strong> os IDs M-NN entram na coluna Métrica dos requisitos.</li>
+</ul>
+<h3 id="10-guiding-questions">10 Guiding questions<a class="headerlink" href="#10-guiding-questions" title="Permanent link">&para;</a></h3>
+<p>O Quadro 8 tem as colunas GQ (1 linha) · Encaminhamento. Entram 8 das 9 perguntas; a de jogos baratos sai, porque jogos estão fora do MVP.</p>
+<table>
+<thead>
+<tr>
+<th>GQ (resumo)</th>
+<th>Encaminhamento</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Imprevistos em tempo real (chuva, trem quebrado)</td>
+<td>Em aberto: candidato a requisito de replanejamento (semanas 4 a 6)</td>
+</tr>
+<tr>
+<td>Desempate e prioridade em conflito (custo × deslocamento)</td>
+<td>RF-19 ("menor miséria", ADR pendente) e RF-25</td>
+</tr>
+<tr>
+<td>Amigo gargalo</td>
+<td>RF-12 (prazo e ação padrão) e RF-45</td>
+</tr>
+<tr>
+<td>Espera enquanto a IA processa</td>
+<td>RNF-14 (progresso visível, até 60 s)</td>
+</tr>
+<tr>
+<td>Bolha de recomendação</td>
+<td>Em aberto: diversidade no RF-38</td>
+</tr>
+<tr>
+<td>Restrições matematicamente excludentes</td>
+<td>RF-13, RF-15 e RF-18</td>
+</tr>
+<tr>
+<td>Comunicar restrição sem expor o amigo</td>
+<td>RF-11 e RNF-02</td>
+</tr>
+<tr>
+<td>Localização exata da casa</td>
+<td>RF-01 (só região) e RNF-01</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-ajustes-de-consistencia-antes-de-montar">4. Ajustes de consistência antes de montar<a class="headerlink" href="#4-ajustes-de-consistencia-antes-de-montar" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Sala de <strong>2 a 20</strong> pessoas em todas as partes: premissas das personas e antipersona Patrícia.</li>
+<li>Público: <strong>adultos 18+</strong>, sem o teto de 40 anos.</li>
+<li>Tirar os jogos do problema e dos stakeholders. Eles aparecem só como expansão futura.</li>
+<li>"Instalam o aplicativo" vira <strong>app web instalável</strong>, acessado pelo link de convite.</li>
+<li>A antipersona diz que não há "módulos de cobrança". Ajustar para "sem faturamento, ingressos ou notas fiscais", porque o Pix entre amigos (RF-33) é só um atalho para o acerto.</li>
+<li>Numeração progressiva (NBR 6024): o PDF repete "1." em várias seções.</li>
+<li>Descartar a cópia repetida da capa e das primeiras seções no fim do PDF.</li>
+<li>Capa: autores com nome completo (no PDF está só "Cauan") e "Brasília" com acento.</li>
+</ol>
+<h2 id="5-formatacao-abnt">5. Formatação ABNT<a class="headerlink" href="#5-formatacao-abnt" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Normas:</strong> NBR 14724 (trabalhos acadêmicos), NBR 6024 (numeração), NBR 10520 (citações, sistema autor-data) e NBR 6023 (referências).</li>
+<li><strong>Página:</strong> A4; margens de 3 cm em cima e à esquerda e de 2 cm embaixo e à direita.</li>
+<li><strong>Texto:</strong> Times New Roman ou Arial 12, entrelinha 1,5, justificado, recuo de 1,25 cm na primeira linha.</li>
+<li><strong>Seções primárias:</strong> em maiúsculas e negrito, numeradas (1, 2, 3…), alinhadas à esquerda.</li>
+<li><strong>Quadros:</strong> são informação textual, então usam "Quadro", não "Tabela". Título acima ("Quadro 1 – Mapa de stakeholders"), fonte abaixo ("Fonte: elaborado pelos autores (2026)."), corpo em 10 com espaço simples. A fonte 10 dentro de quadros é prática comum; se os tutores exigirem 12, o orçamento de páginas precisa ser refeito.</li>
+<li><strong>Paginação:</strong> algarismos arábicos no canto superior direito. A capa não é numerada.</li>
+<li><strong>Pré-textuais:</strong> só a capa. Folha de rosto e sumário ficam de fora, porque comeriam espaço. Confirmar com os tutores se são exigidos.</li>
+<li><strong>Referências:</strong> só as obras citadas, alinhadas à esquerda, em espaço simples, separadas por uma linha em branco. Lista provável:</li>
+<li>WHO (2025);</li>
+<li>CFP Board (2026);</li>
+<li>Liu et al. (2022);</li>
+<li>Cooper (1999);</li>
+<li>Courage e Baxter (2005);</li>
+<li>Barbosa et al. (2021);</li>
+<li>Brasil, Lei nº 13.709/2018 (LGPD).</li>
+<li><strong>Repositório:</strong> é privado. Se o relatório disser "lista completa no repositório", os avaliadores precisam ter acesso, ou a frase deve dizer "disponível sob solicitação".</li>
+</ul>
+<h2 id="6-proximos-passos">6. Próximos passos<a class="headerlink" href="#6-proximos-passos" title="Permanent link">&para;</a></h2>
+<ol>
+<li>~~A equipe preenche os Quadros 6 (Riscos) e 7 (Métricas) no formato acima.~~ Feito a partir dos PDFs da equipe. Riscos: entram os 6 de maior probabilidade × impacto (na numeração nova da guia Riscos: R-01, R-02, R-03, R-04, R-05, R-07); R-06, R-08 e R-09 ficam citados no texto. Métricas: entram as 3 de resultado escolhidas pelo grupo (conversão de sala em rolê, confirmação de realização e satisfação); as outras 4 ficam nas metas dos RNF.</li>
+<li>A equipe valida os ajustes de consistência da seção 4 com as autoras de cada parte.</li>
+<li>~~Montar o .docx com estilos ABNT e os quadros, e conferir a contagem de páginas exportando para PDF.~~ Feito em <a href="../relatorio-semana-01.docx">relatorio-semana-01.docx</a>: 5 páginas de texto, com cerca de 4 cm livres na última. Depois de preencher os Quadros 6 e 7, exportar para PDF e conferir se o texto continua terminando na 5ª página.</li>
+<li>Depois da entrega, ligar R-NN e M-NN às colunas dos requisitos e trazer as partes da equipe (personas, premissas, stakeholders, GQs) para o repositório em Markdown, para que cada fato viva em um lugar só.</li>
+</ol>
+<h2 id="7-revisao-de-consistencia-29102026">7. Revisão de consistência (29/10/2026)<a class="headerlink" href="#7-revisao-de-consistencia-29102026" title="Permanent link">&para;</a></h2>
+<p>Depois que outro agente arrumou o documento da equipe (requisitos v0.3 com o RF-46, riscos renumerados e premissas e métricas sem piloto), o relatório foi alinhado a ele. O texto continua em 5 páginas, com cerca de 1,5 cm livres na última.</p>
+<ul>
+<li><strong>Stakeholders:</strong> nova linha para as integrações de compartilhamento e pagamento (WhatsApp, agendas, Pix e bancos).</li>
+<li><strong>Personas:</strong> a Patrícia justifica a ausência de <em>venda</em> de ingressos e de <em>emissão</em> de notas fiscais, sem contradizer o RF-31. A Rafaela passa a exigir a votação como padrão e as regras de preferência da sala (RF-14). As citações entram na mesma célula do nome, para ganhar espaço.</li>
+<li><strong>Premissas:</strong> as linhas mostram todos os IDs de origem (P13, P14; P08, P11; P12, P15, P16). A P02 troca o piloto por testes do MVP, e a P16 cita os créditos gratuitos de API. P19 e P20 continuam só no relatório até entrarem na guia Premissas.</li>
+<li><strong>Requisitos:</strong> 46 RF (o RF-46, de imprevistos, é Could), com os 27 Must mantidos. "Decisão justa" passa a ser "Ranqueamento justo", e a frase dos Should inclui WhatsApp, agenda e rolê em casa.</li>
+<li><strong>Riscos:</strong> IDs na numeração nova (R-04 amigo gargalo, R-05 segurança na volta, R-07 APIs; R-06, R-08 e R-09 no texto) e listas de RF/RNF atualizadas (RF-02, RF-45, RF-46, RNF-14, RNF-16).</li>
+<li><strong>Métricas:</strong> a M-01 deixa de depender de piloto e de meta mensal e define o que é sala ativa. A M-03 indica que o RF-37 é Should e que a média sai com a taxa de resposta. A coluna "Quando" foi juntada à meta.</li>
+<li><strong>Guiding questions:</strong> a GQ 1 aponta para o RF-46, e a GQ 2 cita a regra de datas do organizador (RF-14). A GQ 8 (localização da casa) saiu, como na guia.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

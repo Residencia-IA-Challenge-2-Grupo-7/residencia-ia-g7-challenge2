@@ -1,0 +1,1446 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentação Oficial de Engenharia, DevOps e Arquitetura do Grupo 7 (Residência em IA Eldorado/UnB)">
+      
+      
+        <meta name="author" content="Grupo 7">
+      
+      
+        <link rel="canonical" href="https://residencia-ia-challenge-2-grupo-7.github.io/residencia-ia-g7-challenge2/dados/golden-dataset-semana3/">
+      
+      
+        <link rel="prev" href="../guia-curadoria/">
+      
+      
+        <link rel="next" href="../../semanas/semana-01/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>Golden Dataset (Semana 3) - Orquestrador de Rolês — Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#golden-dataset-da-semana-3-rag-vs-ia-pura" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Orquestrador de Rolês — Docs" class="md-header__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Orquestrador de Rolês — Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Golden Dataset (Semana 3)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Orquestrador de Rolês — Docs" class="md-nav__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Orquestrador de Rolês — Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guia-contribuicao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Contribuição
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arquitetura & Decisões
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Arquitetura & Decisões
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../produto/visao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visão do Produto
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../produto/requisitos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Requisitos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../decisoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisões Técnicas (ADRs)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dados & RAG
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Dados & RAG
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../esquema-base/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Esquema da Base
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guia-curadoria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Curadoria
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Golden Dataset (Semana 3)
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Golden Dataset (Semana 3)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#campos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Campos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#regras-o-teste-verifica-as-marcadas-com" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras (o teste verifica as marcadas com ✔)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#categorias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Categorias
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#catalogo-das-20-perguntas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Catálogo das 20 perguntas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decisoes-da-parte-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decisões da parte 1
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decisoes-da-parte-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decisões da parte 2
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-mudar-o-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como mudar o dataset
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semanas & Entregas
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Semanas & Entregas
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../semanas/semana-01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 01
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../semanas/semana-02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 02
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../entregas/semana-02/RELATORIO_TECNICO_RAG_SEMANA_02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Relatório Semana 2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#campos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Campos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#regras-o-teste-verifica-as-marcadas-com" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Regras (o teste verifica as marcadas com ✔)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#categorias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Categorias
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#catalogo-das-20-perguntas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Catálogo das 20 perguntas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decisoes-da-parte-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decisões da parte 1
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decisoes-da-parte-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decisões da parte 2
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-mudar-o-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como mudar o dataset
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="golden-dataset-da-semana-3-rag-vs-ia-pura">Golden Dataset da Semana 3 (RAG vs. IA Pura)<a class="headerlink" href="#golden-dataset-da-semana-3-rag-vs-ia-pura" title="Permanent link">&para;</a></h1>
+<p>Arquivo: <code>data/golden_dataset_semana3.json</code>
+Testes: <code>tests/test_golden_dataset.py</code> (rodam no CI)
+Origem: issues #31 (parte 1: <code>golden_01</code> a <code>golden_10</code>) e #32 (parte 2: <code>golden_11</code> a <code>golden_20</code>)</p>
+<p>Conjunto de perguntas com gabarito ancorado na base oficial
+<code>data/banco_aprovado_2fa.json</code>. Usado na comparação A/B entre a LLM pura e o
+nosso RAG (#34, tela <code>/comparacao</code>), para medir alucinação, precisão de preço e
+horário (RNF-03), cobertura fora do Plano Piloto (RNF-13) e compreensão de
+expressões de Brasília (RNF-08).</p>
+<h2 id="campos">Campos<a class="headerlink" href="#campos" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>Tipo</th>
+<th>Significado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>id</code></td>
+<td>texto</td>
+<td><code>golden_XX</code>, único e em sequência</td>
+</tr>
+<tr>
+<td><code>pergunta</code></td>
+<td>texto</td>
+<td>Pergunta como um usuário faria</td>
+</tr>
+<tr>
+<td><code>categoria</code></td>
+<td>texto</td>
+<td>Ver tabela de categorias abaixo</td>
+</tr>
+<tr>
+<td><code>ra_esperada</code></td>
+<td>texto ou <code>null</code></td>
+<td><code>regiao_administrativa</code> <strong>exata</strong> do registro de evidência</td>
+</tr>
+<tr>
+<td><code>locais_gabarito</code></td>
+<td>lista de textos</td>
+<td><code>nome</code> <strong>exato</strong> do registro de evidência; <code>[]</code> fora do DF</td>
+</tr>
+<tr>
+<td><code>preco_maximo_gabarito</code></td>
+<td>número ou <code>null</code></td>
+<td><code>custo_medio_rs</code> <strong>exato</strong> do registro de evidência</td>
+</tr>
+<tr>
+<td><code>horario_gabarito</code></td>
+<td>texto ou <code>null</code></td>
+<td>Horário reescrito a partir de <code>horario_funcionamento</code>, com o mesmo sentido</td>
+</tr>
+<tr>
+<td><code>evidencia_id_tiktok</code></td>
+<td>texto ou <code>null</code></td>
+<td><code>id</code> do registro na base (<code>tiktok_&lt;video_id&gt;</code>)</td>
+</tr>
+<tr>
+<td><code>armadilha_llm_pura</code></td>
+<td>texto</td>
+<td>Erro que esperamos da LLM pura (e, quando houver, do RAG)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="regras-o-teste-verifica-as-marcadas-com">Regras (o teste verifica as marcadas com ✔)<a class="headerlink" href="#regras-o-teste-verifica-as-marcadas-com" title="Permanent link">&para;</a></h2>
+<ol>
+<li>✔ <strong>Nome, RA e preço são copiados da base, sem arredondar nem corrigir.</strong>
+   Assim o teste confere automaticamente que o gabarito bate com a evidência.
+   Se o preço da base estiver errado, corrija a base, não o gabarito.</li>
+<li>✔ <strong><code>null</code> só na categoria <code>fora_de_escopo_df</code>.</strong> Nela, <code>ra_esperada</code>,
+   <code>preco_maximo_gabarito</code>, <code>horario_gabarito</code> e <code>evidencia_id_tiktok</code> são
+   <code>null</code> (não se aplica) e <code>locais_gabarito</code> é <code>[]</code>. Em qualquer outra
+   categoria, todos os campos são obrigatórios.</li>
+<li>✔ <strong>Toda evidência existe na base 2FA.</strong></li>
+<li><strong>Um local por pergunta.</strong> A pergunta deve ser específica o suficiente para
+   ter uma única resposta certa na base (ex.: "rodízio de mini hambúrguer <strong>e
+   pão de queijo</strong>", e não só "hambúrguer").</li>
+<li><strong>Horário pode ser reescrito, nunca inventado.</strong> Pode resumir ou reordenar o
+   <code>horario_funcionamento</code>; não pode acrescentar nada que não esteja na base ou
+   no vídeo. Este campo não é verificado automaticamente.</li>
+<li><strong>Não usar como gabarito:</strong></li>
+<li>eventos encerrados e promoções vencidas;</li>
+<li>registros com <code>custo_medio_rs = 50.0</code> sem preço citado no vídeo (valor
+     padrão);</li>
+<li>registros cuja RA o próprio vídeo contradiz (ex.: Hamburgueria Espacial,
+     marcada como Taguatinga mas o vídeo diz Sobradinho; Feira Noturna
+     Candangolândia, marcada como Vicente Pires);</li>
+<li>outliers de preço (Nosso Quintal, Peixe na Rede, Golden Black).</li>
+<li>✔ <strong>Exatamente 20 casos</strong>, <code>golden_01</code> a <code>golden_20</code>, nessa ordem e sem IDs
+   repetidos. O dataset está fechado (ver "Como mudar o dataset").</li>
+<li>✔ <strong>6 categorias, com a distribuição da tabela abaixo</strong>, e nenhuma outra. Um
+   nome de categoria digitado errado quebra o teste.</li>
+<li>✔ <strong>Cada caso aponta para um registro diferente da base.</strong> São 18 lugares
+   para 20 perguntas (os 2 casos fora do DF não têm evidência).</li>
+<li><strong>A pergunta não promete mais do que a evidência.</strong> Se o vídeo diz "sem
+    trigo", a pergunta não fala em celíacos: sem trigo não é sem glúten.</li>
+</ol>
+<h2 id="categorias">Categorias<a class="headerlink" href="#categorias" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Categoria</th>
+<th>Parte</th>
+<th>Casos</th>
+<th>O que testa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>geoespacial_ra_fora_centro</code></td>
+<td>1</td>
+<td>5</td>
+<td>Encontrar lugares reais fora do Plano Piloto (RNF-13)</td>
+</tr>
+<tr>
+<td><code>janela_horario</code></td>
+<td>1</td>
+<td>3</td>
+<td>Respeitar horários reais (madrugada depois da 1h, domingo)</td>
+</tr>
+<tr>
+<td><code>fora_de_escopo_df</code></td>
+<td>1</td>
+<td>2</td>
+<td>Recusar perguntas sobre outras cidades</td>
+</tr>
+<tr>
+<td><code>precisao_financeira</code></td>
+<td>2</td>
+<td>5</td>
+<td>Preço exato em reais: rodízio, ingresso de parque infantil, teto estrito de R$ 30 (RNF-03)</td>
+</tr>
+<tr>
+<td><code>vibes_e_restricoes</code></td>
+<td>2</td>
+<td>3</td>
+<td>Ambiente e restrição alimentar descritos só no vídeo: Kid Friendly, sem trigo/lactose/açúcar refinado, romântico</td>
+</tr>
+<tr>
+<td><code>conflito_e_girias</code></td>
+<td>2</td>
+<td>2</td>
+<td>Pedido que parece impossível, mas tem saída na base; pergunta em candanguês (RNF-08)</td>
+</tr>
+</tbody>
+</table>
+<p>A issue #32 fala em "5 categorias", mas a parte 1 já tinha 3 e a parte 2
+acrescenta outras 3. O teste exige as 6.</p>
+<p>Comportamento esperado em <code>fora_de_escopo_df</code>: o RAG <strong>recusa</strong> e informa que
+o app cobre só o DF. Recomendar qualquer lugar, inclusive do DF, conta como erro.</p>
+<p>Comportamento esperado em <code>conflito_e_girias</code>: o RAG <strong>explica a condição</strong>
+(<code>golden_19</code>: só o aniversariante não paga, e só com 10 convidados) ou
+<strong>entende as gírias</strong> (<code>golden_20</code>). Responder só "sim" ou só "não" conta
+como erro.</p>
+<h2 id="catalogo-das-20-perguntas">Catálogo das 20 perguntas<a class="headerlink" href="#catalogo-das-20-perguntas" title="Permanent link">&para;</a></h2>
+<p>Gerado a partir do JSON. Horário e armadilha completos estão em cada caso do arquivo.</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Categoria</th>
+<th>Pergunta</th>
+<th>Gabarito</th>
+<th>RA</th>
+<th>R$</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>golden_01</code></td>
+<td><code>geoespacial_ra_fora_centro</code></td>
+<td>Onde tem rodízio de mini hambúrguer e pão de queijo em Taguatinga para ir com amigos?</td>
+<td>Filomenambúrguer</td>
+<td>Taguatinga</td>
+<td>49,99</td>
+</tr>
+<tr>
+<td><code>golden_02</code></td>
+<td><code>geoespacial_ra_fora_centro</code></td>
+<td>Onde tem rodízio de caldos ou de pizza com brinquedoteca em Águas Claras?</td>
+<td>Restaurante Dona Cleide</td>
+<td>Águas Claras</td>
+<td>54,90</td>
+</tr>
+<tr>
+<td><code>golden_03</code></td>
+<td><code>geoespacial_ra_fora_centro</code></td>
+<td>Onde comer churrasco americano defumado no Guará?</td>
+<td>Santo Bifidele</td>
+<td>Guará</td>
+<td>39,90</td>
+</tr>
+<tr>
+<td><code>golden_04</code></td>
+<td><code>geoespacial_ra_fora_centro</code></td>
+<td>Onde tem rodízio de almoço barato com parmegiana no Riacho Fundo?</td>
+<td>Royal Burger</td>
+<td>Riacho Fundo</td>
+<td>29,90</td>
+</tr>
+<tr>
+<td><code>golden_05</code></td>
+<td><code>geoespacial_ra_fora_centro</code></td>
+<td>Onde comer rodízio de pizza e sushi à noite em Samambaia com a família?</td>
+<td>VBQ</td>
+<td>Samambaia</td>
+<td>44,90</td>
+</tr>
+<tr>
+<td><code>golden_06</code></td>
+<td><code>janela_horario</code></td>
+<td>Onde dá para comer e beber com os amigos depois da 1h da manhã num sábado?</td>
+<td>New Mercadito</td>
+<td>Plano Piloto (Asa Sul)</td>
+<td>54,99</td>
+</tr>
+<tr>
+<td><code>golden_07</code></td>
+<td><code>janela_horario</code></td>
+<td>Onde tem buffet de almoço à vontade por menos de R$ 30 no domingo em Taguatinga?</td>
+<td>Casa Bar</td>
+<td>Taguatinga</td>
+<td>29,99</td>
+</tr>
+<tr>
+<td><code>golden_08</code></td>
+<td><code>janela_horario</code></td>
+<td>Quero ir num pizza bar com drinks no domingo à tarde. Qual abre e a partir de que horas?</td>
+<td>Spelunca DF</td>
+<td>Plano Piloto (Asa Sul)</td>
+<td>65,50</td>
+</tr>
+<tr>
+<td><code>golden_09</code></td>
+<td><code>fora_de_escopo_df</code></td>
+<td>Quais são os melhores bares em Copacabana, no Rio de Janeiro, para ir com amigos numa sexta à noite?</td>
+<td>— (recusar)</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>golden_10</code></td>
+<td><code>fora_de_escopo_df</code></td>
+<td>Onde comer hambúrguer artesanal em Pinheiros, São Paulo, gastando até R$ 50?</td>
+<td>— (recusar)</td>
+<td>—</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>golden_11</code></td>
+<td><code>precisao_financeira</code></td>
+<td>Onde tem rodízio de churrasco japonês na Asa Sul e quanto custa por pessoa, sem bebida?</td>
+<td>Yaki Nikuya</td>
+<td>Plano Piloto (Asa Sul)</td>
+<td>124,90</td>
+</tr>
+<tr>
+<td><code>golden_12</code></td>
+<td><code>precisao_financeira</code></td>
+<td>Quanto custa, num sábado, o rodízio de pizza com buffet de mini burger em Taguatinga?</td>
+<td>Casa Bari</td>
+<td>Taguatinga</td>
+<td>69,90</td>
+</tr>
+<tr>
+<td><code>golden_13</code></td>
+<td><code>precisao_financeira</code></td>
+<td>Quero levar as crianças num parque de Natal com neve artificial e túnel de luzes em Taguatinga. Quanto custa o ingresso?</td>
+<td>Vale Encantado</td>
+<td>Taguatinga</td>
+<td>19,90</td>
+</tr>
+<tr>
+<td><code>golden_14</code></td>
+<td><code>precisao_financeira</code></td>
+<td>Moro em Samambaia e posso gastar no máximo R$ 30, nem um centavo a mais. Onde almoçar um prato executivo numa sexta?</td>
+<td>Saguari Gastro House</td>
+<td>Samambaia</td>
+<td>24,90</td>
+</tr>
+<tr>
+<td><code>golden_15</code></td>
+<td><code>precisao_financeira</code></td>
+<td>Tenho só R$ 30, nem um centavo a mais. Dá para almoçar no buffet à vontade com tempero nordestino em Vicente Pires numa terça-feira?</td>
+<td>Restaurante do Daniel</td>
+<td>Vicente Pires</td>
+<td>32,99</td>
+</tr>
+<tr>
+<td><code>golden_16</code></td>
+<td><code>vibes_e_restricoes</code></td>
+<td>Quero uma gelateria ou doceria aconchegante em Brasília onde tudo seja sem trigo, sem lactose e sem açúcar refinado. Qual é e em que horário abre?</td>
+<td>Lefit Gelatos e Doces Saudáveis</td>
+<td>Plano Piloto (Asa Sul)</td>
+<td>28,00</td>
+</tr>
+<tr>
+<td><code>golden_17</code></td>
+<td><code>vibes_e_restricoes</code></td>
+<td>Quero comer feijoada à vontade num sábado em Águas Claras com as crianças, num lugar com brinquedoteca e monitora. Onde é e quanto custa?</td>
+<td>Vila Carioca</td>
+<td>Águas Claras</td>
+<td>59,97</td>
+</tr>
+<tr>
+<td><code>golden_18</code></td>
+<td><code>vibes_e_restricoes</code></td>
+<td>Quero um jantar romântico a dois num restaurante chique ao lado da Torre de TV numa terça, com buffet de massas frescas. Onde é e quanto custa por pessoa?</td>
+<td>Lucca Restaurante</td>
+<td>Plano Piloto (Asa Sul)</td>
+<td>89,00</td>
+</tr>
+<tr>
+<td><code>golden_19</code></td>
+<td><code>conflito_e_girias</code></td>
+<td>Quero comemorar meu aniversário num rodízio japonês completo na Asa Norte, mas sem pagar nada. Existe rodízio caro totalmente de graça?</td>
+<td>Blue Sushi</td>
+<td>Plano Piloto (Asa Norte)</td>
+<td>109,99</td>
+</tr>
+<tr>
+<td><code>golden_20</code></td>
+<td><code>conflito_e_girias</code></td>
+<td>Saindo do trampo na Asa Norte, ali perto da tesourinha, bora num rolê baratinho de espetinho na brasa no Noroeste numa segunda? Coisa de uns 30 conto.</td>
+<td>Brasa Meat Burger</td>
+<td>Plano Piloto (Noroeste)</td>
+<td>30,00</td>
+</tr>
+</tbody>
+</table>
+<h2 id="decisoes-da-parte-1">Decisões da parte 1<a class="headerlink" href="#decisoes-da-parte-1" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Samambaia no lugar de Ceilândia (<code>golden_05</code>).</strong> Os dois registros de
+  Ceilândia têm preço de promoção vencida. Samambaia também é RA de renda baixa
+  e tem preço regular (VBQ).</li>
+<li><strong><code>golden_01</code> usa o vídeo de 08/04/2026 do Filomenambúrguer</strong>
+  (<code>tiktok_7626405885388197128</code>). O vídeo de 23/09/2026 não cita preço e tem o
+  valor padrão de R$ 50. O exemplo da issue era ilustrativo.</li>
+<li><strong>Só existe um lugar aberto depois da 1h na base</strong> (New Mercadito), por isso
+  há 1 caso de madrugada e 2 de domingo.</li>
+<li><strong>Limitação conhecida (<code>golden_06</code>):</strong> o <code>custo_medio_rs</code> do New Mercadito é
+  o do buffet de almoço, embora a pergunta seja sobre a madrugada. A regra 1
+  garante que o preço é verificável, mas não que ele corresponde à situação da
+  pergunta. Vale citar no relatório da Semana 3.</li>
+</ul>
+<h2 id="decisoes-da-parte-2">Decisões da parte 2<a class="headerlink" href="#decisoes-da-parte-2" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Sem <code>null</code> em <code>conflito_e_girias</code>.</strong> Os dois casos apontam lugar real, então
+  a regra 2 continua valendo só para <code>fora_de_escopo_df</code>. O exemplo da issue
+  ("restaurante de luxo totalmente grátis") virou o <code>golden_19</code>, que tem uma
+  saída parcial na base.</li>
+<li><strong>Só 2 rodízios em <code>precisao_financeira</code>.</strong> Uzuki, Carmelita e Nicolândia
+  ficaram de fora por promoção vencida, e o Omura porque o <code>custo_medio_rs</code>
+  (R$ 70) é o do festival Hot Roll, não o do rodízio completo (R$ 140).</li>
+<li><strong>Teto de R$ 30 cercado pelos dois lados.</strong> O <code>golden_14</code> fica abaixo
+  (R$ 24,90) e o <code>golden_15</code> logo acima (R$ 32,99), porque o erro mais provável
+  está perto do limite.</li>
+<li><strong>Limitação conhecida (<code>golden_15</code>):</strong> a resposta certa é "não cabe", mas o
+  schema não tem campo para isso. O lugar fica em <code>locais_gabarito</code> e a resposta
+  esperada fica em <code>armadilha_llm_pura</code>. Na auditoria, dizer que o buffet cabe
+  em R$ 30 conta como erro.</li>
+<li><strong>Limitação conhecida (<code>golden_13</code>):</strong> o Vale Encantado é o único ingresso de
+  parque infantil em cartaz na base, mas os R$ 19,90 são do lote de pré-venda
+  de 20/10. O valor atual pode ser outro.</li>
+<li><strong>Limitação conhecida (<code>golden_16</code>):</strong> o vídeo da Lefit não cita preço, mas a
+  base tem <code>custo_medio_rs = 28.0</code> e <code>trava_2_preco_ok = true</code>. O valor foi
+  copiado para cumprir a regra 1. Não use este caso para medir precisão de
+  preço. A correção é na base, não no gabarito.</li>
+<li><strong><code>golden_14</code>:</strong> o <code>horario_funcionamento</code> do Saguari na base guarda o horário
+  do happy hour. O horário de abertura veio da legenda do vídeo (regra 5).</li>
+<li><strong>Pares de distratores de propósito.</strong> <code>golden_12</code> (Casa Bari) e <code>golden_01</code>
+  (Filomenambúrguer) são de Taguatinga e têm mini hambúrguer. <code>golden_17</code> (Vila
+  Carioca) e <code>golden_02</code> (Dona Cleide) são de Águas Claras e têm brinquedoteca.
+  Os pares medem se o RAG distingue lugares parecidos.</li>
+<li><strong>Carne na brasa foi para o <code>golden_20</code>.</strong> Eram 4 temas para as 3 vagas de
+  <code>vibes_e_restricoes</code>. O distrator da base, Dom Frangão, não abre às segundas.</li>
+<li><strong>"Tesourinha" entra como ponto de partida do usuário</strong> (<code>golden_20</code>), não
+  como local do gabarito, para não afirmar um dado geográfico que a base não tem.</li>
+</ul>
+<h2 id="como-mudar-o-dataset">Como mudar o dataset<a class="headerlink" href="#como-mudar-o-dataset" title="Permanent link">&para;</a></h2>
+<p>O dataset está fechado em 20 casos, e o teste falha se esse número mudar. Para
+trocar ou acrescentar um caso:</p>
+<ol>
+<li>Siga as regras acima, principalmente a 1: copie nome, RA e preço da base.</li>
+<li>Se mudar o total ou a distribuição, atualize <code>IDS_ESPERADOS</code> e
+   <code>DISTRIBUICAO_PARTE_*</code> em <code>tests/test_golden_dataset.py</code> e o catálogo deste
+   documento no mesmo commit.</li>
+<li>Se um colega corrigir um preço na base, o teste quebra no caso
+   correspondente. Copie o preço novo para o gabarito.</li>
+<li>Rode antes de commitar:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nv">PYTHONPATH</span><span class="o">=</span>.<span class="w"> </span>pytest<span class="w"> </span>-v<span class="w"> </span>tests/test_golden_dataset.py
+</code></pre></div>
+<p>Se um caso falhar, o nome do teste mostra qual (<code>[golden_XX]</code>).</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "content.code.copy"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

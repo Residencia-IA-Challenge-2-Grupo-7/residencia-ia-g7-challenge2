@@ -1,0 +1,2087 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentação Oficial de Engenharia, DevOps e Arquitetura do Grupo 7 (Residência em IA Eldorado/UnB)">
+      
+      
+        <meta name="author" content="Grupo 7">
+      
+      
+        <link rel="canonical" href="https://residencia-ia-challenge-2-grupo-7.github.io/residencia-ia-g7-challenge2/decisoes/revisoes/0004-critica/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>Crítica do ADR 0004 — Fonte e manutenção da base de lugares e eventos - Orquestrador de Rolês — Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#critica-do-adr-0004-fonte-e-manutencao-da-base-de-lugares-e-eventos" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../../.." title="Orquestrador de Rolês — Docs" class="md-header__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Orquestrador de Rolês — Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Crítica do ADR 0004 — Fonte e manutenção da base de lugares e eventos
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Orquestrador de Rolês — Docs" class="md-nav__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Orquestrador de Rolês — Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guia-contribuicao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Contribuição
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arquitetura & Decisões
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Arquitetura & Decisões
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../produto/visao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visão do Produto
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../produto/requisitos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Requisitos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisões Técnicas (ADRs)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dados & RAG
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Dados & RAG
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../dados/esquema-base/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Esquema da Base
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../dados/guia-curadoria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Curadoria
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../dados/golden-dataset-semana3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Golden Dataset (Semana 3)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semanas & Entregas
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Semanas & Entregas
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../semanas/semana-01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 01
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../semanas/semana-02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 02
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../entregas/semana-02/RELATORIO_TECNICO_RAG_SEMANA_02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Relatório Semana 2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-resumo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Resumo
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-achados" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Achados
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Achados">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#c-01-guardar-o-resultado-da-google-e-usa-lo-como-verificacao-pode-violar-os-termos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C-01 · Guardar o resultado da Google e usá-lo como verificação pode violar os termos
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-02-a-places-api-nao-pode-conviver-com-um-mapa-nao-google" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C-02 · A Places API não pode conviver com um mapa não Google
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-03-as-travas-de-custo-nao-funcionam-como-descritas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C-03 · As travas de custo não funcionam como descritas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-04-a-amostra-de-30-lugares-nao-sustenta-95-corretos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C-04 · A amostra de 30 lugares não sustenta "≥ 95% corretos"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-05-as-definicoes-de-correto-nao-medem-o-erro-que-o-usuario-sofre" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C-05 · As definições de "correto" não medem o erro que o usuário sofre
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-06-os-limites-de-aproximado-e-a-calibracao-nao-cabem-nas-7-semanas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C-06 · Os limites de "aproximado" e a calibração não cabem nas 7 semanas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-07-o-horario-nao-tem-rotina-humana-e-ignora-horarios-especiais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C-07 · O horário não tem rotina humana e ignora horários especiais
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-08-o-casamento-com-o-place-id-e-cego-e-id-obsoleto-vira-a-api-falhou" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C-08 · O casamento com o place ID é cego, e ID obsoleto vira "a API falhou"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-09-a-leitura-da-odbl-esta-incompleta" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C-09 · A leitura da ODbL está incompleta
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-10-filtros-duros-sem-regra-para-sem-informacao-e-com-atributos-pobres" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C-10 · Filtros duros sem regra para "sem informação" e com atributos pobres
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-11-a-base-nao-esta-ligada-a-comparacao-llm-rag-da-semana-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C-11 · A base não está ligada à comparação LLM × RAG da semana 3
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-12-o-esforco-esta-subestimado-e-as-rotinas-nao-tem-dono" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C-12 · O esforço está subestimado e as rotinas não têm dono
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-13-a-distribuicao-justa-nao-tem-justificativa-e-mede-o-insumo-nao-o-resultado" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C-13 · A distribuição "justa" não tem justificativa e mede o insumo, não o resultado
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-14-os-dados-abertos-trazem-contatos-pessoais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C-14 · Os dados abertos trazem contatos pessoais
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-15-o-esquema-nao-sustenta-o-custo-real-nem-a-busca" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C-15 · O esquema não sustenta o custo real nem a busca
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-16-eventos-rotina-subestimada-e-estados-faltando" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C-16 · Eventos: rotina subestimada e estados faltando
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-17-as-apis-alternativas-nao-foram-comparadas-com-os-mesmos-criterios-nem-medidas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C-17 · As APIs alternativas não foram comparadas com os mesmos critérios nem medidas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-18-faltam-alternativas-para-manter-a-base-viva" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C-18 · Faltam alternativas para manter a base viva
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-19-tres-fontes-abertas-multiplicam-o-trabalho-sem-ganho-claro" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C-19 · Três fontes abertas multiplicam o trabalho sem ganho claro
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-20-a-regra-de-40-sem-foco-em-alcool-nao-garante-o-rnf-16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C-20 · A regra de 40% sem foco em álcool não garante o RNF-16
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-21-link-do-mapa-e-atribuicao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C-21 · Link do mapa e atribuição
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-22-role-em-casa-a-cesta-do-dieese-nao-serve" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C-22 · Rolê em casa: a cesta do DIEESE não serve
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-23-o-marco-da-semana-2-depende-de-coisas-que-ainda-nao-existem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C-23 · O marco da semana 2 depende de coisas que ainda não existem
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-24-forma-do-adr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C-24 · Forma do ADR
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-tabela-de-fatos-verificados" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Tabela de fatos verificados
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-perguntas-que-so-o-grupo-pode-responder" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Perguntas que só o grupo pode responder
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-respostas-do-autor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Respostas do autor
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Respostas do autor">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#conferencia-dos-fatos-centrais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Conferência dos fatos centrais
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resposta-a-cada-achado" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resposta a cada achado
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#perguntas-da-secao-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Perguntas da seção 4
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="critica-do-adr-0004-fonte-e-manutencao-da-base-de-lugares-e-eventos">Crítica do ADR 0004 — Fonte e manutenção da base de lugares e eventos<a class="headerlink" href="#critica-do-adr-0004-fonte-e-manutencao-da-base-de-lugares-e-eventos" title="Permanent link">&para;</a></h1>
+<ul>
+<li><strong>ADR revisado:</strong> <a href="../../0004-fonte-e-manutencao-da-base/">0004-fonte-e-manutencao-da-base.md</a>, versão de 2026-11-03</li>
+<li><strong>Revisor:</strong> agente Claude (Claude Code), a partir do <a href="../0004-prompt-critica/">prompt de crítica</a></li>
+<li><strong>Data:</strong> 2026-11-03. Fontes externas consultadas nesta data.</li>
+<li><strong>Escopo:</strong> só aponta problemas. Não reescreve nem defende a decisão. Leitura de termos e licenças não é parecer jurídico.</li>
+</ul>
+<h2 id="1-resumo">1. Resumo<a class="headerlink" href="#1-resumo" title="Permanent link">&para;</a></h2>
+<p>O ADR está bem estruturado: responde às quatro perguntas com números, separa fonte primária de conferência e trata LGPD e justiça como requisitos. Os números de cota e SKU da Google estão certos, mas o uso que o ADR faz deles não está. Três pontos impedem aceitar o ADR como está. (1) Guardar o resultado da Google e usá-lo para manter o horário "exato" esbarra nos termos da Google Maps Platform, e o ADR não analisa isso. (2) Os termos proíbem usar a Places API junto com um mapa não Google, e o mapa ainda está "a decidir". (3) As travas de custo descritas não existem: as cotas são por método, não por SKU, e alerta de orçamento não limita gasto. Também é grave que a amostra de 30 lugares não sustente a meta de 95% do RNF-03, e que os limites de "aproximado" e a calibração não caibam nas 7 semanas do projeto.</p>
+<p><strong>Cobertura dos itens pedidos</strong></p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Cobertura</th>
+<th>Achados</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A1. Decisão clara, com números</td>
+<td>Cobre mal: há números, mas os da Pergunta 3 e da Pergunta 4 não têm evidência</td>
+<td>C-06, C-13, C-24</td>
+</tr>
+<tr>
+<td>A2. Alternativas com critérios iguais; alternativas que faltam</td>
+<td>Cobre mal</td>
+<td>C-17, C-18, C-19</td>
+</tr>
+<tr>
+<td>B1. Cotas e SKUs da Google</td>
+<td>Cobre os números; erra o uso (travas, casamento, cobrança por SKU mais alto)</td>
+<td>C-03, C-08</td>
+</tr>
+<tr>
+<td>B2. Cache e atribuição da Google</td>
+<td>Cobre mal</td>
+<td>C-01, C-02, C-21</td>
+</tr>
+<tr>
+<td>B3. Licenças OSM, Overture, FSQ</td>
+<td>Cobre mal</td>
+<td>C-09, C-19</td>
+</tr>
+<tr>
+<td>B4. Faixa gratuita da Foursquare</td>
+<td>Cobre: a incerteza é real</td>
+<td>C-17</td>
+</tr>
+<tr>
+<td>B5. Termos de Instagram, Sympla, iFood</td>
+<td>Cobre; só o do Instagram pôde ser confirmado</td>
+<td>Tabela de fatos</td>
+</tr>
+<tr>
+<td>B6. Agenda cultural e parques do DF</td>
+<td>Cobre mal</td>
+<td>C-18, tabela de fatos</td>
+</tr>
+<tr>
+<td>C1. Contradições com requisitos, ADRs, premissas e mapa</td>
+<td>Cobre mal</td>
+<td>C-01, C-02, C-03, C-12</td>
+</tr>
+<tr>
+<td>C2. Requisitos esquecidos</td>
+<td>Não cobre</td>
+<td>C-10, C-15, C-18</td>
+</tr>
+<tr>
+<td>D1. Definição de "correto"</td>
+<td>Cobre mal</td>
+<td>C-05</td>
+</tr>
+<tr>
+<td>D2. Amostra de 30 lugares</td>
+<td>Não sustenta a meta</td>
+<td>C-04</td>
+</tr>
+<tr>
+<td>D3. Deduplicação, place ID, sem cadastro, horários especiais, eventos</td>
+<td>Cobre mal</td>
+<td>C-07, C-08, C-16, C-19</td>
+</tr>
+<tr>
+<td>D4. Limites exato / aproximado / vencido</td>
+<td>Cobre mal</td>
+<td>C-06</td>
+</tr>
+<tr>
+<td>E1. Consumo de chamadas</td>
+<td>Cobre mal</td>
+<td>C-03</td>
+</tr>
+<tr>
+<td>E2. Cota acabando na demonstração</td>
+<td>Cobre mal</td>
+<td>C-03, C-06</td>
+</tr>
+<tr>
+<td>E3. Esforço e donos das rotinas</td>
+<td>Cobre mal</td>
+<td>C-12</td>
+</tr>
+<tr>
+<td>E4. Automatizar ou cortar</td>
+<td>Não cobre</td>
+<td>C-18, C-19, C-22</td>
+</tr>
+<tr>
+<td>F1. Distribuição por região e preço</td>
+<td>Cobre mal</td>
+<td>C-13</td>
+</tr>
+<tr>
+<td>F2. Viés da equipe</td>
+<td>Cobre mal</td>
+<td>C-13</td>
+</tr>
+<tr>
+<td>F3. Dados pessoais</td>
+<td>Cobre mal</td>
+<td>C-14</td>
+</tr>
+<tr>
+<td>F4. RNF-16 (álcool)</td>
+<td>Cobre mal</td>
+<td>C-20</td>
+</tr>
+<tr>
+<td>G1. Esquema para RAG, semana 3 e semana 4</td>
+<td>Cobre mal</td>
+<td>C-11, C-15</td>
+</tr>
+<tr>
+<td>G2. Campos que faltam</td>
+<td>Não cobre</td>
+<td>C-15</td>
+</tr>
+<tr>
+<td>H1. Template e restrições do desafio</td>
+<td>Cobre mal</td>
+<td>C-24</td>
+</tr>
+<tr>
+<td>H2. Trechos para documento à parte</td>
+<td>Não cobre</td>
+<td>C-24</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-achados">2. Achados<a class="headerlink" href="#2-achados" title="Permanent link">&para;</a></h2>
+<h3 id="c-01-guardar-o-resultado-da-google-e-usa-lo-como-verificacao-pode-violar-os-termos">C-01 · Guardar o resultado da Google e usá-lo como verificação pode violar os termos<a class="headerlink" href="#c-01-guardar-o-resultado-da-google-e-usa-lo-como-verificacao-pode-violar-os-termos" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Gravidade:</strong> bloqueante</li>
+<li><strong>Seção:</strong> Princípios; Pergunta 2 ("O que guardamos da Google"); Pergunta 3 (justificativa do horário e cadência)</li>
+<li><strong>Problema:</strong> o ADR afirma que guardar "data e confere/diverge" é compatível com os termos, mas não mostra a análise.</li>
+<li>Os <a href="https://cloud.google.com/maps-platform/terms">Termos da Google Maps Platform</a>, seção 3.2.3, proíbem: guardar, indexar ou rehospedar conteúdo fora dos serviços (a); qualquer cache além do que os termos específicos permitem (b); e criar conteúdo a partir do conteúdo da Google (c).</li>
+<li>Os <a href="https://cloud.google.com/maps-platform/terms/maps-service-terms">termos específicos</a> liberam só o place ID sem prazo (seção A.3) e latitude/longitude por até 30 dias (seção 14.3).</li>
+<li>O ADR vai além de "conferir". A justificativa dos 30 dias diz que o horário fica "exato" porque o lote mensal da Google o reconfere. Ou seja, a frescura da base passa a derivar da Google. Isso se aproxima do que a seção 3.2.3(c) veda. Nenhum trecho dos termos trata de "verificar a própria base", então a leitura otimista não resolve o risco.</li>
+<li>Há contradição com o RNF-15 ("guardar em cache as respostas de APIs externas") e com o <a href="../../../arquitetura/">mapa da arquitetura</a> ("Respostas de APIs ficam em cache"). Isso não vale para a Google. Também não vale para a Foursquare em pay-as-you-go, cujas <a href="https://docs.foursquare.com/fsq-developers-places/reference/usage-guidelines">diretrizes de uso</a> só permitem guardar o <code>fsq_place_id</code> e IDs de fotos.</li>
+<li><strong>Sugestão:</strong></li>
+<li>Tratar a resposta da Google como efêmera: usar na hora do plano e, no lote, só para montar a fila do curador. Não gravar nada além do place ID.</li>
+<li><code>verificado_em</code> só muda quando uma pessoa confere na fonte primária (ver C-07).</li>
+<li>Se o grupo quiser guardar "confere/diverge", registrar a leitura dos termos no ADR e pedir confirmação ao suporte da Google Maps Platform.</li>
+<li>Propor a mudança do RNF-15 e do mapa: cache só do que cada termo permite.</li>
+<li>No guia de curadoria, proibir copiar horário, nome ou endereço do app Google Maps. A seção 3.2.3(a)(iii) cita copiar e salvar nomes e endereços como exemplo de violação.</li>
+</ul>
+<h3 id="c-02-a-places-api-nao-pode-conviver-com-um-mapa-nao-google">C-02 · A Places API não pode conviver com um mapa não Google<a class="headerlink" href="#c-02-a-places-api-nao-pode-conviver-com-um-mapa-nao-google" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Gravidade:</strong> bloqueante</li>
+<li><strong>Seção:</strong> Pergunta 2 (decisão); Pergunta 1 (coordenadas de dados abertos)</li>
+<li><strong>Problema:</strong> a seção 3.2.3(e) dos <a href="https://cloud.google.com/maps-platform/terms">Termos</a> proíbe usar os serviços principais da Google com ou perto de um mapa não Google no mesmo aplicativo. O exemplo dado é mostrar ou usar conteúdo de Places num mapa não Google. A seção 14.2 dos <a href="https://cloud.google.com/maps-platform/terms/maps-service-terms">termos específicos</a> repete a regra; a 14.1 permite usar a Places API sem mapa. O <a href="../../../arquitetura/">mapa da arquitetura</a> ainda lista "Mapas e rotas: Google Maps ou OpenStreetMap, a decidir". Se o grupo escolher OpenStreetMap, a conferência pela Google fica em conflito com os termos. A Pergunta 2 depende de uma decisão que ainda não foi tomada, e o ADR não cita essa dependência.</li>
+<li><strong>Sugestão:</strong> decidir o mapa antes de aceitar a Pergunta 2, ou registrar a regra "se houver mapa não Google, a conferência sai da Google". Uma saída sem conflito é o plano sem mapa embutido, com link para o Google Maps (C-21). Se o mapa for Google, somar o custo dele ao orçamento de cotas.</li>
+</ul>
+<h3 id="c-03-as-travas-de-custo-nao-funcionam-como-descritas">C-03 · As travas de custo não funcionam como descritas<a class="headerlink" href="#c-03-as-travas-de-custo-nao-funcionam-como-descritas" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Gravidade:</strong> bloqueante</li>
+<li><strong>Seção:</strong> Pergunta 2 ("Como usar a Google dentro da faixa gratuita" e "Travas"); Riscos (cobrança no cartão); Perguntas para o grupo, item 1</li>
+<li><strong>Problema:</strong></li>
+<li>As cotas são por método da API e por projeto, não por SKU (<a href="https://developers.google.com/maps/documentation/places/web-service/usage-and-billing">usage and billing</a>). Pro e Enterprise saem do mesmo Place Details. A <a href="https://developers.google.com/maps/billing-and-pricing/manage-costs">página de controle de custos</a> manda basear o limite no SKU de menor cota gratuita e dividir por 31. Para Place Details, isso dá 1.000 ÷ 31 = 32 chamadas por dia no total. A trava "Enterprise em 30 e Pro em 150" não existe.</li>
+<li>Com uma cota única de cerca de 32 por dia, o lote de 200 leva pelo menos 7 dias, e a conferência na hora do plano disputa a mesma cota. Um teste de carga com 20 salas (RNF-14), a 3 chamadas por plano, já gasta 60.</li>
+<li>Mesmo com as cotas que o ADR imagina, um lote de 200 num dia estoura as travas de 30 e 150. O ADR não diz como espalhar o lote.</li>
+<li>Orçamento e alerta de faturamento não limitam o gasto, e o painel pode atrasar até 48 h (<a href="https://developers.google.com/maps/billing-and-pricing/manage-costs">controle de custos</a>). O "alerta de US$ 1" está listado como trava, mas só avisa.</li>
+<li>Campos de SKUs diferentes na mesma chamada são cobrados uma vez, no SKU mais alto. Pedir <code>businessStatus</code> e <code>regularOpeningHours</code> juntos custa 200 Enterprise no lote, e não 200 Pro + 200 Enterprise.</li>
+<li>Rodar o script do lote algumas vezes durante o desenvolvimento gasta a cota Enterprise do mês: 1.000 chamadas são 5 lotes.</li>
+<li>A cota diária reinicia à meia-noite do horário do Pacífico, que em novembro é 5h em Brasília. Isso afeta testes feitos à noite.</li>
+<li>Uma cobrança no cartão de um membro fere a P16 (até R$ 20 por membro).</li>
+<li><strong>Sugestão:</strong></li>
+<li>Dois projetos na mesma conta de faturamento. Projeto do lote: Place Details travado em 32 por dia, com status e horário num só pedido Enterprise. Projeto da conferência do plano: só campos Pro, travado em 161 por dia (5.000 ÷ 31). Como o uso soma por conta de faturamento (<a href="https://developers.google.com/maps/billing-and-pricing/pricing">preços</a>), Enterprise só sai do primeiro e Pro só do segundo.</li>
+<li>Travar também o Text Search nos dois projetos. Uma máscara de campos errada faz a chamada sair do SKU gratuito de IDs e cair em Text Search Pro (US$ 32 por mil acima da cota).</li>
+<li>Provedor falso (mock) no desenvolvimento e nos testes de carga, aproveitando a interface trocável.</li>
+<li>Reservar cota para o dia da demonstração e dizer o que a tela mostra quando a cota acaba (ver C-06).</li>
+<li>Avaliar o Free Trial do Google Cloud: pela <a href="https://docs.cloud.google.com/free/docs/free-cloud-features">página oficial</a>, a conta é encerrada sem cobrança se ninguém fizer upgrade. A página não confirma que o crédito cobre a Maps Platform. Conferir antes de contar com isso.</li>
+</ul>
+<h3 id="c-04-a-amostra-de-30-lugares-nao-sustenta-95-corretos">C-04 · A amostra de 30 lugares não sustenta "≥ 95% corretos"<a class="headerlink" href="#c-04-a-amostra-de-30-lugares-nao-sustenta-95-corretos" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Gravidade:</strong> importante</li>
+<li><strong>Seção:</strong> Como vamos validar (exatidão de horário e preço); RNF-03</li>
+<li><strong>Problema:</strong></li>
+<li>Com 30 itens e nenhum erro, o limite inferior de confiança é 90,5% (binomial exato, 95%, unilateral). Com 1 erro, 85,1%. Nem 30 de 30 permite afirmar 95%.</li>
+<li>Para afirmar ≥ 95% com 95% de confiança são precisos 59 itens sem erro, 93 com até 1 erro, 124 com até 2 ou 153 com até 3 (cálculo do revisor, Clopper-Pearson).</li>
+<li>A unidade é "lugar", mas um lugar tem 7 horários e 3 a 5 preços. Erros do mesmo lugar andam juntos, e a amostra efetiva é menor.</li>
+<li>O RNF-03 fala dos preços e horários apresentados. A amostra sai da base inteira, sem peso para o que aparece nos planos.</li>
+<li>"Mensal" dá uma ou duas rodadas no projeto todo.</li>
+<li><strong>Sugestão:</strong> unidade = item exibido num plano (horário no dia e na janela do plano; custo por pessoa). Amostra de cerca de 125 itens, estratificada por tipo e região, numa rodada na semana 3 (que também serve à comparação LLM × RAG) e outra na semana 6. Reportar o acerto com o intervalo de confiança. Se não houver tempo para 125, dizer que a meta é de acerto observado, não garantido.</li>
+</ul>
+<h3 id="c-05-as-definicoes-de-correto-nao-medem-o-erro-que-o-usuario-sofre">C-05 · As definições de "correto" não medem o erro que o usuário sofre<a class="headerlink" href="#c-05-as-definicoes-de-correto-nao-medem-o-erro-que-o-usuario-sofre" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Gravidade:</strong> importante</li>
+<li><strong>Seção:</strong> Como vamos validar (critérios de horário e preço)</li>
+<li><strong>Problema:</strong></li>
+<li>Tolerância de 30 minutos na abertura e no fechamento é larga para um filtro duro (RF-17). Se o lugar fecha às 22h e a base diz 22h30, um plano até 22h15 passa no filtro, e o dado ainda conta como "correto".</li>
+<li>"Item de referência com até 10%" mede o item. O plano mostra custo por pessoa, calculado de vários itens e somado ao transporte.</li>
+<li>Não há critério para status, evento (data, horário, preço, cancelamento) nem atributos.</li>
+<li>A fórmula do custo típico por pessoa não está escrita (quais itens, couvert, taxa de serviço), embora o RNF-04 exija cálculo determinístico.</li>
+<li><strong>Sugestão:</strong> horário correto = a resposta do filtro ("aberto em toda a janela do plano?") é a mesma com a fonte primária. Preço correto = custo por pessoa exibido a até 10% do recalculado com o cardápio vigente. Definir critérios para status e evento. Escrever a fórmula do custo por pessoa no guia de curadoria.</li>
+</ul>
+<h3 id="c-06-os-limites-de-aproximado-e-a-calibracao-nao-cabem-nas-7-semanas">C-06 · Os limites de "aproximado" e a calibração não cabem nas 7 semanas<a class="headerlink" href="#c-06-os-limites-de-aproximado-e-a-calibracao-nao-cabem-nas-7-semanas" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Gravidade:</strong> importante</li>
+<li><strong>Seção:</strong> Pergunta 3 (tabela de estados, justificativa e cadência); Como vamos validar (calibração e frescor)</li>
+<li><strong>Problema:</strong></li>
+<li>Um dado curado entre as semanas 2 e 5 terá no máximo cerca de 5 semanas na semana 7. Preço (exato até 60 dias), taxa de parque (90) e atributos (180) nunca saem do "exato" durante o projeto. A calibração por idade não terá dado velho para medir, e a rodada trimestral de preços nunca acontece.</li>
+<li>Depois do MVP, a meta "frescor ≥ 85% em qualquer momento" conflita com a cadência: preço exato por 60 dias, numa rodada a cada 90, fica exato só 2/3 do tempo.</li>
+<li>A tabela tem um buraco: status conferido entre 31 e 60 dias não está em nenhum estado.</li>
+<li>"Exato" para status exige conferência na hora do plano. Se a API falhar ou a cota acabar (caso previsto no ADR), o status também não tem estado, e o ADR não diz o que a tela mostra.</li>
+<li>Nenhum limite tem fonte. "Cardápio muda em degraus" é plausível, mas não tem evidência.</li>
+<li><strong>Sugestão:</strong> declarar o horizonte do MVP e marcar como pós-MVP o que não acontece nele. Para calibrar, reconferir na semana 6 uma parte dos 60 lugares da semana 2: isso mede o erro com cerca de 4 semanas de idade. Preencher o estado do status entre 31 e 60 dias e o caso "sem resposta da API" (por exemplo, "não conferido agora", visível ao usuário). Trocar a meta de frescor por uma compatível com a cadência.</li>
+</ul>
+<h3 id="c-07-o-horario-nao-tem-rotina-humana-e-ignora-horarios-especiais">C-07 · O horário não tem rotina humana e ignora horários especiais<a class="headerlink" href="#c-07-o-horario-nao-tem-rotina-humana-e-ignora-horarios-especiais" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Gravidade:</strong> importante</li>
+<li><strong>Seção:</strong> Pergunta 3 (cadência); Fontes por tipo de dado (horário)</li>
+<li><strong>Problema:</strong> na cadência, ninguém reconfere horário na fonte primária; só existem o lote da Google e a fila de divergências. Se a C-01 levar a não usar a Google como verificação, o horário vence aos 90 dias sem dono. "Horário especial entra como exceção datada", mas ninguém tem a tarefa de registrar feriados, e há feriado dentro das 7 semanas (20/11, por exemplo). A conferência na hora do plano olha só o status (Pro). O campo que traz dias especiais, <code>currentOpeningHours</code>, é Enterprise (<a href="https://developers.google.com/maps/documentation/places/web-service/data-fields">campos por SKU</a>).</li>
+<li><strong>Sugestão:</strong> criar a rotina de horário (quem, quando, quanto tempo). Antes de cada feriado, conferir os lugares que mais entram em planos. Quando a data do plano for feriado, conferir o horário dos finalistas (poucas chamadas Enterprise).</li>
+</ul>
+<h3 id="c-08-o-casamento-com-o-place-id-e-cego-e-id-obsoleto-vira-a-api-falhou">C-08 · O casamento com o place ID é cego, e ID obsoleto vira "a API falhou"<a class="headerlink" href="#c-08-o-casamento-com-o-place-id-e-cego-e-id-obsoleto-vira-a-api-falhou" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Gravidade:</strong> importante</li>
+<li><strong>Seção:</strong> Pergunta 2 (linha "Casar o lugar com um place ID"; "Mudança de horário entre a verificação e o rolê")</li>
+<li><strong>Problema:</strong></li>
+<li>Text Search só com <code>places.id</code> não devolve nome nem endereço (<a href="https://developers.google.com/maps/documentation/places/web-service/text-search">Text Search</a>). Sem outra chamada, não dá para saber se o ID é do lugar certo. Redes com várias unidades e nomes parecidos geram casamento errado, e a conferência passa a validar o lugar errado.</li>
+<li>A Google avisa que place IDs mudam e recomenda atualizar os que têm mais de 12 meses. Um ID obsoleto devolve <code>NOT_FOUND</code> (<a href="https://developers.google.com/maps/documentation/places/web-service/place-id">Place IDs</a>). Pelo ADR, falha da API mantém o lugar no plano. Um lugar que mudou ou fechou continua aparecendo.</li>
+<li><strong>Sugestão:</strong> casar com Text Search (IDs) e confirmar com Place Details Essentials (<code>formattedAddress</code> e <code>location</code>, 10.000 grátis por mês), comparando com a coordenada aberta. A coordenada da Google é descartada na hora (C-01). Guardar a confiança do casamento. Tratar <code>NOT_FOUND</code> como "vai para o curador", não como falha. Usar <code>movedPlace</code> e <code>movedPlaceId</code>, que vêm no SKU gratuito de IDs.</li>
+</ul>
+<h3 id="c-09-a-leitura-da-odbl-esta-incompleta">C-09 · A leitura da ODbL está incompleta<a class="headerlink" href="#c-09-a-leitura-da-odbl-esta-incompleta" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Gravidade:</strong> importante</li>
+<li><strong>Seção:</strong> Fontes por tipo de dado (licenças); Riscos (base derivada do OSM)</li>
+<li><strong>Problema:</strong></li>
+<li>O ADR diz "compartilhar a base derivada se ela for publicada". A <a href="https://opendatacommons.org/licenses/odbl/1-0/">ODbL 1.0</a> vai além. Pelas seções 4.4(c) e 4.6, quem usa publicamente um resultado (Produced Work) gerado de uma base derivada deve oferecer a base derivada, ou um arquivo com as alterações e os dados acrescentados. "Publicamente" é para qualquer pessoa fora da equipe.</li>
+<li>Se a base mistura coordenadas do OSM com horários e preços da equipe, os testes do MVP com amigos e a demonstração já podem acionar essa obrigação.</li>
+<li>Se a mesma base tiver <code>google_place_id</code>, oferecê-la sob ODbL redistribui conteúdo da Google, o que a seção 3.2.3(a) dos <a href="https://cloud.google.com/maps-platform/terms">Termos</a> veda.</li>
+<li>A atribuição precisa dizer que o dado está sob a ODbL, não só citar o OSM (<a href="https://www.openstreetmap.org/copyright">copyright do OSM</a>).</li>
+<li><strong>Sugestão:</strong> escolher e registrar uma saída. (a) OSM só para descobrir candidatos, sem guardar campo do OSM; a coordenada vem de fonte permissiva (Overture ou FSQ OS Places). (b) Aceitar a ODbL e separar as tabelas, com os IDs externos fora da parte oferecida, conferindo as diretrizes da OSMF sobre base coletiva e sobre parte "substancial". Corrigir o texto de atribuição nos dois casos.</li>
+</ul>
+<h3 id="c-10-filtros-duros-sem-regra-para-sem-informacao-e-com-atributos-pobres">C-10 · Filtros duros sem regra para "sem informação" e com atributos pobres<a class="headerlink" href="#c-10-filtros-duros-sem-regra-para-sem-informacao-e-com-atributos-pobres" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Gravidade:</strong> importante</li>
+<li><strong>Seção:</strong> Esquema mínimo (<code>atributos</code>); Fontes por tipo de dado (atributos); tabela de requisitos do Contexto (RF-17)</li>
+<li><strong>Problema:</strong></li>
+<li>O RF-17 trata horário, restrições alimentares e acessibilidade como filtros duros. O esquema só tem <code>vegetariano</code> e <code>acessível</code> (sim ou não), e cada atributo pode ficar "sem informação" (RF-44).</li>
+<li>O ADR não diz o que o filtro faz com "sem informação" nem com horário "aproximado". Excluir encolhe a base; incluir viola a restrição declarada.</li>
+<li>"Acessível" não diz se há entrada sem degrau, banheiro adaptado ou lugar para sentar.</li>
+<li>Vegano, sem glúten, sem lactose e alergias não têm campo. O RF-01 coleta essas restrições no perfil, mas a base não tem como atendê-las.</li>
+<li><strong>Sugestão:</strong> regra por restrição. Exemplo: quem declarou necessidade de acessibilidade só recebe lugares confirmados; os demais veem "não confirmado". Lista fechada de restrições alimentares igual à do perfil (RF-01). Acessibilidade em subcampos. A Google tem <code>accessibilityOptions</code> no SKU Pro, útil para conferir, mas não para guardar (C-01).</li>
+</ul>
+<h3 id="c-11-a-base-nao-esta-ligada-a-comparacao-llm-rag-da-semana-3">C-11 · A base não está ligada à comparação LLM × RAG da semana 3<a class="headerlink" href="#c-11-a-base-nao-esta-ligada-a-comparacao-llm-rag-da-semana-3" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Gravidade:</strong> importante</li>
+<li><strong>Seção:</strong> Pergunta 4 (marcos); Como vamos validar; Esquema</li>
+<li><strong>Problema:</strong></li>
+<li>O <a href="../../../arquitetura/">mapa da arquitetura</a> prevê de 20 a 30 pedidos de teste com resposta esperada, escritos antes de montar a base, para mostrar que dados ela precisa ter. O ADR não cita esses pedidos e define a composição da base sem eles.</li>
+<li>Na comparação, o LLM puro vai sugerir lugares fora da base. Medir se existem exige conferência, e o ADR não diz como nem quanto custa.</li>
+<li>A seção 3.2.3(c)(vii) dos <a href="https://cloud.google.com/maps-platform/terms">Termos da Google</a> proíbe usar o conteúdo da Google para testar ou validar modelos de IA. A Google não pode ser o juiz dessa comparação.</li>
+<li>Falta congelar uma versão da base para comparar LLM e RAG sobre o mesmo dado.</li>
+<li><strong>Sugestão:</strong> escrever os pedidos de teste agora e derivar deles a cobertura mínima por tipo e região. Protocolo manual para julgar os lugares do LLM puro (fonte primária, dois avaliadores). Marcar no git a versão do CSV usada na semana 3.</li>
+</ul>
+<h3 id="c-12-o-esforco-esta-subestimado-e-as-rotinas-nao-tem-dono">C-12 · O esforço está subestimado e as rotinas não têm dono<a class="headerlink" href="#c-12-o-esforco-esta-subestimado-e-as-rotinas-nao-tem-dono" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Gravidade:</strong> importante</li>
+<li><strong>Seção:</strong> Esforço estimado; Pergunta 3 (cadência); Riscos (curadoria consome tempo)</li>
+<li><strong>Problema:</strong></li>
+<li>O corte não reduz o esforço: 150 lugares × 25 min = 62,5 h, mais que as 50 h do plano. Para caber em 50 h a 25 min por lugar, a meta seria 120.</li>
+<li>Ficam fora da conta: escrever a <code>descricao</code>, montar o pipeline de dados abertos e a deduplicação, a dupla leitura de 10%, a amostra de validação (C-04), os eventos (C-16), o catálogo do rolê em casa e o próprio guia de curadoria.</li>
+<li>"Cada membro responde por um grupo de RAs", mas são cerca de seis regiões para cinco pessoas.</li>
+<li>A curadoria inicial (semanas 2 a 5) coincide com RAG, comparação, multiagentes e multimodalidade (<a href="../../../desafio/challenge-2/">roadmap</a>). As horas saem das cerca de 100 h semanais da equipe (P08), sem dizer de qual entrega.</li>
+<li>Nenhuma rotina tem dono com nome, embora a <a href="../../../atas/2026-10-29/">ata de 29/10</a> tenha duas engenheiras de dados.</li>
+<li><strong>Sugestão:</strong> orçamento de horas por semana para a base, com o dono de cada rotina. Meta derivada: lugares = horas disponíveis ÷ tempo medido no piloto. Pôr as tarefas omitidas na conta.</li>
+</ul>
+<h3 id="c-13-a-distribuicao-justa-nao-tem-justificativa-e-mede-o-insumo-nao-o-resultado">C-13 · A distribuição "justa" não tem justificativa e mede o insumo, não o resultado<a class="headerlink" href="#c-13-a-distribuicao-justa-nao-tem-justificativa-e-mede-o-insumo-nao-o-resultado" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Gravidade:</strong> importante</li>
+<li><strong>Seção:</strong> Divisão por tipo; Distribuição pelo DF; Riscos (base concentrada; viés da equipe); Como vamos validar (cobertura)</li>
+<li><strong>Problema:</strong></li>
+<li>O teto de 40% para o Plano Piloto e os Lagos, o piso de 15 por região e o corte de R$ 40 por pessoa não têm fonte nem conta.</li>
+<li>O teto vale para a base toda. Os locais de evento citados (CCBB, Caixa Cultural, Complexo Cultural da República, Cine Brasília, Clube do Choro) ficam quase todos no Plano Piloto. Não há regra por tipo.</li>
+<li>A justiça do RF-19 é sobre o tempo e o custo de cada pessoa. Um lugar central pode ser o mais justo para um grupo de Samambaia e Planaltina. Percentual de lugares por região não garante isso.</li>
+<li>O orçamento do RF-11 inclui transporte. Quem paga ônibus de ida e volta tem menos de R$ 40 para comer. O corte de "barato" não usa os dados do formulário de hábitos.</li>
+<li>O agrupamento de exemplo deixa de fora RAs como São Sebastião, Itapoã, SCIA/Estrutural, Sol Nascente/Pôr do Sol e Jardim Botânico.</li>
+<li>A edição mais recente da PDAD é a PDAD-A 2024 (<a href="https://www.ipe.df.gov.br/pdad/">IPEDF</a>); o ADR diz "a conferir".</li>
+<li>"≥ 80% das salas com 2 planos viáveis" é uma média. Pode esconder 0% nas salas de baixo orçamento da periferia.</li>
+<li>Viés: começar pelos dados abertos ajuda, mas a escolha entre candidatos e a <code>descricao</code> continuam com o gosto da equipe. "Registrar quem curou" rastreia, não mitiga. A cobertura dos dados abertos pode também ser desigual entre RAs, e isso não é medido.</li>
+<li><strong>Sugestão:</strong> trocar os percentuais por uma meta de resultado: em cada estrato região × faixa de orçamento, pelo menos N planos viáveis com tempo máximo de deslocamento X, fixados no teste de cobertura. Usar a PDAD-A 2024 para população e renda. Medir no piloto quantos candidatos abertos existem por RA. Sortear candidatos dentro de cada estrato, com critérios de exclusão escritos, e escrever as descrições a partir de um modelo fixo.</li>
+</ul>
+<h3 id="c-14-os-dados-abertos-trazem-contatos-pessoais">C-14 · Os dados abertos trazem contatos pessoais<a class="headerlink" href="#c-14-os-dados-abertos-trazem-contatos-pessoais" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Gravidade:</strong> importante</li>
+<li><strong>Seção:</strong> O que fica de fora (dados pessoais); Riscos (MEIs)</li>
+<li><strong>Problema:</strong></li>
+<li>O <a href="https://docs.foursquare.com/data-products/docs/places-os-data-schema">esquema do FSQ OS Places</a> tem telefone, e-mail, Instagram, Facebook e Twitter. O <a href="https://docs.overturemaps.org/guides/places/">guia de Places da Overture</a> cita telefones, e-mails e redes sociais.</li>
+<li>Em pequenos negócios e MEIs, o telefone costuma ser o celular do dono, e o nome comercial pode ser o nome da pessoa.</li>
+<li>O ADR promete "só nome comercial e canal público", mas não diz como o pipeline barra esses campos.</li>
+<li>"Contato direto" como fonte de horário implica falar com o dono por WhatsApp, sem regra sobre o que se guarda.</li>
+<li><code>curador</code> e <code>conferido_por</code> põem nomes da equipe num CSV versionado.</li>
+<li><strong>Sugestão:</strong> lista de campos permitidos na importação; nunca importar telefone, e-mail ou rede social. Regra para o "contato direto": só canal comercial, sem guardar o número. Iniciais ou pseudônimo em <code>curador</code>. Incluir tudo isso no checklist de LGPD do RNF-01.</li>
+</ul>
+<h3 id="c-15-o-esquema-nao-sustenta-o-custo-real-nem-a-busca">C-15 · O esquema não sustenta o custo real nem a busca<a class="headerlink" href="#c-15-o-esquema-nao-sustenta-o-custo-real-nem-a-busca" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Gravidade:</strong> importante</li>
+<li><strong>Seção:</strong> Esquema mínimo de um lugar</li>
+<li><strong>Problema:</strong> faltam campos que os requisitos pedem.</li>
+<li>Endereço legível e link público do lugar. O plano diz "onde", e o RF-27 pede link do mapa.</li>
+<li><code>fsq_place_id</code> em <code>ids_externos</code>, embora a FSQ seja fonte de candidatos e a Foursquare seja a reserva.</li>
+<li>Couvert artístico, taxa de serviço e consumação mínima, que mudam o custo por pessoa em bares (RF-15).</li>
+<li>Meia-entrada e ingresso esgotado nos eventos.</li>
+<li>Itens para levar (RF-15), por tipo de lugar. Exemplo: água e protetor no parque.</li>
+<li>Formato dos horários: intervalos que passam da meia-noite e fuso.</li>
+<li>Para o RAG, o texto do embedding é só a <code>descricao</code>. Se ela disser "animado" e o atributo disser "ruído baixo", não há regra de precedência.</li>
+<li>Estacionamento, distância da estação e capacidade podem ser calculados (GTFS, coordenada) ou ficar para depois. O ADR não diz.</li>
+<li><strong>Sugestão:</strong> completar o esquema e levá-lo para um documento próprio (C-24). Gerar o texto do embedding a partir de um modelo com atributos e descrição; atributo estruturado vence o texto.</li>
+</ul>
+<h3 id="c-16-eventos-rotina-subestimada-e-estados-faltando">C-16 · Eventos: rotina subestimada e estados faltando<a class="headerlink" href="#c-16-eventos-rotina-subestimada-e-estados-faltando" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Gravidade:</strong> importante</li>
+<li><strong>Seção:</strong> Pergunta 3 (evento: 7 e 21 dias; cadência de 2 h); Pergunta 4 (40 a 80 eventos)</li>
+<li><strong>Problema:</strong></li>
+<li>"Exato até 7 dias" com rodada semanal deixa o estoque no limite. Qualquer atraso na rodada põe os eventos em "aproximado".</li>
+<li>Para manter 40 a 80 eventos exatos, cada um é rechecado toda semana até acontecer. Com 60 eventos e 2 minutos por recheque, as 2 h da cadência acabam só no recheque, antes de cadastrar os novos.</li>
+<li>Não há estado para ingresso esgotado, troca de lote ou mudança de local.</li>
+<li>Cancelamento depende só do recheque semanal. A Google não cobre eventos, então não há conferência na hora do plano.</li>
+<li><strong>Sugestão:</strong> rechecar só os eventos dos próximos 10 a 14 dias. Conferir à mão o evento finalista antes de mostrar o plano, ou exibir "confirme no link". Campos <code>esgotado</code> e <code>lote</code>. Medir o tempo no piloto.</li>
+</ul>
+<h3 id="c-17-as-apis-alternativas-nao-foram-comparadas-com-os-mesmos-criterios-nem-medidas">C-17 · As APIs alternativas não foram comparadas com os mesmos critérios nem medidas<a class="headerlink" href="#c-17-as-apis-alternativas-nao-foram-comparadas-com-os-mesmos-criterios-nem-medidas" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Gravidade:</strong> importante</li>
+<li><strong>Seção:</strong> Pergunta 2 (opções e decisão)</li>
+<li><strong>Problema:</strong></li>
+<li>"Melhor cobertura de status e horário no Brasil (a medir)" é a razão da escolha, mas a medição não está em "Como vamos validar".</li>
+<li>A Foursquare é uma reserva fraca. Na <a href="https://foursquare.com/pricing/">página de preços</a>, a faixa gratuita do Pro aparece como 500 e como 10.000 chamadas. Pelos <a href="https://docs.foursquare.com/fsq-developers-places/reference/response-fields">campos de resposta</a>, horário (<code>hours</code>) é Premium, sem faixa gratuita. Em pay-as-you-go, só o ID pode ser guardado (C-01).</li>
+<li>Faltou a TomTom. A <a href="https://docs.tomtom.com/pricing">tabela de preços</a> dá 2.500 chamadas grátis por mês na Search API e 5.000 no Places Search, sem cartão. A <a href="https://docs.tomtom.com/search-api/documentation/search-service/points-of-interest-search">busca de POI</a> devolve horário dos próximos 7 dias. Os termos de cache não foram encontrados.</li>
+<li>O FSQ OS Places, aberto, já traz <code>date_closed</code> e <code>unresolved_flags</code> (inclusive "fechado"), úteis para status sem API.</li>
+<li>Se o relatório publicar uma comparação de exatidão da Google, a seção 3.2.4 dos <a href="https://cloud.google.com/maps-platform/terms">Termos</a> exige publicar o necessário para reproduzir o teste.</li>
+<li><strong>Sugestão:</strong> uma tabela com os mesmos critérios para todas: cobertura medida em 20 lugares do piloto, campos de status e horário, o que pode ser guardado, faixa gratuita, cartão e regra de mapa. Medir Google e TomTom no piloto. Usar o <code>date_closed</code> da FSQ como primeiro filtro de status.</li>
+</ul>
+<h3 id="c-18-faltam-alternativas-para-manter-a-base-viva">C-18 · Faltam alternativas para manter a base viva<a class="headerlink" href="#c-18-faltam-alternativas-para-manter-a-base-viva" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Gravidade:</strong> importante</li>
+<li><strong>Seção:</strong> Pergunta 1 (opções); Pergunta 3 (cadência)</li>
+<li><strong>Problema:</strong> o ADR só considera a curadoria da equipe e APIs. Ficaram de fora:</li>
+<li>retorno dos usuários no fluxo pós-rolê (RF-36 e RF-37): "o lugar estava aberto? o preço bateu?". É conferência grátis e liga a base ao RF-38;</li>
+<li>contato com alguns lugares parceiros, com um formulário para o próprio estabelecimento atualizar horário e preço;</li>
+<li>agendas institucionais (Sesc-DF, CCBB, Caixa Cultural) como fonte de eventos com rotina própria. Não foi possível confirmar se existe uma instância de Mapas Culturais do DF com API (tabela de fatos);</li>
+<li>a multimodalidade da semana 5 aplicada à curadoria: ler o cardápio em PDF ou foto e propor os itens de referência para o curador confirmar.</li>
+<li><strong>Sugestão:</strong> incluir essas opções na Pergunta 1, com prós e contras. No mínimo, adotar o retorno dos usuários como sinal para a fila do curador (sem dados pessoais) e a leitura de cardápio como automação.</li>
+</ul>
+<h3 id="c-19-tres-fontes-abertas-multiplicam-o-trabalho-sem-ganho-claro">C-19 · Três fontes abertas multiplicam o trabalho sem ganho claro<a class="headerlink" href="#c-19-tres-fontes-abertas-multiplicam-o-trabalho-sem-ganho-claro" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Gravidade:</strong> importante</li>
+<li><strong>Seção:</strong> Fontes por tipo de dado (lista de candidatos); Pergunta 1 (opção C)</li>
+<li><strong>Problema:</strong></li>
+<li>OSM, Overture e FSQ OS Places juntos exigem deduplicar e casar registros de três esquemas.</li>
+<li>A <a href="https://docs.overturemaps.org/guides/places/">documentação da Overture</a> avisa que o tema Places tem duplicatas, muito lixo e baixa completude dos atributos.</li>
+<li>O FSQ OS Places agora exige conta no Places Portal e acesso por catálogo Iceberg (<a href="https://docs.foursquare.com/data-products/docs/access-fsq-os-places">acesso</a>).</li>
+<li>A Overture tem licença por fonte (CDLA-Permissive-2.0, Apache-2.0 e CC0), cada uma com atribuição própria (<a href="https://docs.overturemaps.org/attribution/">atribuição</a>).</li>
+<li>Para 200 lugares, o custo de juntar três fontes é alto. A opção D foi descartada também por "não ter registro auditável", mas o "contato direto" volta como fonte primária.</li>
+<li><strong>Sugestão:</strong> uma fonte principal de descoberta (FSQ OS Places, pelo <code>date_closed</code>, ou OSM, pelas tags) e as outras só para cobrir buracos, sem merge automático. Decidir no piloto, contando quantos candidatos úteis cada fonte dá por RA.</li>
+</ul>
+<h3 id="c-20-a-regra-de-40-sem-foco-em-alcool-nao-garante-o-rnf-16">C-20 · A regra de 40% sem foco em álcool não garante o RNF-16<a class="headerlink" href="#c-20-a-regra-de-40-sem-foco-em-alcool-nao-garante-o-rnf-16" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Gravidade:</strong> importante</li>
+<li><strong>Seção:</strong> Divisão por tipo (comer e beber fora)</li>
+<li><strong>Problema:</strong> o RNF-16 pede uma opção sem foco em álcool sempre que houver uma viável, plano a plano. Um percentual na base não garante isso num sábado à noite numa região com poucos lugares. "Foco em álcool" não tem definição (boteco com cozinha conta?). Eventos e casas de show não têm o atributo.</li>
+<li><strong>Sugestão:</strong> definir o atributo no guia. Medir no teste de cobertura em quantas salas simuladas existe pelo menos um plano viável sem foco em álcool. Aplicar o atributo também a eventos.</li>
+</ul>
+<h3 id="c-21-link-do-mapa-e-atribuicao">C-21 · Link do mapa e atribuição<a class="headerlink" href="#c-21-link-do-mapa-e-atribuicao" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Gravidade:</strong> menor</li>
+<li><strong>Seção:</strong> Fontes por tipo de dado (fotos); Pergunta 2 (exibição)</li>
+<li><strong>Problema:</strong> <code>googleMapsUri</code> é campo Pro e não pode ser guardado. Mostrá-lo em todo plano exige uma chamada por lugar. As <a href="https://developers.google.com/maps/documentation/urls/get-started">Maps URLs</a> não exigem chave e aceitam <code>query_place_id</code>. A <a href="https://developers.google.com/maps/documentation/places/web-service/policies">política da Places API</a> pede o logo do Google Maps sempre que possível e aceita o texto só quando falta espaço. O ADR prevê só o texto.</li>
+<li><strong>Sugestão:</strong> montar o link com Maps URLs (<code>query</code> + <code>query_place_id</code>). Usar o logo onde aparecer conteúdo da Google.</li>
+</ul>
+<h3 id="c-22-role-em-casa-a-cesta-do-dieese-nao-serve">C-22 · Rolê em casa: a cesta do DIEESE não serve<a class="headerlink" href="#c-22-role-em-casa-a-cesta-do-dieese-nao-serve" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Gravidade:</strong> menor</li>
+<li><strong>Seção:</strong> Fontes por tipo de dado (itens do rolê em casa); Pergunta 3 (itens: 30 e 90 dias)</li>
+<li><strong>Problema:</strong> a <a href="https://www.dieese.org.br/cesta/">cesta básica do DIEESE</a> é de alimentos básicos (carne, leite, feijão, arroz, pão, café e outros). Não tem bebida, carvão, petisco nem descartáveis. Na consulta, Brasília aparece com a marca "(11/2012)", e não ficou claro se a série continua. O catálogo exige coleta mensal de preços, que não está na cadência. O RF-20 é Should.</li>
+<li><strong>Sugestão:</strong> tirar o catálogo da base do MVP, ou usar faixas de preço por item sem coleta mensal, sempre marcadas como estimativa.</li>
+</ul>
+<h3 id="c-23-o-marco-da-semana-2-depende-de-coisas-que-ainda-nao-existem">C-23 · O marco da semana 2 depende de coisas que ainda não existem<a class="headerlink" href="#c-23-o-marco-da-semana-2-depende-de-coisas-que-ainda-nao-existem" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Gravidade:</strong> menor</li>
+<li><strong>Seção:</strong> Pergunta 4 (marcos)</li>
+<li><strong>Problema:</strong> 60 lugares no fim da semana 2 pressupõem esquema, guia de curadoria e conta da Google prontos. O ADR ainda é proposta, o guia não existe e a conta de faturamento está em aberto. O piloto que mede o tempo por lugar é o mesmo que precisa entregar os 60.</li>
+<li><strong>Sugestão:</strong> piloto de 20 lugares com o esquema provisório, medir o tempo e ajustar. Os 60 passam a ser meta da semana 3.</li>
+</ul>
+<h3 id="c-24-forma-do-adr">C-24 · Forma do ADR<a class="headerlink" href="#c-24-forma-do-adr" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Gravidade:</strong> menor</li>
+<li><strong>Seção:</strong> documento inteiro</li>
+<li><strong>Problema:</strong></li>
+<li>Falta a seção "Justificativa e evidências" do <a href="../../0000-template/">template</a>. As justificativas estão espalhadas, e várias decisões não citam evidência: os números da Pergunta 4, os limites da Pergunta 3 e a "melhor cobertura no Brasil".</li>
+<li>As referências só cobrem a Google. Licenças, termos de plataformas, PDAD e DIEESE ficam sem referência.</li>
+<li>A nota "a versão vigente das regras de cache de coordenadas ainda precisa ser conferida" já pode ser fechada: são 30 dias (seção 14.3 dos termos específicos).</li>
+<li>Esquema, cadência e regras de curadoria são operação, não decisão, e incham o ADR (251 linhas).</li>
+<li>O ADR diz que fecha a questão em aberto 4, mas implica mudanças no RNF-15 e no mapa da arquitetura que não lista.</li>
+<li><strong>Sugestão:</strong> seção de justificativa com fontes por pergunta. Mover o esquema e o guia de curadoria para documentos próprios (por exemplo, <code>docs/dados/esquema-base.md</code> e <code>docs/dados/guia-curadoria.md</code>, com a tabela do AGENTS.md atualizada). Listar os requisitos e documentos que mudam.</li>
+</ul>
+<h2 id="3-tabela-de-fatos-verificados">3. Tabela de fatos verificados<a class="headerlink" href="#3-tabela-de-fatos-verificados" title="Permanent link">&para;</a></h2>
+<p>Consulta em 03/11/2026. "Confirmado" quer dizer que a fonte diz o mesmo que o ADR; "divergente", que diz outra coisa; "não verificável", que a fonte não abriu ou não responde.</p>
+<table>
+<thead>
+<tr>
+<th>Fato</th>
+<th>O que o ADR diz</th>
+<th>O que a fonte diz</th>
+<th>Link</th>
+<th>Situação</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Cota de Text Search Essentials (IDs Only)</td>
+<td>Ilimitada</td>
+<td>Ilimitada</td>
+<td><a href="https://developers.google.com/maps/billing-and-pricing/pricing">Preços</a></td>
+<td>Confirmado</td>
+</tr>
+<tr>
+<td>Cota de Place Details Pro</td>
+<td>5.000 por mês</td>
+<td>5.000 por mês; US$ 17 por mil acima</td>
+<td><a href="https://developers.google.com/maps/billing-and-pricing/pricing">Preços</a></td>
+<td>Confirmado</td>
+</tr>
+<tr>
+<td>Cota de Place Details Enterprise</td>
+<td>1.000 por mês</td>
+<td>1.000 por mês; US$ 20 por mil acima</td>
+<td><a href="https://developers.google.com/maps/billing-and-pricing/pricing">Preços</a></td>
+<td>Confirmado</td>
+</tr>
+<tr>
+<td>SKU de <code>businessStatus</code> e <code>displayName</code></td>
+<td>Pro</td>
+<td>Pro</td>
+<td><a href="https://developers.google.com/maps/documentation/places/web-service/data-fields">Campos por SKU</a></td>
+<td>Confirmado</td>
+</tr>
+<tr>
+<td>SKU de <code>regularOpeningHours</code></td>
+<td>Enterprise</td>
+<td>Enterprise; <code>currentOpeningHours</code> também</td>
+<td><a href="https://developers.google.com/maps/documentation/places/web-service/data-fields">Campos por SKU</a></td>
+<td>Confirmado</td>
+</tr>
+<tr>
+<td>Chamada com campos de SKUs diferentes</td>
+<td>Lote tratado como 200 Pro + 200 Enterprise</td>
+<td>Cobrada uma vez, no SKU mais alto</td>
+<td><a href="https://developers.google.com/maps/documentation/places/web-service/usage-and-billing">Usage and billing</a></td>
+<td>Divergente</td>
+</tr>
+<tr>
+<td>O que o Text Search só com ID devolve</td>
+<td>Basta para "casar o lugar"</td>
+<td>Só ID, nome de recurso, atribuições, alerta e <code>movedPlace</code>; nome e endereço exigem SKU Pro</td>
+<td><a href="https://developers.google.com/maps/documentation/places/web-service/text-search">Text Search</a></td>
+<td>Divergente</td>
+</tr>
+<tr>
+<td>Cota diária por SKU</td>
+<td>"Enterprise em 30 e Pro em 150 por dia"</td>
+<td>Cota por método e por projeto; limite baseado no SKU de menor cota</td>
+<td><a href="https://developers.google.com/maps/billing-and-pricing/manage-costs">Controle de custos</a></td>
+<td>Divergente</td>
+</tr>
+<tr>
+<td>Alerta de faturamento como trava</td>
+<td>"Alerta de US$ 1" listado como trava</td>
+<td>Orçamento e alerta não limitam o uso; atraso de até 48 h</td>
+<td><a href="https://developers.google.com/maps/billing-and-pricing/manage-costs">Controle de custos</a></td>
+<td>Divergente</td>
+</tr>
+<tr>
+<td>Cache do place ID</td>
+<td>Sem prazo</td>
+<td>Sem prazo; recomenda atualizar IDs com mais de 12 meses (grátis só com o campo ID); ID obsoleto dá <code>NOT_FOUND</code></td>
+<td><a href="https://cloud.google.com/maps-platform/terms/maps-service-terms">Termos específicos</a>, <a href="https://developers.google.com/maps/documentation/places/web-service/place-id">Place IDs</a></td>
+<td>Confirmado</td>
+</tr>
+<tr>
+<td>Cache de latitude e longitude</td>
+<td>"Ainda precisa ser conferida"</td>
+<td>Até 30 dias corridos (seção 14.3)</td>
+<td><a href="https://cloud.google.com/maps-platform/terms/maps-service-terms">Termos específicos</a></td>
+<td>Confirmado (fecha a pendência)</td>
+</tr>
+<tr>
+<td>Guardar "data e confere/diverge" da Google</td>
+<td>Compatível com a política</td>
+<td>Termos proíbem guardar fora dos serviços, cache não previsto e criar conteúdo a partir do conteúdo da Google; nada explícito sobre verificar base própria</td>
+<td><a href="https://cloud.google.com/maps-platform/terms">Termos, 3.2.3</a></td>
+<td>Não verificável (risco alto)</td>
+</tr>
+<tr>
+<td>Places com mapa não Google</td>
+<td>Não trata</td>
+<td>Proibido (3.2.3(e) e 14.2); sem mapa é permitido (14.1)</td>
+<td><a href="https://cloud.google.com/maps-platform/terms">Termos</a>, <a href="https://cloud.google.com/maps-platform/terms/maps-service-terms">Termos específicos</a></td>
+<td>Fato novo, não tratado</td>
+</tr>
+<tr>
+<td>Conteúdo da Google para testar modelos de IA</td>
+<td>Não trata</td>
+<td>Proibido testar, validar ou ajustar modelos de IA com o conteúdo (3.2.3(c)(vii))</td>
+<td><a href="https://cloud.google.com/maps-platform/terms">Termos</a></td>
+<td>Fato novo, não tratado</td>
+</tr>
+<tr>
+<td>Atribuição</td>
+<td>Texto "Google Maps"</td>
+<td>Logo sempre que possível; texto só sem espaço; crédito ao autor em fotos e avaliações</td>
+<td><a href="https://developers.google.com/maps/documentation/places/web-service/policies">Políticas da Places API</a></td>
+<td>Divergente (parcial)</td>
+</tr>
+<tr>
+<td>Link do mapa</td>
+<td><code>googleMapsUri</code></td>
+<td>Campo Pro; Maps URLs não exigem chave e aceitam <code>query_place_id</code></td>
+<td><a href="https://developers.google.com/maps/documentation/places/web-service/data-fields">Campos por SKU</a>, <a href="https://developers.google.com/maps/documentation/urls/get-started">Maps URLs</a></td>
+<td>Confirmado, com alternativa melhor</td>
+</tr>
+<tr>
+<td>Free Trial do Google Cloud</td>
+<td>Não trata</td>
+<td>US$ 300 por 90 dias; sem upgrade manual a conta fecha sem cobrança; a página não confirma cobertura da Maps Platform</td>
+<td><a href="https://docs.cloud.google.com/free/docs/free-cloud-features">Free Trial</a></td>
+<td>Não verificável (cobertura de Maps)</td>
+</tr>
+<tr>
+<td>ODbL (OSM)</td>
+<td>Citar a fonte; compartilhar a base derivada se publicada</td>
+<td>Uso público de resultado de base derivada já obriga a oferecer a base (4.4(c), 4.6); aviso deve citar a ODbL</td>
+<td><a href="https://opendatacommons.org/licenses/odbl/1-0/">ODbL 1.0</a>, <a href="https://www.openstreetmap.org/copyright">Copyright OSM</a></td>
+<td>Divergente</td>
+</tr>
+<tr>
+<td>Licença de Overture Places</td>
+<td>CDLA-Permissive-2.0</td>
+<td>CDLA-Permissive-2.0 na maior parte, Apache-2.0 (Foursquare) e CC0 (AllThePlaces) conforme a fonte; sem dados do OSM; aviso de duplicatas e baixa completude</td>
+<td><a href="https://docs.overturemaps.org/guides/places/">Guia de Places</a>, <a href="https://docs.overturemaps.org/attribution/">Atribuição</a></td>
+<td>Divergente (parcial)</td>
+</tr>
+<tr>
+<td>Licença de FSQ OS Places</td>
+<td>Apache 2.0</td>
+<td>Apache 2.0; exige conta no Places Portal; tem telefone, e-mail e redes; não tem horário</td>
+<td><a href="https://docs.foursquare.com/data-products/docs/places-os-data-schema">Esquema</a>, <a href="https://docs.foursquare.com/data-products/docs/access-fsq-os-places">Acesso</a></td>
+<td>Confirmado</td>
+</tr>
+<tr>
+<td>Faixa gratuita da Foursquare Places API</td>
+<td>Incerta, entre 500 e 10.000</td>
+<td>A mesma página mostra 0 a 500 na tabela e "até 10.000" no texto; horário é Premium, sem faixa grátis; em pay-as-you-go só o ID pode ser guardado</td>
+<td><a href="https://foursquare.com/pricing/">Preços</a>, <a href="https://docs.foursquare.com/fsq-developers-places/reference/response-fields">Campos</a>, <a href="https://docs.foursquare.com/fsq-developers-places/reference/usage-guidelines">Diretrizes</a></td>
+<td>Confirmado (a contradição é da fonte)</td>
+</tr>
+<tr>
+<td>Faixa gratuita da TomTom</td>
+<td>Não trata</td>
+<td>Search API: 2.500 por mês; Places Search: 5.000; sem cartão; horário dos próximos 7 dias na busca de POI</td>
+<td><a href="https://docs.tomtom.com/pricing">Preços</a>, <a href="https://docs.tomtom.com/search-api/documentation/search-service/points-of-interest-search">POI Search</a></td>
+<td>Fato novo</td>
+</tr>
+<tr>
+<td>Faixa gratuita da HERE</td>
+<td>Não trata</td>
+<td>Página de preços só tem "fale conosco"</td>
+<td><a href="https://www.here.com/get-started/pricing">Preços HERE</a></td>
+<td>Não verificável</td>
+</tr>
+<tr>
+<td>Termos do Instagram</td>
+<td>Proíbem coleta automatizada</td>
+<td>Proíbem coletar informações de forma automatizada sem permissão expressa; leitura manual não é vedada no texto</td>
+<td><a href="https://help.instagram.com/581066165581870">Termos de Uso</a></td>
+<td>Confirmado</td>
+</tr>
+<tr>
+<td>API da Sympla</td>
+<td>Voltada a organizadores</td>
+<td>Exposta para produtores, com token gerado na conta do produtor</td>
+<td><a href="https://developers.sympla.com.br/api-docs">Contrato da API</a></td>
+<td>Confirmado</td>
+</tr>
+<tr>
+<td>Termos da Sympla sobre coleta automatizada</td>
+<td>Proíbem raspagem</td>
+<td>Os Termos Gerais definem "Crawler/Spider", mas a cláusula de proibição não foi localizada; a Política de Propriedade Intelectual não foi lida</td>
+<td><a href="https://termos-e-politicas.sympla.com.br/hc/pt-br/articles/44293992401300-Termos-de-Uso-Gerais">Termos Gerais</a></td>
+<td>Não verificável</td>
+</tr>
+<tr>
+<td>Termos do iFood</td>
+<td>Proíbem raspagem</td>
+<td>Página protegida por verificação anti-robô; não foi lida</td>
+<td><a href="https://www.ifood.com.br/termos">Termos</a></td>
+<td>Não verificável</td>
+</tr>
+<tr>
+<td>Termos do TripAdvisor</td>
+<td>Proíbem raspagem</td>
+<td>Não consultado</td>
+<td>—</td>
+<td>Não verificável</td>
+</tr>
+<tr>
+<td>API ou dados abertos de agenda cultural do DF</td>
+<td>Não encontramos (a confirmar)</td>
+<td>Site da Secec sem agenda estruturada nem API; o portal de dados do DF não listou conjuntos (página carregada por script); endereços testados de Mapas Culturais do DF com certificado vencido</td>
+<td><a href="https://www.cultura.df.gov.br/">Secec</a>, <a href="https://dados.df.gov.br/">Dados DF</a></td>
+<td>Não verificável</td>
+</tr>
+<tr>
+<td>Lista oficial de parques</td>
+<td>Sites do Ibram e outros</td>
+<td>O Ibram publica tabela de unidades de conservação para download (agosto de 2026); não há horário por parque</td>
+<td><a href="https://www.ibram.df.gov.br/unidades-de-conservacao">Ibram</a></td>
+<td>Confirmado (parcial)</td>
+</tr>
+<tr>
+<td>PDAD</td>
+<td>"PDAD, a conferir"</td>
+<td>Edição mais recente: PDAD-A 2024; a de 2021 cobriu 33 RAs</td>
+<td><a href="https://www.ipe.df.gov.br/pdad/">IPEDF</a></td>
+<td>Divergente (atualizar)</td>
+</tr>
+<tr>
+<td>Cesta básica do DIEESE em Brasília</td>
+<td>Fonte de preços do rolê em casa</td>
+<td>Cesta de alimentos básicos; Brasília aparece como "(11/2012)" sem explicação</td>
+<td><a href="https://www.dieese.org.br/cesta/">DIEESE</a></td>
+<td>Não verificável (série ativa?)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-perguntas-que-so-o-grupo-pode-responder">4. Perguntas que só o grupo pode responder<a class="headerlink" href="#4-perguntas-que-so-o-grupo-pode-responder" title="Permanent link">&para;</a></h2>
+<ol>
+<li>O app terá mapa embutido? Google ou OpenStreetMap? A resposta decide se a Google pode ser a API de conferência (C-02).</li>
+<li>Os testes do MVP terão usuários fora da equipe? A base ou o repositório serão públicos no fim? Isso decide a obrigação da ODbL (C-09).</li>
+<li>Quem assume o risco da conta de faturamento? O grupo aceita o Free Trial, que fecha sem cobrança, se ele cobrir a Maps Platform (C-03)?</li>
+<li>Quantas horas por semana a equipe aceita tirar do desenvolvimento para a base, e quem é dono de cada rotina (C-12)?</li>
+<li>A meta de 95% do RNF-03 vale para a base toda ou para o que aparece nos planos? O grupo aceita uma amostra de cerca de 125 itens (C-04)?</li>
+<li>A base precisa continuar viva depois da semana 7? Se não, as rodadas trimestrais e os limites longos saem do MVP (C-06).</li>
+<li>Quais restrições alimentares e de acessibilidade o MVP promete filtrar de verdade (C-10)?</li>
+<li>O que é "barato" para o público? O formulário de hábitos tem dados para isso (C-13)?</li>
+<li>Quais RAs entram em cada região, e o que justifica o teto de 40% e o piso de 15 (C-13)?</li>
+<li>O que conta como "foco em álcool" (C-20)?</li>
+<li>O rolê em casa (RF-20, Should) entra na base do MVP (C-22)?</li>
+<li>O grupo aceita contatar estabelecimentos ou pedir retorno dos usuários depois do rolê como fonte de conferência (C-18)?</li>
+</ol>
+<h2 id="5-respostas-do-autor">5. Respostas do autor<a class="headerlink" href="#5-respostas-do-autor" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Autor:</strong> agente Claude (Claude Code), sessão que escreveu o ADR, em 2026-11-03.</li>
+<li><strong>Resultado:</strong> a crítica foi incorporada ao <a href="../../0004-fonte-e-manutencao-da-base/">ADR 0004, versão 2</a>, agora com status "aceita". Dos 24 achados, 21 foram aceitos integralmente e 3 em parte. Nenhum foi rejeitado.</li>
+<li><strong>Documentos novos:</strong> o esquema e o guia saíram do ADR para <a href="../../../dados/esquema-base/">esquema-base.md</a> e <a href="../../../dados/guia-curadoria/">guia-curadoria.md</a>.</li>
+</ul>
+<h3 id="conferencia-dos-fatos-centrais">Conferência dos fatos centrais<a class="headerlink" href="#conferencia-dos-fatos-centrais" title="Permanent link">&para;</a></h3>
+<p>Antes de aceitar os três achados bloqueantes, o autor leu os termos vigentes no navegador:
+- <strong><a href="https://cloud.google.com/maps-platform/terms">Termos da Google</a>:</strong> as seções 3.2.3(a)(iii), 3.2.3(c)(vii), 3.2.3(e) e 3.2.4 dizem o que a crítica afirma.
+- <strong><a href="https://cloud.google.com/maps-platform/terms/maps-service-terms">Termos específicos</a>:</strong> as seções 14.1 a 14.3 também confirmam.
+- <strong><a href="https://developers.google.com/maps/documentation/places/web-service/text-search">Text Search</a>:</strong> a página confirma que <code>movedPlace</code> e <code>movedPlaceId</code> estão no SKU gratuito de IDs.</p>
+<p>A leitura trouxe dois pontos que a crítica não levantou:
+- <strong>3.2.3(d)(iii):</strong> proíbe usar os serviços principais "em um serviço de listagem ou diretório". Entrou no ADR como risco residual, com a TomTom como saída.
+- <strong>3.2.3(a)(iv):</strong> proíbe usar conteúdo da Google com texto para voz, o que afeta o RF-40. Entrou como condição 3 (nada da Google é mostrado nem lido em voz).</p>
+<h3 id="resposta-a-cada-achado">Resposta a cada achado<a class="headerlink" href="#resposta-a-cada-achado" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Achado</th>
+<th>Resposta</th>
+<th>O que mudou no ADR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C-01</td>
+<td>Aceito</td>
+<td>Resposta da Google efêmera e só na hora do plano. O lote mensal foi removido. <code>verificado_em</code> só muda por verificação humana. Princípio 2 e condições 2 a 4. RNF-15 corrigido nos requisitos</td>
+</tr>
+<tr>
+<td>C-02</td>
+<td>Aceito</td>
+<td>Condição 1: MVP sem mapa embutido, com link para o Google Maps; o ADR de mapas e rotas herda a restrição</td>
+</tr>
+<tr>
+<td>C-03</td>
+<td>Aceito</td>
+<td>Três projetos (curadoria, plano, feriado), um por SKU, com cotas diárias de grátis ÷ 31. Cobrança pelo SKU mais alto e alerta que só avisa estão explicados. Provedor falso em desenvolvimento e testes de carga. Free Trial como opção a conferir</td>
+</tr>
+<tr>
+<td>C-04</td>
+<td>Aceito</td>
+<td>Unidade = item exibido; cerca de 125 itens estratificados nas semanas 3 e 6; meta afirmada só pelo limite inferior de Clopper-Pearson</td>
+</tr>
+<tr>
+<td>C-05</td>
+<td>Aceito</td>
+<td>"Correto" definido pela resposta do filtro (horário) e pelo custo por pessoa (±10%), com critérios para status e evento; fórmula do custo no guia</td>
+</tr>
+<tr>
+<td>C-06</td>
+<td>Aceito</td>
+<td>Horizonte do MVP declarado; limites longos marcados como pós-MVP; estados sem lacunas, incluindo "não conferido agora"; calibração na semana 6 com 40 lugares do piloto; frescor medido sobre os itens exibidos (≥ 90%)</td>
+</tr>
+<tr>
+<td>C-07</td>
+<td>Aceito</td>
+<td>Rotina de horário antes de feriados (15/11, 20/11, 30/11) e conferência de <code>currentOpeningHours</code> dos finalistas em feriado, no projeto "feriado"</td>
+</tr>
+<tr>
+<td>C-08</td>
+<td>Aceito</td>
+<td>Casamento confirmado pelo <code>formattedAddress</code> (Essentials). A coordenada da Google não é usada, para não cair em 3.2.3(c)(iv). <code>NOT_FOUND</code> e <code>movedPlaceId</code> mandam o lugar para a fila</td>
+</tr>
+<tr>
+<td>C-09</td>
+<td>Aceito, saída (a)</td>
+<td>OSM só consultado à mão, sem importar campos. Coordenadas da Overture (licenças permissivas) ou manuais a partir do endereço do lugar. IDs da Google em arquivo separado</td>
+</tr>
+<tr>
+<td>C-10</td>
+<td>Aceito</td>
+<td>Tabela de filtros com "sem informação". Acessibilidade em subcampos; lista alimentar igual à do perfil. Alergia grave fora do que o app promete</td>
+</tr>
+<tr>
+<td>C-11</td>
+<td>Aceito</td>
+<td>Pedidos de teste escritos na semana 2, antes da base; versão congelada por tag; julgamento dos lugares do LLM puro na fonte primária, nunca na Google (condição 4)</td>
+</tr>
+<tr>
+<td>C-12</td>
+<td>Aceito</td>
+<td>Meta = horas ÷ tempo medido; orçamento de 20 h por semana nas semanas 2 a 5; tarefas omitidas incluídas; donos propostos pelos papéis da ata de 29/10</td>
+</tr>
+<tr>
+<td>C-13</td>
+<td>Aceito em parte</td>
+<td>O critério de aceite passou a ser o resultado: teste de cobertura por estrato região × faixa de orçamento, sem média. As cotas por região continuam, mas só como ponto de partida da curadoria. Sem elas o sorteio não tem estratos. O teto do Centro não vale para locais de eventos. As 35 RAs foram distribuídas em seis regiões, e a referência passou a ser a PDAD-A 2024</td>
+</tr>
+<tr>
+<td>C-14</td>
+<td>Aceito</td>
+<td>Lista fechada de campos na importação; regra do contato direto; curador por iniciais; validação "zero campos de contato"</td>
+</tr>
+<tr>
+<td>C-15</td>
+<td>Aceito</td>
+<td>Esquema completo em documento próprio, com endereço, couvert, taxa de serviço, consumação, meia-entrada, lote, esgotado, local alterado, itens para levar e formato de horário. O texto do embedding é gerado por modelo, e o atributo vence o texto. Estacionamento e distância de estação ficam para o ADR de rotas e GTFS</td>
+</tr>
+<tr>
+<td>C-16</td>
+<td>Aceito</td>
+<td>Recheque só dos eventos dos próximos 14 dias; vencido aos 14 dias; "confirme no link oficial" no plano; campos <code>esgotado</code>, <code>lote</code> e <code>local_alterado</code></td>
+</tr>
+<tr>
+<td>C-17</td>
+<td>Aceito em parte</td>
+<td>Tabela única de critérios com Google, TomTom, Foursquare, OSM e conferência manual. A TomTom entra no piloto, com critério de troca (≥ 80% de acerto). A Google continua sendo a escolha: tem os campos de status e horário documentados, e a TomTom não teve os termos de cache encontrados. O <code>date_closed</code> da FSQ não foi adotado como filtro, porque a FSQ OS deixou de ser a fonte principal (C-19)</td>
+</tr>
+<tr>
+<td>C-18</td>
+<td>Aceito em parte</td>
+<td>Entram o retorno dos usuários (pergunta opcional no RF-37, só para a fila) e a leitura de cardápio pela IA (Could, semana 5). O formulário para os lugares fica para depois do MVP, por esforço e relacionamento</td>
+</tr>
+<tr>
+<td>C-19</td>
+<td>Aceito</td>
+<td>Uma fonte principal: a Overture, por não exigir conta e ter licença por registro. FSQ OS só se o piloto mostrar lacunas; OSM só consultado; sem merge automático</td>
+</tr>
+<tr>
+<td>C-20</td>
+<td>Aceito</td>
+<td>"Foco em álcool" definido no guia e aplicado a eventos; o teste de cobertura mede salas com candidato viável sem foco em álcool</td>
+</tr>
+<tr>
+<td>C-21</td>
+<td>Aceito</td>
+<td>Link montado com Maps URLs (<code>query</code> + <code>query_place_id</code>). Nenhum conteúdo da Google é exibido, então não há logo a mostrar</td>
+</tr>
+<tr>
+<td>C-22</td>
+<td>Aceito</td>
+<td>Catálogo do rolê em casa fora da base; faixas por item sempre como estimativa; DIEESE descartado</td>
+</tr>
+<tr>
+<td>C-23</td>
+<td>Aceito</td>
+<td>Piloto de 20 lugares na semana 2; 60 na semana 3; 120 na semana 4; até 200 na semana 5</td>
+</tr>
+<tr>
+<td>C-24</td>
+<td>Aceito</td>
+<td>Seção "Justificativa e evidências" por pergunta; referências completas; nota sobre o cache de coordenadas fechada (30 dias, 14.3); esquema e guia em <code>docs/dados/</code>; seção "Mudanças em outros documentos"</td>
+</tr>
+</tbody>
+</table>
+<h3 id="perguntas-da-secao-4">Perguntas da seção 4<a class="headerlink" href="#perguntas-da-secao-4" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Pergunta</th>
+<th>Encaminhamento</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Mapa embutido</td>
+<td>O autor decidiu "sem mapa embutido no MVP" (condição 1); o grupo confirma</td>
+</tr>
+<tr>
+<td>2. Usuários de fora e base pública</td>
+<td>A escolha de licenças permissivas tira a obrigação da ODbL; falta saber só a atribuição exibida</td>
+</tr>
+<tr>
+<td>3. Conta de faturamento</td>
+<td>Continua com o grupo; o Free Trial é a opção preferida, se cobrir a Maps Platform</td>
+</tr>
+<tr>
+<td>4. Horas e donos</td>
+<td>Proposta de 20 h por semana e donos por papel; o grupo confirma</td>
+</tr>
+<tr>
+<td>5. Meta de 95%</td>
+<td>Respondida no ADR: vale para os itens exibidos, com cerca de 125 itens por rodada</td>
+</tr>
+<tr>
+<td>6. Base viva depois da semana 7</td>
+<td>Respondida: limites longos e rodada trimestral marcados como pós-MVP</td>
+</tr>
+<tr>
+<td>7. Restrições prometidas</td>
+<td>Respondida: vegetariano, vegano, sem glúten, sem lactose e dois itens de acessibilidade; alergia grave fora</td>
+</tr>
+<tr>
+<td>8. O que é "barato"</td>
+<td>R$ 40 por pessoa até o formulário de hábitos dar o dado</td>
+</tr>
+<tr>
+<td>9. RAs por região</td>
+<td>Proposta de seis regiões com as 35 RAs; o grupo confirma</td>
+</tr>
+<tr>
+<td>10. Foco em álcool</td>
+<td>Respondida no guia de curadoria</td>
+</tr>
+<tr>
+<td>11. Rolê em casa na base</td>
+<td>Respondida: fora da base do MVP</td>
+</tr>
+<tr>
+<td>12. Contato com lugares e retorno dos usuários</td>
+<td>Retorno dos usuários adotado; contato com lugares fica para depois do MVP</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

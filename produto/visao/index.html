@@ -1,0 +1,1287 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentação Oficial de Engenharia, DevOps e Arquitetura do Grupo 7 (Residência em IA Eldorado/UnB)">
+      
+      
+        <meta name="author" content="Grupo 7">
+      
+      
+        <link rel="canonical" href="https://residencia-ia-challenge-2-grupo-7.github.io/residencia-ia-g7-challenge2/produto/visao/">
+      
+      
+        <link rel="prev" href="../../guia-contribuicao/">
+      
+      
+        <link rel="next" href="../requisitos/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>Visão do Produto - Orquestrador de Rolês — Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#visao-do-produto-orquestrador-de-roles" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Orquestrador de Rolês — Docs" class="md-header__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Orquestrador de Rolês — Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Visão do Produto
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Orquestrador de Rolês — Docs" class="md-nav__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Orquestrador de Rolês — Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guia-contribuicao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Contribuição
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arquitetura & Decisões
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Arquitetura & Decisões
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visão do Produto
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visão do Produto
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#em-uma-frase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Em uma frase
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#essential-question" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Essential Question
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#problema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Problema
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diferenciais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diferenciais
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#concorrentes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concorrentes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decisoes-em-aberto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decisões em aberto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#riscos-conhecidos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Riscos conhecidos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#encaixe-no-roadmap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Encaixe no roadmap
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#evidencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evidências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../requisitos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Requisitos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../decisoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisões Técnicas (ADRs)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dados & RAG
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Dados & RAG
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dados/esquema-base/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Esquema da Base
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dados/guia-curadoria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Curadoria
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dados/golden-dataset-semana3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Golden Dataset (Semana 3)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semanas & Entregas
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Semanas & Entregas
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../semanas/semana-01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 01
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../semanas/semana-02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 02
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../entregas/semana-02/RELATORIO_TECNICO_RAG_SEMANA_02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Relatório Semana 2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#em-uma-frase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Em uma frase
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#essential-question" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Essential Question
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#problema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Problema
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-funciona" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como funciona
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#diferenciais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Diferenciais
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#concorrentes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Concorrentes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decisoes-em-aberto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decisões em aberto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#riscos-conhecidos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Riscos conhecidos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#encaixe-no-roadmap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Encaixe no roadmap
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#evidencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evidências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="visao-do-produto-orquestrador-de-roles">Visão do produto: Orquestrador de Rolês<a class="headerlink" href="#visao-do-produto-orquestrador-de-roles" title="Permanent link">&para;</a></h1>
+<p>Documento de referência para quem vai detalhar requisitos, riscos, personas e métricas. Reúne a ideia, a pesquisa de concorrentes e evidências, e o que ainda está em aberto. Decisão de seguir com esta ideia: <a href="../../decisoes/0001-escolha-do-orquestrador-de-roles/">ADR 0001</a>. O MVP cobre só o modo com amigos (<a href="../../decisoes/0002-recorte-do-mvp/">ADR 0002</a>); requisitos em <a href="../requisitos/">requisitos.md</a>.</p>
+<h2 id="em-uma-frase">Em uma frase<a class="headerlink" href="#em-uma-frase" title="Permanent link">&para;</a></h2>
+<p>Uma IA mediadora que tira dos amigos o peso social de combinar encontros (dinheiro, convite, logística) e decide de forma justa para o grupo, para que se encontrem mais. O Modo Descoberta estende isso a quem não tem com quem combinar.</p>
+<h2 id="essential-question">Essential Question<a class="headerlink" href="#essential-question" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Nível 1:</strong> Como a IA pode aproximar as pessoas?</li>
+<li><strong>Nível 2:</strong> Como sistemas de IA podem ajudar amigos a transformar a vontade de se encontrar em encontros reais, de forma justa para todos?</li>
+<li><strong>Modo Descoberta:</strong> Como sistemas de IA podem cruzar perfis, interesses e disponibilidades para formar proativamente novos grupos de amigos, assumindo o peso do convite inicial e eliminando o medo da rejeição?</li>
+</ul>
+<h2 id="problema">Problema<a class="headerlink" href="#problema" title="Permanent link">&para;</a></h2>
+<p>Amigos querem se ver, mas o encontro morre na organização:</p>
+<ul>
+<li><strong>Comunicação:</strong> ninguém toma a iniciativa; há vergonha de falar de dinheiro, de incomodar ou de parecer "pidão".</li>
+<li><strong>Decisão:</strong> dá "branco" na hora de escolher o que fazer e aonde ir.</li>
+<li><strong>Ferramentas:</strong> agenda, mapa e divisão de contas ficam em apps diferentes, e organizar vira trabalho.</li>
+</ul>
+<p>Para quem está sozinho, a maior dor não é organizar, e sim não ter quem convidar, somada ao medo da rejeição.</p>
+<p><strong>Por que isso é qualidade de vida.</strong> A OMS define solidão como a distância entre a conexão social que a pessoa quer e a que ela tem; isolamento social é a falta objetiva de vínculos. Amigos que quase nunca se veem podem estar sós mesmo tendo rede. O cenário com amigos ataca a solidão; o Modo Descoberta ataca o isolamento.</p>
+<h2 id="como-funciona">Como funciona<a class="headerlink" href="#como-funciona" title="Permanent link">&para;</a></h2>
+<p><strong>Com amigos</strong></p>
+<ul>
+<li>Cada pessoa informa localização, dias e horários livres, preferências, orçamento (em sigilo) e, se quiser, contas de jogos.</li>
+<li>Os usuários criam salas com os amigos.</li>
+<li>A IA conversa em particular com cada membro, pesquisa lugares e eventos, planeja rota, transporte, horários, comida e itens para levar, e propõe 2 ou 3 planos completos com o custo de cada pessoa.</li>
+<li>O grupo escolhe; a IA divide os custos e aprende com a avaliação depois do encontro.</li>
+<li>Quando não dá para sair, sugere jogos baratos para jogar online.</li>
+</ul>
+<p><strong>Modo Descoberta</strong></p>
+<ul>
+<li>Quem ativa informa interesses, orçamento, horários, idade, gênero e preferências de grupo (mesmo gênero, misto, faixa etária).</li>
+<li>A IA agrupa pessoas compatíveis (4 a 6), monta um evento pronto num local central e envia convites privados, que podem ser aceitos ou recusados sem pressão.</li>
+<li>A sala de conversa só é criada quando o evento está confirmado. Quem se der bem pode passar a usar o modo com amigos.</li>
+</ul>
+<p><strong>Os três verbos</strong></p>
+<ul>
+<li><strong>Compreender:</strong> cada pessoa vê, antes de aceitar, o custo, o tempo de deslocamento e a disponibilidade do grupo.</li>
+<li><strong>Decidir:</strong> a decisão é coletiva, com preferências em conflito; a IA gera opções viáveis, mostra os prós e contras e conduz a escolha sem decidir pelo grupo.</li>
+<li><strong>Viver melhor:</strong> menos atrito para combinar, ninguém excluído por dinheiro ou distância, mais encontros.</li>
+</ul>
+<h2 id="diferenciais">Diferenciais<a class="headerlink" href="#diferenciais" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>IA como intermediária social:</strong> conversa com cada pessoa em particular e assume o papel de quem organiza e de quem faz o primeiro convite.</li>
+<li><strong>Orçamento em sigilo:</strong> cada pessoa informa seu limite, e a IA respeita o menor sem expor ninguém.</li>
+<li><strong>Plano completo com custo por pessoa:</strong> local, transporte, comida, itens e divisão da conta antes do encontro.</li>
+<li><strong>Decisão justa:</strong> equilibrar tempo de deslocamento e custo entre os membros, em vez de só tirar a média.</li>
+<li><strong>Plano B online barato:</strong> jogos que todos já têm, promoções e Remote Play Together da Steam, em que só o anfitrião precisa ter o jogo.</li>
+</ol>
+<h2 id="concorrentes">Concorrentes<a class="headerlink" href="#concorrentes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Categoria</th>
+<th>Exemplos</th>
+<th>O que fazem</th>
+<th>O que não fazem</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IA em grupos de conversa</td>
+<td>Continua, Meta AI no WhatsApp</td>
+<td>Acompanham disponibilidade, propõem horários, sugerem lugares</td>
+<td>Orçamento, transporte por pessoa, plano B online</td>
+</tr>
+<tr>
+<td>Agenda compartilhada</td>
+<td>Howbout, Sha, Gatherly</td>
+<td>Cruzam disponibilidade, enquetes, reservas</td>
+<td>Planejar o encontro inteiro, dinheiro</td>
+</tr>
+<tr>
+<td>Convites e eventos</td>
+<td>Partiful, eventos e enquetes do WhatsApp</td>
+<td>Convite, confirmação, votação</td>
+<td>Inteligência: alguém ainda decide tudo</td>
+</tr>
+<tr>
+<td>Ponto de encontro justo</td>
+<td>midway@, Split The Drive</td>
+<td>Local com tempo de viagem equilibrado</td>
+<td>Preferências, orçamento, horários</td>
+</tr>
+<tr>
+<td>Divisão de contas</td>
+<td>Splitwise, SplitSnap</td>
+<td>Leitura de nota fiscal e divisão por item</td>
+<td>Planejar antes do encontro</td>
+</tr>
+<tr>
+<td>Conhecer pessoas</td>
+<td>Timeleft (já no Brasil), Bumble BFF</td>
+<td>Grupos de desconhecidos por afinidade</td>
+<td>Integração com o grupo de amigos existente</td>
+</tr>
+</tbody>
+</table>
+<p>Não foi encontrado app brasileiro com IA para combinar encontros entre amigos.</p>
+<h2 id="decisoes-em-aberto">Decisões em aberto<a class="headerlink" href="#decisoes-em-aberto" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Canal:</strong> app próprio ou bot no grupo de conversa. No Brasil o grupo vive no WhatsApp, mas a Meta passou a restringir chatbots de IA de propósito geral na API do WhatsApp Business (verificar se um bot com função específica é permitido). Telegram e Discord são mais abertos. Proposta: app web próprio (<a href="../../decisoes/0003-canal-app-web/">ADR 0003</a>).</li>
+<li><strong>Disponibilidade:</strong> pedir dias e horários, importar do calendário ou deduzir da conversa.</li>
+<li><strong>Regra de decisão do grupo:</strong> média, "menor miséria" (proteger quem fica menos satisfeito) ou rodízio. A literatura não aponta uma regra universalmente melhor, e agentes LLM tendem a simplesmente tirar a média quando não recebem uma regra explícita. Precisa virar ADR.</li>
+<li><strong>LLM orquestra, solver otimiza:</strong> caronas e ponto de encontro são problemas de otimização (roteamento), que um LLM resolve mal sozinho.</li>
+<li><strong>Quem decide:</strong> todo o grupo ou um anfitrião.</li>
+<li><strong>Dados de lugares e preços:</strong> Google Places (pago) ou OpenStreetMap (grátis, com poucos preços e avaliações); eventos via Sympla ou agenda cultural do GDF; dados abertos de transporte do DF (GTFS) a verificar.</li>
+<li><strong>Jogos:</strong> Steam tem API (só perfis públicos); Xbox e PlayStation não têm API pública aberta. Sugestão: só Steam no MVP.</li>
+<li><strong>Divisão de custos:</strong> igual ou por consumo; gerar cobrança Pix ou só calcular.</li>
+<li><strong>Partida a frio:</strong> o que sugerir antes de haver avaliações de encontros anteriores.</li>
+<li><strong>Presencial versus online:</strong> o plano B não pode virar substituto do encontro; o app prioriza o presencial.</li>
+</ul>
+<h2 id="riscos-conhecidos">Riscos conhecidos<a class="headerlink" href="#riscos-conhecidos" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Privacidade:</strong> localização, rotina, renda e rede de amizades são dados sensíveis (LGPD).</li>
+<li><strong>Exclusão financeira:</strong> a divisão de custos pode constranger quem tem menos dinheiro.</li>
+<li><strong>Dados inventados:</strong> a IA pode sugerir lugares, preços ou horários que não existem.</li>
+<li><strong>Segurança:</strong> encontros à noite, volta para casa e, no Modo Descoberta, encontros entre desconhecidos (perfis falsos, assédio).</li>
+<li><strong>Álcool:</strong> churrasco e bares envolvem bebida.</li>
+<li><strong>Dependência de APIs:</strong> custo, limites e políticas de terceiros.</li>
+<li><strong>Métricas de vaidade:</strong> medir encontros realizados, não downloads (o app de eventos IRL fechou após admitir que 95% dos usuários eram falsos).</li>
+</ul>
+<h2 id="encaixe-no-roadmap">Encaixe no roadmap<a class="headerlink" href="#encaixe-no-roadmap" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Semana</th>
+<th>Como aparece</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2. RAG</td>
+<td>Base de lugares, eventos, preços, horários, regras de transporte e catálogo de jogos</td>
+</tr>
+<tr>
+<td>3. LLM x RAG</td>
+<td>Medir quantos lugares, preços e horários o LLM puro inventa e o RAG acerta</td>
+</tr>
+<tr>
+<td>4. Multiagentes</td>
+<td>Um agente por membro, mais planejador, logística, finanças e mediador</td>
+</tr>
+<tr>
+<td>5. Multimodal</td>
+<td>Foto da nota fiscal para dividir a conta, fotos e mapas dos locais, mensagens de voz</td>
+</tr>
+<tr>
+<td>6. Integração</td>
+<td>Aplicação funcional, possivelmente como bot</td>
+</tr>
+<tr>
+<td>7. Testes</td>
+<td>Métricas e piloto com grupos reais</td>
+</tr>
+</tbody>
+</table>
+<h2 id="evidencias">Evidências<a class="headerlink" href="#evidencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li>OMS, Comissão sobre Conexão Social (2025): 1 em cada 6 pessoas afetada pela solidão; cerca de 871 mil mortes por ano associadas; 17% a 21% entre 13 e 29 anos. <a href="https://www.who.int/NEWS/ITEM/30-06-2025-SOCIAL-CONNECTION-LINKED-TO-IMPROVED-HEATH-AND-REDUCED-RISK-OF-EARLY-DEATH">Link</a></li>
+<li>Holt-Lunstad, Smith e Layton (2010): relações sociais fortes associadas a cerca de 50% mais chance de sobrevivência. <em>PLoS Medicine</em> 7(7): e1000316.</li>
+<li>Ipsos (2021): Brasil em 1º lugar entre 28 países em solidão (50%, durante a pandemia). <a href="https://www.ipsos.com/pt-br/brasil-fica-em-1o-lugar-entre-28-paises-em-ranking-dos-que-mais-sentem-solidao">Link</a></li>
+<li>Hall (2018): cerca de 50 horas juntos para virar amigo casual, 90 para amigo, mais de 200 para amigo próximo. <a href="https://news.ku.edu/2018/03/06/study-reveals-number-hours-it-takes-make-friend">Link</a></li>
+<li>Roberts e Dunbar (2015): a queda na qualidade das amizades é contida por contato frequente e atividades juntos. <a href="https://www.neuroscience.ox.ac.uk/publications/572905">Link</a></li>
+<li>Teo et al. (2015): contato presencial frequente associado a menos depressão; telefone e e-mail sem efeito consistente (estudo observacional). <a href="https://www.healthday.com/health-news/public-health/face-to-face-contact-may-beat-email-phone-for-staving-off-depression-703896.html">Link</a></li>
+<li>CFP Board (2026): 67% recusaram eventos por custo em 2 anos; 56% não disseram que o motivo era dinheiro. <a href="https://www.cfp.net/news/2026/03/financial-fomo-quietly-straining-american-relationships">Link</a></li>
+<li>Liu et al. (2022): quem entra em contato subestima o quanto o outro gosta de ser chamado. <a href="https://psypost.org/study-identifies-a-robust-tendency-to-underestimate-how-much-others-appreciate-being-reached-out-to">Link</a></li>
+<li>Epley e Schroeder (2014): as pessoas subestimam o quanto vão gostar de conversar com desconhecidos. <a href="https://www.chicagobooth.edu/review/talk-to-a-stranger-itll-make-you-happier">Link</a></li>
+<li>Recomendação para grupos: não há regra de agregação universalmente melhor. <a href="https://arxiv.org/pdf/2205.11127">Link</a></li>
+<li>Consenso entre agentes LLM tende à média sem estratégia explícita. <a href="https://arxiv.org/pdf/2310.20151">Link</a></li>
+</ul>
+<p>Pesquisas encomendadas por empresas (Ally, Bumble, Talker Research) e números divulgados pelas próprias empresas devem ser citados com ressalva.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "content.code.copy"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

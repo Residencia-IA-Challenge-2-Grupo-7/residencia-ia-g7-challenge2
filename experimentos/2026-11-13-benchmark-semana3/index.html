@@ -1,0 +1,1214 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentação Oficial de Engenharia, DevOps e Arquitetura do Grupo 7 (Residência em IA Eldorado/UnB)">
+      
+      
+        <meta name="author" content="Grupo 7">
+      
+      
+        <link rel="canonical" href="https://residencia-ia-challenge-2-grupo-7.github.io/residencia-ia-g7-challenge2/experimentos/2026-11-13-benchmark-semana3/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>Benchmark Oficial da Semana 3: 20 Consultas × 6 Configurações (LLM Pura vs. RAG 2FA) - Orquestrador de Rolês — Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#benchmark-oficial-da-semana-3-20-consultas-6-configuracoes-llm-pura-vs-rag-2fa" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Orquestrador de Rolês — Docs" class="md-header__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Orquestrador de Rolês — Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Benchmark Oficial da Semana 3: 20 Consultas × 6 Configurações (LLM Pura vs. RAG 2FA)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Orquestrador de Rolês — Docs" class="md-nav__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Orquestrador de Rolês — Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guia-contribuicao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Contribuição
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arquitetura & Decisões
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Arquitetura & Decisões
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../produto/visao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visão do Produto
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../produto/requisitos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Requisitos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../decisoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisões Técnicas (ADRs)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dados & RAG
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Dados & RAG
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dados/esquema-base/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Esquema da Base
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dados/guia-curadoria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Curadoria
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dados/golden-dataset-semana3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Golden Dataset (Semana 3)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semanas & Entregas
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Semanas & Entregas
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../semanas/semana-01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 01
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../semanas/semana-02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 02
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../entregas/semana-02/RELATORIO_TECNICO_RAG_SEMANA_02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Relatório Semana 2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-resumo-comparativo-das-6-configuracoes-rodada-1-20-consultas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Resumo Comparativo das 6 Configurações (Rodada 1 — 20 Consultas)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-escolha-da-configuracao-vencedora-vs-decisao-de-produto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Escolha da Configuração Vencedora vs. Decisão de Produto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-consolidacao-por-categoria-rnf-10-rodada-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Consolidação por Categoria (RNF-10 — Rodada 1)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-variacao-entre-as-duas-rodadas-rodada-1-rodada-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Variação Entre as Duas Rodadas (Rodada 1 × Rodada 2)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-auditoria-manual-das-contradicoes-restantes-item-por-item" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Auditoria Manual das Contradições Restantes (Item por Item)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="benchmark-oficial-da-semana-3-20-consultas-6-configuracoes-llm-pura-vs-rag-2fa">Benchmark Oficial da Semana 3: 20 Consultas × 6 Configurações (LLM Pura vs. RAG 2FA)<a class="headerlink" href="#benchmark-oficial-da-semana-3-20-consultas-6-configuracoes-llm-pura-vs-rag-2fa" title="Permanent link">&para;</a></h1>
+<ul>
+<li><strong>Data:</strong> 2026-11-13</li>
+<li><strong>Contexto:</strong> issue #38, <a href="../../decisoes/0010-baseline-llm-pura-e-guardrails/">ADR 0010</a>, <a href="../../decisoes/0011-comparativo-ab-com-o-mesmo-llm/">ADR 0011</a> e <a href="../../decisoes/0012-busca-vetorial-pela-openrouter/">ADR 0012</a>. Execução oficial nas 20 perguntas do Golden Dataset (<code>data/golden_dataset_semana3.json</code>, issues #31 e #32) avaliadas pelo motor híbrido da issue #36 (<code>src/telemetria/evals_semana3.py</code>: verificação determinística RNF-04 + juiz <code>xiaomi/mimo-v2.6-pro</code>).</li>
+<li><strong>Como reproduzir:</strong></li>
+<li><code>PYTHONPATH=. python scripts/executar_benchmark_semana3.py</code></li>
+<li>validação automatizada: <code>PYTHONPATH=. pytest -v tests/test_resultados_benchmark.py</code></li>
+<li><strong>Artefatos gerados:</strong></li>
+<li><a href="../../data/resultados_benchmark_semana3.json">data/resultados_benchmark_semana3.json</a></li>
+<li><a href="../../data/resultados_benchmark_semana3.csv">data/resultados_benchmark_semana3.csv</a></li>
+<li><a href="../../entregas/semana-03/BENCHMARK_LLM_VS_RAG_LOG.txt">docs/entregas/semana-03/BENCHMARK_LLM_VS_RAG_LOG.txt</a></li>
+</ul>
+<h2 id="1-resumo-comparativo-das-6-configuracoes-rodada-1-20-consultas">1. Resumo Comparativo das 6 Configurações (Rodada 1 — 20 Consultas)<a class="headerlink" href="#1-resumo-comparativo-das-6-configuracoes-rodada-1-20-consultas" title="Permanent link">&para;</a></h2>
+<p>Os números abaixo correspondem à <strong>Rodada 1</strong> (<code>n = 20</code> consultas por configuração; a comparação completa entre Rodada 1 e Rodada 2 está na Seção 4). Na Configuração #3 (<code>3_rag_sem_llm_texto_fixo</code>), <code>tokens_total = 0</code> e <code>custo_estimado_brl = 0.0</code> porque não há chamada paga a nenhum LLM (os valores de <code>simular_recuperacao_rag</code> na telemetria da Semana 2 eram apenas estimativas).</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Configuração</th>
+<th>Acerto (20)</th>
+<th>Acerto DF (18)</th>
+<th>Fidelidade (RNF-03)</th>
+<th>Alucinação</th>
+<th>Fora da Base</th>
+<th>Lugares Inventados</th>
+<th>Precisão RA</th>
+<th>Recall@3 / MRR</th>
+<th>Latência p50 / p90</th>
+<th>Acima de 5 s</th>
+<th>Custo Médio</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>LLM pura, sem raciocínio</td>
+<td>2 de 20 (10%)</td>
+<td>0 de 18</td>
+<td>0,0%</td>
+<td>3,0%</td>
+<td>97,0%</td>
+<td>32 (em 13 casos)</td>
+<td>0 de 15 (0%)</td>
+<td>—</td>
+<td>3,75 s / 5,26 s</td>
+<td>3 de 20</td>
+<td>R\$ 0,00079</td>
+</tr>
+<tr>
+<td>2</td>
+<td>LLM pura, raciocínio alto</td>
+<td>2 de 20 (10%)</td>
+<td>0 de 18</td>
+<td>0,0%</td>
+<td>28,6%</td>
+<td>71,4%</td>
+<td>2 (em 1 caso)</td>
+<td>0 de 14 (0%)</td>
+<td>—</td>
+<td>6,84 s / 14,58 s</td>
+<td>19 de 20</td>
+<td>R\$ 0,00198</td>
+</tr>
+<tr>
+<td><strong>3</strong></td>
+<td><strong>RAG sem LLM (texto fixo semana 2) — Vencedora pelo critério</strong></td>
+<td><strong>12 de 20 (60%)</strong></td>
+<td><strong>10 de 18</strong></td>
+<td><strong>99,2%</strong></td>
+<td><strong>0,0%</strong></td>
+<td><strong>0,8%</strong></td>
+<td><strong>0 (em 0 casos)</strong></td>
+<td><strong>13 de 16 (81,2%)</strong></td>
+<td><strong>10 de 18 / 0,3704</strong></td>
+<td><strong>0,02 s / 0,03 s</strong></td>
+<td><strong>0 de 20</strong></td>
+<td><strong>R\$ 0,00000</strong></td>
+</tr>
+<tr>
+<td>4</td>
+<td>RAG + LLM, busca léxica <em>(Decisão de produto com LLM)</em></td>
+<td>12 de 20 (60%)</td>
+<td>10 de 18</td>
+<td>98,7%</td>
+<td>0,0%</td>
+<td>1,4%</td>
+<td>0 (em 0 casos)</td>
+<td>13 de 16 (81,2%)</td>
+<td>10 de 18 / 0,3704</td>
+<td>3,15 s / 3,61 s</td>
+<td>0 de 20</td>
+<td>R\$ 0,00081</td>
+</tr>
+<tr>
+<td>5</td>
+<td>RAG + LLM, busca léxica, raciocínio alto</td>
+<td>12 de 20 (60%)</td>
+<td>10 de 18</td>
+<td>100,0%</td>
+<td>0,0%</td>
+<td>0,0%</td>
+<td>0 (em 0 casos)</td>
+<td>13 de 16 (81,2%)</td>
+<td>10 de 18 / 0,3704</td>
+<td>4,51 s / 6,88 s</td>
+<td>7 de 20</td>
+<td>R\$ 0,00121</td>
+</tr>
+<tr>
+<td>6</td>
+<td>RAG + LLM, busca vetorial</td>
+<td><strong>18 de 20 (90%)</strong></td>
+<td><strong>16 de 18</strong></td>
+<td><strong>96,8%</strong></td>
+<td><strong>0,7%</strong></td>
+<td><strong>2,5%</strong></td>
+<td><strong>0 (em 0 casos)</strong></td>
+<td><strong>16 de 17 (94,1%)</strong></td>
+<td><strong>16 de 18 / 0,8333</strong></td>
+<td>5,10 s / 5,83 s</td>
+<td>11 de 20</td>
+<td>R\$ 0,00092</td>
+</tr>
+</tbody>
+</table>
+<h2 id="2-escolha-da-configuracao-vencedora-vs-decisao-de-produto">2. Escolha da Configuração Vencedora vs. Decisão de Produto<a class="headerlink" href="#2-escolha-da-configuracao-vencedora-vs-decisao-de-produto" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Vencedora pelo critério estrito da Issue #38</strong> (<em>"Entre as configurações com p90 de até 5 s (RNF-14) e nenhum lugar inventado, a de maior acerto do lugar do gabarito; no empate, a mais barata"</em>):</li>
+<li><strong>#3 — RAG sem LLM (<code>3_rag_sem_llm_texto_fixo</code>)</strong>.</li>
+<li>As configurações <strong>#3</strong> e <strong>#4</strong> são as duas únicas que atendem simultaneamente ao SLA de latência RNF-14 (<code>p90 &lt;= 5 s</code>: <code>0,03 s</code> na #3 e <code>3,61 s</code> na #4) e a <code>0 lugares inventados</code>. Ambas empatam em acerto do gabarito (<strong>12 de 20</strong> no geral e <strong>10 de 18</strong> nos casos do DF, pois compartilham a mesma busca léxica com <code>Recall@3 = 10 de 18</code>). No critério de desempate pelo menor custo, vence a <strong>#3</strong> por ter <strong>custo real zero (<code>R$ 0,00000</code> e <code>0</code> tokens)</strong> contra <code>R$ 0,000807</code> por consulta na #4.</li>
+<li><strong>Decisão de produto à parte do critério (quando há síntese em linguagem natural):</strong></li>
+<li>Para a experiência conversacional do assistente (que precisa redigir respostas naturais, explicar por que um local recuperado atende apenas parcialmente a restrições como horário ou prato, e contextualizar recusas sem exibir um template engessado), a escolha prática entre as configurações com LLM que respeitam o RNF-14 é a <strong>#4 — RAG + LLM, busca léxica (<code>4_rag_llm_busca_lexica</code>)</strong>, com <strong>98,7% de fidelidade factual</strong>, <strong>0,0% de alucinação na Rodada 1</strong> e <strong>p90 de 3,61 s</strong> (<code>20 de 20</code> consultas dentro de 5 s).</li>
+<li><strong>Achado central para o relatório (#40):</strong> com a busca por palavras (léxica), adicionar o LLM (#4 e #5) <strong>não aumentou o acerto do gabarito</strong> em relação ao texto fixo (#3) — todas cravam os mesmos <strong>12 de 20</strong> (<code>10 de 18</code> no DF) — porque <strong>quem limita o acerto é a etapa de recuperação (<code>Recall@3 = 10 de 18</code>)</strong>. Quando a busca muda para vetorial (#6), o <code>Recall@3</code> salta para <strong>16 de 18 (88,9%)</strong> e o acerto sobe para <strong>18 de 20 (90,0%)</strong>.</li>
+</ol>
+<h2 id="3-consolidacao-por-categoria-rnf-10-rodada-1">3. Consolidação por Categoria (RNF-10 — Rodada 1)<a class="headerlink" href="#3-consolidacao-por-categoria-rnf-10-rodada-1" title="Permanent link">&para;</a></h2>
+<p>Com o ajuste do avaliador híbrido (<code>src/telemetria/evals_semana3.py</code>) para que o juiz no Modo B receba apenas os documentos que o modo efetivamente recebeu (<code>fontes_utilizadas</code>) e marque <code>"contradiz a base"</code> exclusivamente quando um fato sobre um lugar divergir do documento desse mesmo lugar, <strong>todas as 4 configurações RAG (#3 a #6) superam a meta de 95% de fidelidade factual (RNF-03)</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Categoria</th>
+<th>Casos</th>
+<th>Acerto Modo A (Cfg 1)</th>
+<th>Acerto Cfg 3 (Sem LLM)</th>
+<th>Acerto Cfg 4 (Léxica + LLM)</th>
+<th>Acerto Cfg 6 (Vetorial + LLM)</th>
+<th>Fidelidade Cfg 3</th>
+<th>Fidelidade Cfg 4</th>
+<th>Fidelidade Cfg 6</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>geoespacial_ra_fora_centro</code></td>
+<td>5</td>
+<td>0 de 5</td>
+<td>4 de 5</td>
+<td>4 de 5</td>
+<td><strong>5 de 5</strong></td>
+<td><strong>100,0%</strong></td>
+<td><strong>95,7%</strong></td>
+<td><strong>95,5%</strong></td>
+</tr>
+<tr>
+<td><code>janela_horario</code></td>
+<td>3</td>
+<td>0 de 3</td>
+<td>2 de 3</td>
+<td>2 de 3</td>
+<td>2 de 3</td>
+<td><strong>100,0%</strong></td>
+<td><strong>100,0%</strong></td>
+<td><strong>100,0%</strong></td>
+</tr>
+<tr>
+<td><code>fora_de_escopo_df</code></td>
+<td>2</td>
+<td>2 de 2</td>
+<td>2 de 2</td>
+<td>2 de 2</td>
+<td>2 de 2</td>
+<td>— (recusa correta)</td>
+<td>— (recusa correta)</td>
+<td>— (recusa correta)</td>
+</tr>
+<tr>
+<td><code>precisao_financeira</code></td>
+<td>5</td>
+<td>0 de 5</td>
+<td>3 de 5</td>
+<td>3 de 5</td>
+<td><strong>5 de 5</strong></td>
+<td><strong>96,9%</strong></td>
+<td><strong>100,0%</strong></td>
+<td><strong>96,0%</strong></td>
+</tr>
+<tr>
+<td><code>vibes_e_restricoes</code></td>
+<td>3</td>
+<td>0 de 3</td>
+<td>1 de 3</td>
+<td>1 de 3</td>
+<td><strong>3 de 3</strong></td>
+<td><strong>100,0%</strong></td>
+<td><strong>100,0%</strong></td>
+<td><strong>95,8%</strong></td>
+</tr>
+<tr>
+<td><code>conflito_e_girias</code></td>
+<td>2</td>
+<td>0 de 2</td>
+<td>0 de 2</td>
+<td>0 de 2</td>
+<td>1 de 2</td>
+<td><strong>100,0%</strong></td>
+<td><strong>100,0%</strong></td>
+<td><strong>100,0%</strong></td>
+</tr>
+</tbody>
+</table>
+<h2 id="4-variacao-entre-as-duas-rodadas-rodada-1-rodada-2">4. Variação Entre as Duas Rodadas (Rodada 1 × Rodada 2)<a class="headerlink" href="#4-variacao-entre-as-duas-rodadas-rodada-1-rodada-2" title="Permanent link">&para;</a></h2>
+<p>As duas rodadas foram executadas sem cache (<code>usar_cache=False</code>) para medir a estabilidade do gerador e do juiz. O texto completo das respostas da Rodada 2 também está salvo em <code>resultados_configuracoes[&lt;cfg&gt;]["rodada_2"]["resposta"]</code> em <code>data/resultados_benchmark_semana3.json</code>.</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Configuração</th>
+<th>Acerto R1 × R2</th>
+<th>Fidelidade R1 × R2</th>
+<th>Alucinação R1 × R2</th>
+<th>Latência p50 R1 × R2</th>
+<th>Latência p90 R1 × R2</th>
+<th>Casos com mudança na nota do juiz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>LLM pura, sem raciocínio</td>
+<td>2/20 × 2/20</td>
+<td>0,0% × 0,0%</td>
+<td>3,0% × 7,9%</td>
+<td>3,75 s × 3,85 s</td>
+<td>5,26 s × 4,83 s</td>
+<td>7 de 20 (<code>golden_01, 04, 07, 08, 13, 15, 16</code>)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>LLM pura, raciocínio alto</td>
+<td>2/20 × 2/20</td>
+<td>0,0% × 3,6%</td>
+<td>28,6% × 25,0%</td>
+<td>6,84 s × 7,38 s</td>
+<td>14,58 s × 18,12 s</td>
+<td>4 de 20 (<code>golden_06, 12, 14, 16</code>)</td>
+</tr>
+<tr>
+<td>3</td>
+<td>RAG sem LLM (texto fixo)</td>
+<td>12/20 × 12/20</td>
+<td>99,2% × 99,2%</td>
+<td>0,0% × 0,0%</td>
+<td>0,02 s × 0,02 s</td>
+<td>0,03 s × 0,04 s</td>
+<td>0 de 20 (determinístico)</td>
+</tr>
+<tr>
+<td>4</td>
+<td>RAG + LLM, busca léxica</td>
+<td>12/20 × 12/20</td>
+<td>98,7% × 99,1%</td>
+<td>0,0% × 0,9%</td>
+<td>3,15 s × 2,82 s</td>
+<td>3,61 s × 3,90 s</td>
+<td>3 de 20 (<code>golden_02, 05, 15</code>)</td>
+</tr>
+<tr>
+<td>5</td>
+<td>RAG + LLM, léxica + raciocínio alto</td>
+<td>12/20 × 12/20</td>
+<td>100,0% × 100,0%</td>
+<td>0,0% × 0,0%</td>
+<td>4,51 s × 5,13 s</td>
+<td>6,88 s × 8,23 s</td>
+<td>0 de 20</td>
+</tr>
+<tr>
+<td>6</td>
+<td>RAG + LLM, busca vetorial</td>
+<td>18/20 × 18/20</td>
+<td>96,8% × 97,7%</td>
+<td>0,7% × 0,8%</td>
+<td>5,10 s × 4,79 s</td>
+<td>5,83 s × 5,35 s</td>
+<td>3 de 20 (<code>golden_05, 14, 15</code>)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Estabilidade do acerto:</strong> em todas as 6 configurações, o <code>acerto_gabarito</code> foi <strong>idêntico nas duas rodadas</strong> (<code>2/20</code> nas configurações #1 e #2; <code>12/20</code> nas configurações #3, #4 e #5; <code>18/20</code> na configuração #6).</li>
+<li><strong>Variação das notas do juiz:</strong> no Modo B com LLM (#4, #5 e #6), a nota do juiz variou em apenas <strong>0 a 3 casos de 20</strong> (diferenças de no máximo 0,9 p.p. na média), sempre por pequenas variações de redação na forma como o gerador mencionou detalhes secundários.</li>
+</ul>
+<h2 id="5-auditoria-manual-das-contradicoes-restantes-item-por-item">5. Auditoria Manual das Contradições Restantes (Item por Item)<a class="headerlink" href="#5-auditoria-manual-das-contradicoes-restantes-item-por-item" title="Permanent link">&para;</a></h2>
+<p>Após o rejulgamento das 120 respostas da Rodada 1 (e 120 da Rodada 2) com o juiz corrigido, todas as contradições remanescentes foram inspecionadas manualmente:</p>
+<ol>
+<li><strong>Configurações RAG (#3, #4, #5 e #6):</strong></li>
+<li><strong>#3 (<code>3_rag_sem_llm_texto_fixo</code>):</strong> <strong>0 contradições</strong> em 20 casos (Rodada 1 e Rodada 2: <code>0,0%</code> de alucinação).</li>
+<li><strong>#4 (<code>4_rag_llm_busca_lexica</code>):</strong> <strong>0 contradições na Rodada 1</strong> (<code>0,0%</code> de alucinação em 20 de 20 casos). Na <strong>Rodada 2</strong>, houve <strong>1 única contradição</strong> (<code>golden_15</code>, 1 de 7 afirmações = <code>14,3%</code> no caso, <code>0,9%</code> na média).</li>
+<li><strong>#5 (<code>5_rag_llm_busca_lexica_raciocinio_alto</code>):</strong> <strong>0 contradições</strong> em 20 casos (Rodada 1 e Rodada 2: <code>0,0%</code> de alucinação, <code>100,0%</code> de fidelidade).</li>
+<li><strong>#6 (<code>6_rag_llm_busca_vetorial</code>):</strong> <strong>1 única contradição</strong> na Rodada 1 (<code>golden_15</code>, 1 de 8 afirmações = <code>12,5%</code> no caso, <code>0,7%</code> na média) e a mesma <strong>1 contradição</strong> na Rodada 2 (<code>golden_15</code>).</li>
+<li><strong>Por que ocorreu a contradição de <code>golden_15</code> (#6 R1/R2 e #4 R2):</strong> a pergunta impõe <code>"Tenho só R$ 30, nem um centavo a mais. Dá para almoçar no buffet à vontade com tempero nordestino em Vicente Pires numa terça-feira?"</code>. No documento recuperado do <strong>Restaurante do Daniel</strong>, o texto da descrição menciona <em>"opções a partir de R$ 29,99"</em>, enquanto o campo estruturado <code>Preço médio por pessoa</code> é <strong><code>R$ 32,99</code></strong>. O modelo respondeu <code>"Sim, dá."</code> na primeira frase e logo em seguida ressalvou <code>"O preço médio por pessoa é R$ 32,99 (que passa de R$ 30,00)"</code>. O juiz marcou apenas a afirmação inicial (<code>"Sim, dá."</code>) como contradição contra o preço médio estruturado (<code>R$ 32,99 &gt; R$ 30,00</code>). Nenhum dado foi inventado fora do documento.</li>
+<li><strong>Configurações LLM Pura (#1 e #2):</strong></li>
+<li><strong>#1 (<code>1_llm_pura_sem_raciocinio</code>):</strong> além de <strong>97,0% de afirmações fora da base</strong> (32 lugares inventados em 13 de 20 casos), teve contradições em 3 casos na Rodada 1: <code>golden_07</code> (afirmou que buffet abaixo de R\$ 30 em Taguatinga está fora da realidade, desmentido pelo Casa Bar a R\$ 29,99), <code>golden_16</code> (negou existência de doceria sem trigo/lactose/açúcar em Brasília, desmentido pela Lefit) e <code>golden_19</code> (citou rodízios de R\$ 90–180 sem local da base).</li>
+<li><strong>#2 (<code>2_llm_pura_raciocinio_alto</code>):</strong> em <code>golden_07</code>, <code>golden_14</code>, <code>golden_15</code> e <code>golden_20</code>, recusou-se a indicar locais mas repetiu o valor em reais da pergunta (<code>R$ 30</code>) sem usar a frase-padrão de abstenção, acionando a trava determinística de preço sem local da base (<code>preco_contradiz</code>).</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "content.code.copy"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1575 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentação Oficial de Engenharia, DevOps e Arquitetura do Grupo 7 (Residência em IA Eldorado/UnB)">
+      
+      
+        <meta name="author" content="Grupo 7">
+      
+      
+        <link rel="canonical" href="https://residencia-ia-challenge-2-grupo-7.github.io/residencia-ia-g7-challenge2/decisoes/0007-interpretador-e-contrato-de-busca/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>0007 — Interpretador de mensagens e contrato da busca usada pelos agentes - Orquestrador de Rolês — Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#0007-interpretador-de-mensagens-e-contrato-da-busca-usada-pelos-agentes" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Orquestrador de Rolês — Docs" class="md-header__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Orquestrador de Rolês — Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              0007 — Interpretador de mensagens e contrato da busca usada pelos agentes
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Orquestrador de Rolês — Docs" class="md-nav__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Orquestrador de Rolês — Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guia-contribuicao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Contribuição
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arquitetura & Decisões
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Arquitetura & Decisões
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../produto/visao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visão do Produto
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../produto/requisitos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Requisitos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisões Técnicas (ADRs)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dados & RAG
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Dados & RAG
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dados/esquema-base/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Esquema da Base
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dados/guia-curadoria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Curadoria
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dados/golden-dataset-semana3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Golden Dataset (Semana 3)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semanas & Entregas
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Semanas & Entregas
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../semanas/semana-01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 01
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../semanas/semana-02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 02
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../entregas/semana-02/RELATORIO_TECNICO_RAG_SEMANA_02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Relatório Semana 2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#contexto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Contexto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#opcoes-consideradas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Opções consideradas
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Opções consideradas">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#divisao-entre-llm-e-codigo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Divisão entre LLM e código
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#provedor-do-llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Provedor do LLM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#forma-do-contrato-da-busca" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Forma do contrato da busca
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#decisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Decisão
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Decisão">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1-intencoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Intenções
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-o-que-o-llm-devolve-e-o-que-o-codigo-faz" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. O que o LLM devolve e o que o código faz
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-confirmacao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Confirmação
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-encaminhamento-e-sigilo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Encaminhamento e sigilo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-contrato-da-busca-srcbasecontratopy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Contrato da busca (src/base/contrato.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#justificativa-e-evidencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Justificativa e evidências
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#riscos-e-limitacoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Riscos e limitações
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-vamos-validar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como vamos validar
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#resultados" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resultados
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#mudancas-em-outros-documentos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mudanças em outros documentos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#historico" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Histórico
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="0007-interpretador-de-mensagens-e-contrato-da-busca-usada-pelos-agentes">0007 — Interpretador de mensagens e contrato da busca usada pelos agentes<a class="headerlink" href="#0007-interpretador-de-mensagens-e-contrato-da-busca-usada-pelos-agentes" title="Permanent link">&para;</a></h1>
+<ul>
+<li><strong>Status:</strong> proposta. Em 2026-11-10 a conversa privada deu lugar aos 4 campos da Tela 2 (<a href="../0009-entrada-pelos-4-campos-de-texto/">ADR 0009</a>); o contrato da busca agora fica em <code>src/interpretador/contrato.py</code></li>
+<li><strong>Data:</strong> 2026-11-05</li>
+<li><strong>Semana do roadmap:</strong> 2 (preparação). Os agentes são entrega da semana 4 (RNF-12)</li>
+<li><strong>Requisitos:</strong> RF-05, RF-07, RF-08, RF-11, RF-18, RF-30, RF-39 · RNF-01, RNF-02, RNF-04, RNF-08, RNF-11, RNF-12, RNF-14</li>
+<li><strong>Completa o <a href="../0005-coleta-automatica-e-base-vetorial/">ADR 0005</a>:</strong> define o contrato da busca que ele deixou "para outro ADR". Não muda nada da Parte B (filtros duros em SQL, busca híbrida por RRF, 20 candidatos, BGE-M3)</li>
+<li><strong>Relacionado:</strong> <a href="../0006-transcricao-de-fala/">ADR 0006</a>, que entrega o texto transcrito</li>
+</ul>
+<h2 id="contexto">Contexto<a class="headerlink" href="#contexto" title="Permanent link">&para;</a></h2>
+<p>Toda mensagem do chat, digitada ou transcrita, precisa virar algo que o sistema saiba executar: abrir um rolê, registrar janelas de disponibilidade, guardar um teto de gasto, lançar um gasto ou buscar lugares. As mensagens chegam em português coloquial ("partiu barzinho sexta?", "tô liso, no máximo 30 conto", "paguei 23 e 40 do Uber").</p>
+<p>Regras que não mudam, definidas no pedido de 05/11:</p>
+<ul>
+<li><strong>O LLM não escreve SQL.</strong> Ele preenche um esquema validado por código, e o código monta a consulta (RNF-04, RNF-11).</li>
+<li><strong>Orçamento e conversa privada não saem do agente do membro com identificação</strong> (RNF-02).</li>
+<li><strong>Ambiguidade vira pergunta de confirmação, com valor explícito:</strong> "de tarde" vira 13h–18h (RF-08).</li>
+<li><strong>Provedores trocáveis por configuração</strong> (RNF-12) e resposta em até 5 s no p90 (RNF-14).</li>
+</ul>
+<h2 id="opcoes-consideradas">Opções consideradas<a class="headerlink" href="#opcoes-consideradas" title="Permanent link">&para;</a></h2>
+<h3 id="divisao-entre-llm-e-codigo">Divisão entre LLM e código<a class="headerlink" href="#divisao-entre-llm-e-codigo" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Opção</th>
+<th>Prós</th>
+<th>Contras</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A. Híbrido:</strong> o LLM classifica e preenche campos normalizados; o código resolve datas, converte valores e valida</td>
+<td>Datas relativas e valores ficam deterministas e testáveis sem LLM (RNF-04); o LLM faz o que faz bem, que é entender gíria</td>
+<td>Dois lugares para manter (prompt e resolvedor)</td>
+</tr>
+<tr>
+<td>B. Só LLM: ele já devolve datas absolutas e valores numéricos</td>
+<td>Simples</td>
+<td>Erra datas relativas ("sexta" dita numa quinta, "semana que vem"); fere o RNF-04 ("nenhum valor em reais vem de texto gerado pelo modelo")</td>
+</tr>
+<tr>
+<td>C. Regras primeiro, LLM de reserva</td>
+<td>Rápido e barato nas frases comuns</td>
+<td>Frágil com gíria e frases compostas; muito código de regra</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Escolha: A</strong> (05/11).</p>
+<h3 id="provedor-do-llm">Provedor do LLM<a class="headerlink" href="#provedor-do-llm" title="Permanent link">&para;</a></h3>
+<p>O grupo já tem créditos na OpenRouter. O modelo pedido é o <code>deepseek/deepseek-v4.1-flash-1017</code>, a US$ 0,15 por milhão de tokens de entrada e US$ 0,60 de saída, com saída estruturada (catálogo público consultado em 05/11). Cerca de 50 provedores o servem, com quantizações de fp4 a fp8 e políticas de dados diferentes. O endpoint da própria DeepSeek não tem saída estruturada.</p>
+<p><strong>Escolha:</strong> OpenRouter, com o roteamento restrito na configuração:</p>
+<ul>
+<li><code>zdr: true</code> e <code>data_collection: "deny"</code>: só provedores sem retenção nem treino com os dados (RNF-01);</li>
+<li><code>quantizations: fp8, fp16, bf16, fp32</code>: sem fp4 nem quantização desconhecida, porque a qualidade com gíria cai e a medição deixa de ser reproduzível;</li>
+<li><code>require_parameters: true</code>: só provedores que aceitam o esquema JSON estrito;</li>
+<li><code>sort: "latency"</code> (RNF-14);</li>
+<li><code>reasoning: {enabled: false}</code>: sem raciocínio antes da resposta. Medido em 05/11: com raciocínio, o p90 foi 6,4 s e houve respostas sem JSON (ver Resultados).</li>
+</ul>
+<p>O modelo não é fixo. Se nenhum provedor do DeepSeek passar nesses filtros ou na meta de latência, entra outro modelo da OpenRouter, pela lista <code>reservas</code> da configuração.</p>
+<h3 id="forma-do-contrato-da-busca">Forma do contrato da busca<a class="headerlink" href="#forma-do-contrato-da-busca" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Opção</th>
+<th>Prós</th>
+<th>Contras</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>A. Função Python tipada</strong> (Pydantic): <code>buscar(ConsultaBusca) → ResultadoBusca</code></td>
+<td>Nasce testável; o mesmo esquema vira a definição da ferramenta para o LLM; uma API HTTP pode envolvê-la depois sem mudar o contrato</td>
+<td>Só serve a quem roda no mesmo processo até existir o backend</td>
+</tr>
+<tr>
+<td>B. API HTTP (FastAPI) já</td>
+<td>Adianta o backend</td>
+<td>Cria serviço, autenticação e implantação antes de o canal (ADR 0003) e o backend serem decididos</td>
+</tr>
+<tr>
+<td>C. Servidor MCP</td>
+<td>Ferramenta pronta para agentes</td>
+<td>Amarra a um framework de agentes que ainda está "a decidir"</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Escolha: A</strong> (05/11).</p>
+<h2 id="decisao">Decisão<a class="headerlink" href="#decisao" title="Permanent link">&para;</a></h2>
+<h3 id="1-intencoes">1. Intenções<a class="headerlink" href="#1-intencoes" title="Permanent link">&para;</a></h3>
+<p>Uma mensagem pode ter <strong>várias intenções</strong> ("sexta depois das 19h e no máximo 50 conto" tem duas). São seis:</p>
+<table>
+<thead>
+<tr>
+<th>Intenção</th>
+<th>Exemplo</th>
+<th>Campos</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pedido_role</code></td>
+<td>"bora sair semana que vem?"</td>
+<td>dias, tipo de rolê, convidados (vazio = sala toda), texto de busca</td>
+</tr>
+<tr>
+<td><code>disponibilidade</code></td>
+<td>"sexta depois das 19h ou sábado o dia todo"</td>
+<td>janelas (dias, período, depois de, até, disponível ou não)</td>
+</tr>
+<tr>
+<td><code>orcamento</code></td>
+<td>"consigo gastar uns 80 no máximo"</td>
+<td>valor (trecho literal)</td>
+</tr>
+<tr>
+<td><code>gasto</code></td>
+<td>"o Caio pagou 90 do Uber"</td>
+<td>valor (trecho literal), quem pagou, descrição</td>
+</tr>
+<tr>
+<td><code>busca_lugar</code></td>
+<td>"tem bar tranquilo em Taguatinga até 50 por pessoa?"</td>
+<td>tipo de rolê, lugares citados, teto (trecho literal), atributos exigidos, dias e horário, texto de busca</td>
+</tr>
+<tr>
+<td><code>outra</code></td>
+<td>"kkkkk", "valeu, gente"</td>
+<td>nenhum</td>
+</tr>
+</tbody>
+</table>
+<p>A confirmação ("isso", "não, até as 22h") não é uma intenção. O app mostra os botões <strong>Confirmar</strong> e <strong>Corrigir</strong>, e a correção é uma mensagem nova, interpretada de novo.</p>
+<h3 id="2-o-que-o-llm-devolve-e-o-que-o-codigo-faz">2. O que o LLM devolve e o que o código faz<a class="headerlink" href="#2-o-que-o-llm-devolve-e-o-que-o-codigo-faz" title="Permanent link">&para;</a></h3>
+<p>O LLM devolve um JSON num esquema estrito (<code>src/interpretador/esquema.py</code>). Daí em diante, só código:</p>
+<table>
+<thead>
+<tr>
+<th>Campo</th>
+<th>O LLM devolve</th>
+<th>O código faz</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dias</td>
+<td>Fichas de um vocabulário fechado: <code>seg</code> a <code>dom</code>, <code>hoje</code>, <code>amanha</code>, <code>depois_de_amanha</code>, <code>fim_de_semana</code>, <code>esta_semana</code>, <code>semana_que_vem</code>, <code>dd</code> ou <code>dd/mm</code>, e o sinal <code>proxima_semana</code> ("sábado da semana que vem")</td>
+<td>Resolve para datas a partir da data e hora da mensagem, no fuso America/Sao_Paulo. Dia da semana = próxima ocorrência, contando hoje</td>
+</tr>
+<tr>
+<td>Horário</td>
+<td><code>periodo</code> (<code>manha</code>, <code>tarde</code>, <code>noite</code>, <code>dia_todo</code>), <code>apos</code> e <code>ate</code> em <code>HH:MM</code></td>
+<td>Aplica a tabela de convenções e valida os limites</td>
+</tr>
+<tr>
+<td>Valores em reais</td>
+<td>O <strong>trecho literal</strong> da mensagem ("47,50", "120 conto", "cento e vinte", "23 e 40")</td>
+<td>Confere se o trecho está na mensagem e converte para número. Valor sem trecho, ou trecho que não está na mensagem, é descartado (mesma trava da evidência literal do ADR 0005)</td>
+</tr>
+<tr>
+<td>Pessoas</td>
+<td>Marcadores <code>@m1</code>, <code>@m2</code>… ou <code>eu</code></td>
+<td>Desfaz a pseudonimização</td>
+</tr>
+<tr>
+<td>Lugares</td>
+<td>Os nomes como foram ditos ("Asa Sul", "lá pros lados de Ceilândia")</td>
+<td>Casa com as 35 RAs e as 6 regiões de <code>data/base/regioes.csv</code>, com apelidos ("Asa Sul" vira Plano Piloto, "Taguá" vira Taguatinga). O que não casa vai para o texto de busca</td>
+</tr>
+<tr>
+<td>Atributos exigidos</td>
+<td>Enumeração fechada do esquema da base (<code>alim_vegano</code>, <code>acess_entrada_sem_degrau</code>…)</td>
+<td>Repassa como filtro duro</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Tabela de convenções</strong> (em <code>src/interpretador/config.toml</code>, mostrada na confirmação):</p>
+<table>
+<thead>
+<tr>
+<th>Expressão</th>
+<th>Intervalo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>manhã</td>
+<td>08h–12h</td>
+</tr>
+<tr>
+<td>tarde</td>
+<td>13h–18h (RF-08)</td>
+</tr>
+<tr>
+<td>noite</td>
+<td>19h–24h</td>
+</tr>
+<tr>
+<td>dia todo, qualquer hora</td>
+<td>08h–24h</td>
+</tr>
+<tr>
+<td>depois das X, a partir das X</td>
+<td>X–24h</td>
+</tr>
+<tr>
+<td>até as X, sem período</td>
+<td>08h–X</td>
+</tr>
+<tr>
+<td>fim de semana</td>
+<td>sábado e domingo seguintes</td>
+</tr>
+<tr>
+<td>semana que vem</td>
+<td>segunda a domingo da próxima semana</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Pergunta quando faltar o dia.</strong> "De tarde", sem dia, vira a pergunta "De qual dia você está falando?", em vez de valer para todos os dias do rolê (escolha de 05/11). Também viram pergunta, com texto montado por código:</p>
+<ul>
+<li>um gasto sem valor;</li>
+<li>um valor que não se consegue converter;</li>
+<li>uma hora inválida;</li>
+<li>um "depois das 22h até as 20h".</li>
+</ul>
+<h3 id="3-confirmacao">3. Confirmação<a class="headerlink" href="#3-confirmacao" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>disponibilidade</code>, <code>orcamento</code> e <code>gasto</code> <strong>sempre</strong> saem com <code>requer_confirmacao</code> e com a frase de confirmação montada por código: "sex 06/11, 19h–24h; sáb 07/11, 8h–24h. Está certo?" (RF-08, RF-11, RF-30).</li>
+<li>Gasto lançado por outra pessoa pede a confirmação de quem pagou (RF-30).</li>
+<li>Pela voz, qualquer intenção com data ou valor também requer confirmação (RF-39).</li>
+<li><code>busca_lugar</code> só lê a base e não requer confirmação.</li>
+</ul>
+<h3 id="4-encaminhamento-e-sigilo">4. Encaminhamento e sigilo<a class="headerlink" href="#4-encaminhamento-e-sigilo" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Intenção</th>
+<th>Chat privado</th>
+<th>Chat do grupo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pedido_role</code></td>
+<td>mediador (abre o rolê)</td>
+<td>mediador</td>
+</tr>
+<tr>
+<td><code>disponibilidade</code></td>
+<td>agente do membro</td>
+<td>agente do membro de quem falou</td>
+</tr>
+<tr>
+<td><code>orcamento</code></td>
+<td>agente do membro</td>
+<td><strong>ignorado</strong>: não vira restrição nem é repetido. A coleta normal acontece no privado (RF-11)</td>
+</tr>
+<tr>
+<td><code>gasto</code></td>
+<td>finanças</td>
+<td>finanças</td>
+</tr>
+<tr>
+<td><code>busca_lugar</code></td>
+<td>base: <code>buscar(ConsultaBusca)</code></td>
+<td>base</td>
+</tr>
+<tr>
+<td><code>outra</code></td>
+<td>resposta conversacional</td>
+<td>nenhuma ação</td>
+</tr>
+</tbody>
+</table>
+<p>Sobre o orçamento dito no grupo (escolha de 05/11): quem falou em público aceitou que os outros vissem. Ainda assim, o valor não entra como restrição, porque o RF-11 coleta o orçamento em particular. Ignorar não acrescenta nenhuma interação, já que a conversa privada pergunta o orçamento de qualquer jeito.</p>
+<p><strong>Antes do LLM, o código troca os nomes dos membros da sala por marcadores</strong> (<code>@m1</code>, <code>@m2</code>…) e desfaz a troca na volta (RNF-01, "sem nome nem contato"). O interpretador do chat privado recebe só as mensagens daquele membro. O agente do membro repassa ao planejador só restrições sem identificação (RNF-02, mapa: etapa 1). O texto do usuário vai ao LLM como dado, delimitado, e o prompt diz que instruções dentro dele são ignoradas (RNF-11). A trava real é a saída estruturada: o pior que uma injeção consegue é uma intenção errada, que ainda passa pela confirmação.</p>
+<h3 id="5-contrato-da-busca-srcbasecontratopy">5. Contrato da busca (<code>src/base/contrato.py</code>)<a class="headerlink" href="#5-contrato-da-busca-srcbasecontratopy" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>ConsultaBusca
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  texto           str, 1–300 caracteres: o que se quer, para a busca vetorial e textual
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  colecoes        ["lugares"] | ["eventos"] | ambos
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  tipos_role      comer_beber | ar_livre_gratuito | local_evento (vazio = todos)
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>  regioes         centro | oeste_proximo | oeste | sul | norte | leste
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  ras             nomes das 35 RAs, validados contra data/base/regioes.csv
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>  janela          {inicio, fim}: aberto no início da janela; evento começando dentro dela
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>  teto_pessoa     R$ por pessoa, 0–1000
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>  exigir          atributos que precisam ser "sim" (enumeração do esquema da base)
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>  k               1–20
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>ResultadoBusca
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>  itens           [{colecao, id, nome, categoria, ra, regiao, custo_pessoa_tipico, taxa_entrada,
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>                    inicio (eventos), fonte, verificado_em, estado, pontuacao}]
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>  versao_base, modelo_embeddings, gerado_em
+</code></pre></div>
+<ul>
+<li>Quem preenche a <code>ConsultaBusca</code> é código: o interpretador, para a <code>busca_lugar</code>, e o planejador, com as restrições já resolvidas. O LLM do planejador, quando ganhar ferramentas na semana 4, recebe o JSON Schema desse modelo e chama a busca com argumentos que passam pela mesma validação.</li>
+<li>O código monta a SQL só com parâmetros (<code>%(nome)s</code>), a partir dos campos validados. Nenhum texto do LLM vira SQL. O fluxo é o do ADR 0005: filtros duros, depois vetor e texto em português combinados por RRF.</li>
+<li>Cada item traz <code>fonte</code> e <code>verificado_em</code>, para o RF-16 e o RNF-05. Um lugar que não veio da busca não entra no plano.</li>
+<li>O contrato tem versão (<code>CONTRATO_VERSAO</code>). Mudança incompatível pede ADR novo.</li>
+</ul>
+<h2 id="justificativa-e-evidencias">Justificativa e evidências<a class="headerlink" href="#justificativa-e-evidencias" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Trecho literal para valores em reais:</strong> é a mesma ideia que funcionou na extração da base (ADR 0005), onde nenhum trecho foi inventado. O LLM aponta onde está o valor, e o código lê. Assim, nenhum valor em reais sai de texto gerado (RNF-04).</li>
+<li><strong>Datas por código:</strong> "sexta" dita numa quinta, à noite, ou "semana que vem" num domingo são casos em que LLMs erram sem avisar. Uma função de 100 linhas com testes acerta sempre e mostra a convenção na confirmação.</li>
+<li><strong>Pseudonimização antes do LLM:</strong> é barata e reduz o dado pessoal enviado ao provedor ao mínimo necessário (RNF-01).</li>
+<li><strong>Roteamento restrito na OpenRouter:</strong> a configuração de provedor da OpenRouter permite exigir retenção zero, recusar coleta de dados, filtrar quantizações e exigir os parâmetros enviados (<a href="https://openrouter.ai/docs/guides/routing/provider-selection">documentação</a>, consultada em 05/11/2026).</li>
+</ul>
+<h2 id="riscos-e-limitacoes">Riscos e limitações<a class="headerlink" href="#riscos-e-limitacoes" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Risco</th>
+<th>Ligação</th>
+<th>Mitigação</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>O LLM classifica errado ou esquece um campo</td>
+<td>R-09, RNF-08</td>
+<td>Confirmação obrigatória nas intenções que gravam dado; medição com o conjunto de 50 frases; cada erro vira exemplo no prompt ou regra</td>
+</tr>
+<tr>
+<td>Provedor da OpenRouter lento ou fora do ar</td>
+<td>RNF-14, RNF-15</td>
+<td><code>sort: latency</code>, <code>timeout</code>, lista de modelos de reserva; o estado do rolê não depende do interpretador. Falhou, a IA pede para repetir</td>
+</tr>
+<tr>
+<td>Texto da conversa privada sai para o provedor</td>
+<td>RNF-01, RNF-02</td>
+<td>Pseudonimização; retenção zero exigida no roteamento; só a mensagem atual e o contexto mínimo vão ao LLM</td>
+</tr>
+<tr>
+<td>Injeção de instrução pelo chat</td>
+<td>RNF-11</td>
+<td>Saída estruturada; nenhuma ação sem confirmação; nenhuma consulta livre ao banco; a frase de injeção faz parte do conjunto de teste</td>
+</tr>
+<tr>
+<td>Convenção não bate com a intenção da pessoa ("noite" para alguém que sai às 22h)</td>
+<td>RF-08</td>
+<td>A convenção aparece na confirmação, e a pessoa corrige</td>
+</tr>
+<tr>
+<td>"Sábado que vem" é ambíguo em pt-BR</td>
+<td>RNF-08</td>
+<td>Sem <code>proxima_semana</code>, vale o próximo sábado; a confirmação mostra a data. Medir se o erro aparece</td>
+</tr>
+<tr>
+<td>Conjunto de 50 frases é pequeno</td>
+<td>—</td>
+<td>Acerto reportado com intervalo de Clopper-Pearson; o teste com usuários (RNF-10) mede de novo</td>
+</tr>
+<tr>
+<td>Horário de funcionamento: a busca filtra "aberto no início da janela", não a janela inteira</td>
+<td>RF-17</td>
+<td>Limitação declarada; o planejador confere a duração na etapa 5</td>
+</tr>
+</tbody>
+</table>
+<h2 id="como-vamos-validar">Como vamos validar<a class="headerlink" href="#como-vamos-validar" title="Permanent link">&para;</a></h2>
+<p><strong>Conjunto:</strong> <a href="../../eval/interpretador/frases.jsonl">eval/interpretador/frases.jsonl</a>, 50 frases com a saída esperada (intenções e campos já resolvidos), escritas em 05/11 para a data de referência qui 05/11/2026 10h, e a revisar pelo grupo.</p>
+<table>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Como medir</th>
+<th>Meta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>RNF-08</strong></td>
+<td>Frases com disponibilidade ou gasto em que todas as intenções e todos os campos batem com o gabarito</td>
+<td>≥ 90%. Com cerca de 34 frases, reportar o acerto observado e o limite inferior de Clopper-Pearson a 95%</td>
+</tr>
+<tr>
+<td>Acerto da intenção</td>
+<td>Conjunto de tipos previsto = conjunto esperado</td>
+<td>≥ 95%</td>
+</tr>
+<tr>
+<td>Acerto dos campos</td>
+<td>Por campo comparado (janelas, valor, pagador, RAs, teto…)</td>
+<td>≥ 90%</td>
+</tr>
+<tr>
+<td>Perguntas certas</td>
+<td>Frases do gabarito que devem virar pergunta e viraram</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Sigilo</td>
+<td>Orçamento dito no grupo não vira restrição; injeção vira <code>outra</code></td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Latência</td>
+<td>Tempo de <code>interpretar()</code> por frase, p50 e p90</td>
+<td>p90 ≤ 2,5 s (a outra metade dos 5 s é da transcrição)</td>
+</tr>
+<tr>
+<td>Custo</td>
+<td>Tokens × preço do modelo, por frase</td>
+<td>Registrado</td>
+</tr>
+</tbody>
+</table>
+<p>Como rodar: <code>python -m interpretador avaliar</code> (<a href="../../src/interpretador/README.md">src/interpretador/README.md</a>). Os resultados vão para <code>eval/resultados/</code>.</p>
+<h2 id="resultados">Resultados<a class="headerlink" href="#resultados" title="Permanent link">&para;</a></h2>
+<p><strong>Condições das medições (05/11):</strong></p>
+<ul>
+<li><code>deepseek/deepseek-v4.1-flash-1017</code> pela OpenRouter, com o roteamento restrito da configuração;</li>
+<li>data de referência qui 05/11/2026 10h;</li>
+<li>detalhes por frase em <a href="../../eval/resultados/">eval/resultados/</a>;</li>
+<li>os 58 testes sem LLM cobrem o resolvedor, a conversão de valores, a pseudonimização, o encaminhamento e a montagem da SQL.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Métrica</th>
+<th>Texto, com raciocínio</th>
+<th><strong>Texto, sem raciocínio</strong></th>
+<th>Voz sintética → Groq → interpretador</th>
+<th>Meta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RNF-08 (disponibilidade e gastos)</td>
+<td>33/34 = 97,1%</td>
+<td><strong>33/34 = 97,1%</strong></td>
+<td>32/34 = 94,1%</td>
+<td>≥ 90%</td>
+</tr>
+<tr>
+<td>Limite inferior de Clopper-Pearson a 95%</td>
+<td>84,7%</td>
+<td>84,7%</td>
+<td>80,3%</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Intenção certa</td>
+<td>92,0%</td>
+<td><strong>100%</strong></td>
+<td>98,0%</td>
+<td>≥ 95%</td>
+</tr>
+<tr>
+<td>Campos certos</td>
+<td>89,5%</td>
+<td><strong>98,1%</strong></td>
+<td>96,2%</td>
+<td>≥ 90%</td>
+</tr>
+<tr>
+<td>Frases inteiramente certas</td>
+<td>92,0%</td>
+<td><strong>96,0%</strong></td>
+<td>92,0%</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Perguntas certas</td>
+<td>3/3</td>
+<td><strong>3/3</strong></td>
+<td>2/3</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Sigilo (O04, X02)</td>
+<td>2/2</td>
+<td><strong>2/2</strong></td>
+<td>2/2</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Latência p50 / p90</td>
+<td>1,9 / 6,4 s</td>
+<td><strong>0,9 / 1,6 s</strong></td>
+<td>1,2 / 2,1 s</td>
+<td>p90 ≤ 2,5 s</td>
+</tr>
+<tr>
+<td>Respostas sem JSON</td>
+<td>2</td>
+<td><strong>0</strong></td>
+<td>0</td>
+<td>—</td>
+</tr>
+<tr>
+<td>Custo por frase</td>
+<td>US$ 0,00017</td>
+<td><strong>US$ 0,00009</strong></td>
+<td>US$ 0,00008</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>O que mudou entre a primeira e a segunda rodada:</strong></p>
+<ol>
+<li><strong>Raciocínio desligado</strong> (<code>raciocinio = false</code> na configuração). O DeepSeek V4.1 Flash raciocina antes de responder: em 2 frases gastou os 900 tokens raciocinando e não devolveu o JSON. Sem raciocínio, as falhas sumiram e o p90 caiu de 6,4 s para 1,6 s, sem perder acerto.</li>
+<li><strong>Disponibilidades da mesma mensagem juntadas por código.</strong> O modelo separou "sábado não posso, domingo tô livre" em duas intenções, o que geraria duas confirmações.</li>
+<li><strong>Regra no prompt:</strong> o preço máximo dentro de uma busca ("até 50 por pessoa") é o teto da busca, não um orçamento. Atenção: essa regra nasceu de um erro deste mesmo conjunto, então a segunda rodada favorece o prompt. As gravações e o teste com usuários servem de conjunto novo.</li>
+</ol>
+<p><strong>Erros que sobraram, em texto:</strong></p>
+<ul>
+<li><strong>B03:</strong> perdeu o "às 21h" e buscou o sábado inteiro.</li>
+<li><strong>M02:</strong> deixou sem dia o "eu posso a partir das 20h", dito logo depois de "bora no sábado". O código perguntou "de qual dia?", que é o comportamento seguro. Ainda assim, conta como erro.</li>
+</ul>
+<p><strong>Erros que a voz acrescentou:</strong></p>
+<ul>
+<li><strong>"Aza Sul":</strong> com a grafia errada da transcrição, o lugar não casou com nenhuma RA.</li>
+<li><strong>"Só de noite?":</strong> a interrogação acrescentada pela transcrição fez a frase virar conversa, em vez da pergunta "de qual dia?".</li>
+</ul>
+<p><strong>Voz real (05/11):</strong> com 22 gravações de uma pessoa, transcritas pelo Groq, o interpretador acertou 13 de 13 frases de disponibilidade e gastos e 21 de 22 no total, com p90 de 1,9 s. O único erro foi a RA de "Itaguatinga", que veio da transcrição (detalhes no <a href="../0006-transcricao-de-fala/#gravações-da-equipe-0511-primeira-parte">ADR 0006</a>).</p>
+<p><strong>Leitura:</strong></p>
+<ul>
+<li>A meta de 90% do RNF-08 é cumprida pelo acerto observado, tanto em texto quanto pela voz.</li>
+<li>Com 34 frases, nem 34 de 34 provariam 90% pelo limite inferior (ficaria em 89,7%). Para isso, o conjunto precisa crescer para cerca de 60 frases de disponibilidade e gastos.</li>
+<li>A latência cabe no orçamento do RNF-14: no pior caso, 1 s da transcrição pelo Groq mais 2,1 s da interpretação, abaixo dos 5 s.</li>
+</ul>
+<h2 id="mudancas-em-outros-documentos">Mudanças em outros documentos<a class="headerlink" href="#mudancas-em-outros-documentos" title="Permanent link">&para;</a></h2>
+<ul>
+<li>ADR 0005: o contrato da busca fica neste ADR.</li>
+<li><code>src/base/buscar.py</code> passa a usar o contrato.</li>
+<li>Mapa da arquitetura: cards do agente do membro, do multimodal, das etapas 1 a 3 e da base.</li>
+</ul>
+<h2 id="historico">Histórico<a class="headerlink" href="#historico" title="Permanent link">&para;</a></h2>
+<ul>
+<li>2026-11-05: proposta, depois de três rodadas de perguntas com o Cauan (divisão LLM e código, provedor, contrato, sigilo, intenções, horários, orçamento no grupo, conjunto de teste).</li>
+<li>2026-11-05: primeiras medições. Raciocínio do modelo desligado, junção das disponibilidades por código e regra do teto da busca no prompt.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "content.code.copy"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

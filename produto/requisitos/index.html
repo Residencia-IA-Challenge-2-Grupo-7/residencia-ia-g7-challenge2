@@ -1,0 +1,4192 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentação Oficial de Engenharia, DevOps e Arquitetura do Grupo 7 (Residência em IA Eldorado/UnB)">
+      
+      
+        <meta name="author" content="Grupo 7">
+      
+      
+        <link rel="canonical" href="https://residencia-ia-challenge-2-grupo-7.github.io/residencia-ia-g7-challenge2/produto/requisitos/">
+      
+      
+        <link rel="prev" href="../visao/">
+      
+      
+        <link rel="next" href="../../decisoes/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.1">
+    
+    
+      
+        <title>Requisitos - Orquestrador de Rolês — Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#requisitos-do-mvp-orquestrador-de-roles" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Orquestrador de Rolês — Docs" class="md-header__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Orquestrador de Rolês — Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Requisitos
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Orquestrador de Rolês — Docs" class="md-nav__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Orquestrador de Rolês — Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guia-contribuicao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Contribuição
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arquitetura & Decisões
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Arquitetura & Decisões
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../visao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visão do Produto
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Requisitos
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Requisitos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#mudancas-da-v04" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mudanças da v0.4
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-ler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como ler
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-escopo-do-mvp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Escopo do MVP
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-glossario" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Glossário
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-fluxo-principal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Fluxo principal
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-requisitos-funcionais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Requisitos funcionais
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Requisitos funcionais">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resumo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resumo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#41-conta-e-sala" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Conta e sala
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.1 Conta e sala">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rf-01-cadastro-e-perfil-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-01 · Cadastro e perfil (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-02-consentimento-e-controle-dos-dados-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-02 · Consentimento e controle dos dados (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-03-sala-e-convites-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-03 · Sala e convites (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-04-gestao-da-sala-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-04 · Gestão da sala (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-42-login-sem-senha-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-42 · Login sem senha (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-inicio-do-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Início do rolê
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.2 Início do rolê">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rf-05-pedido-de-role-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-05 · Pedido de rolê (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-06-iniciativa-da-ia-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-06 · Iniciativa da IA (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-conversa-privada-e-disponibilidade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Conversa privada e disponibilidade
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.3 Conversa privada e disponibilidade">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rf-07-conversa-privada-com-cada-participante-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-07 · Conversa privada com cada participante (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-08-disponibilidade-por-conversa-livre-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-08 · Disponibilidade por conversa livre (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-09-disponibilidade-por-grade-de-horarios-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-09 · Disponibilidade por grade de horários (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-10-disponibilidade-pelo-google-agenda-could" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-10 · Disponibilidade pelo Google Agenda (Could)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-43-disponibilidade-recorrente-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-43 · Disponibilidade recorrente (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-11-orcamento-sigiloso-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-11 · Orçamento sigiloso (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-12-prazo-de-resposta-e-acao-padrao-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-12 · Prazo de resposta e ação padrão (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-45-status-de-preenchimento-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-45 · Status de preenchimento (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-datas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 Datas
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.4 Datas">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rf-13-cruzamento-de-disponibilidades-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-13 · Cruzamento de disponibilidades (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-14-regra-de-preferencia-de-datas-do-organizador-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-14 · Regra de preferência de datas do organizador (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#45-planos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.5 Planos
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.5 Planos">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rf-15-planos-completos-com-custo-por-pessoa-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-15 · Planos completos com custo por pessoa (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-16-fundamentacao-na-base-de-conhecimento-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-16 · Fundamentação na base de conhecimento (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-17-filtro-de-restricoes-duras-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-17 · Filtro de restrições duras (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-18-negociacao-privada-de-orcamento-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-18 · Negociação privada de orçamento (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-19-ranqueamento-justo-e-explicacao-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-19 · Ranqueamento justo e explicação (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-20-role-em-casa-de-alguem-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-20 · Rolê em casa de alguém (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-44-preferencias-de-ambiente-e-informacoes-do-local-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-44 · Preferências de ambiente e informações do local (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#46-transporte" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.6 Transporte
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.6 Transporte">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rf-21-deslocamento-por-pessoa-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-21 · Deslocamento por pessoa (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-22-aviso-de-volta-para-casa-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-22 · Aviso de volta para casa (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-23-caronas-otimizadas-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-23 · Caronas otimizadas (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#47-decisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.7 Decisão
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.7 Decisão">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rf-24-modo-de-decisao-da-sala-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-24 · Modo de decisão da sala (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-25-votacao-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-25 · Votação (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-26-confirmacao-de-presenca-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-26 · Confirmação de presença (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#48-depois-da-decisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.8 Depois da decisão
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.8 Depois da decisão">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rf-27-compartilhar-no-whatsapp-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-27 · Compartilhar no WhatsApp (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-28-adicionar-a-agenda-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-28 · Adicionar à agenda (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-29-lembretes-antes-do-encontro-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-29 · Lembretes antes do encontro (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-46-imprevistos-no-dia-do-role-could" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-46 · Imprevistos no dia do rolê (Could)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#49-custos-depois-do-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.9 Custos depois do rolê
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.9 Custos depois do rolê">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rf-30-lancamento-de-gastos-no-chat-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-30 · Lançamento de gastos no chat (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-31-lancamento-por-foto-da-nota-fiscal-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-31 · Lançamento por foto da nota fiscal (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-32-divisao-dos-gastos-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-32 · Divisão dos gastos (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-33-codigo-pix-de-quem-pagou-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-33 · Código Pix de quem pagou (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-34-quitacao-e-lembretes-discretos-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-34 · Quitação e lembretes discretos (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-35-saldo-entre-roles-could" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-35 · Saldo entre rolês (Could)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#410-avaliacao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.10 Avaliação
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.10 Avaliação">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rf-36-confirmacao-de-que-o-encontro-aconteceu-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-36 · Confirmação de que o encontro aconteceu (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-37-avaliacao-opcional-por-item-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-37 · Avaliação opcional por item (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-38-aprendizado-com-as-avaliacoes-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-38 · Aprendizado com as avaliações (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#411-voz-e-notificacoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.11 Voz e notificações
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.11 Voz e notificações">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rf-39-entrada-por-voz-removido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-39 · Entrada por voz (removido)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-40-resposta-em-voz-removido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-40 · Resposta em voz (removido)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-41-notificacoes-agrupadas-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-41 · Notificações agrupadas (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#412-agrupamento-para-o-documento-final" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.12 Agrupamento para o documento final
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-requisitos-nao-funcionais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Requisitos não funcionais
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Requisitos não funcionais">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resumo_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resumo
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Resumo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rnf-01-privacidade-e-lgpd-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-01 · Privacidade e LGPD (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-02-sigilo-do-orcamento-e-das-conversas-privadas-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-02 · Sigilo do orçamento e das conversas privadas (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-03-dados-reais-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-03 · Dados reais (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-04-calculos-fora-do-modelo-de-linguagem-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-04 · Cálculos fora do modelo de linguagem (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-05-explicabilidade-e-transparencia-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-05 · Explicabilidade e transparência (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-06-minimo-de-idas-ao-app-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-06 · Mínimo de idas ao app (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-07-acessibilidade-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-07 · Acessibilidade (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-08-portugues-do-brasil-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-08 · Português do Brasil (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-09-web-para-celular-instalavel-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-09 · Web para celular, instalável (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-10-registro-para-metricas-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-10 · Registro para métricas (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-11-seguranca-da-aplicacao-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-11 · Segurança da aplicação (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-12-arquitetura-compativel-com-o-roadmap-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-12 · Arquitetura compatível com o roadmap (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-13-justica-e-vies-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-13 · Justiça e viés (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-14-desempenho-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-14 · Desempenho (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-15-resiliencia-e-dependencia-de-apis-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-15 · Resiliência e dependência de APIs (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-16-alcool-e-seguranca-no-encontro-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-16 · Álcool e segurança no encontro (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-questoes-em-aberto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Questões em aberto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-extensoes-futuras" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Extensões futuras
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-premissas-assumidas-aqui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Premissas assumidas aqui
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#riscos-referenciados" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Riscos referenciados
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#historico" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Histórico
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../decisoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisões Técnicas (ADRs)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dados & RAG
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Dados & RAG
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dados/esquema-base/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Esquema da Base
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dados/guia-curadoria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Curadoria
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dados/golden-dataset-semana3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Golden Dataset (Semana 3)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semanas & Entregas
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Semanas & Entregas
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../semanas/semana-01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 01
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../semanas/semana-02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 02
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../entregas/semana-02/RELATORIO_TECNICO_RAG_SEMANA_02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Relatório Semana 2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#mudancas-da-v04" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mudanças da v0.4
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#como-ler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Como ler
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-escopo-do-mvp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Escopo do MVP
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-glossario" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Glossário
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-fluxo-principal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Fluxo principal
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-requisitos-funcionais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Requisitos funcionais
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Requisitos funcionais">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resumo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resumo
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#41-conta-e-sala" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Conta e sala
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.1 Conta e sala">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rf-01-cadastro-e-perfil-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-01 · Cadastro e perfil (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-02-consentimento-e-controle-dos-dados-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-02 · Consentimento e controle dos dados (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-03-sala-e-convites-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-03 · Sala e convites (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-04-gestao-da-sala-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-04 · Gestão da sala (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-42-login-sem-senha-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-42 · Login sem senha (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-inicio-do-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Início do rolê
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.2 Início do rolê">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rf-05-pedido-de-role-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-05 · Pedido de rolê (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-06-iniciativa-da-ia-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-06 · Iniciativa da IA (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-conversa-privada-e-disponibilidade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Conversa privada e disponibilidade
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.3 Conversa privada e disponibilidade">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rf-07-conversa-privada-com-cada-participante-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-07 · Conversa privada com cada participante (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-08-disponibilidade-por-conversa-livre-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-08 · Disponibilidade por conversa livre (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-09-disponibilidade-por-grade-de-horarios-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-09 · Disponibilidade por grade de horários (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-10-disponibilidade-pelo-google-agenda-could" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-10 · Disponibilidade pelo Google Agenda (Could)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-43-disponibilidade-recorrente-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-43 · Disponibilidade recorrente (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-11-orcamento-sigiloso-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-11 · Orçamento sigiloso (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-12-prazo-de-resposta-e-acao-padrao-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-12 · Prazo de resposta e ação padrão (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-45-status-de-preenchimento-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-45 · Status de preenchimento (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-datas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 Datas
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.4 Datas">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rf-13-cruzamento-de-disponibilidades-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-13 · Cruzamento de disponibilidades (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-14-regra-de-preferencia-de-datas-do-organizador-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-14 · Regra de preferência de datas do organizador (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#45-planos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.5 Planos
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.5 Planos">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rf-15-planos-completos-com-custo-por-pessoa-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-15 · Planos completos com custo por pessoa (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-16-fundamentacao-na-base-de-conhecimento-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-16 · Fundamentação na base de conhecimento (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-17-filtro-de-restricoes-duras-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-17 · Filtro de restrições duras (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-18-negociacao-privada-de-orcamento-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-18 · Negociação privada de orçamento (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-19-ranqueamento-justo-e-explicacao-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-19 · Ranqueamento justo e explicação (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-20-role-em-casa-de-alguem-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-20 · Rolê em casa de alguém (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-44-preferencias-de-ambiente-e-informacoes-do-local-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-44 · Preferências de ambiente e informações do local (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#46-transporte" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.6 Transporte
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.6 Transporte">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rf-21-deslocamento-por-pessoa-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-21 · Deslocamento por pessoa (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-22-aviso-de-volta-para-casa-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-22 · Aviso de volta para casa (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-23-caronas-otimizadas-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-23 · Caronas otimizadas (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#47-decisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.7 Decisão
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.7 Decisão">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rf-24-modo-de-decisao-da-sala-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-24 · Modo de decisão da sala (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-25-votacao-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-25 · Votação (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-26-confirmacao-de-presenca-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-26 · Confirmação de presença (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#48-depois-da-decisao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.8 Depois da decisão
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.8 Depois da decisão">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rf-27-compartilhar-no-whatsapp-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-27 · Compartilhar no WhatsApp (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-28-adicionar-a-agenda-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-28 · Adicionar à agenda (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-29-lembretes-antes-do-encontro-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-29 · Lembretes antes do encontro (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-46-imprevistos-no-dia-do-role-could" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-46 · Imprevistos no dia do rolê (Could)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#49-custos-depois-do-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.9 Custos depois do rolê
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.9 Custos depois do rolê">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rf-30-lancamento-de-gastos-no-chat-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-30 · Lançamento de gastos no chat (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-31-lancamento-por-foto-da-nota-fiscal-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-31 · Lançamento por foto da nota fiscal (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-32-divisao-dos-gastos-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-32 · Divisão dos gastos (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-33-codigo-pix-de-quem-pagou-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-33 · Código Pix de quem pagou (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-34-quitacao-e-lembretes-discretos-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-34 · Quitação e lembretes discretos (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-35-saldo-entre-roles-could" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-35 · Saldo entre rolês (Could)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#410-avaliacao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.10 Avaliação
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.10 Avaliação">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rf-36-confirmacao-de-que-o-encontro-aconteceu-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-36 · Confirmação de que o encontro aconteceu (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-37-avaliacao-opcional-por-item-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-37 · Avaliação opcional por item (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-38-aprendizado-com-as-avaliacoes-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-38 · Aprendizado com as avaliações (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#411-voz-e-notificacoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.11 Voz e notificações
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.11 Voz e notificações">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rf-39-entrada-por-voz-removido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-39 · Entrada por voz (removido)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-40-resposta-em-voz-removido" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-40 · Resposta em voz (removido)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rf-41-notificacoes-agrupadas-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RF-41 · Notificações agrupadas (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#412-agrupamento-para-o-documento-final" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.12 Agrupamento para o documento final
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-requisitos-nao-funcionais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Requisitos não funcionais
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Requisitos não funcionais">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#resumo_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resumo
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Resumo">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#rnf-01-privacidade-e-lgpd-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-01 · Privacidade e LGPD (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-02-sigilo-do-orcamento-e-das-conversas-privadas-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-02 · Sigilo do orçamento e das conversas privadas (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-03-dados-reais-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-03 · Dados reais (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-04-calculos-fora-do-modelo-de-linguagem-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-04 · Cálculos fora do modelo de linguagem (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-05-explicabilidade-e-transparencia-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-05 · Explicabilidade e transparência (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-06-minimo-de-idas-ao-app-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-06 · Mínimo de idas ao app (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-07-acessibilidade-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-07 · Acessibilidade (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-08-portugues-do-brasil-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-08 · Português do Brasil (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-09-web-para-celular-instalavel-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-09 · Web para celular, instalável (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-10-registro-para-metricas-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-10 · Registro para métricas (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-11-seguranca-da-aplicacao-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-11 · Segurança da aplicação (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-12-arquitetura-compativel-com-o-roadmap-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-12 · Arquitetura compatível com o roadmap (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-13-justica-e-vies-must" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-13 · Justiça e viés (Must)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-14-desempenho-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-14 · Desempenho (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-15-resiliencia-e-dependencia-de-apis-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-15 · Resiliência e dependência de APIs (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rnf-16-alcool-e-seguranca-no-encontro-should" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        RNF-16 · Álcool e segurança no encontro (Should)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-questoes-em-aberto" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Questões em aberto
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-extensoes-futuras" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Extensões futuras
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-premissas-assumidas-aqui" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Premissas assumidas aqui
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#riscos-referenciados" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Riscos referenciados
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#historico" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Histórico
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="requisitos-do-mvp-orquestrador-de-roles">Requisitos do MVP: Orquestrador de Rolês<a class="headerlink" href="#requisitos-do-mvp-orquestrador-de-roles" title="Permanent link">&para;</a></h1>
+<ul>
+<li><strong>Versão:</strong> 0.4, 2026-11-10 (mudanças do <a href="../../GUIA_OFICIAL_PROJETO.md">guia oficial</a> na seção <a href="#mudanças-da-v04">Mudanças da v0.4</a>)</li>
+<li><strong>Status:</strong> para revisão do grupo. As escolhas de comportamento foram feitas na sessão de requisitos de 29/10 e ainda precisam ser validadas com o grupo, as personas e o resultado do formulário. O fechamento do MVP estava previsto para 30/10/2026 (premissa P04).</li>
+<li><strong>Base:</strong> <a href="../visao/">visão do produto</a> · recorte do MVP no <a href="../../decisoes/0002-recorte-do-mvp/">ADR 0002</a> · canal no <a href="../../decisoes/0003-canal-app-web/">ADR 0003</a></li>
+</ul>
+<h2 id="mudancas-da-v04">Mudanças da v0.4<a class="headerlink" href="#mudancas-da-v04" title="Permanent link">&para;</a></h2>
+<p>O grupo fechou em 10/11 o <a href="../../GUIA_OFICIAL_PROJETO.md">guia oficial</a>, que passa a ser a fonte da verdade sobre o app. Nesta versão, só o que ele mudou nos requisitos; a revisão completa continua pendente.</p>
+<ul>
+<li><strong>Voz removida:</strong> RF-39 e RF-40 ficam marcados como removidos (<a href="../../decisoes/0009-entrada-pelos-4-campos-de-texto/">ADR 0009</a>). A multimodalidade da semana 5 é a foto da nota fiscal (RF-31).</li>
+<li><strong>4 campos de texto no lugar da conversa privada:</strong> a coleta do RF-07 e do RF-08 (e o orçamento do RF-11) acontece na Tela 2, em 4 campos secretos (de onde sai, dias e horários, teto em R$, o que quer fazer e como vai), com resumo para confirmar (<a href="../../decisoes/0009-entrada-pelos-4-campos-de-texto/">ADR 0009</a>).</li>
+<li><strong>Base oficial de 93 lugares</strong> (<a href="../../decisoes/0008-base-2fa-de-93-lugares-e-lgpd/">ADR 0008</a>): o RF-16 passa a valer sobre ela.</li>
+<li><strong>Votação múltipla (RF-25)</strong> e <strong>3 a 4 cartões</strong> de sugestão no lugar de 2 ou 3 planos (RF-15).</li>
+<li><strong>Status de preenchimento (RF-45):</strong> o painel do guia mostra quem já preencheu ("Já preencheu" ou "Falta preencher"), o que contraria o "sem mostrar quem ainda não respondeu" do RF-45. Fica para o grupo decidir.</li>
+</ul>
+<h2 id="como-ler">Como ler<a class="headerlink" href="#como-ler" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>IDs fixos.</strong> RF-NN são funcionais e RNF-NN são não funcionais. Um ID nunca é reaproveitado: requisito que sai fica marcado como <em>removido</em>.</li>
+<li><strong>Prioridade provisória (MoSCoW):</strong> <strong>Must</strong> (sem isso o MVP não resolve o problema), <strong>Should</strong> (importante, entra se couber nas 7 semanas), <strong>Could</strong> (desejável). O que está fora do MVP fica em <a href="#7-extensões-futuras">Extensões futuras</a>.</li>
+<li><strong>Notação (estilo OpenSpec):</strong> cada requisito tem um enunciado com <strong>DEVE</strong> e cenários <strong>QUANDO / ENTÃO</strong>, que servem de critério de aceitação e, depois, de casos de teste.</li>
+<li><strong>Rastreabilidade:</strong> a coluna Persona (só na tabela de RF) usa as personas da equipe (Rafaela, primária; Cadu, Bia e Márcio, secundárias). A coluna Riscos usa os IDs da guia Riscos do documento da equipe (lista em <a href="#riscos-referenciados">Riscos referenciados</a>). A coluna Métrica fica em branco até o plano de métricas de sucesso ser fechado.</li>
+<li><strong>Documento final:</strong> entra só o que é Must, agrupado por capacidade (ver <a href="#412-agrupamento-para-o-documento-final">seção 4.12</a>). Esta lista completa fica no repositório.</li>
+</ul>
+<h2 id="1-escopo-do-mvp">1. Escopo do MVP<a class="headerlink" href="#1-escopo-do-mvp" title="Permanent link">&para;</a></h2>
+<p><strong>Dentro</strong></p>
+<ul>
+<li>Organização de rolês entre amigos que já se conhecem, em salas de 2 a 20 pessoas.</li>
+<li>App web, pensado primeiro para o celular. A exportação do plano fechado para o WhatsApp e para a agenda entra se couber (Should, RF-27 e RF-28).</li>
+<li>Distrito Federal inteiro; adultos (18+) de qualquer idade.</li>
+<li>Quatro tipos de rolê: comer e beber fora, eventos com data marcada, ao ar livre ou gratuitos e, se couber, em casa de alguém (Should, RF-20).</li>
+<li>Entrada por texto, nos 4 campos secretos da Tela 2, e por foto da nota fiscal depois do rolê. Sem voz (v0.4, ADR 0009).</li>
+</ul>
+<p><strong>Fora</strong> (ver <a href="#7-extensões-futuras">Extensões futuras</a>)</p>
+<ul>
+<li>Modo Descoberta, videogames e plano B online, versão para menores de idade.</li>
+</ul>
+<h2 id="2-glossario">2. Glossário<a class="headerlink" href="#2-glossario" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Termo</th>
+<th>Significado</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Sala</td>
+<td>Grupo fixo de amigos no app (2 a 20 membros), com um chat do grupo</td>
+</tr>
+<tr>
+<td>Organizador</td>
+<td>Quem criou a sala, com papel transferível. Configura o modo de decisão, a regra de preferência de datas, os prazos de resposta e a iniciativa da IA</td>
+</tr>
+<tr>
+<td>Rolê</td>
+<td>Um encontro em organização dentro de uma sala, do pedido até a avaliação</td>
+</tr>
+<tr>
+<td>Participante</td>
+<td>Membro da sala convidado para um rolê específico</td>
+</tr>
+<tr>
+<td>Conversa privada</td>
+<td>Chat individual entre um participante e a IA. O que é dito ali não aparece para os outros</td>
+</tr>
+<tr>
+<td>Plano</td>
+<td>Proposta completa de rolê: o quê, onde, quando, como cada um chega e volta, e custo estimado por pessoa</td>
+</tr>
+<tr>
+<td>Restrição dura</td>
+<td>Condição que elimina um plano: orçamento, disponibilidade, horário de funcionamento, restrições declaradas e, quando houver caronas, a capacidade dos carros</td>
+</tr>
+<tr>
+<td>Janela</td>
+<td>Intervalo de data e hora em que os participantes estão livres</td>
+</tr>
+<tr>
+<td>Prazo de resposta</td>
+<td>Tempo que a IA espera por uma resposta antes de seguir com uma ação padrão (o organizador pode ajustar; valores padrão em aberto)</td>
+</tr>
+<tr>
+<td>Gasto</td>
+<td>Valor pago por um participante durante o rolê e dividido com os outros</td>
+</tr>
+<tr>
+<td>Saldo</td>
+<td>O que cada membro deve ou tem a receber na sala, somando os rolês</td>
+</tr>
+</tbody>
+</table>
+<h2 id="3-fluxo-principal">3. Fluxo principal<a class="headerlink" href="#3-fluxo-principal" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Um membro cria a sala e convida os amigos por link. Quem criou vira organizador.</li>
+<li>Um membro pede um rolê ("bora sair sábado?"), ou a IA sugere um quando a sala passa um tempo sem se encontrar.</li>
+<li>A IA conversa em particular com cada participante: disponibilidade, preferências, orçamento, ponto de partida e transporte.</li>
+<li>A IA cruza as janelas, aplica a regra de preferência de datas do organizador e busca lugares e eventos na base de conhecimento.</li>
+<li>A IA descarta planos que violam restrições duras. Se o orçamento de alguém travar as opções, pergunta em particular se a pessoa pode flexibilizar.</li>
+<li>A IA apresenta 2 ou 3 planos ranqueados por justiça, com prós, contras e custo por pessoa.</li>
+<li>O grupo vota, ou o organizador decide, conforme o modo da sala. Os participantes confirmam presença.</li>
+<li>O plano fechado é compartilhado no WhatsApp e exportado para a agenda. A IA lembra cada um do horário de saída.</li>
+<li>Depois do rolê, a IA pergunta se alguém pagou algo para rachar, divide os gastos, envia o Pix de quem pagou e lembra quem deve.</li>
+<li>A IA pergunta se o encontro aconteceu e oferece uma avaliação opcional por item, que alimenta os próximos planos.</li>
+</ol>
+<h2 id="4-requisitos-funcionais">4. Requisitos funcionais<a class="headerlink" href="#4-requisitos-funcionais" title="Permanent link">&para;</a></h2>
+<h3 id="resumo">Resumo<a class="headerlink" href="#resumo" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requisito</th>
+<th>Prioridade</th>
+<th>Riscos</th>
+<th>Persona</th>
+<th>Métrica</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RF-01</td>
+<td>Cadastro e perfil</td>
+<td>Must</td>
+<td>R-01</td>
+<td>Todas</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-02</td>
+<td>Consentimento e controle dos dados</td>
+<td>Must</td>
+<td>R-01, R-09</td>
+<td>Márcio, Cadu</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-03</td>
+<td>Sala e convites (2 a 20 membros)</td>
+<td>Must</td>
+<td></td>
+<td>Rafaela</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-04</td>
+<td>Gestão da sala pelo organizador</td>
+<td>Must</td>
+<td></td>
+<td>Rafaela</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-05</td>
+<td>Pedido de rolê por qualquer membro</td>
+<td>Must</td>
+<td></td>
+<td>Rafaela</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-06</td>
+<td>Iniciativa da IA</td>
+<td>Must</td>
+<td>R-04</td>
+<td>Rafaela</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-07</td>
+<td>Conversa privada com cada participante</td>
+<td>Must</td>
+<td>R-01</td>
+<td>Cadu, Rafaela</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-08</td>
+<td>Disponibilidade por conversa livre</td>
+<td>Must</td>
+<td></td>
+<td>Cadu, Márcio</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-09</td>
+<td>Disponibilidade por grade de horários</td>
+<td>Should</td>
+<td></td>
+<td>Cadu, Márcio</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-10</td>
+<td>Disponibilidade pelo Google Agenda</td>
+<td>Could</td>
+<td>R-01</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>RF-11</td>
+<td>Orçamento sigiloso</td>
+<td>Must</td>
+<td>R-01, R-02</td>
+<td>Cadu, Rafaela</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-12</td>
+<td>Prazo de resposta e ação padrão</td>
+<td>Must</td>
+<td>R-04</td>
+<td>Rafaela</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-13</td>
+<td>Cruzamento de disponibilidades</td>
+<td>Must</td>
+<td></td>
+<td>Cadu, Rafaela</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-14</td>
+<td>Regra de preferência de datas do organizador</td>
+<td>Must</td>
+<td></td>
+<td>Rafaela</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-15</td>
+<td>Planos completos com custo por pessoa</td>
+<td>Must</td>
+<td>R-03</td>
+<td>Rafaela, Cadu</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-16</td>
+<td>Fundamentação na base de conhecimento</td>
+<td>Must</td>
+<td>R-03</td>
+<td>Rafaela</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-17</td>
+<td>Filtro de restrições duras</td>
+<td>Must</td>
+<td>R-02</td>
+<td>Cadu, Bia</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-18</td>
+<td>Negociação privada de orçamento</td>
+<td>Must</td>
+<td>R-02</td>
+<td>Cadu</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-19</td>
+<td>Ranqueamento justo e explicação</td>
+<td>Must</td>
+<td>R-02</td>
+<td>Cadu</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-20</td>
+<td>Rolê em casa de alguém</td>
+<td>Should</td>
+<td></td>
+<td>Márcio</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-21</td>
+<td>Deslocamento por pessoa</td>
+<td>Must</td>
+<td>R-05</td>
+<td>Cadu</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-22</td>
+<td>Aviso de volta para casa</td>
+<td>Should</td>
+<td>R-05</td>
+<td>Cadu, Rafaela</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-23</td>
+<td>Caronas otimizadas</td>
+<td>Should</td>
+<td>R-05</td>
+<td>Rafaela, Márcio</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-24</td>
+<td>Modo de decisão da sala</td>
+<td>Must</td>
+<td></td>
+<td>Rafaela</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-25</td>
+<td>Votação</td>
+<td>Must</td>
+<td></td>
+<td>Rafaela, Márcio</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-26</td>
+<td>Confirmação de presença</td>
+<td>Must</td>
+<td></td>
+<td>Cadu, Bia</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-27</td>
+<td>Compartilhar no WhatsApp</td>
+<td>Should</td>
+<td>R-01</td>
+<td>Márcio</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-28</td>
+<td>Adicionar à agenda</td>
+<td>Should</td>
+<td></td>
+<td>Cadu</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-29</td>
+<td>Lembretes antes do encontro</td>
+<td>Should</td>
+<td></td>
+<td>Márcio</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-30</td>
+<td>Lançamento de gastos no chat</td>
+<td>Must</td>
+<td></td>
+<td>Rafaela</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-31</td>
+<td>Lançamento por foto da nota fiscal</td>
+<td>Should</td>
+<td>R-09</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>RF-32</td>
+<td>Divisão dos gastos</td>
+<td>Must</td>
+<td>R-02</td>
+<td>Cadu</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-33</td>
+<td>Código Pix de quem pagou</td>
+<td>Should</td>
+<td>R-01</td>
+<td>Rafaela</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-34</td>
+<td>Quitação e lembretes discretos</td>
+<td>Should</td>
+<td>R-02</td>
+<td>Rafaela</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-35</td>
+<td>Saldo entre rolês</td>
+<td>Could</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>RF-36</td>
+<td>Confirmação de que o encontro aconteceu</td>
+<td>Must</td>
+<td>R-06</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>RF-37</td>
+<td>Avaliação opcional por item</td>
+<td>Should</td>
+<td></td>
+<td>Rafaela</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-38</td>
+<td>Aprendizado com as avaliações</td>
+<td>Should</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>RF-39</td>
+<td>~~Entrada por voz~~ (removido na v0.4)</td>
+<td>—</td>
+<td>R-09</td>
+<td>Márcio</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-40</td>
+<td>~~Resposta em voz~~ (removido na v0.4)</td>
+<td>—</td>
+<td>R-09</td>
+<td>Márcio</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-41</td>
+<td>Notificações agrupadas</td>
+<td>Must</td>
+<td>R-04</td>
+<td>Márcio, Rafaela</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-42</td>
+<td>Login sem senha</td>
+<td>Must</td>
+<td>R-01</td>
+<td>Márcio</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-43</td>
+<td>Disponibilidade recorrente</td>
+<td>Should</td>
+<td></td>
+<td>Cadu</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-44</td>
+<td>Preferências de ambiente e informações do local</td>
+<td>Should</td>
+<td>R-01</td>
+<td>Bia</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-45</td>
+<td>Status de preenchimento</td>
+<td>Should</td>
+<td>R-04</td>
+<td>Rafaela</td>
+<td></td>
+</tr>
+<tr>
+<td>RF-46</td>
+<td>Imprevistos no dia do rolê</td>
+<td>Could</td>
+<td>R-05</td>
+<td>Cadu, Bia</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="41-conta-e-sala">4.1 Conta e sala<a class="headerlink" href="#41-conta-e-sala" title="Permanent link">&para;</a></h3>
+<h4 id="rf-01-cadastro-e-perfil-must">RF-01 · Cadastro e perfil (Must)<a class="headerlink" href="#rf-01-cadastro-e-perfil-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE permitir criar uma conta e um perfil com nome de exibição, região de partida (região administrativa, bairro ou ponto de referência, sem exigir endereço), meios de transporte que a pessoa usa, tipos de rolê preferidos, restrições alimentares e de acessibilidade e, opcionalmente, um orçamento padrão sigiloso.</p>
+<p><strong>Cenário: menor de idade</strong>
+- <strong>QUANDO</strong> a pessoa informa idade abaixo de 18 anos
+- <strong>ENTÃO</strong> o cadastro é recusado com uma explicação, e os dados informados não são guardados</p>
+<p><strong>Cenário: perfil incompleto</strong>
+- <strong>QUANDO</strong> a pessoa pula os campos opcionais
+- <strong>ENTÃO</strong> ela consegue entrar em salas, e a IA pergunta o que faltar na conversa privada do primeiro rolê</p>
+<h4 id="rf-02-consentimento-e-controle-dos-dados-must">RF-02 · Consentimento e controle dos dados (Must)<a class="headerlink" href="#rf-02-consentimento-e-controle-dos-dados-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE pedir consentimento separado para cada finalidade sensível (localização, agenda, voz, foto da nota fiscal, chave Pix) e permitir que a pessoa veja, corrija, exporte e apague os próprios dados e a conta.</p>
+<p><strong>Cenário: revogação</strong>
+- <strong>QUANDO</strong> a pessoa desconecta a agenda
+- <strong>ENTÃO</strong> a conexão é removida e os horários importados são apagados</p>
+<p><strong>Cenário: exclusão da conta</strong>
+- <strong>QUANDO</strong> a pessoa pede para apagar a conta
+- <strong>ENTÃO</strong> o app avisa se há saldos em aberto e, depois da confirmação, remove os dados pessoais; nos rolês passados ela aparece como "ex-membro"</p>
+<h4 id="rf-03-sala-e-convites-must">RF-03 · Sala e convites (Must)<a class="headerlink" href="#rf-03-sala-e-convites-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE permitir que qualquer usuário crie uma sala, da qual passa a ser o organizador, e convide amigos por um link compartilhável. Uma sala tem no máximo 20 membros e precisa de pelo menos 2 para iniciar um rolê.</p>
+<p><strong>Cenário: sala cheia</strong>
+- <strong>QUANDO</strong> uma 21ª pessoa abre o link de convite
+- <strong>ENTÃO</strong> a entrada é recusada com uma explicação, e o organizador é avisado</p>
+<p><strong>Cenário: sala com uma pessoa só</strong>
+- <strong>QUANDO</strong> a sala tem só 1 membro
+- <strong>ENTÃO</strong> não é possível iniciar um rolê, e o app sugere convidar alguém</p>
+<h4 id="rf-04-gestao-da-sala-must">RF-04 · Gestão da sala (Must)<a class="headerlink" href="#rf-04-gestao-da-sala-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE permitir que o organizador transfira o papel para outro membro, remova membros e configure a sala: modo de decisão (RF-24), regra de preferência de datas (RF-14), prazos de resposta (RF-12) e iniciativa da IA (RF-06). Qualquer membro pode sair da sala.</p>
+<p><strong>Cenário: organizador sai</strong>
+- <strong>QUANDO</strong> o organizador tenta sair sem transferir o papel
+- <strong>ENTÃO</strong> o app pede que ele escolha um sucessor; se ele não escolher, o papel passa ao membro mais antigo</p>
+<h4 id="rf-42-login-sem-senha-must">RF-42 · Login sem senha (Must)<a class="headerlink" href="#rf-42-login-sem-senha-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE permitir entrar sem criar senha, com um código de uso único enviado ao telefone ou ao e-mail, ou com uma conta Google. O método do MVP está em aberto, porque SMS e WhatsApp têm custo.</p>
+<p><strong>Cenário: primeiro acesso pelo convite</strong>
+- <strong>QUANDO</strong> alguém abre o link de convite sem ter conta
+- <strong>ENTÃO</strong> entra informando só o telefone ou o e-mail e o código recebido, e cai direto na sala</p>
+<p><strong>Cenário: código expirado</strong>
+- <strong>QUANDO</strong> o código passa da validade
+- <strong>ENTÃO</strong> o app oferece reenviar com um toque</p>
+<h3 id="42-inicio-do-role">4.2 Início do rolê<a class="headerlink" href="#42-inicio-do-role" title="Permanent link">&para;</a></h3>
+<h4 id="rf-05-pedido-de-role-must">RF-05 · Pedido de rolê (Must)<a class="headerlink" href="#rf-05-pedido-de-role-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE permitir que qualquer membro peça um rolê em linguagem natural, por texto ou voz, indicando, se quiser, o período, o tipo de rolê e quem convidar (por padrão, a sala toda). Um rolê precisa de pelo menos 2 participantes.</p>
+<p><strong>Cenário: pedido vago</strong>
+- <strong>QUANDO</strong> alguém escreve "bora sair semana que vem?"
+- <strong>ENTÃO</strong> a IA abre o rolê para a sala toda, com a próxima semana como período, e inicia as conversas privadas</p>
+<p><strong>Cenário: parte da sala</strong>
+- <strong>QUANDO</strong> o pedido cita só alguns membros
+- <strong>ENTÃO</strong> apenas eles recebem o convite para aquele rolê</p>
+<h4 id="rf-06-iniciativa-da-ia-must">RF-06 · Iniciativa da IA (Must)<a class="headerlink" href="#rf-06-iniciativa-da-ia-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE sugerir um rolê no chat da sala quando ela passar um período configurável sem encontro realizado, respeitando um limite de frequência. O organizador pode ajustar o período ou desligar a iniciativa.</p>
+<p><strong>Cenário: sala parada</strong>
+- <strong>QUANDO</strong> a sala ultrapassa o período sem rolê realizado
+- <strong>ENTÃO</strong> a IA posta uma sugestão ("faz 3 semanas que vocês não se veem, querem que eu organize algo?"), e o rolê começa quando qualquer membro aceita</p>
+<p><strong>Cenário: ninguém responde</strong>
+- <strong>QUANDO</strong> a sugestão fica sem resposta até o prazo
+- <strong>ENTÃO</strong> a IA não insiste até o próximo período</p>
+<h3 id="43-conversa-privada-e-disponibilidade">4.3 Conversa privada e disponibilidade<a class="headerlink" href="#43-conversa-privada-e-disponibilidade" title="Permanent link">&para;</a></h3>
+<h4 id="rf-07-conversa-privada-com-cada-participante-must">RF-07 · Conversa privada com cada participante (Must)<a class="headerlink" href="#rf-07-conversa-privada-com-cada-participante-must" title="Permanent link">&para;</a></h4>
+<blockquote>
+<p><strong>v0.4:</strong> no app, a coleta privada é feita pelos 4 campos secretos da Tela 2, com resumo para confirmar (<a href="../../decisoes/0009-entrada-pelos-4-campos-de-texto/">ADR 0009</a>).</p>
+</blockquote>
+<p>O sistema DEVE abrir uma conversa privada entre a IA e cada participante do rolê para coletar disponibilidade, preferências para aquele rolê, orçamento, ponto de partida e meio de transporte, reaproveitando o que já está no perfil e perguntando só o que falta.</p>
+<p><strong>Cenário: dados já no perfil</strong>
+- <strong>QUANDO</strong> o participante já tem transporte e orçamento padrão no perfil
+- <strong>ENTÃO</strong> a IA só pede confirmação ("vai de ônibus e gasta até R$ 60, como sempre?")</p>
+<p><strong>Cenário: tentativa de bisbilhotar</strong>
+- <strong>QUANDO</strong> um membro pede à IA o que outro disse em particular
+- <strong>ENTÃO</strong> a IA se recusa a revelar</p>
+<h4 id="rf-08-disponibilidade-por-conversa-livre-must">RF-08 · Disponibilidade por conversa livre (Must)<a class="headerlink" href="#rf-08-disponibilidade-por-conversa-livre-must" title="Permanent link">&para;</a></h4>
+<blockquote>
+<p><strong>v0.4:</strong> a frase livre vem do campo "Quais dias e horários você pode?" e é interpretada por regras, com o LLM só de reserva.</p>
+</blockquote>
+<p>O sistema DEVE extrair janelas de disponibilidade de frases livres, ditas por texto ou voz, e mostrar a interpretação para confirmação antes de usá-la.</p>
+<p><strong>Cenário: frase clara</strong>
+- <strong>QUANDO</strong> a pessoa diz "sexta depois das 19h ou sábado o dia todo"
+- <strong>ENTÃO</strong> a IA mostra as janelas com data e hora ("sex 19h–24h; sáb dia todo. Está certo?") e só as usa depois da confirmação</p>
+<p><strong>Cenário: frase ambígua</strong>
+- <strong>QUANDO</strong> a pessoa diz "de tarde"
+- <strong>ENTÃO</strong> a IA assume um intervalo explícito (13h–18h) e pede confirmação</p>
+<h4 id="rf-09-disponibilidade-por-grade-de-horarios-should">RF-09 · Disponibilidade por grade de horários (Should)<a class="headerlink" href="#rf-09-disponibilidade-por-grade-de-horarios-should" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE oferecer uma grade em que a pessoa marca e corrige blocos de horário, inclusive os extraídos da conversa.</p>
+<p><strong>Cenário: ajuste fino</strong>
+- <strong>QUANDO</strong> a pessoa abre a grade depois de falar com a IA
+- <strong>ENTÃO</strong> vê os blocos já preenchidos e pode ajustá-los</p>
+<h4 id="rf-10-disponibilidade-pelo-google-agenda-could">RF-10 · Disponibilidade pelo Google Agenda (Could)<a class="headerlink" href="#rf-10-disponibilidade-pelo-google-agenda-could" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE permitir conectar o Google Agenda com permissão só de livre/ocupado, sem ler títulos, locais ou participantes dos eventos.</p>
+<p><strong>Cenário: agenda conectada</strong>
+- <strong>QUANDO</strong> a agenda está conectada
+- <strong>ENTÃO</strong> os horários ocupados saem das janelas, e a pessoa ainda pode corrigir pela conversa ou pela grade</p>
+<h4 id="rf-43-disponibilidade-recorrente-should">RF-43 · Disponibilidade recorrente (Should)<a class="headerlink" href="#rf-43-disponibilidade-recorrente-should" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE permitir registrar uma única vez, no perfil, uma disponibilidade que se repete (semanal ou em escala, como plantões 12x36) e aplicá-la automaticamente a cada rolê, com exceções por data.</p>
+<p><strong>Cenário: escala 12x36</strong>
+- <strong>QUANDO</strong> o participante informa "plantão 12x36 a partir de segunda, das 7h às 19h"
+- <strong>ENTÃO</strong> a IA calcula os dias de plantão das semanas seguintes, mostra para confirmação e desconta esses dias das janelas de todo rolê</p>
+<p><strong>Cenário: troca de plantão</strong>
+- <strong>QUANDO</strong> ele troca um plantão
+- <strong>ENTÃO</strong> pode marcar a exceção só naquela data</p>
+<h4 id="rf-11-orcamento-sigiloso-must">RF-11 · Orçamento sigiloso (Must)<a class="headerlink" href="#rf-11-orcamento-sigiloso-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE coletar em particular quanto cada participante quer gastar no rolê, transporte incluído, e usar esse valor só como restrição. O valor individual nunca é mostrado a outro membro nem atribuído a alguém nas explicações.</p>
+<p><strong>Cenário: plano descartado por custo</strong>
+- <strong>QUANDO</strong> um plano é descartado por orçamento
+- <strong>ENTÃO</strong> a explicação ao grupo diz "fora do orçamento do grupo", nunca "fora do orçamento da Ana"</p>
+<p><strong>Cenário: sem resposta</strong>
+- <strong>QUANDO</strong> o participante não informa o orçamento até o prazo
+- <strong>ENTÃO</strong> a IA usa o orçamento padrão do perfil ou, se não houver, o menor orçamento informado no grupo</p>
+<h4 id="rf-12-prazo-de-resposta-e-acao-padrao-must">RF-12 · Prazo de resposta e ação padrão (Must)<a class="headerlink" href="#rf-12-prazo-de-resposta-e-acao-padrao-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE associar a cada pergunta que trava o rolê (disponibilidade, orçamento, voto, presença, lançamento de gastos) um prazo e uma ação padrão, para que o rolê avance sem depender de todos e sem que a pessoa precise voltar ao app várias vezes. O organizador pode ajustar os prazos da sala; os valores padrão estão em aberto.</p>
+<p><strong>Cenário: participante não responde</strong>
+- <strong>QUANDO</strong> um participante não informa a disponibilidade até o prazo
+- <strong>ENTÃO</strong> a IA segue com quem respondeu e avisa essa pessoa de que ela ainda pode entrar até a votação</p>
+<p><strong>Cenário: lembrete único</strong>
+- <strong>QUANDO</strong> o prazo está perto do fim
+- <strong>ENTÃO</strong> a IA manda um único lembrete</p>
+<h4 id="rf-45-status-de-preenchimento-should">RF-45 · Status de preenchimento (Should)<a class="headerlink" href="#rf-45-status-de-preenchimento-should" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE mostrar aos participantes, e em destaque ao organizador, quantas pessoas já responderam cada etapa do rolê (disponibilidade, orçamento, voto, presença) e quanto falta para o prazo, sem mostrar o conteúdo das respostas nem quem ainda não respondeu.</p>
+<p><strong>Cenário: acompanhamento</strong>
+- <strong>QUANDO</strong> 5 de 7 participantes informaram a disponibilidade
+- <strong>ENTÃO</strong> a sala mostra "5 de 7 responderam" e o prazo restante, e os lembretes a quem falta ficam por conta da IA (RF-12)</p>
+<h3 id="44-datas">4.4 Datas<a class="headerlink" href="#44-datas" title="Permanent link">&para;</a></h3>
+<h4 id="rf-13-cruzamento-de-disponibilidades-must">RF-13 · Cruzamento de disponibilidades (Must)<a class="headerlink" href="#rf-13-cruzamento-de-disponibilidades-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE encontrar as janelas em que todos os participantes estão livres e, se não houver nenhuma, as janelas com mais participantes, informando quantos poderiam ir (sem dizer quem não pode).</p>
+<p><strong>Cenário: sem janela comum</strong>
+- <strong>QUANDO</strong> nenhuma janela reúne todos
+- <strong>ENTÃO</strong> a IA usa as melhores janelas parciais ("sábado à noite: 6 de 7 podem") e, se nenhuma reunir pelo menos 2 participantes, propõe ampliar o período</p>
+<h4 id="rf-14-regra-de-preferencia-de-datas-do-organizador-must">RF-14 · Regra de preferência de datas do organizador (Must)<a class="headerlink" href="#rf-14-regra-de-preferencia-de-datas-do-organizador-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE permitir que o organizador defina, em ordem de prioridade, critérios para escolher entre várias janelas livres: fim de semana, à noite e mais próxima da data atual (lista extensível, por exemplo feriados ou à tarde). Sem regra definida, vale a mais próxima da data atual.</p>
+<p><strong>Cenário: várias janelas livres</strong>
+- <strong>QUANDO</strong> a regra é "fim de semana, depois à noite" e há janelas na quinta às 20h, no sábado às 14h e no sábado às 20h
+- <strong>ENTÃO</strong> os planos usam primeiro sábado às 20h, depois sábado às 14h</p>
+<p><strong>Cenário: empate</strong>
+- <strong>QUANDO</strong> duas janelas empatam em todos os critérios
+- <strong>ENTÃO</strong> vale a mais próxima da data atual</p>
+<p><strong>Cenário: transparência</strong>
+- <strong>QUANDO</strong> os planos são apresentados
+- <strong>ENTÃO</strong> o grupo vê qual regra de datas foi aplicada</p>
+<h3 id="45-planos">4.5 Planos<a class="headerlink" href="#45-planos" title="Permanent link">&para;</a></h3>
+<h4 id="rf-15-planos-completos-com-custo-por-pessoa-must">RF-15 · Planos completos com custo por pessoa (Must)<a class="headerlink" href="#rf-15-planos-completos-com-custo-por-pessoa-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE propor 2 ou 3 planos para o rolê, cada um com atividade e local (ou evento), data e horário, como cada participante chega e volta, comida, itens para levar quando houver e custo estimado por pessoa (atividade, comida e transporte). Os planos podem ser de qualquer um dos tipos do MVP; o rolê em casa depende do RF-20.</p>
+<p><strong>Cenário: apresentação</strong>
+- <strong>QUANDO</strong> a IA apresenta os planos
+- <strong>ENTÃO</strong> cada participante vê em destaque o próprio custo e tempo de deslocamento, e o grupo vê a faixa de custo (do menor ao maior)</p>
+<p><strong>Cenário: poucas opções</strong>
+- <strong>QUANDO</strong> só 1 plano atende todas as restrições, mesmo depois da negociação de orçamento (RF-18)
+- <strong>ENTÃO</strong> a IA apresenta esse plano e explica por que não há outros</p>
+<h4 id="rf-16-fundamentacao-na-base-de-conhecimento-must">RF-16 · Fundamentação na base de conhecimento (Must)<a class="headerlink" href="#rf-16-fundamentacao-na-base-de-conhecimento-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE montar planos só com lugares, eventos, preços e horários da base de conhecimento (RAG) e mostrar, em cada item, a fonte e a data da última verificação.</p>
+<p><strong>Cenário: lugar fora da base</strong>
+- <strong>QUANDO</strong> o modelo sugere um lugar que não está na base
+- <strong>ENTÃO</strong> o lugar é descartado antes de chegar ao usuário</p>
+<p><strong>Cenário: dado antigo</strong>
+- <strong>QUANDO</strong> um preço ou horário foi verificado há mais tempo que o limite (a definir)
+- <strong>ENTÃO</strong> ele aparece como "aproximado", com a data da verificação (limites por tipo de dado definidos no <a href="../../decisoes/0004-fonte-e-manutencao-da-base/#pergunta-3-reverificação-e-aproximado">ADR 0004</a>)</p>
+<h4 id="rf-17-filtro-de-restricoes-duras-must">RF-17 · Filtro de restrições duras (Must)<a class="headerlink" href="#rf-17-filtro-de-restricoes-duras-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE descartar planos que violem o orçamento de algum participante, as janelas de disponibilidade, o horário de funcionamento do lugar ou evento, as restrições declaradas (alimentares, de acessibilidade) ou, quando houver caronas (RF-23), a capacidade dos carros.</p>
+<p><strong>Cenário: lugar fecha antes</strong>
+- <strong>QUANDO</strong> o restaurante fecha às 22h e o plano vai até as 23h
+- <strong>ENTÃO</strong> o plano é descartado ou tem o horário ajustado</p>
+<h4 id="rf-18-negociacao-privada-de-orcamento-must">RF-18 · Negociação privada de orçamento (Must)<a class="headerlink" href="#rf-18-negociacao-privada-de-orcamento-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE, quando o orçamento de algum participante deixar menos de 2 planos viáveis, perguntar em particular a essa pessoa se aceita gastar mais, mostrando quanto a mais e o que ganharia. Se ela recusar ou não responder no prazo, a IA segue automaticamente com os planos dentro do menor orçamento.</p>
+<p><strong>Cenário: aceite</strong>
+- <strong>QUANDO</strong> a pessoa aceita o valor maior
+- <strong>ENTÃO</strong> o novo limite vale só para esse rolê</p>
+<p><strong>Cenário: silêncio</strong>
+- <strong>QUANDO</strong> o prazo acaba sem resposta
+- <strong>ENTÃO</strong> a IA segue com os planos de menor orçamento, sem avisar o grupo de que houve uma pergunta</p>
+<p><strong>Cenário: mais de uma pessoa limita</strong>
+- <strong>QUANDO</strong> o orçamento de mais de uma pessoa trava as opções
+- <strong>ENTÃO</strong> cada uma recebe a pergunta separadamente, sem saber das outras</p>
+<h4 id="rf-19-ranqueamento-justo-e-explicacao-must">RF-19 · Ranqueamento justo e explicação (Must)<a class="headerlink" href="#rf-19-ranqueamento-justo-e-explicacao-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE ordenar os planos viáveis por um critério de justiça explícito, que protege quem fica pior em custo e tempo de deslocamento (regra a fixar em ADR), e mostrar os prós e contras de cada plano sem expor dados privados.</p>
+<p><strong>Cenário: média engana</strong>
+- <strong>QUANDO</strong> o plano A tem deslocamento médio menor, mas obriga um participante a viajar 90 minutos, e o plano B deixa todos com cerca de 40 minutos
+- <strong>ENTÃO</strong> B vem antes de A, e a explicação diz por quê</p>
+<h4 id="rf-20-role-em-casa-de-alguem-should">RF-20 · Rolê em casa de alguém (Should)<a class="headerlink" href="#rf-20-role-em-casa-de-alguem-should" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE, em planos na casa de alguém, usar só a casa de quem se ofereceu como anfitrião na conversa privada, montar a lista de itens e compras com custo estimado e indicar quem leva o quê.</p>
+<p><strong>Cenário: ninguém se oferece</strong>
+- <strong>QUANDO</strong> nenhum participante se oferece como anfitrião
+- <strong>ENTÃO</strong> a IA não gera planos em casa</p>
+<h4 id="rf-44-preferencias-de-ambiente-e-informacoes-do-local-should">RF-44 · Preferências de ambiente e informações do local (Should)<a class="headerlink" href="#rf-44-preferencias-de-ambiente-e-informacoes-do-local-should" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE permitir que cada pessoa informe em particular preferências de ambiente (calmo, pouco ruído, ao ar livre, pouca lotação), usá-las no ranqueamento sem revelar ao grupo de quem vieram, e mostrar em cada plano as informações do local que existirem na base: fotos, faixa de preço, nível de ruído e horários de maior movimento.</p>
+<p><strong>Cenário: preferência sigilosa</strong>
+- <strong>QUANDO</strong> a Bia marca "ambiente calmo" e o plano escolhido é um café tranquilo
+- <strong>ENTÃO</strong> a explicação ao grupo cita o ambiente calmo como vantagem, sem dizer quem pediu</p>
+<p><strong>Cenário: dado ausente</strong>
+- <strong>QUANDO</strong> a base não tem a informação de lotação de um lugar
+- <strong>ENTÃO</strong> o plano diz "sem informação", em vez de estimar</p>
+<h3 id="46-transporte">4.6 Transporte<a class="headerlink" href="#46-transporte" title="Permanent link">&para;</a></h3>
+<h4 id="rf-21-deslocamento-por-pessoa-must">RF-21 · Deslocamento por pessoa (Must)<a class="headerlink" href="#rf-21-deslocamento-por-pessoa-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE estimar, para cada participante, o tempo e o custo de ida e volta conforme o meio que ele usa (ônibus ou metrô, aplicativo, carro, a pé ou bicicleta), a partir da região de partida informada.</p>
+<p><strong>Cenário: transporte público</strong>
+- <strong>QUANDO</strong> o participante vai de ônibus ou metrô
+- <strong>ENTÃO</strong> a estimativa usa dados do transporte público do DF (fonte a confirmar) e indica a linha principal</p>
+<h4 id="rf-22-aviso-de-volta-para-casa-should">RF-22 · Aviso de volta para casa (Should)<a class="headerlink" href="#rf-22-aviso-de-volta-para-casa-should" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE avisar em particular quem, pelo horário de término do plano, ficaria sem transporte público para voltar, e oferecer alternativas (carona, horário mais cedo, custo do aplicativo).</p>
+<p><strong>Cenário: depois do último ônibus</strong>
+- <strong>QUANDO</strong> o plano termina depois do último ônibus de um participante
+- <strong>ENTÃO</strong> só ele recebe o aviso com as alternativas e o custo extra estimado, e isso pesa no ranqueamento (RF-19)</p>
+<h4 id="rf-23-caronas-otimizadas-should">RF-23 · Caronas otimizadas (Should)<a class="headerlink" href="#rf-23-caronas-otimizadas-should" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE, quando há participantes de carro dispostos a dar carona, distribuir os passageiros entre os motoristas com um otimizador (não com o modelo de linguagem), respeitando as vagas e o desvio máximo aceito por cada motorista, e pedir a confirmação dos motoristas.</p>
+<p><strong>Cenário: motorista recusa</strong>
+- <strong>QUANDO</strong> um motorista recusa a rota proposta
+- <strong>ENTÃO</strong> o otimizador refaz a distribuição sem ele e avisa os passageiros afetados</p>
+<h3 id="47-decisao">4.7 Decisão<a class="headerlink" href="#47-decisao" title="Permanent link">&para;</a></h3>
+<h4 id="rf-24-modo-de-decisao-da-sala-must">RF-24 · Modo de decisão da sala (Must)<a class="headerlink" href="#rf-24-modo-de-decisao-da-sala-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE oferecer dois modos de decisão, escolhidos pelo organizador: votação dos participantes (padrão) ou palavra final do organizador, que vê o ranking e a recomendação da IA.</p>
+<p><strong>Cenário: modo organizador</strong>
+- <strong>QUANDO</strong> a sala está no modo palavra final do organizador
+- <strong>ENTÃO</strong> os participantes veem os planos e podem comentar, mas a escolha é do organizador, e todos são avisados dela</p>
+<h4 id="rf-25-votacao-must">RF-25 · Votação (Must)<a class="headerlink" href="#rf-25-votacao-must" title="Permanent link">&para;</a></h4>
+<blockquote>
+<p><strong>v0.4:</strong> a votação é múltipla (cada participante pode votar em mais de um cartão), e a votação fecha sozinha quando todos os confirmados votam ou quando o organizador a fecha. O desempate continua sendo o ranking de justiça.</p>
+</blockquote>
+<p>O sistema DEVE permitir que cada participante vote em um plano até o prazo. Vence o plano mais votado; em empate, vence o plano mais bem colocado no ranking de justiça. Quem não vota não trava o resultado.</p>
+<p><strong>Cenário: empate</strong>
+- <strong>QUANDO</strong> 3 votam no plano A, 3 no plano B, 1 não vota, e B está acima no ranking
+- <strong>ENTÃO</strong> B vence, e o resultado informa que o desempate foi pelo ranking</p>
+<h4 id="rf-26-confirmacao-de-presenca-must">RF-26 · Confirmação de presença (Must)<a class="headerlink" href="#rf-26-confirmacao-de-presenca-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE pedir que cada participante confirme presença no plano escolhido. Se menos de 2 confirmarem, o rolê é cancelado e a IA oferece reabrir com outra janela.</p>
+<p><strong>Cenário: desistência depois de confirmar</strong>
+- <strong>QUANDO</strong> alguém desconfirma depois da decisão
+- <strong>ENTÃO</strong> as caronas e as estimativas de custo são recalculadas, e os afetados são avisados</p>
+<p><strong>Cenário: recusa discreta</strong>
+- <strong>QUANDO</strong> um participante recusa o convite ou desconfirma
+- <strong>ENTÃO</strong> a IA não pede justificativa, e o grupo vê só o número de confirmados</p>
+<h3 id="48-depois-da-decisao">4.8 Depois da decisão<a class="headerlink" href="#48-depois-da-decisao" title="Permanent link">&para;</a></h3>
+<h4 id="rf-27-compartilhar-no-whatsapp-should">RF-27 · Compartilhar no WhatsApp (Should)<a class="headerlink" href="#rf-27-compartilhar-no-whatsapp-should" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE gerar um resumo do plano fechado (o quê, onde, quando, link do mapa e link da sala) para compartilhar no WhatsApp pelo compartilhamento nativo do celular, sem dados privados de ninguém.</p>
+<p><strong>Cenário: compartilhar</strong>
+- <strong>QUANDO</strong> um participante toca em "compartilhar"
+- <strong>ENTÃO</strong> o resumo abre no WhatsApp pronto para enviar ao grupo</p>
+<h4 id="rf-28-adicionar-a-agenda-should">RF-28 · Adicionar à agenda (Should)<a class="headerlink" href="#rf-28-adicionar-a-agenda-should" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE permitir adicionar o rolê confirmado à agenda (Google, Apple ou Android), com data, horário, local e o horário de saída sugerido para aquela pessoa.</p>
+<p><strong>Cenário: exportar</strong>
+- <strong>QUANDO</strong> o participante toca em "adicionar à agenda"
+- <strong>ENTÃO</strong> o evento é criado na agenda escolhida com o horário de saída dele</p>
+<h4 id="rf-29-lembretes-antes-do-encontro-should">RF-29 · Lembretes antes do encontro (Should)<a class="headerlink" href="#rf-29-lembretes-antes-do-encontro-should" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE lembrar cada participante antes do encontro, com horário de saída, como chegar e o que levar.</p>
+<p><strong>Cenário: véspera</strong>
+- <strong>QUANDO</strong> falta o tempo de antecedência configurado
+- <strong>ENTÃO</strong> cada participante recebe um lembrete com as próprias informações de saída</p>
+<h4 id="rf-46-imprevistos-no-dia-do-role-could">RF-46 · Imprevistos no dia do rolê (Could)<a class="headerlink" href="#rf-46-imprevistos-no-dia-do-role-could" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE, quando um imprevisto afetar um plano já confirmado (chuva em rolê ao ar livre, linha de metrô ou ônibus parada, lugar fechado de última hora), avisar os participantes afetados e propor um ajuste ou um plano alternativo da base de conhecimento, decidido conforme o modo da sala (RF-24). As fontes de previsão do tempo e de alertas de transporte estão em aberto.</p>
+<p><strong>Cenário: chuva no rolê ao ar livre</strong>
+- <strong>QUANDO</strong> a previsão indica chuva no horário de um rolê no parque
+- <strong>ENTÃO</strong> a IA avisa o grupo e propõe um lugar coberto próximo, com o custo por pessoa recalculado, ou adiar para outra janela</p>
+<p><strong>Cenário: transporte interrompido</strong>
+- <strong>QUANDO</strong> a linha que um participante usaria para de funcionar
+- <strong>ENTÃO</strong> só ele recebe o aviso, com uma rota ou um meio alternativo e o custo extra estimado</p>
+<h3 id="49-custos-depois-do-role">4.9 Custos depois do rolê<a class="headerlink" href="#49-custos-depois-do-role" title="Permanent link">&para;</a></h3>
+<h4 id="rf-30-lancamento-de-gastos-no-chat-must">RF-30 · Lançamento de gastos no chat (Must)<a class="headerlink" href="#rf-30-lancamento-de-gastos-no-chat-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE, ao fim do rolê, perguntar no chat da sala se alguém pagou algo para rachar e aceitar lançamentos de qualquer participante, por texto ou voz ("paguei 180 do bar"), confirmando valor e quem pagou antes de registrar.</p>
+<p><strong>Cenário: lançamento por outra pessoa</strong>
+- <strong>QUANDO</strong> a Bia escreve "o Caio pagou 90 do Uber"
+- <strong>ENTÃO</strong> a IA pede a confirmação do Caio antes de dividir</p>
+<p><strong>Cenário: nada a rachar</strong>
+- <strong>QUANDO</strong> ninguém lança gastos até o prazo
+- <strong>ENTÃO</strong> o rolê é encerrado sem divisão</p>
+<h4 id="rf-31-lancamento-por-foto-da-nota-fiscal-should">RF-31 · Lançamento por foto da nota fiscal (Should)<a class="headerlink" href="#rf-31-lancamento-por-foto-da-nota-fiscal-should" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE aceitar a foto da nota fiscal como forma de lançar um gasto, extraindo o total (e os itens, quando possível) e pedindo confirmação.</p>
+<p><strong>Cenário: foto ilegível</strong>
+- <strong>QUANDO</strong> a IA não consegue ler o total
+- <strong>ENTÃO</strong> pede o valor por texto ou voz</p>
+<h4 id="rf-32-divisao-dos-gastos-must">RF-32 · Divisão dos gastos (Must)<a class="headerlink" href="#rf-32-divisao-dos-gastos-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE dividir cada gasto igualmente entre os participantes presentes, permitindo que quem lançou desmarque quem não participou daquele gasto. Quem confirmou presença e não foi não entra em nenhuma divisão.</p>
+<p><strong>Cenário: alguém fora de um gasto</strong>
+- <strong>QUANDO</strong> a conta do bar é de R$ 200 e quem lançou desmarca a Duda
+- <strong>ENTÃO</strong> os R$ 200 são divididos só entre os outros presentes</p>
+<p><strong>Cenário: centavos</strong>
+- <strong>QUANDO</strong> a divisão não fecha em centavos
+- <strong>ENTÃO</strong> a diferença fica com quem pagou, e ninguém paga mais do que a própria parte</p>
+<h4 id="rf-33-codigo-pix-de-quem-pagou-should">RF-33 · Código Pix de quem pagou (Should)<a class="headerlink" href="#rf-33-codigo-pix-de-quem-pagou-should" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE gerar, para cada devedor, um código Pix copia e cola estático (padrão do Banco Central) com a chave cadastrada por quem pagou e o valor devido, e enviá-lo em particular. O código é gerado por código determinístico, nunca pelo modelo de linguagem.</p>
+<p><strong>Cenário: sem chave cadastrada</strong>
+- <strong>QUANDO</strong> quem pagou não tem chave Pix cadastrada
+- <strong>ENTÃO</strong> a IA pede a chave em particular e sugere usar uma chave aleatória</p>
+<p><strong>Cenário: conferência</strong>
+- <strong>QUANDO</strong> o devedor cola o código no app do banco
+- <strong>ENTÃO</strong> o banco mostra o nome de quem recebe e o valor, e o app orienta a conferir antes de pagar</p>
+<h4 id="rf-34-quitacao-e-lembretes-discretos-should">RF-34 · Quitação e lembretes discretos (Should)<a class="headerlink" href="#rf-34-quitacao-e-lembretes-discretos-should" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE permitir que quem recebeu marque cada dívida como paga e enviar lembretes discretos, só em particular a quem deve, até a quitação, com limite de frequência.</p>
+<p><strong>Cenário: pago</strong>
+- <strong>QUANDO</strong> quem recebeu marca a dívida como paga
+- <strong>ENTÃO</strong> os lembretes param</p>
+<h4 id="rf-35-saldo-entre-roles-could">RF-35 · Saldo entre rolês (Could)<a class="headerlink" href="#rf-35-saldo-entre-roles-could" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE manter o saldo de cada membro na sala, somando os rolês, e cobrar pelo Pix só o valor líquido.</p>
+<p><strong>Cenário: compensação</strong>
+- <strong>QUANDO</strong> a Ana deve R$ 15 ao Caio e, no rolê seguinte, o Caio passa a dever R$ 20 à Ana
+- <strong>ENTÃO</strong> o saldo mostra apenas o Caio devendo R$ 5 à Ana</p>
+<h3 id="410-avaliacao">4.10 Avaliação<a class="headerlink" href="#410-avaliacao" title="Permanent link">&para;</a></h3>
+<h4 id="rf-36-confirmacao-de-que-o-encontro-aconteceu-must">RF-36 · Confirmação de que o encontro aconteceu (Must)<a class="headerlink" href="#rf-36-confirmacao-de-que-o-encontro-aconteceu-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE perguntar a cada participante, depois do horário previsto, se o encontro aconteceu e se a pessoa foi, com resposta de um toque.</p>
+<p><strong>Cenário: não aconteceu</strong>
+- <strong>QUANDO</strong> a maioria responde que o encontro não aconteceu
+- <strong>ENTÃO</strong> a IA pergunta o motivo, com opções curtas, para as métricas</p>
+<h4 id="rf-37-avaliacao-opcional-por-item-should">RF-37 · Avaliação opcional por item (Should)<a class="headerlink" href="#rf-37-avaliacao-opcional-por-item-should" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE oferecer, de forma opcional, notas de 1 a 5 para lugar, custo, transporte e horário, com comentário livre por texto ou voz, e a pergunta "o lugar estava aberto e o preço bateu?". Uma divergência relatada só põe o lugar na fila de reconferência da base, sem registrar quem respondeu (<a href="../../decisoes/0004-fonte-e-manutencao-da-base/">ADR 0004</a>).</p>
+<p><strong>Cenário: pessoa pula</strong>
+- <strong>QUANDO</strong> a pessoa pula a avaliação
+- <strong>ENTÃO</strong> nada mais é pedido sobre aquele rolê</p>
+<h4 id="rf-38-aprendizado-com-as-avaliacoes-should">RF-38 · Aprendizado com as avaliações (Should)<a class="headerlink" href="#rf-38-aprendizado-com-as-avaliacoes-should" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE usar as avaliações e escolhas anteriores da sala para ajustar as próximas sugestões e, sem histórico, usar as preferências declaradas nos perfis (partida a frio).</p>
+<p><strong>Cenário: transporte mal avaliado</strong>
+- <strong>QUANDO</strong> o grupo avaliou mal o transporte de um lugar distante
+- <strong>ENTÃO</strong> lugares com deslocamento parecido descem no ranking daquela sala</p>
+<h3 id="411-voz-e-notificacoes">4.11 Voz e notificações<a class="headerlink" href="#411-voz-e-notificacoes" title="Permanent link">&para;</a></h3>
+<h4 id="rf-39-entrada-por-voz-removido">RF-39 · Entrada por voz (removido)<a class="headerlink" href="#rf-39-entrada-por-voz-removido" title="Permanent link">&para;</a></h4>
+<blockquote>
+<p><strong>Removido em 2026-11-10</strong> pelo guia oficial: o app não usa entrada nem saída por voz (<a href="../../decisoes/0009-entrada-pelos-4-campos-de-texto/">ADR 0009</a>). O texto abaixo fica só como registro.</p>
+</blockquote>
+<p>O sistema DEVE aceitar voz em toda conversa com a IA, mostrando a transcrição para confirmação antes de qualquer ação que envolva datas, valores ou confirmação de presença.</p>
+<p><strong>Cenário: transcrição errada</strong>
+- <strong>QUANDO</strong> a transcrição sai errada
+- <strong>ENTÃO</strong> a pessoa corrige por texto ou fala de novo, e nada é registrado antes da confirmação</p>
+<h4 id="rf-40-resposta-em-voz-removido">RF-40 · Resposta em voz (removido)<a class="headerlink" href="#rf-40-resposta-em-voz-removido" title="Permanent link">&para;</a></h4>
+<blockquote>
+<p><strong>Removido em 2026-11-10</strong>, junto com o RF-39.</p>
+</blockquote>
+<p>O sistema DEVE oferecer leitura em voz alta das mensagens da IA, que cada pessoa liga ou desliga.</p>
+<p><strong>Cenário: leitura ligada</strong>
+- <strong>QUANDO</strong> a pessoa ativou a leitura em voz alta
+- <strong>ENTÃO</strong> as mensagens da IA para ela são lidas automaticamente, e a mensagem continua visível em texto</p>
+<h4 id="rf-41-notificacoes-agrupadas-must">RF-41 · Notificações agrupadas (Must)<a class="headerlink" href="#rf-41-notificacoes-agrupadas-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE notificar (push no app instalado ou e-mail) só quando há algo que exige ação ou um lembrete, agrupando pedidos pendentes em uma única notificação.</p>
+<p><strong>Cenário: duas pendências</strong>
+- <strong>QUANDO</strong> há disponibilidade e orçamento pendentes no mesmo rolê
+- <strong>ENTÃO</strong> a pessoa recebe uma única notificação, que abre as duas perguntas em sequência</p>
+<h3 id="412-agrupamento-para-o-documento-final">4.12 Agrupamento para o documento final<a class="headerlink" href="#412-agrupamento-para-o-documento-final" title="Permanent link">&para;</a></h3>
+<p>Sugestão de 12 capacidades que resumem os Must no pacote de definição:</p>
+<table>
+<thead>
+<tr>
+<th>Capacidade</th>
+<th>RF</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Contas, login sem senha e salas de 2 a 20 pessoas</td>
+<td>RF-01 a RF-04, RF-42</td>
+</tr>
+<tr>
+<td>Pedido de rolê e iniciativa da IA</td>
+<td>RF-05, RF-06</td>
+</tr>
+<tr>
+<td>Coleta privada com prazos</td>
+<td>RF-07, RF-08, RF-12</td>
+</tr>
+<tr>
+<td>Orçamento sigiloso</td>
+<td>RF-11, RF-18</td>
+</tr>
+<tr>
+<td>Escolha de datas</td>
+<td>RF-13, RF-14</td>
+</tr>
+<tr>
+<td>Planos fundamentados em dados reais</td>
+<td>RF-15 a RF-17</td>
+</tr>
+<tr>
+<td>Ranqueamento justo e deslocamento</td>
+<td>RF-19, RF-21</td>
+</tr>
+<tr>
+<td>Decisão do grupo e presença</td>
+<td>RF-24 a RF-26</td>
+</tr>
+<tr>
+<td>Divisão de custos</td>
+<td>RF-30, RF-32</td>
+</tr>
+<tr>
+<td>Confirmação de que o encontro aconteceu</td>
+<td>RF-36</td>
+</tr>
+<tr>
+<td>Notificações</td>
+<td>RF-41</td>
+</tr>
+</tbody>
+</table>
+<h2 id="5-requisitos-nao-funcionais">5. Requisitos não funcionais<a class="headerlink" href="#5-requisitos-nao-funcionais" title="Permanent link">&para;</a></h2>
+<h3 id="resumo_1">Resumo<a class="headerlink" href="#resumo_1" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Requisito</th>
+<th>Prioridade</th>
+<th>Riscos</th>
+<th>Métrica</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RNF-01</td>
+<td>Privacidade e LGPD</td>
+<td>Must</td>
+<td>R-01, R-09</td>
+<td></td>
+</tr>
+<tr>
+<td>RNF-02</td>
+<td>Sigilo do orçamento e das conversas privadas</td>
+<td>Must</td>
+<td>R-01, R-02</td>
+<td></td>
+</tr>
+<tr>
+<td>RNF-03</td>
+<td>Dados reais</td>
+<td>Must</td>
+<td>R-03</td>
+<td></td>
+</tr>
+<tr>
+<td>RNF-04</td>
+<td>Cálculos fora do modelo de linguagem</td>
+<td>Must</td>
+<td>R-02, R-03</td>
+<td></td>
+</tr>
+<tr>
+<td>RNF-05</td>
+<td>Explicabilidade e transparência</td>
+<td>Must</td>
+<td>R-03</td>
+<td></td>
+</tr>
+<tr>
+<td>RNF-06</td>
+<td>Mínimo de idas ao app</td>
+<td>Must</td>
+<td>R-04</td>
+<td></td>
+</tr>
+<tr>
+<td>RNF-07</td>
+<td>Acessibilidade</td>
+<td>Must</td>
+<td>R-09</td>
+<td></td>
+</tr>
+<tr>
+<td>RNF-08</td>
+<td>Português do Brasil</td>
+<td>Must</td>
+<td>R-09</td>
+<td></td>
+</tr>
+<tr>
+<td>RNF-09</td>
+<td>Web para celular, instalável</td>
+<td>Must</td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>RNF-10</td>
+<td>Registro para métricas</td>
+<td>Must</td>
+<td>R-06</td>
+<td></td>
+</tr>
+<tr>
+<td>RNF-11</td>
+<td>Segurança da aplicação</td>
+<td>Must</td>
+<td>R-01</td>
+<td></td>
+</tr>
+<tr>
+<td>RNF-12</td>
+<td>Arquitetura compatível com o roadmap</td>
+<td>Must</td>
+<td>R-07</td>
+<td></td>
+</tr>
+<tr>
+<td>RNF-13</td>
+<td>Justiça e viés</td>
+<td>Must</td>
+<td>R-02</td>
+<td></td>
+</tr>
+<tr>
+<td>RNF-14</td>
+<td>Desempenho</td>
+<td>Should</td>
+<td>R-07</td>
+<td></td>
+</tr>
+<tr>
+<td>RNF-15</td>
+<td>Resiliência e dependência de APIs</td>
+<td>Should</td>
+<td>R-07</td>
+<td></td>
+</tr>
+<tr>
+<td>RNF-16</td>
+<td>Álcool e segurança no encontro</td>
+<td>Should</td>
+<td>R-05, R-08</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>As metas numéricas abaixo são provisórias, valem como intenção para os testes do MVP e serão fixadas junto com as métricas de sucesso.</p>
+<h4 id="rnf-01-privacidade-e-lgpd-must">RNF-01 · Privacidade e LGPD (Must)<a class="headerlink" href="#rnf-01-privacidade-e-lgpd-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE tratar dados pessoais conforme a LGPD: finalidade explícita, consentimento por finalidade (RF-02), minimização e retenção limitada.</p>
+<p><strong>Como verificar</strong>
+- Localização só como região, bairro ou referência; agenda só como livre/ocupado.
+- Áudio descartado depois da transcrição; foto da nota descartada depois da extração.
+- Conversas privadas e orçamentos de um rolê apagados depois de um prazo do fim do rolê (a definir).
+- Dados enviados a provedores de LLM e de APIs limitados ao necessário, sem nome nem contato.
+- Aviso de privacidade em linguagem simples antes do cadastro.
+- Checklist de LGPD revisado antes dos testes do MVP.</p>
+<h4 id="rnf-02-sigilo-do-orcamento-e-das-conversas-privadas-must">RNF-02 · Sigilo do orçamento e das conversas privadas (Must)<a class="headerlink" href="#rnf-02-sigilo-do-orcamento-e-das-conversas-privadas-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE garantir que nenhum membro veja o orçamento ou o conteúdo da conversa privada de outro, nem consiga deduzi-los pelas explicações da IA. Na arquitetura multiagentes, o agente de cada membro só conhece os dados desse membro e repassa ao planejador apenas restrições sem identificação.</p>
+<p><strong>Como verificar</strong>
+- Bateria de testes adversariais: perguntar diretamente, pedir "um resumo do que todos disseram", tentar injeção de instrução pelo chat da sala.
+- Meta: nenhum vazamento.</p>
+<h4 id="rnf-03-dados-reais-must">RNF-03 · Dados reais (Must)<a class="headerlink" href="#rnf-03-dados-reais-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE apresentar só lugares, eventos, preços e horários que existem, conforme a base de conhecimento.</p>
+<p><strong>Como verificar</strong>
+- 100% dos lugares e eventos dos planos existem na base.
+- Em amostra conferida à mão, pelo menos 95% dos preços e horários estão corretos.
+- A comparação LLM puro × RAG da semana 3 usa a mesma métrica.</p>
+<h4 id="rnf-04-calculos-fora-do-modelo-de-linguagem-must">RNF-04 · Cálculos fora do modelo de linguagem (Must)<a class="headerlink" href="#rnf-04-calculos-fora-do-modelo-de-linguagem-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE fazer por código determinístico o cruzamento de janelas, os filtros de restrição, as estimativas de custo, a divisão, os saldos, os códigos Pix e as caronas (otimizador). O modelo de linguagem conversa, interpreta, orquestra e explica.</p>
+<p><strong>Como verificar</strong>
+- Testes automatizados nos módulos de cálculo.
+- Nenhum valor em reais nem chave Pix vem de texto gerado pelo modelo.</p>
+<h4 id="rnf-05-explicabilidade-e-transparencia-must">RNF-05 · Explicabilidade e transparência (Must)<a class="headerlink" href="#rnf-05-explicabilidade-e-transparencia-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE mostrar, em cada plano, por que ele foi sugerido (restrições atendidas, regra de datas, critério de justiça, prós e contras), marcar estimativas como estimativas e deixar claro que quem conversa é uma IA.</p>
+<p><strong>Como verificar</strong>
+- Em teste com usuários, a maioria sabe dizer por que o plano escolhido ficou em primeiro (percentual a definir).</p>
+<h4 id="rnf-06-minimo-de-idas-ao-app-must">RNF-06 · Mínimo de idas ao app (Must)<a class="headerlink" href="#rnf-06-minimo-de-idas-ao-app-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE permitir fechar um rolê com poucas interações obrigatórias por participante, com prazo e ação padrão em toda pergunta que trava o rolê (RF-12) e notificações agrupadas (RF-41).</p>
+<p><strong>Como verificar</strong>
+- Meta provisória: no máximo 3 interações obrigatórias por participante (respostas na conversa privada, voto, presença), medidas nos registros dos testes do MVP (RNF-10).</p>
+<h4 id="rnf-07-acessibilidade-must">RNF-07 · Acessibilidade (Must)<a class="headerlink" href="#rnf-07-acessibilidade-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE ser utilizável por adultos de qualquer idade, inclusive pessoas com pouca experiência ou fluência com tecnologia: WCAG 2.1 nível AA, fonte ajustável, alvos de toque grandes, linguagem simples, e tudo que se faz por voz também se faz por texto, e vice-versa.</p>
+<p><strong>Como verificar</strong>
+- Verificador automático de acessibilidade sem erros críticos.
+- Teste de uso com pelo menos uma pessoa com pouca fluência digital, no perfil da persona Márcio.</p>
+<h4 id="rnf-08-portugues-do-brasil-must">RNF-08 · Português do Brasil (Must)<a class="headerlink" href="#rnf-08-portugues-do-brasil-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE usar pt-BR em interface, conversa e voz, com datas em dd/mm, horário de 24 horas e valores em R$, e entender expressões comuns ("rolê", "bora", "rachar").</p>
+<p><strong>Como verificar</strong>
+- Conjunto de frases de teste de disponibilidade e de gastos interpretadas corretamente em pelo menos 90% dos casos.</p>
+<h4 id="rnf-09-web-para-celular-instalavel-must">RNF-09 · Web para celular, instalável (Must)<a class="headerlink" href="#rnf-09-web-para-celular-instalavel-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE funcionar como app web responsivo e instalável (PWA), nas duas versões mais recentes do Chrome no Android e do Safari no iOS, e continuar utilizável no computador.</p>
+<p><strong>Como verificar</strong>
+- Roteiro de teste manual nesses navegadores antes dos testes do MVP.</p>
+<h4 id="rnf-10-registro-para-metricas-must">RNF-10 · Registro para métricas (Must)<a class="headerlink" href="#rnf-10-registro-para-metricas-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE registrar eventos pseudonimizados do ciclo do rolê (pedido, respostas, planos gerados, escolha, confirmações, se aconteceu, avaliação, gastos lançados e quitados), com o tempo entre etapas e o número de interações, sem o conteúdo das conversas privadas nem valores de orçamento.</p>
+<p><strong>Como verificar</strong>
+- Todas as métricas de sucesso do pacote podem ser calculadas só a partir desses registros.</p>
+<h4 id="rnf-11-seguranca-da-aplicacao-must">RNF-11 · Segurança da aplicação (Must)<a class="headerlink" href="#rnf-11-seguranca-da-aplicacao-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE exigir autenticação, usar HTTPS, limitar cada sala aos seus membros, criptografar em repouso a chave Pix e os dados sensíveis, manter segredos fora do git e resistir a injeção de instrução: texto de usuários e de fontes externas não muda as regras da IA.</p>
+<p><strong>Como verificar</strong>
+- Checklist básico do OWASP Top 10.
+- Testes de acesso a salas de outras pessoas.</p>
+<h4 id="rnf-12-arquitetura-compativel-com-o-roadmap-must">RNF-12 · Arquitetura compatível com o roadmap (Must)<a class="headerlink" href="#rnf-12-arquitetura-compativel-com-o-roadmap-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE separar a base de conhecimento (RAG, semana 2), os agentes (um por membro, mais planejador, logística, finanças e mediador, semana 4), as entradas multimodais (voz e foto, semana 5) e a interface, com provedores de LLM, voz e mapas trocáveis por configuração.</p>
+<p><strong>Como verificar</strong>
+- Cada entrega semanal roda sobre a anterior, sem reescrevê-la.</p>
+<h4 id="rnf-13-justica-e-vies-must">RNF-13 · Justiça e viés (Must)<a class="headerlink" href="#rnf-13-justica-e-vies-must" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE usar uma regra de ranqueamento documentada em ADR que não favoreça sistematicamente quem mora em regiões centrais ou tem mais dinheiro.</p>
+<p><strong>Como verificar</strong>
+- Em cenários de teste com membros espalhados pelo DF, comparar a regra adotada com a média simples: diferença entre o maior e o menor tempo de deslocamento e maior custo individual (meta a definir).</p>
+<h4 id="rnf-14-desempenho-should">RNF-14 · Desempenho (Should)<a class="headerlink" href="#rnf-14-desempenho-should" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE responder na conversa em até 5 segundos (p90) e gerar os planos em até 60 segundos depois da última resposta necessária, mostrando o progresso, em salas de até 20 membros.</p>
+<p><strong>Como verificar</strong>
+- Tempos medidos nos registros dos testes do MVP, com salas de 20 membros simulados.</p>
+<h4 id="rnf-15-resiliencia-e-dependencia-de-apis-should">RNF-15 · Resiliência e dependência de APIs (Should)<a class="headerlink" href="#rnf-15-resiliencia-e-dependencia-de-apis-should" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE preservar o estado do rolê quando o LLM, os mapas ou a voz falharem, tentar de novo e avisar com mensagem clara, e guardar em cache as respostas de APIs externas só quando os termos do provedor permitem (da Google Places, por exemplo, só o place ID; ver <a href="../../decisoes/0004-fonte-e-manutencao-da-base/">ADR 0004</a>). O consumo é registrado, e os testes do MVP devem caber nos créditos gratuitos de API de cada membro; pagar por APIs fica só como possibilidade (premissa P12).</p>
+<p><strong>Como verificar</strong>
+- Testes com cada API externa desligada.</p>
+<h4 id="rnf-16-alcool-e-seguranca-no-encontro-should">RNF-16 · Álcool e segurança no encontro (Should)<a class="headerlink" href="#rnf-16-alcool-e-seguranca-no-encontro-should" title="Permanent link">&para;</a></h4>
+<p>O sistema DEVE evitar incentivar o consumo de álcool, incluir uma opção sem foco em bebida alcoólica sempre que houver uma viável e, em planos com bebida, lembrar de combinar a volta sem ninguém dirigir depois de beber.</p>
+<p><strong>Como verificar</strong>
+- Revisão de uma amostra de planos gerados em cenários de teste.</p>
+<h2 id="6-questoes-em-aberto">6. Questões em aberto<a class="headerlink" href="#6-questoes-em-aberto" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Prazos de resposta:</strong> valores para disponibilidade, orçamento, voto, presença e lançamento de gastos (RF-12, RF-18, RF-25, RF-30).</li>
+<li><strong>Iniciativa da IA:</strong> período padrão sem encontro e limite de frequência (RF-06).</li>
+<li><strong>Regra de justiça do ranqueamento:</strong> "menor miséria" é a proposta; precisa de ADR (RF-19, RNF-13).</li>
+<li>~~<strong>Fonte de lugares, eventos e preços.</strong>~~ Decidida nos ADRs <a href="../../decisoes/0004-fonte-e-manutencao-da-base/">0004</a> e <a href="../../decisoes/0005-coleta-automatica-e-base-vetorial/">0005</a> (proposta): candidatos da Overture, extração automática dos sites oficiais com evidência literal, Google Places só para conferir os finalistas, limites de "aproximado" por tipo de dado e base vetorial em PostgreSQL com pgvector (RF-16, RNF-03).</li>
+<li><strong>Visibilidade de votos e dívidas:</strong> sugestão de contagem de votos visível com voto individual secreto, e de cada devedor ver só o próprio valor enquanto quem pagou vê quem já pagou (RF-25, RF-34).</li>
+<li><strong>Caronas:</strong> escolhidas para o MVP, mas marcadas como Should porque dependem de um otimizador de rotas. Confirmar a prioridade (RF-23).</li>
+<li><strong>Rolê em casa:</strong> como dividir compras feitas antes do encontro por quem é anfitrião (RF-20, RF-32).</li>
+<li><strong>Transporte público do DF:</strong> confirmar se os dados abertos (GTFS) estão disponíveis e atualizados (RF-21, RF-22).</li>
+<li><strong>Imprevistos:</strong> fontes de previsão do tempo e de alertas de transporte do DF (RF-46).</li>
+</ol>
+<h2 id="7-extensoes-futuras">7. Extensões futuras<a class="headerlink" href="#7-extensoes-futuras" title="Permanent link">&para;</a></h2>
+<p>Fora do MVP (<a href="../../decisoes/0002-recorte-do-mvp/">ADR 0002</a>). Os requisitos destas extensões podem ser escritos depois dos do MVP.</p>
+<ul>
+<li><strong>Modo Descoberta:</strong> grupos novos entre desconhecidos compatíveis. Exige verificação de identidade, moderação e regras de segurança.</li>
+<li><strong>Videogames e plano B online:</strong> jogos que o grupo já tem e Remote Play Together da Steam, sem substituir o encontro presencial.</li>
+<li><strong>Versão para menores de idade:</strong> responsáveis participam da aprovação dos planos, com filtros como nada de bares, horário limite e deslocamento acompanhado. Exige atender ao art. 14 da LGPD (dados de crianças e adolescentes).</li>
+<li><strong>Pix com confirmação automática:</strong> Pix Cobrança pela API de um banco ou intermediador de pagamento, no lugar do Pix estático com quitação manual.</li>
+<li><strong>Outros canais:</strong> bot no WhatsApp ou no Telegram, além do app web.</li>
+</ul>
+<h2 id="8-premissas-assumidas-aqui">8. Premissas assumidas aqui<a class="headerlink" href="#8-premissas-assumidas-aqui" title="Permanent link">&para;</a></h2>
+<p>A consolidar no item Premissas do pacote de definição.</p>
+<ul>
+<li>Os membros de uma sala já se conhecem.</li>
+<li>Os usuários têm celular com navegador atualizado e internet.</li>
+<li>O canal é um app web próprio (<a href="../../decisoes/0003-canal-app-web/">ADR 0003</a>, proposta).</li>
+<li>Os dados de lugares do DF vêm de uma base curada pelo grupo, conferida por API.</li>
+<li>Os testes do MVP cabem nos créditos gratuitos de API fornecidos a cada membro; pagar por APIs fica só como possibilidade (P12).</li>
+</ul>
+<h2 id="riscos-referenciados">Riscos referenciados<a class="headerlink" href="#riscos-referenciados" title="Permanent link">&para;</a></h2>
+<p>IDs da guia Riscos do documento da equipe, usados nas colunas Riscos acima.</p>
+<table>
+<thead>
+<tr>
+<th>ID</th>
+<th>Risco</th>
+<th>P × I</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R-01</td>
+<td>Privacidade e vazamento de dados</td>
+<td>Média × Alta</td>
+</tr>
+<tr>
+<td>R-02</td>
+<td>Exclusão financeira e constrangimento social</td>
+<td>Média × Alta</td>
+</tr>
+<tr>
+<td>R-03</td>
+<td>Dados inventados e alucinação</td>
+<td>Alta × Alta</td>
+</tr>
+<tr>
+<td>R-04</td>
+<td>Inércia do grupo e "amigo gargalo"</td>
+<td>Alta × Alta</td>
+</tr>
+<tr>
+<td>R-05</td>
+<td>Segurança no deslocamento e mobilidade urbana</td>
+<td>Média × Alta</td>
+</tr>
+<tr>
+<td>R-06</td>
+<td>Métricas de vaidade</td>
+<td>Média × Média</td>
+</tr>
+<tr>
+<td>R-07</td>
+<td>Dependência e limites de APIs externas</td>
+<td>Alta × Média</td>
+</tr>
+<tr>
+<td>R-08</td>
+<td>Incentivo ao consumo de álcool e direção</td>
+<td>Baixa × Alta</td>
+</tr>
+<tr>
+<td>R-09</td>
+<td>Tratamento de voz e fotos de notas fiscais</td>
+<td>Média × Média</td>
+</tr>
+</tbody>
+</table>
+<h2 id="historico">Histórico<a class="headerlink" href="#historico" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Versão</th>
+<th>Data</th>
+<th>Mudança</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0.1</td>
+<td>2026-10-29</td>
+<td>Versão inicial: 41 RF e 16 RNF do MVP</td>
+</tr>
+<tr>
+<td>0.2</td>
+<td>2026-10-29</td>
+<td>RF-42 a RF-45 vindos das personas, coluna Persona preenchida, prazos ajustáveis pelo organizador (RF-12) e recusa discreta (RF-26)</td>
+</tr>
+<tr>
+<td>0.3</td>
+<td>2026-10-29</td>
+<td>RF-46 (imprevistos, Could); coluna Riscos com os IDs R-NN da guia Riscos; consistência com as outras guias: sala de 2 a 20, adultos 18+, créditos gratuitos de API, testes do MVP sem piloto, itens Should marcados no escopo, ajustes no glossário e nos RF-02, 03, 04, 12, 15, 17 e 25. Trazida do documento da equipe para o repositório em 2026-11-03</td>
+</tr>
+<tr>
+<td>0.3.1</td>
+<td>2026-11-03</td>
+<td>Consequências do ADR 0004: RNF-15 com cache só do que os termos permitem; RF-37 com a pergunta opcional sobre lugar aberto e preço; questão em aberto 4 fechada</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "content.code.copy"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>
