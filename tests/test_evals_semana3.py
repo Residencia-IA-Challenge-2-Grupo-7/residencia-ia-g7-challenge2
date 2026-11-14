@@ -557,3 +557,33 @@ def test_recomendar_lugares_de_fora_sem_recusar_continua_contradizendo():
                                 sessao=_SessaoJuizFalsa(status_code=503), registrar_langfuse=False)["modo_a_llm_pura"]["scores"]
     assert s["acerto_gabarito"] == 0.0
     assert s["taxa_alucinacao"] == 1.0
+
+
+def test_juiz_modo_b_recebe_apenas_fontes_recuperadas_sem_gabarito_oculto(monkeypatch):
+    """Revisão PR #61 (item 2): Para o Modo B, o juiz recebe só os documentos de `fontes_utilizadas`;
+    os documentos do gabarito continuam só para o Modo A (que não tem fontes).
+    """
+    monkeypatch.setenv("OPENROUTER_API_KEY", "sk-or-test-dummy")
+    sessao = _SessaoJuizFalsa()
+    gabarito = {
+        "categoria": "geoespacial_ra_fora_centro",
+        "ra_esperada": "Samambaia",
+        "locais_gabarito": ["VBQ"],
+        "preco_maximo_gabarito": 80.0,
+    }
+    modo_a = _modo("Recomendo algum lugar em Samambaia.")
+    modo_b = _modo(
+        "A base não traz local em Samambaia; entre os recuperados há o **Restaurante Dona Cleide** em Águas Claras.",
+        fontes_utilizadas=[{"id": "t1", "nome": "Restaurante Dona Cleide", "ra": "Águas Claras"}],
+        guardrails={"permitido": True},
+    )
+    avaliar_par_comparativo("Onde comer em Samambaia?", gabarito, modo_a, modo_b, sessao=sessao, registrar_langfuse=False)
+
+    corpo_a = json.loads(sessao.chamadas[0]["json"]["messages"][1]["content"])
+    corpo_b = json.loads(sessao.chamadas[1]["json"]["messages"][1]["content"])
+
+    # Modo A recebe o documento do gabarito (VBQ); Modo B recebe só o que a busca trouxe (Dona Cleide)
+    assert "VBQ" in corpo_a["documentos_base_2fa"]
+    assert "Restaurante Dona Cleide" in corpo_b["documentos_base_2fa"]
+    assert "VBQ" not in corpo_b["documentos_base_2fa"]
+    assert "locais_gabarito" not in corpo_b["gabarito"]
