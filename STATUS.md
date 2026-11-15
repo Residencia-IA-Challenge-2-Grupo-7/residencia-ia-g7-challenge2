@@ -8,6 +8,13 @@
 
 ## Agora
 
+- **Central de Entregáveis da Semana 3 (Maria Carolina, 13/11), issue #39, na branch `feat/frontend-issue-39`:**
+  - Interface `/entregaveis` evoluída com o painel da Semana 03 (Comparação LLM Pura vs. RAG) e botão de destaque para `/comparativo`, mantendo os 7 módulos da Semana 02 100% preservados (`RNF-12`);
+  - Placar comparativo preenchido dinamicamente a partir de `/api/entregaveis/dados?colecao=benchmark_semana3` para as configurações #1, #3, #4 e #6 (alucinação, afirmações fora da base, acerto do gabarito, precisão de RA, RNF-03 e RNF-14);
+  - Visualizador interativo do Golden Dataset com 20 casos (`colecao=golden_semana3`) com filtros por categoria e busca textual;
+  - Visualizador dos resultados auditados do Benchmark A/B (`colecao=benchmark_semana3`) com seletor para comparar as 6 configurações avaliadas, notas (`scores`) do avaliador híbrido e escape HTML (`escapeHtml`) contra XSS;
+  - Novas rotas em `src/main.py` com helper `_primeiro_arquivo`: `/visualizar/relatorio-semana3-pdf`, `/download/relatorio-semana3-pdf` e `/download/entregavel-semana3-zip`;
+  - Nova suíte de testes em `tests/test_entregaveis_semana3.py` (cobrindo integridade da Semana 2, coleções da Semana 3, códigos 200/400/404, elementos HTML da interface e escape de `<script>`).
 - **Benchmark oficial A/B das 20 consultas (Letícia Miti, 13/11), issue #38 (revisão da @cadasiso atendida):**
   - `scripts/executar_benchmark_semana3.py` executa as 20 perguntas de `data/golden_dataset_semana3.json` nas 6 configurações da Semana 3 em 2 rodadas, aciona o avaliador híbrido (`src/telemetria/evals_semana3.py`) e registra os 6 experimentos no dataset `golden_dataset_semana3` do Langfuse Cloud via `run_experiment`;
   - resultados detalhados salvos em `data/resultados_benchmark_semana3.json`, `data/resultados_benchmark_semana3.csv`, `docs/entregas/semana-03/BENCHMARK_LLM_VS_RAG_LOG.txt` e documentados em [docs/experimentos/2026-11-13-benchmark-semana3.md](docs/experimentos/2026-11-13-benchmark-semana3.md);

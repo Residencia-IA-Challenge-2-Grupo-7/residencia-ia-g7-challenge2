@@ -29,6 +29,9 @@ def test_api_rotas_carregadas():
     assert "/visualizar/relatorio-pdf" in rotas
     assert "/download/relatorio-pdf" in rotas
     assert "/download/entregavel-zip" in rotas
+    assert "/visualizar/relatorio-semana3-pdf" in rotas
+    assert "/download/relatorio-semana3-pdf" in rotas
+    assert "/download/entregavel-semana3-zip" in rotas
     assert "/api/entregaveis/arquivo" in rotas
     assert "/api/entregaveis/dados" in rotas
 
