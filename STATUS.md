@@ -10,12 +10,17 @@
 
 - **Central de Entregáveis da Semana 3 (Maria Carolina, 13/11), issue #39, na branch `feat/frontend-issue-39`:**
   - Interface `/entregaveis` evoluída com o painel da Semana 03 (Comparação LLM Pura vs. RAG) e botão de destaque para `/comparativo`, mantendo os 7 módulos da Semana 02 100% preservados (`RNF-12`);
-  - Placar comparativo com KPIs consolidados (Alucinação 100% LLM pura vs. 0% RAG, acurácia geográfica, RNF-03 e RNF-14);
+  - Placar comparativo preenchido dinamicamente a partir de `/api/entregaveis/dados?colecao=benchmark_semana3` para as configurações #1, #3, #4 e #6 (alucinação, afirmações fora da base, acerto do gabarito, precisão de RA, RNF-03 e RNF-14);
   - Visualizador interativo do Golden Dataset com 20 casos (`colecao=golden_semana3`) com filtros por categoria e busca textual;
-  - Visualizador dos resultados auditados do Benchmark A/B (`colecao=benchmark_semana3`) comparando respostas e fontes citadas;
-  - Novas rotas em `src/main.py`: `/visualizar/relatorio-semana3-pdf`, `/download/relatorio-semana3-pdf` e `/download/entregavel-semana3-zip`;
-  - Nova suíte de testes em `tests/test_entregaveis_semana3.py` (5 testes passando verde, cobrindo integridade da Semana 2, coleções da Semana 3, códigos 200/400/404 e elementos HTML da interface).
-
+  - Visualizador dos resultados auditados do Benchmark A/B (`colecao=benchmark_semana3`) com seletor para comparar as 6 configurações avaliadas, notas (`scores`) do avaliador híbrido e escape HTML (`escapeHtml`) contra XSS;
+  - Novas rotas em `src/main.py` com helper `_primeiro_arquivo`: `/visualizar/relatorio-semana3-pdf`, `/download/relatorio-semana3-pdf` e `/download/entregavel-semana3-zip`;
+  - Nova suíte de testes em `tests/test_entregaveis_semana3.py` (cobrindo integridade da Semana 2, coleções da Semana 3, códigos 200/400/404, elementos HTML da interface e escape de `<script>`).
+- **Benchmark oficial A/B das 20 consultas (Letícia Miti, 13/11), issue #38 (revisão da @cadasiso atendida):**
+  - `scripts/executar_benchmark_semana3.py` executa as 20 perguntas de `data/golden_dataset_semana3.json` nas 6 configurações da Semana 3 em 2 rodadas, aciona o avaliador híbrido (`src/telemetria/evals_semana3.py`) e registra os 6 experimentos no dataset `golden_dataset_semana3` do Langfuse Cloud via `run_experiment`;
+  - resultados detalhados salvos em `data/resultados_benchmark_semana3.json`, `data/resultados_benchmark_semana3.csv`, `docs/entregas/semana-03/BENCHMARK_LLM_VS_RAG_LOG.txt` e documentados em [docs/experimentos/2026-11-13-benchmark-semana3.md](docs/experimentos/2026-11-13-benchmark-semana3.md);
+  - **configuração vencedora pelo critério estrito da #38** (p90 <= 5 s, 0 lugares inventados, maior acerto do gabarito, menor custo no desempate): **#3 — RAG sem LLM, texto fixo (`3_rag_sem_llm_texto_fixo`)**, que empata em acerto com a **#4** (**12 de 20** no geral e **10 de 18** no DF), tem **99,2% de fidelidade factual**, **0,0% de alucinação**, **p50 de 0,02 s / p90 de 0,03 s** e vence no desempate por ter **custo real zero (R$ 0,00 e 0 tokens)**. Como decisão de produto à parte para síntese em linguagem natural, usa-se a **#4 — RAG + LLM, busca léxica (`4_rag_llm_busca_lexica`)** (**98,7% de fidelidade**, **0,0% de alucinação na Rodada 1**, **p50 de 3,15 s / p90 de 3,61 s**, **R$ 0,00081/consulta**), evidenciando que na busca por palavras o LLM não aumenta o acerto porque o gargalo está na recuperação (`Recall@3 = 10 de 18`);
+  - a **#6 — RAG + LLM, busca vetorial** alcança **18 de 20 (90,0%)** de acerto (16 de 18 no DF, Recall@3 de 88,9% e MRR de 0,8333) e **96,8% de fidelidade factual** (0,7% de alucinação: 1 afirmação em `golden_15`), mas o embedding adiciona ~1,5 s e leva o p90 a **5,83 s**; a **#1 — LLM pura sem raciocínio** acerta **0 de 18** no DF e inventa **32 lugares em 13 de 20 casos**;
+  - `tests/test_resultados_benchmark.py` adicionado (10 testes validando completude dos 20 casos × 6 configurações, métricas, CSV, respostas da Rodada 2 e log TXT).
 - **Fonte da verdade sobre o app: [GUIA_OFICIAL_PROJETO.md](GUIA_OFICIAL_PROJETO.md)** (10/11). Resumo do que ele fechou:
   - ciclo completo do rolê: sala, 4 campos secretos, 3 a 4 cartões, votação múltipla e, depois, foto da nota fiscal, divisão e Pix;
   - **sem voz** ([ADR 0009](docs/decisoes/0009-entrada-pelos-4-campos-de-texto.md)); a multimodalidade da semana 5 é a foto da nota fiscal;
@@ -38,6 +43,13 @@
   - os 20 casos em `data/golden_dataset_semana3.json`: 5 geoespaciais, 3 de horário, 2 fora do DF, 5 de preço exato, 3 de ambiência e restrição alimentar e 2 de conflito e gírias;
   - catálogo, regras e limitações conhecidas em [docs/dados/golden-dataset-semana3.md](docs/dados/golden-dataset-semana3.md); `tests/test_golden_dataset.py` trava os 20 casos, as 6 categorias e o preço contra o `custo_medio_rs`;
   - a prévia do comparativo usou só os 10 primeiros; os casos 11 a 20 já aparecem em `GET /api/comparativo/golden`.
+- **Avaliação automatizada híbrida e Haystack (Eduarda, 12/11), issue #36, PR #60 (revisão da @cadasiso atendida em 13/11):**
+  - `src/telemetria/evals_semana3.py`: checagem em código (RNF-04) + juiz MiMo-V2.6-Pro (`xiaomi/mimo-v2.6-pro`, temperatura 0, sem retenção), com fallback offline. Detalhe de regras e notas no docstring do módulo;
+  - notas (`None` = não avaliado): `fidelidade_factual_rnf03`, `taxa_alucinacao` (só o que a base desmente), `taxa_fora_da_base` (não verificável), `precisao_geoespacial_ra`, `acerto_gabarito`, `abstencao` e `sla_latencia_rnf14`. Recusa e "não sei" valem igual nos dois modos; sem piso fixo; o juiz vê os mesmos campos do Modo B e não vê o veredito do código;
+  - `POST /api/comparativo/avaliar` recebe só o `id_comparativo` devolvido por `/executar` (resultado guardado 15 min em memória, avaliado uma vez por id); erros viram 404 ou 500 sem a mensagem da exceção;
+  - Langfuse: `input` e `output` nas gerações, scores no trace, sem a nota fixa `fidelidade_rnf03_zero_alucinacao`;
+  - Haystack (`src/rag/pipeline_haystack.py`) com os campos reais da base: recall@3 de 2 para 14 de 18 ([experimento](docs/experimentos/2026-11-13-haystack-recall.md));
+  - **565 testes passam** (`PYTHONPATH=. pytest tests`, fora o `test_smoke`, que precisa do `torch`).
 - **Back-end das salas (Cauan, 10/11), PR #48 na `main`:**
   - `src/interpretador/campos.py`: os 4 campos viram RA (apelidos, quadras como SQN e QNM, estações de metrô), janelas pelo `tempo.py`, teto pelo `numeros.py` e tags com os rótulos da base. Tudo por regras; o LLM do ADR 0007 só entra se as regras não acharem nenhum dia ([ADR 0009](docs/decisoes/0009-entrada-pelos-4-campos-de-texto.md));
   - `src/state.py` (repositório em memória, pronto para trocar pelo Supabase) e `src/salas/` (gerenciador, cruzamento de horários, horário de funcionamento dos lugares, cartões, votação);

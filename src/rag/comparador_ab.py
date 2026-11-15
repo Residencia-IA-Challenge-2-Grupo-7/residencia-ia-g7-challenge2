@@ -173,6 +173,17 @@ def executar_comparacao_ab(pergunta: str | None, id_golden: str | None = None, *
                                    busca=busca)
         modo_a, modo_b = _resumo_modo(futuro_a.result()), futuro_b.result()
 
+    try:
+        from src.telemetria.telemetria import obter_cliente
+
+        obter_cliente().update_current_span(
+            input=pergunta,
+            output={"modo_a_resposta": modo_a.get("resposta"), "modo_b_resposta": modo_b.get("resposta")},
+            metadata={"id_golden": caso.get("id") if caso else None, "busca": busca},
+        )
+    except Exception:
+        pass
+
     modo_b["trace_url"] = _url_trace()
     return {
         "id_golden": caso.get("id") if caso else None,

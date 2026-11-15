@@ -1,9 +1,13 @@
 import json
+import logging
 import os
+import secrets
+import threading
+import time
 from typing import Literal, Optional
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from src.interface import COMPARATIVO_PAGE, ENTREGAVEIS_PAGE, HTML_PAGE, LANDING_PAGE
 from src.rag.comparador_ab import ErroComparativo, executar_comparacao_ab, listar_golden
@@ -14,6 +18,8 @@ from src.telemetria.telemetria import (
     flush_telemetria,
     simular_recuperacao_rag,
 )
+
+logger = logging.getLogger(__name__)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -140,7 +146,75 @@ def comparativo_executar(requisicao: ComparativoRequest):
     except ErroComparativo as e:
         raise HTTPException(status_code=e.status, detail=str(e))
     flush_telemetria()
+    # O resultado fica guardado no servidor: /avaliar só recebe este id, nunca texto, gabarito ou trace do navegador
+    resultado["id_comparativo"] = _guardar_comparativo(resultado)
     return resultado
+
+
+class AvaliarRequest(BaseModel):
+    """Só o id devolvido por `POST /api/comparativo/executar` (o resultado avaliado é o guardado no servidor)."""
+
+    model_config = ConfigDict(extra="forbid")
+    id_comparativo: str = Field(min_length=8, max_length=64, pattern=r"^[A-Za-z0-9_-]+$")
+
+
+TTL_COMPARATIVO_S = 900
+MAX_COMPARATIVOS = 200
+_COMPARATIVOS: dict[str, dict] = {}
+_COMPARATIVOS_LOCK = threading.Lock()
+
+
+def _guardar_comparativo(resultado: dict) -> str:
+    """Guarda o resultado em memória com id aleatório e validade curta; descarta vencidos e excedentes."""
+    agora = time.monotonic()
+    id_comparativo = secrets.token_urlsafe(16)
+    with _COMPARATIVOS_LOCK:
+        for chave in [k for k, v in _COMPARATIVOS.items() if v["expira"] <= agora]:
+            del _COMPARATIVOS[chave]
+        while len(_COMPARATIVOS) >= MAX_COMPARATIVOS:
+            del _COMPARATIVOS[next(iter(_COMPARATIVOS))]
+        _COMPARATIVOS[id_comparativo] = {
+            "dados": dict(resultado),
+            "expira": agora + TTL_COMPARATIVO_S,
+            "avaliacao": None,
+            "trava": threading.Lock(),
+        }
+    return id_comparativo
+
+
+@app.post("/api/comparativo/avaliar")
+def comparativo_avaliar(requisicao: AvaliarRequest):
+    """
+    Motor de Avaliação Híbrida da Semana 3 (Issue #36): avalia um comparativo já executado pelo servidor
+    (RNF-04 determinístico + LLM-as-a-Judge MiMo-V2.6-Pro) e grava as notas no trace dele no Langfuse.
+    A avaliação é feita uma única vez por id: repetir a chamada devolve o mesmo resultado, sem novo custo.
+    """
+    with _COMPARATIVOS_LOCK:
+        entrada = _COMPARATIVOS.get(requisicao.id_comparativo)
+        if entrada and entrada["expira"] <= time.monotonic():
+            del _COMPARATIVOS[requisicao.id_comparativo]
+            entrada = None
+    if entrada is None:
+        raise HTTPException(status_code=404, detail="Comparativo não encontrado ou expirado. Execute-o de novo.")
+
+    with entrada["trava"]:
+        if entrada["avaliacao"] is None:
+            dados = entrada["dados"]
+            try:
+                from src.telemetria.evals_semana3 import avaliar_par_comparativo
+
+                # O trace vem do resultado gerado pelo servidor, não do navegador
+                trace_url = ((dados.get("modo_b_rag") or {}).get("trace_url") or "").rstrip("/")
+                trace_id = trace_url.rsplit("/", 1)[-1] if "/traces/" in trace_url else None
+                entrada["avaliacao"] = avaliar_par_comparativo(
+                    dados, registrar_langfuse=bool(trace_id), trace_id=trace_id)
+                flush_telemetria()
+            except ErroComparativo as e:
+                raise HTTPException(status_code=e.status, detail=str(e))
+            except Exception:
+                logger.exception("Falha ao avaliar o comparativo %s", requisicao.id_comparativo)
+                raise HTTPException(status_code=500, detail="Falha ao avaliar o comparativo.")
+        return {"comparativo": entrada["dados"], "avaliacao": entrada["avaliacao"]}
 
 
 @app.get("/entregaveis", response_class=HTMLResponse)
@@ -179,22 +253,24 @@ def download_relatorio_pdf():
     )
 
 
+def _primeiro_arquivo(*caminhos: str) -> Optional[str]:
+    """Retorna o primeiro caminho existente na lista de candidatos (relativos a BASE_DIR ou absolutos)."""
+    for caminho in caminhos:
+        absoluto = caminho if os.path.isabs(caminho) else os.path.join(BASE_DIR, caminho)
+        if os.path.isfile(absoluto):
+            return absoluto
+    return None
+
+
 @app.get("/visualizar/relatorio-semana3-pdf")
 def visualizar_relatorio_semana3_pdf():
     """Visualização inline do Relatório Técnico da Semana 03 diretamente no navegador."""
-    pdf_path = os.path.join(BASE_DIR, "docs/entregas/semana-03/RELATORIO_TECNICO_SEMANA_03.pdf")
-    if not os.path.isfile(pdf_path):
-        # Fallback para outros padrões de nome que possam ser gerados
-        candidatos = [
-            os.path.join(BASE_DIR, "docs/entregas/semana-03/RELATORIO_TECNICO_SEMANA_03.pdf"),
-            os.path.join(BASE_DIR, "docs/entregas/semana-03/RELATORIO_TECNICO_LLM_VS_RAG_GRUPO7.pdf"),
-        ]
-        for c in candidatos:
-            if os.path.isfile(c):
-                pdf_path = c
-                break
-        else:
-            raise HTTPException(status_code=404, detail="Relatório Técnico da Semana 03 ainda não disponível.")
+    pdf_path = _primeiro_arquivo(
+        "docs/entregas/semana-03/RELATORIO_TECNICO_SEMANA_03.pdf",
+        "docs/entregas/semana-03/RELATORIO_TECNICO_LLM_VS_RAG_GRUPO7.pdf",
+    )
+    if not pdf_path:
+        raise HTTPException(status_code=404, detail="Relatório Técnico da Semana 03 ainda não disponível.")
     return FileResponse(
         pdf_path,
         media_type="application/pdf",
@@ -205,18 +281,12 @@ def visualizar_relatorio_semana3_pdf():
 @app.get("/download/relatorio-semana3-pdf")
 def download_relatorio_semana3_pdf():
     """Download do Relatório Técnico Oficial da Semana 03 (PDF)."""
-    pdf_path = os.path.join(BASE_DIR, "docs/entregas/semana-03/RELATORIO_TECNICO_SEMANA_03.pdf")
-    if not os.path.isfile(pdf_path):
-        candidatos = [
-            os.path.join(BASE_DIR, "docs/entregas/semana-03/RELATORIO_TECNICO_SEMANA_03.pdf"),
-            os.path.join(BASE_DIR, "docs/entregas/semana-03/RELATORIO_TECNICO_LLM_VS_RAG_GRUPO7.pdf"),
-        ]
-        for c in candidatos:
-            if os.path.isfile(c):
-                pdf_path = c
-                break
-        else:
-            raise HTTPException(status_code=404, detail="Relatório Técnico da Semana 03 ainda não disponível.")
+    pdf_path = _primeiro_arquivo(
+        "docs/entregas/semana-03/RELATORIO_TECNICO_SEMANA_03.pdf",
+        "docs/entregas/semana-03/RELATORIO_TECNICO_LLM_VS_RAG_GRUPO7.pdf",
+    )
+    if not pdf_path:
+        raise HTTPException(status_code=404, detail="Relatório Técnico da Semana 03 ainda não disponível.")
     return FileResponse(
         pdf_path,
         media_type="application/pdf",
@@ -227,18 +297,12 @@ def download_relatorio_semana3_pdf():
 @app.get("/download/entregavel-semana3-zip")
 def download_entregavel_semana3_zip():
     """Download do Pacote ZIP Completo de Entregáveis da Semana 03."""
-    zip_path = os.path.join(BASE_DIR, "docs/entregas/semana-03/Entregavel_Grupo7_Semana_03.zip")
-    if not os.path.isfile(zip_path):
-        candidatos = [
-            os.path.join(BASE_DIR, "docs/entregas/semana-03/Entregavel_Grupo7_Semana_03.zip"),
-            os.path.join(BASE_DIR, "docs/entregas/semana-03/Entregavel_Grupo7_Comparacao_LLM_RAG.zip"),
-        ]
-        for c in candidatos:
-            if os.path.isfile(c):
-                zip_path = c
-                break
-        else:
-            raise HTTPException(status_code=404, detail="Pacote ZIP da Semana 03 ainda não disponível.")
+    zip_path = _primeiro_arquivo(
+        "docs/entregas/semana-03/Entregavel_Grupo7_Semana_03.zip",
+        "docs/entregas/semana-03/Entregavel_Grupo7_Comparacao_LLM_RAG.zip",
+    )
+    if not zip_path:
+        raise HTTPException(status_code=404, detail="Pacote ZIP da Semana 03 ainda não disponível.")
     return FileResponse(
         zip_path,
         media_type="application/zip",

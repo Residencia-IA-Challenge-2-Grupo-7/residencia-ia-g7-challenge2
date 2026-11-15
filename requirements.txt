@@ -22,3 +22,4 @@ uvicorn>=0.28.0
 # Coleta de Dados e Metadados do TikTok (Audio & Scraping)
 yt-dlp>=2025.1.1
 curl_cffi>=0.7.0
+haystack-ai==3.5.0  # pipeline RAG demonstrador (src/rag/pipeline_haystack.py)

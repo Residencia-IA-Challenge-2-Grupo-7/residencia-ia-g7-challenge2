@@ -671,7 +671,7 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Central de Entregáveis — Semana 02 (Grupo 7)</title>
+  <title>Central de Entregáveis — Semanas 02 e 03 (Grupo 7)</title>
   <style>
     :root {
       --bg: #0d1117;
@@ -1113,7 +1113,7 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
             </div>
             <div class="quadrado-title">Placar Comparativo LLM x RAG</div>
             <p class="quadrado-desc">
-              Benchmark empírico: Alucinação (LLM Pura ~100% vs. RAG 0%), Acurácia Geográfica nas RAs e métricas auditadas no Langfuse.
+              Métricas calculadas direto do benchmark oficial (20 consultas &times; 6 configurações): alucinação, afirmações fora da base, acerto do gabarito e latência p50/p90.
             </p>
           </div>
           <div class="quadrado-action">Ver Placar &amp; Métricas &rarr;</div>
@@ -1143,7 +1143,7 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
             </div>
             <div class="quadrado-title">Resultados do Benchmark A/B</div>
             <p class="quadrado-desc">
-              Tabela interativa com as respostas reais do Modo A (LLM Pura) vs. Modo B (RAG ancorado) para cada pergunta do benchmark.
+              Tabela interativa com seletor entre as 6 configurações avaliadas, respostas reais e notas do avaliador híbrido para cada pergunta.
             </p>
           </div>
           <div class="quadrado-action">Ver Tabela de Resultados &rarr;</div>
@@ -1287,58 +1287,39 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
     <!-- MÓDULOS EXPANDIDOS (UM DE CADA VEZ COM BOTÃO VOLTAR)                      -->
     <!-- ========================================================================= -->
 
-    <!-- MÓDULO SEMANA 3: PLACAR COMPARATIVO -->
+    <!-- MÓDULO SEMANA 3: PLACAR COMPARATIVO (DINÂMICO A PARTIR DA API) -->
     <div id="moduloPlacarSemana3" class="modulo-detalhe">
       <div class="detalhe-header">
         <button class="btn-voltar" onclick="fecharModulos()">&larr; Voltar aos Entregáveis</button>
-        <a href="/comparativo" class="btn-action" style="background: linear-gradient(180deg, #1f6feb, #238636);">
-          ⚡ Abrir Comparador Lado a Lado ao Vivo (/comparativo)
-        </a>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <a href="/api/entregaveis/dados?colecao=benchmark_semana3" target="_blank" class="btn-action secondary">JSON Oficial do Benchmark</a>
+          <a href="/comparativo" class="btn-action" style="background: linear-gradient(180deg, #1f6feb, #238636);">
+            ⚡ Abrir Comparador Lado a Lado ao Vivo (/comparativo)
+          </a>
+        </div>
       </div>
 
-      <div style="margin-bottom: 20px;">
+      <div style="margin-bottom: 18px;">
         <h2 style="font-size: 1.3rem; color: var(--text); font-weight: 800; margin-bottom: 6px;">
           ⚖️ Placar Comparativo Consolidado: LLM Pura vs. RAG Ancorado
         </h2>
-        <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.4;">
-          Auditoria empírica sobre o Golden Dataset de 20 perguntas desafiadoras do DF. Comparação direta entre o <strong>Modo A (DeepSeek V4.1 Flash sem documentos)</strong> e o <strong>Modo B (RAG ancorado na base 2FA de 93 lugares com citação estrita de fontes)</strong>.
+        <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.45;">
+          Métricas carregadas diretamente de <code>/api/entregaveis/dados?colecao=benchmark_semana3</code> (20 casos do Golden Dataset &times; 6 configurações, avaliados por verificação determinística RNF-04 + juiz independente <code>xiaomi/mimo-v2.6-pro</code>). Destaques para as configurações <strong>#1 (LLM pura)</strong>, <strong>#3 (vencedora pelo critério da #38 — RAG sem LLM)</strong>, <strong>#4 (escolha do produto — RAG + LLM por palavras)</strong> e <strong>#6 (RAG + LLM, busca vetorial)</strong>.
         </p>
       </div>
 
-      <!-- KPIS COMPARATIVOS -->
-      <div class="telemetria-kpis" style="margin-bottom: 24px;">
-        <div class="telemetria-box" style="border-left: 3px solid #f85149;">
-          <div style="font-size: 0.76rem; color: var(--text-muted); text-transform: uppercase;">Taxa de Alucinação (Menor é Melhor)</div>
-          <div class="telemetria-val" style="color: #f85149;">100% <span style="font-size: 0.85rem; font-weight: normal; color: #8b949e;">(LLM Pura)</span></div>
-          <div style="font-size: 0.78rem; color: #3fb950; font-weight: 600; margin-top: 4px;">
-            vs. 0,0% no RAG Ancorado ✅
-          </div>
-        </div>
-
-        <div class="telemetria-box" style="border-left: 3px solid #3fb950;">
-          <div style="font-size: 0.76rem; color: var(--text-muted); text-transform: uppercase;">Acurácia Geográfica fora do Plano</div>
-          <div class="telemetria-val" style="color: #3fb950;">100% <span style="font-size: 0.85rem; font-weight: normal; color: #8b949e;">(RAG)</span></div>
-          <div style="font-size: 0.78rem; color: #f85149; font-weight: 600; margin-top: 4px;">
-            vs. 0,0% na LLM Pura (manda pro Plano)
-          </div>
-        </div>
-
-        <div class="telemetria-box" style="border-left: 3px solid #58a6ff;">
-          <div style="font-size: 0.76rem; color: var(--text-muted); text-transform: uppercase;">Precisão de Preços e Horários (RNF-03)</div>
-          <div class="telemetria-val" style="color: #58a6ff;">96,5% <span style="font-size: 0.85rem; font-weight: normal; color: #8b949e;">(Meta &ge; 95%)</span></div>
-          <div style="font-size: 0.78rem; color: #3fb950; font-weight: 600; margin-top: 4px;">
-            100% comprovado por 2FA do TikTok
-          </div>
-        </div>
-
-        <div class="telemetria-box" style="border-left: 3px solid #bc8cff;">
-          <div style="font-size: 0.76rem; color: var(--text-muted); text-transform: uppercase;">Latência Média de Resposta (RNF-14)</div>
-          <div class="telemetria-val" style="color: #bc8cff;">~2,4s <span style="font-size: 0.85rem; font-weight: normal; color: #8b949e;">(SLA &lt; 2,5s)</span></div>
-          <div style="font-size: 0.78rem; color: #3fb950; font-weight: 600; margin-top: 4px;">
-            Dentro da meta estabelecida
-          </div>
+      <!-- CARDS DINÂMICOS DAS 4 CONFIGURAÇÕES PRINCIPAIS (#1, #3, #4 e #6) -->
+      <div id="placarKpisSemana3" class="telemetria-kpis" style="margin-bottom: 20px;">
+        <div class="telemetria-box">
+          <div style="font-size: 0.82rem; color: var(--text-muted);">Carregando métricas oficiais de <code>benchmark_semana3</code>...</div>
         </div>
       </div>
+
+      <!-- ESCOLHA VENCEDORA E DECISÃO DE PRODUTO (DINÂMICO) -->
+      <div id="placarEscolhaVencedora" style="margin-bottom: 20px;"></div>
+
+      <!-- TABELA COMPLETA DAS 6 CONFIGURAÇÕES (DINÂMICA) -->
+      <div id="placarTabelaConfiguracoes" style="margin-bottom: 24px; overflow-x: auto;"></div>
 
       <!-- BOTÃO DESTAQUE COMPARATIVO -->
       <div style="background: rgba(88,166,255,0.08); border: 1px solid rgba(88,166,255,0.3); border-radius: 8px; padding: 18px 20px; text-align: center; margin-bottom: 24px;">
@@ -1377,8 +1358,9 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
           <option value="geoespacial_ra_fora_centro">Geoespacial (Fora do Plano Piloto)</option>
           <option value="janela_horario">Janela de Horário</option>
           <option value="fora_de_escopo_df">Fora de Escopo do DF</option>
-          <option value="precos_exatos">Preços Exatos</option>
-          <option value="restricoes_combinadas">Restrições Combinadas</option>
+          <option value="precisao_financeira">Precisão Financeira (Preços Exatos)</option>
+          <option value="vibes_e_restricoes">Ambiência e Restrições</option>
+          <option value="conflito_e_girias">Conflito e Gírias Candangas</option>
         </select>
         <span id="counterGoldenSemana3" style="font-size:0.78rem; color:var(--text-muted); margin-left:auto;">Carregando...</span>
       </div>
@@ -1401,12 +1383,30 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
           📊 Resultados Consolidados do Benchmark A/B (Semana 03)
         </h2>
         <p style="color: var(--text-muted); font-size: 0.84rem;">
-          Respostas auditadas caso a caso: Modo A (LLM Pura) vs. Modo B (RAG Ancorado na base de 93 lugares).
+          Respostas auditadas caso a caso nas 6 configurações oficiais do benchmark (com notas do avaliador híbrido RNF-04 + juiz MiMo-V2.6-Pro).
         </p>
       </div>
 
       <div class="toolbar">
-        <input type="text" id="buscaBenchmarkSemana3" class="input-busca" placeholder="Buscar por pergunta, ID ou termo da resposta..." oninput="filtrarBenchmarkSemana3()">
+        <input type="text" id="buscaBenchmarkSemana3" class="input-busca" placeholder="Buscar por pergunta, ID, RA ou termo da resposta..." oninput="filtrarBenchmarkSemana3()">
+        <label for="selectCfgEsquerda" style="font-size:0.76rem; color:var(--text-muted); font-weight:600;">Lado A:</label>
+        <select id="selectCfgEsquerda" class="select-filtro" onchange="filtrarBenchmarkSemana3()">
+          <option value="1_llm_pura_sem_raciocinio" selected>Cfg #1 — LLM pura, sem raciocínio</option>
+          <option value="2_llm_pura_raciocinio_alto">Cfg #2 — LLM pura, raciocínio alto</option>
+          <option value="3_rag_sem_llm_texto_fixo">Cfg #3 — RAG sem LLM (vencedora #38)</option>
+          <option value="4_rag_llm_busca_lexica">Cfg #4 — RAG + LLM, busca léxica (produto)</option>
+          <option value="5_rag_llm_busca_lexica_raciocinio_alto">Cfg #5 — RAG + LLM, léxica + raciocínio alto</option>
+          <option value="6_rag_llm_busca_vetorial">Cfg #6 — RAG + LLM, busca vetorial</option>
+        </select>
+        <label for="selectCfgDireita" style="font-size:0.76rem; color:var(--text-muted); font-weight:600;">Lado B:</label>
+        <select id="selectCfgDireita" class="select-filtro" onchange="filtrarBenchmarkSemana3()">
+          <option value="1_llm_pura_sem_raciocinio">Cfg #1 — LLM pura, sem raciocínio</option>
+          <option value="2_llm_pura_raciocinio_alto">Cfg #2 — LLM pura, raciocínio alto</option>
+          <option value="3_rag_sem_llm_texto_fixo">Cfg #3 — RAG sem LLM (vencedora #38)</option>
+          <option value="4_rag_llm_busca_lexica" selected>Cfg #4 — RAG + LLM, busca léxica (produto)</option>
+          <option value="5_rag_llm_busca_lexica_raciocinio_alto">Cfg #5 — RAG + LLM, léxica + raciocínio alto</option>
+          <option value="6_rag_llm_busca_vetorial">Cfg #6 — RAG + LLM, busca vetorial</option>
+        </select>
         <span id="counterBenchmarkSemana3" style="font-size:0.78rem; color:var(--text-muted); margin-left:auto;">Carregando...</span>
       </div>
 
@@ -1433,7 +1433,7 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
             Relatório Técnico da Semana 03: Comparação LLM Pura vs. RAG (Respostas com Evidências)
           </h1>
           <div style="font-size:0.92rem; color:#f0883e; font-weight:600; margin-bottom:8px;">
-            Avaliação Empírica, Análise Estatística de Alucinações e Arquitetura de Observabilidade
+            Avaliação Empírica (20 Consultas &times; 6 Configurações), Motor Híbrido de Avaliação e Observabilidade Langfuse
           </div>
           <div style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
             <strong>Autores:</strong> Letícia Miti Takahashi, Maria Eduarda, Maria Carolina, Cauan Soares e Samara Letícia<br>
@@ -1443,8 +1443,14 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
         </div>
 
         <h2>Resumo da Entrega da Semana 03</h2>
-        <p>A Semana 03 teve como foco o rigor empírico na comprovação da hipótese central do projeto: <em>modelos de linguagem de uso geral (LLMs puras) falham sistematicamente em cenários hiperlocais no Distrito Federal</em>, inventando endereços, errando preços e centralizando rolês no Plano Piloto em detrimento de Regiões Administrativas periféricas.</p>
-        <p>Por meio do RAG ancorado na base 2FA de 93 lugares, com busca híbrida e guardrails de abstinência informada, atingimos <strong>0% de alucinação</strong> nos casos de teste e <strong>100% de precisão geográfica</strong>.</p>
+        <p>A Semana 03 avaliou empiricamente o impacto da ancoragem em documentos reais (base curada 2FA de 93 locais do Distrito Federal) frente ao uso de LLM pura (<code>deepseek/deepseek-v4.1-flash-1017</code>), executando as 20 consultas do Golden Dataset em 6 configurações e 2 rodadas independentes com avaliação automatizada híbrida (verificação determinística RNF-04 + juiz <code>xiaomi/mimo-v2.6-pro</code>).</p>
+        <p>Os resultados completos do experimento (Issue #38) e a análise detalhada para o relatório técnico (Issue #40) demonstram que:</p>
+        <ul>
+          <li><strong>LLM pura sem raciocínio (Configuração #1):</strong> não acertou nenhum local do gabarito no DF (<code>0 de 18</code>; <code>2 de 20</code> no geral considerando as 2 recusas fora do DF), concentrou <strong>97,0% das afirmações fora da base</strong> (inventando 32 locais em 13 de 20 casos), teve <strong>3,0% de alucinação</strong> (contradição direta à base), precisão de RA de <code>0 de 15</code> e latência mediana (p50) de <code>3,75 s</code> (p90 de <code>5,26 s</code>).</li>
+          <li><strong>Vencedora pelo critério estrito da Issue #38 — Configuração #3 (RAG sem LLM, texto fixo):</strong> atende ao SLA de latência RNF-14 (&le; 5 s) com <code>p50 = 0,02 s</code> e <code>p90 = 0,03 s</code>, registra <strong>0,0% de alucinação</strong> (0 locais inventados, 99,2% de fidelidade factual), acerta <code>10 de 18</code> locais no DF (<code>12 de 20</code> no geral) com precisão de RA de <code>13 de 16</code> (81,2%) e vence no desempate por ter <strong>custo zero (R$ 0,00)</strong>.</li>
+          <li><strong>Escolha de produto com síntese em linguagem natural — Configuração #4 (RAG + LLM, busca por palavras):</strong> empata em acerto com a #3 (<code>10 de 18</code> no DF e <code>12 de 20</code> no geral, evidenciando que na busca léxica o gargalo está no <code>Recall@3 = 10 de 18</code>), mantendo <strong>0,0% de alucinação na Rodada 1</strong> (98,7% de fidelidade factual), precisão de RA de <code>13 de 16</code> (81,2%) e latência dentro do SLA RNF-14 (<code>p50 = 3,15 s</code>, <code>p90 = 3,61 s</code>).</li>
+          <li><strong>Busca vetorial — Configuração #6 (RAG + LLM, busca vetorial):</strong> eleva o <code>Recall@3</code> para <code>16 de 18</code> (88,9%) e o acerto para <code>16 de 18</code> no DF (<code>18 de 20</code> no geral, precisão de RA de <code>16 de 17</code> = 94,1%, fidelidade de 96,8% e 0,7% de alucinação), com latência <code>p50 = 5,10 s</code> e <code>p90 = 5,83 s</code> devido ao tempo de geração do embedding da consulta.</li>
+        </ul>
 
         <div style="display:flex; gap:12px; flex-wrap:wrap; margin:20px 0;">
           <a href="/visualizar/relatorio-semana3-pdf" target="_blank" class="btn-action secondary" style="padding:10px 18px; font-size:0.9rem;">
@@ -1455,6 +1461,12 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
           </a>
           <a href="/download/entregavel-semana3-zip" class="btn-action" style="padding:10px 18px; font-size:0.9rem; background:#8957e5;">
             📦 Baixar Pacote ZIP da Semana 03 (.ZIP)
+          </a>
+          <a href="/api/entregaveis/arquivo?caminho=docs/experimentos/2026-11-13-benchmark-semana3.md" target="_blank" class="btn-action secondary" style="padding:10px 18px; font-size:0.9rem;">
+            📊 Ver Relatório do Experimento (Markdown JSON)
+          </a>
+          <a href="/api/entregaveis/arquivo?caminho=docs/entregas/semana-03/BENCHMARK_LLM_VS_RAG_LOG.txt" target="_blank" class="btn-action secondary" style="padding:10px 18px; font-size:0.9rem;">
+            🧾 Ver Log Comprobatório (.TXT)
           </a>
         </div>
       </article>
@@ -1972,6 +1984,47 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
     let cacheGoldenSemana3 = null;
     let cacheBenchmarkSemana3 = null;
 
+    function escapeHtml(valor) {
+      if (valor === null || valor === undefined) return '';
+      return String(valor)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function formatarPct(valor) {
+      if (valor === null || valor === undefined || Number.isNaN(Number(valor))) return 'N/A';
+      return (Number(valor) * 100).toFixed(1).replace('.', ',') + '%';
+    }
+
+    function formatarSegundos(ms, sExplicito) {
+      if (sExplicito !== null && sExplicito !== undefined && !Number.isNaN(Number(sExplicito))) {
+        return Number(sExplicito).toFixed(2).replace('.', ',') + ' s';
+      }
+      if (ms === null || ms === undefined || Number.isNaN(Number(ms))) return 'N/A';
+      return (Number(ms) / 1000).toFixed(2).replace('.', ',') + ' s';
+    }
+
+    const ROTULOS_CONFIG_SEMANA3 = {
+      '1_llm_pura_sem_raciocinio': { curto: 'Configuração 1', titulo: 'Cfg #1 — LLM pura, sem raciocínio', cor: '#f85149', badge: 'Baseline LLM Pura' },
+      '2_llm_pura_raciocinio_alto': { curto: 'Configuração 2', titulo: 'Cfg #2 — LLM pura, raciocínio alto', cor: '#f0883e', badge: 'LLM Pura (High)' },
+      '3_rag_sem_llm_texto_fixo': { curto: 'Configuração 3', titulo: 'Cfg #3 — RAG sem LLM (texto fixo)', cor: '#3fb950', badge: '🏆 Vencedora #38' },
+      '4_rag_llm_busca_lexica': { curto: 'Configuração 4', titulo: 'Cfg #4 — RAG + LLM (busca por palavras)', cor: '#58a6ff', badge: '✨ Escolha do Produto' },
+      '5_rag_llm_busca_lexica_raciocinio_alto': { curto: 'Configuração 5', titulo: 'Cfg #5 — RAG + LLM (léxica + raciocínio alto)', cor: '#d2a8ff', badge: 'RAG Léxica (High)' },
+      '6_rag_llm_busca_vetorial': { curto: 'Configuração 6', titulo: 'Cfg #6 — RAG + LLM (busca vetorial)', cor: '#bc8cff', badge: '🎯 Maior Recall@3' }
+    };
+
+    async function garantirBenchmarkSemana3() {
+      if (!cacheBenchmarkSemana3) {
+        const res = await fetch('/api/entregaveis/dados?colecao=benchmark_semana3');
+        const json = await res.json();
+        cacheBenchmarkSemana3 = json.dados || [];
+      }
+      return cacheBenchmarkSemana3;
+    }
+
     function fecharModulos() {
       document.querySelectorAll('.modulo-detalhe').forEach(el => el.classList.remove('active'));
       const secSemana3 = document.getElementById('secaoSemana3');
@@ -1992,6 +2045,8 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
 
       if (tipo === 'placar_semana3') {
         document.getElementById('moduloPlacarSemana3').classList.add('active');
+        await garantirBenchmarkSemana3();
+        renderizarPlacarSemana3();
       }
       else if (tipo === 'golden_semana3') {
         const modulo = document.getElementById('moduloGoldenSemana3');
@@ -2006,11 +2061,7 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
       else if (tipo === 'benchmark_semana3') {
         const modulo = document.getElementById('moduloBenchmarkSemana3');
         modulo.classList.add('active');
-        if (!cacheBenchmarkSemana3) {
-          const res = await fetch('/api/entregaveis/dados?colecao=benchmark_semana3');
-          const json = await res.json();
-          cacheBenchmarkSemana3 = json.dados || [];
-        }
+        await garantirBenchmarkSemana3();
         filtrarBenchmarkSemana3();
       }
       else if (tipo === 'relatorio_semana3') {
@@ -2062,6 +2113,102 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    function renderizarPlacarSemana3() {
+      const containerKpis = document.getElementById('placarKpisSemana3');
+      const containerEscolha = document.getElementById('placarEscolhaVencedora');
+      const containerTabela = document.getElementById('placarTabelaConfiguracoes');
+      if (!containerKpis || !cacheBenchmarkSemana3 || cacheBenchmarkSemana3.length === 0) return;
+
+      const primeiro = cacheBenchmarkSemana3[0] || {};
+      const resumoBench = primeiro.resumo_benchmark || {};
+      const resumos = resumoBench.resumo_configuracoes || [];
+      const escolha = resumoBench.configuracao_escolhida || {};
+      const porId = {};
+      resumos.forEach(r => { porId[r.id_configuracao] = r; });
+
+      const idsDestaque = [
+        '1_llm_pura_sem_raciocinio',
+        '3_rag_sem_llm_texto_fixo',
+        '4_rag_llm_busca_lexica',
+        '6_rag_llm_busca_vetorial'
+      ];
+
+      containerKpis.innerHTML = idsDestaque.map(cid => {
+        const r = porId[cid];
+        const info = ROTULOS_CONFIG_SEMANA3[cid] || { titulo: cid, cor: '#58a6ff', badge: '' };
+        if (!r) return '';
+        const p50 = formatarSegundos(r.latencia_p50_ms, r.latencia_p50_s);
+        const p90 = formatarSegundos(r.latencia_p90_ms, r.latencia_p90_s);
+        return `
+          <div class="telemetria-box" style="border-left: 3px solid ${escapeHtml(info.cor)};">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; margin-bottom:6px;">
+              <strong style="font-size:0.82rem; color:var(--text);">${escapeHtml(info.titulo)}</strong>
+              <span class="quadrado-badge" style="color:${escapeHtml(info.cor)};">${escapeHtml(info.badge)}</span>
+            </div>
+            <div style="font-size:0.78rem; color:#c9d1d9; line-height:1.55;">
+              <div>🎯 <strong>Acerto gabarito:</strong> ${escapeHtml(r.acerto_gabarito_df_contagem)} no DF (${escapeHtml(r.acerto_gabarito_contagem)} geral &bull; ${escapeHtml(formatarPct(r.acerto_gabarito_taxa))})</div>
+              <div>📍 <strong>Precisão RA:</strong> ${escapeHtml(r.precisao_geoespacial_ra_contagem)} (${escapeHtml(formatarPct(r.precisao_geoespacial_ra_media))})</div>
+              <div>⚠️ <strong>Alucinação (contradiz base):</strong> ${escapeHtml(formatarPct(r.taxa_alucinacao_media))} (${escapeHtml(r.casos_com_alucinacao_contagem || '0 de 20')} casos)</div>
+              <div>🚫 <strong>Fora da base:</strong> ${escapeHtml(formatarPct(r.taxa_fora_da_base_media))} (${escapeHtml(r.lugares_inventados_total)} lugares inventados)</div>
+              <div>✅ <strong>Fidelidade (RNF-03):</strong> ${escapeHtml(formatarPct(r.fidelidade_factual_rnf03_media))}</div>
+              <div>⏱️ <strong>Latência p50 / p90 (RNF-14 &le; 5 s):</strong> ${escapeHtml(p50)} / ${escapeHtml(p90)} (${escapeHtml(r.sla_latencia_rnf14_contagem)} em &le; 5 s)</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      if (containerEscolha && escolha.id_configuracao) {
+        const prod = escolha.decisao_produto_com_llm || {};
+        containerEscolha.innerHTML = `
+          <div style="background:#0d1117; border:1px solid rgba(63,185,80,0.35); border-radius:8px; padding:14px 16px; font-size:0.82rem; line-height:1.5; color:#c9d1d9;">
+            <div style="margin-bottom:6px;">
+              <strong style="color:#3fb950;">🏆 Vencedora pelo critério da Issue #38 (${escapeHtml(escolha.nome)}):</strong>
+              ${escapeHtml(escolha.justificativa)}
+            </div>
+            ${prod.nome ? `
+              <div>
+                <strong style="color:#58a6ff;">✨ Escolha de produto com LLM (${escapeHtml(prod.nome)}):</strong>
+                ${escapeHtml(prod.motivo)}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }
+
+      if (containerTabela && resumos.length > 0) {
+        containerTabela.innerHTML = `
+          <table style="width:100%; border-collapse:collapse; font-size:0.78rem; background:#0d1117; border:1px solid var(--card-border);">
+            <thead>
+              <tr style="background:#161b22; color:var(--blue); text-align:left;">
+                <th style="padding:8px 10px; border:1px solid var(--card-border);">Configuração</th>
+                <th style="padding:8px 10px; border:1px solid var(--card-border);">Acerto DF / Geral</th>
+                <th style="padding:8px 10px; border:1px solid var(--card-border);">Precisão RA</th>
+                <th style="padding:8px 10px; border:1px solid var(--card-border);">Fidelidade (RNF-03)</th>
+                <th style="padding:8px 10px; border:1px solid var(--card-border);">Alucinação</th>
+                <th style="padding:8px 10px; border:1px solid var(--card-border);">Fora da Base (Inventados)</th>
+                <th style="padding:8px 10px; border:1px solid var(--card-border);">Latência p50 / p90</th>
+                <th style="padding:8px 10px; border:1px solid var(--card-border);">SLA &le; 5 s (RNF-14)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${resumos.map(r => `
+                <tr>
+                  <td style="padding:8px 10px; border:1px solid var(--card-border); font-weight:600;">#${escapeHtml(r.ordem)} — ${escapeHtml(r.nome)}</td>
+                  <td style="padding:8px 10px; border:1px solid var(--card-border);">${escapeHtml(r.acerto_gabarito_df_contagem)} (${escapeHtml(r.acerto_gabarito_contagem)})</td>
+                  <td style="padding:8px 10px; border:1px solid var(--card-border);">${escapeHtml(r.precisao_geoespacial_ra_contagem)} (${escapeHtml(formatarPct(r.precisao_geoespacial_ra_media))})</td>
+                  <td style="padding:8px 10px; border:1px solid var(--card-border);">${escapeHtml(formatarPct(r.fidelidade_factual_rnf03_media))}</td>
+                  <td style="padding:8px 10px; border:1px solid var(--card-border);">${escapeHtml(formatarPct(r.taxa_alucinacao_media))}</td>
+                  <td style="padding:8px 10px; border:1px solid var(--card-border);">${escapeHtml(formatarPct(r.taxa_fora_da_base_media))} (${escapeHtml(r.lugares_inventados_total)})</td>
+                  <td style="padding:8px 10px; border:1px solid var(--card-border);">${escapeHtml(formatarSegundos(r.latencia_p50_ms, r.latencia_p50_s))} / ${escapeHtml(formatarSegundos(r.latencia_p90_ms, r.latencia_p90_s))}</td>
+                  <td style="padding:8px 10px; border:1px solid var(--card-border);">${escapeHtml(r.sla_latencia_rnf14_contagem)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      }
+    }
+
     function filtrarGoldenSemana3() {
       if (!cacheGoldenSemana3) return;
       const q = (document.getElementById('buscaGoldenSemana3').value || '').toLowerCase().trim();
@@ -2085,26 +2232,27 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
       filtrados.forEach(item => {
         const card = document.createElement('div');
         card.className = 'item-card';
+        const locaisGab = (item.locais_gabarito || []).map(l => escapeHtml(l)).join(', ');
         card.innerHTML = `
           <div>
             <div class="item-card-title">
-              <span>#${item.id}: ${item.ra_esperada || 'DF'}</span>
-              <span class="quadrado-badge green">${item.categoria}</span>
+              <span>#${escapeHtml(item.id)}: ${escapeHtml(item.ra_esperada || 'DF')}</span>
+              <span class="quadrado-badge green">${escapeHtml(item.categoria)}</span>
             </div>
             <div style="font-weight:700; color:var(--text); font-size:0.88rem; margin:6px 0;">
-              "${item.pergunta}"
+              "${escapeHtml(item.pergunta)}"
             </div>
             <div style="background:#161b22; border-left:3px solid #3fb950; padding:8px 10px; border-radius:4px; font-size:0.78rem; margin-bottom:8px;">
-              <strong style="color:#3fb950;">Gabarito 2FA:</strong> ${(item.locais_gabarito || []).join(', ')}<br>
-              <span style="color:var(--text-muted);">Teto: R$ ${item.preco_maximo_gabarito || 'N/A'} &bull; ${item.horario_gabarito || ''}</span>
+              <strong style="color:#3fb950;">Gabarito 2FA:</strong> ${locaisGab}<br>
+              <span style="color:var(--text-muted);">Teto: R$ ${escapeHtml(item.preco_maximo_gabarito ?? 'N/A')} &bull; ${escapeHtml(item.horario_gabarito || '')}</span>
             </div>
             <div class="item-card-quarentena" style="margin-bottom:6px;">
               <strong>Armadilha da LLM Pura:</strong><br>
-              ${item.armadilha_llm_pura || 'N/A'}
+              ${escapeHtml(item.armadilha_llm_pura || 'N/A')}
             </div>
           </div>
           <div style="margin-top:6px; border-top:1px solid #21262d; padding-top:6px; display:flex; justify-content:space-between; align-items:center;">
-            <span style="font-size:0.72rem; color:var(--text-muted); font-family:monospace;">${item.evidencia_id_tiktok || ''}</span>
+            <span style="font-size:0.72rem; color:var(--text-muted); font-family:monospace;">${escapeHtml(item.evidencia_id_tiktok || '')}</span>
             <a href="/comparativo" style="color:var(--blue); font-weight:600; font-size:0.75rem; text-decoration:none;">Testar no Comparativo &rarr;</a>
           </div>
         `;
@@ -2112,61 +2260,108 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
       });
     }
 
+    function renderizarBadgesScores(scores) {
+      if (!scores || typeof scores !== 'object') return '';
+      const itens = [
+        { chave: 'acerto_gabarito', rotulo: 'Gabarito' },
+        { chave: 'fidelidade_factual_rnf03', rotulo: 'Fidelidade' },
+        { chave: 'taxa_alucinacao', rotulo: 'Alucinação' },
+        { chave: 'taxa_fora_da_base', rotulo: 'Fora da base' },
+        { chave: 'precisao_geoespacial_ra', rotulo: 'RA' },
+        { chave: 'sla_latencia_rnf14', rotulo: 'SLA <=5s' }
+      ];
+      return `
+        <div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; padding-top:6px; border-top:1px solid #21262d;">
+          ${itens.map(it => {
+            const val = scores[it.chave];
+            const txt = (val === null || val === undefined) ? 'N/A' : formatarPct(val);
+            return `<span class="quadrado-badge" style="font-size:0.68rem;">${escapeHtml(it.rotulo)}: ${escapeHtml(txt)}</span>`;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function obterResultadoConfig(item, cfgId, fallbackCampo) {
+      const cfgs = item.resultados_configuracoes || {};
+      if (cfgs[cfgId]) return cfgs[cfgId];
+      return item[fallbackCampo] || {};
+    }
+
     function filtrarBenchmarkSemana3() {
       if (!cacheBenchmarkSemana3) return;
       const q = (document.getElementById('buscaBenchmarkSemana3').value || '').toLowerCase().trim();
+      const selEsq = document.getElementById('selectCfgEsquerda');
+      const selDir = document.getElementById('selectCfgDireita');
+      const cfgEsqId = selEsq ? selEsq.value : '1_llm_pura_sem_raciocinio';
+      const cfgDirId = selDir ? selDir.value : '4_rag_llm_busca_lexica';
+      const infoEsq = ROTULOS_CONFIG_SEMANA3[cfgEsqId] || { curto: cfgEsqId, titulo: cfgEsqId, cor: '#ff7b72' };
+      const infoDir = ROTULOS_CONFIG_SEMANA3[cfgDirId] || { curto: cfgDirId, titulo: cfgDirId, cor: '#3fb950' };
 
       const filtrados = cacheBenchmarkSemana3.filter(item => {
+        const ladoA = obterResultadoConfig(item, cfgEsqId, 'modo_a_llm_pura');
+        const ladoB = obterResultadoConfig(item, cfgDirId, 'modo_b_rag');
         const p = (item.pergunta || '').toLowerCase();
-        const a = (item.modo_a_llm_pura && item.modo_a_llm_pura.resposta ? item.modo_a_llm_pura.resposta : '').toLowerCase();
-        const b = (item.modo_b_rag && item.modo_b_rag.resposta ? item.modo_b_rag.resposta : '').toLowerCase();
+        const a = (ladoA.resposta || '').toLowerCase();
+        const b = (ladoB.resposta || '').toLowerCase();
         const id = (item.id_golden || '').toLowerCase();
-        return !q || p.includes(q) || a.includes(q) || b.includes(q) || id.includes(q);
+        const ra = ((item.gabarito && item.gabarito.ra_esperada) || '').toLowerCase();
+        return !q || p.includes(q) || a.includes(q) || b.includes(q) || id.includes(q) || ra.includes(q);
       });
 
-      document.getElementById('counterBenchmarkSemana3').innerText = `Exibindo ${filtrados.length} de ${cacheBenchmarkSemana3.length} testes`;
+      document.getElementById('counterBenchmarkSemana3').innerText = `Exibindo ${filtrados.length} de ${cacheBenchmarkSemana3.length} testes (${infoEsq.curto} × ${infoDir.curto})`;
 
       const grid = document.getElementById('gridBenchmarkSemana3');
       grid.innerHTML = '';
       filtrados.forEach((item, idx) => {
-        const modoA = item.modo_a_llm_pura || {};
-        const modoB = item.modo_b_rag || {};
+        const modoA = obterResultadoConfig(item, cfgEsqId, 'modo_a_llm_pura');
+        const modoB = obterResultadoConfig(item, cfgDirId, 'modo_b_rag');
         const gab = item.gabarito || {};
+        const locaisGab = (gab.locais_gabarito || []).map(l => escapeHtml(l)).join(', ');
+
+        const fontesA = (modoA.fontes_utilizadas || []).map(f => `${escapeHtml(f.nome)} (${escapeHtml(f.ra)})`).join(', ');
+        const fontesB = (modoB.fontes_utilizadas || []).map(f => `${escapeHtml(f.nome)} (${escapeHtml(f.ra)})`).join(', ');
+        const invA = ((modoA.verificacao_deterministica && modoA.verificacao_deterministica.locais_inventados) || []).map(l => escapeHtml(l)).join(', ');
+        const invB = ((modoB.verificacao_deterministica && modoB.verificacao_deterministica.locais_inventados) || []).map(l => escapeHtml(l)).join(', ');
 
         const card = document.createElement('div');
         card.style.cssText = 'background:#161b22; border:1px solid var(--card-border); border-radius:10px; padding:16px;';
         card.innerHTML = `
           <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid #21262d; padding-bottom:8px; flex-wrap:wrap; gap:6px;">
             <div>
-              <span class="quadrado-badge blue" style="margin-right:6px;">Caso #${item.id_golden || (idx+1)}</span>
-              <span class="quadrado-badge green">${gab.ra_esperada || 'DF'}</span>
-              <h3 style="font-size:0.98rem; font-weight:700; color:var(--text); margin-top:6px;">${item.pergunta}</h3>
+              <span class="quadrado-badge blue" style="margin-right:6px;">Caso #${escapeHtml(item.id_golden || (idx+1))}</span>
+              <span class="quadrado-badge green" style="margin-right:6px;">${escapeHtml(gab.ra_esperada || 'DF')}</span>
+              <span class="quadrado-badge purple">${escapeHtml(infoEsq.curto)} &times; ${escapeHtml(infoDir.curto)}</span>
+              <h3 style="font-size:0.98rem; font-weight:700; color:var(--text); margin-top:6px;">${escapeHtml(item.pergunta)}</h3>
+              ${locaisGab ? `<div style="font-size:0.75rem; color:var(--text-muted); margin-top:3px;"><strong>Gabarito:</strong> ${locaisGab}</div>` : ''}
             </div>
-            <span style="font-size:0.75rem; color:var(--text-muted);">${modoB.latencia_ms ? Math.round(modoB.latencia_ms)+'ms' : ''}</span>
+            <span style="font-size:0.75rem; color:var(--text-muted);">
+              ${modoA.latencia_ms ? Math.round(modoA.latencia_ms) + ' ms' : ''} vs. ${modoB.latencia_ms ? Math.round(modoB.latencia_ms) + ' ms' : ''}
+            </span>
           </div>
 
           <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:12px; margin-bottom:10px;">
-            <!-- LADO A: LLM PURA -->
+            <!-- LADO ESQUERDO -->
             <div style="background:#0d1117; border:1px solid rgba(248,81,73,0.3); border-radius:8px; padding:12px;">
-              <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                <strong style="color:#ff7b72; font-size:0.8rem;">Modo A: LLM Pura (Zero-Shot)</strong>
-                <span style="font-size:0.7rem; color:#ff7b72; background:rgba(248,81,73,0.15); padding:1px 6px; border-radius:4px;">Sem Contexto</span>
+              <div style="display:flex; justify-content:space-between; margin-bottom:6px; gap:6px; flex-wrap:wrap;">
+                <strong style="color:#ff7b72; font-size:0.8rem;">${escapeHtml(infoEsq.titulo)}</strong>
+                <span style="font-size:0.7rem; color:#ff7b72; background:rgba(248,81,73,0.15); padding:1px 6px; border-radius:4px;">${modoA.latencia_ms ? Math.round(modoA.latencia_ms) + ' ms' : ''}</span>
               </div>
-              <p style="font-size:0.8rem; color:#c9d1d9; line-height:1.45; white-space:pre-wrap;">${modoA.resposta || 'Sem resposta registrada'}</p>
+              <p style="font-size:0.8rem; color:#c9d1d9; line-height:1.45; white-space:pre-wrap;">${escapeHtml(modoA.resposta || 'Sem resposta registrada')}</p>
+              ${invA ? `<div style="margin-top:8px; font-size:0.72rem; color:#ff7b72;"><strong>Locais fora da base:</strong> ${invA}</div>` : ''}
+              ${fontesA ? `<div style="margin-top:8px; border-top:1px solid #21262d; padding-top:6px; font-size:0.72rem; color:var(--text-muted);"><strong>Fontes recuperadas:</strong> ${fontesA}</div>` : ''}
+              ${renderizarBadgesScores(modoA.scores)}
             </div>
 
-            <!-- LADO B: RAG -->
+            <!-- LADO DIREITO -->
             <div style="background:#0d1117; border:1px solid rgba(63,185,80,0.3); border-radius:8px; padding:12px;">
-              <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                <strong style="color:#3fb950; font-size:0.8rem;">Modo B: RAG Ancorado (93 Lugares)</strong>
-                <span style="font-size:0.7rem; color:#3fb950; background:rgba(63,185,80,0.15); padding:1px 6px; border-radius:4px;">Comprovação 2FA</span>
+              <div style="display:flex; justify-content:space-between; margin-bottom:6px; gap:6px; flex-wrap:wrap;">
+                <strong style="color:#3fb950; font-size:0.8rem;">${escapeHtml(infoDir.titulo)}</strong>
+                <span style="font-size:0.7rem; color:#3fb950; background:rgba(63,185,80,0.15); padding:1px 6px; border-radius:4px;">${modoB.latencia_ms ? Math.round(modoB.latencia_ms) + ' ms' : ''}</span>
               </div>
-              <p style="font-size:0.8rem; color:#c9d1d9; line-height:1.45; white-space:pre-wrap;">${modoB.resposta || 'Sem resposta registrada'}</p>
-              ${(modoB.fontes_utilizadas && modoB.fontes_utilizadas.length > 0) ? `
-                <div style="margin-top:8px; border-top:1px solid #21262d; padding-top:6px; font-size:0.72rem; color:var(--text-muted);">
-                  <strong>Fontes citadas:</strong> ${modoB.fontes_utilizadas.map(f => f.nome + ' (' + f.ra + ')').join(', ')}
-                </div>
-              ` : ''}
+              <p style="font-size:0.8rem; color:#c9d1d9; line-height:1.45; white-space:pre-wrap;">${escapeHtml(modoB.resposta || 'Sem resposta registrada')}</p>
+              ${invB ? `<div style="margin-top:8px; font-size:0.72rem; color:#ff7b72;"><strong>Locais fora da base:</strong> ${invB}</div>` : ''}
+              ${fontesB ? `<div style="margin-top:8px; border-top:1px solid #21262d; padding-top:6px; font-size:0.72rem; color:var(--text-muted);"><strong>Fontes citadas:</strong> ${fontesB}</div>` : ''}
+              ${renderizarBadgesScores(modoB.scores)}
             </div>
           </div>
         `;
@@ -3511,8 +3706,8 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
 
           <div class="scores-panel">
             <div class="scores-title">📊 Scores de Qualidade &amp; Governança</div>
-            <div class="not-evaluated-box">
-              <strong>não avaliado</strong> — As métricas automáticas de alucinação e fidelidade serão integradas na issue #36.
+            <div class="not-evaluated-box" id="scoresModoA">
+              <strong>não avaliado</strong> — Execute uma comparação para gerar os scores automáticos (issue #36).
             </div>
           </div>
 
@@ -3570,8 +3765,8 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
 
           <div class="scores-panel">
             <div class="scores-title">📊 Scores de Qualidade &amp; Governança</div>
-            <div class="not-evaluated-box">
-              <strong>não avaliado</strong> — As métricas automáticas de alucinação e fidelidade serão integradas na issue #36.
+            <div class="not-evaluated-box" id="scoresModoB">
+              <strong>não avaliado</strong> — Execute uma comparação para gerar os scores automáticos (issue #36).
             </div>
           </div>
 
@@ -3962,6 +4157,7 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
           return;
         }
         renderizarComparativo(dados);
+        avaliarComparativo(dados);
       } catch (err) {
         console.error("Erro ao consultar /api/comparativo/executar:", err);
         erroBanner.textContent = "Falha de comunicação com o servidor ao executar comparativo.";
@@ -3969,6 +4165,95 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
       } finally {
         btn.disabled = false;
         btn.textContent = textoOriginal;
+      }
+    }
+
+    // Issue #36: avaliação híbrida (RNF-04 determinístico + juiz MiMo-V2.6-Pro), em segundo plano
+    const ROTULOS_SCORES = [
+      ["acerto_gabarito", "🏁 Acertou o lugar do gabarito", false],
+      ["fidelidade_factual_rnf03", "🎯 Fidelidade factual (RNF-03)", false],
+      ["taxa_alucinacao", "👻 Alucinação (a base desmente)", true],
+      ["taxa_fora_da_base", "❔ Não verificável na base", true],
+      ["precisao_geoespacial_ra", "📍 Precisão da RA", false],
+      ["abstencao", "🙊 Recusou / não afirmou nada", null],
+      ["sla_latencia_rnf14", "⏱️ SLA ≤ 5 s (RNF-14)", false],
+    ];
+
+    function preencherScores(alvoId, bloco, extra) {
+      const box = document.getElementById(alvoId);
+      if (!box) return;
+      box.innerHTML = "";
+      const scores = (bloco && bloco.scores) || null;
+      if (!scores) {
+        box.appendChild(criarEl("span", "", "não avaliado — avaliação indisponível."));
+        return;
+      }
+      ROTULOS_SCORES.forEach(([chave, rotulo, menorMelhor]) => {
+        const bruto = scores[chave];
+        if (bruto === undefined) return;
+        const naoAvaliado = bruto === null;
+        const v = naoAvaliado ? NaN : Number(bruto);
+        const linha = criarEl("div", "");
+        linha.style.display = "flex";
+        linha.style.justifyContent = "space-between";
+        linha.style.gap = "8px";
+        linha.appendChild(criarEl("span", "", rotulo));
+        const val = criarEl("strong", "", naoAvaliado ? "n/a" : (chave === "abstencao" ? (v >= 0.5 ? "sim" : "não") : `${(v * 100).toFixed(0)}%`));
+        if (naoAvaliado || menorMelhor === null) {
+          val.style.opacity = "0.8";
+        } else {
+          const bom = menorMelhor ? v <= 0.2 : v >= 0.8;
+          const ruim = menorMelhor ? v >= 0.5 : v < 0.5;
+          val.style.color = bom ? "#16a34a" : (ruim ? "#dc2626" : "#d97706");
+        }
+        linha.appendChild(val);
+        box.appendChild(linha);
+      });
+      const juiz = (bloco && bloco.julgamento_juiz) || {};
+      const origem = juiz.usou_llm
+        ? `⚖️ Juiz: ${juiz.modelo_juiz || "MiMo-V2.6-Pro"} + verificação determinística`
+        : `⚖️ Verificação determinística (juiz indisponível: ${juiz.motivo_fallback || "sem chave"})`;
+      const rodape = criarEl("div", "", origem);
+      rodape.style.fontSize = "0.72rem";
+      rodape.style.opacity = "0.8";
+      rodape.style.marginTop = "6px";
+      box.appendChild(rodape);
+      if (extra) {
+        const e = criarEl("div", "", extra);
+        e.style.fontSize = "0.72rem";
+        e.style.opacity = "0.8";
+        box.appendChild(e);
+      }
+    }
+
+    async function avaliarComparativo(dados) {
+      ["scoresModoA", "scoresModoB"].forEach((id) => {
+        const box = document.getElementById(id);
+        if (box) box.textContent = "⏳ Avaliando com o juiz MiMo-V2.6-Pro e as travas RNF-04...";
+      });
+      try {
+        const res = await fetch("/api/comparativo/avaliar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id_comparativo: dados.id_comparativo })
+        });
+        const corpo = await res.json();
+        if (!res.ok || !corpo.avaliacao) throw new Error(corpo.detail || `HTTP ${res.status}`);
+        const av = corpo.avaliacao;
+        const modoA = dados.modo_a_llm_pura || {};
+        const extraA = modoA.cache_hit ? "ℹ️ Resposta do cache: latência 0 ms não mede o modelo." : "";
+        const busca = av.metricas_busca || {};
+        const extraB = (busca.recall_at_k !== undefined && busca.recall_at_k !== null)
+          ? `🔎 Busca: recall@k ${Number(busca.recall_at_k).toFixed(2)} · MRR ${Number(busca.mrr ?? 0).toFixed(2)}`
+          : "";
+        preencherScores("scoresModoA", av.modo_a_llm_pura, extraA);
+        preencherScores("scoresModoB", av.modo_b_rag, extraB);
+      } catch (err) {
+        console.error("Erro ao consultar /api/comparativo/avaliar:", err);
+        ["scoresModoA", "scoresModoB"].forEach((id) => {
+          const box = document.getElementById(id);
+          if (box) box.textContent = "não avaliado — falha ao gerar os scores automáticos.";
+        });
       }
     }
 

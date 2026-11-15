@@ -68,16 +68,19 @@ def test_colecoes_semana3_retornam_200():
     assert "categoria" in primeiro
     assert "locais_gabarito" in primeiro
 
-    # 2. Resultados do Benchmark Semana 3
+    # 2. Resultados do Benchmark Semana 3 (arquivo oficial da issue #38 com 20 casos e 6 configurações)
     res_bench = client.get("/api/entregaveis/dados?colecao=benchmark_semana3")
     assert res_bench.status_code == 200
     dados_bench = res_bench.json()
-    assert dados_bench["total"] >= 1
-    assert len(dados_bench["dados"]) >= 1
+    assert dados_bench["total"] == 20
+    assert len(dados_bench["dados"]) == 20
     caso = dados_bench["dados"][0]
     assert "pergunta" in caso
     assert "modo_a_llm_pura" in caso
     assert "modo_b_rag" in caso
+    assert "resultados_configuracoes" in caso
+    assert len(caso["resultados_configuracoes"]) >= 6
+    assert "resumo_benchmark" in caso
 
 
 def test_colecao_invalida_retorna_400():
@@ -88,10 +91,13 @@ def test_colecao_invalida_retorna_400():
 
 
 def test_interface_entregaveis_contem_elementos_semana3():
-    """Valida que a página /entregaveis renderiza os novos cards, placar e link para /comparativo."""
+    """Valida que a página /entregaveis renderiza os novos cards, placar dinâmico, seletores e link para /comparativo."""
     res = client.get("/entregaveis")
     assert res.status_code == 200
     html = res.text
+
+    # Título atualizado da aba
+    assert "Central de Entregáveis — Semanas 02 e 03" in html
 
     # Elementos e cards da Semana 03
     assert "Semana 03" in html
@@ -101,18 +107,75 @@ def test_interface_entregaveis_contem_elementos_semana3():
     assert "Resultados do Benchmark A/B" in html
     assert "Relatório Técnico &amp; ZIP Sem. 03" in html or "Relatório Técnico & ZIP Sem. 03" in html
 
+    # Garante que os números estáticos incorretos saíram do HTML da Semana 3
+    assert "100% <span" not in html
+    assert "vs. 0,0% na LLM Pura (manda pro Plano)" not in html
+    assert "com busca híbrida e guardrails" not in html
+
     # Botão de destaque para o comparativo lado a lado
     assert 'href="/comparativo"' in html
 
-    # KPIs e módulos da Semana 03
+    # KPIs, seletores de configuração e módulos da Semana 03
     assert "moduloPlacarSemana3" in html
+    assert "placarKpisSemana3" in html
     assert "moduloGoldenSemana3" in html
     assert "moduloBenchmarkSemana3" in html
+    assert "selectCfgEsquerda" in html
+    assert "selectCfgDireita" in html
     assert "moduloRelatorioSemana3" in html
 
-    # Funções de filtro e eventos JS
+    # Funções de filtro, placar dinâmico e escape HTML
+    assert "renderizarPlacarSemana3" in html
     assert "filtrarGoldenSemana3" in html
     assert "filtrarBenchmarkSemana3" in html
+    assert "escapeHtml" in html
+
+
+def test_escape_html_contra_script_nas_respostas():
+    """
+    Garante que respostas do modelo ou campos do dataset contendo <script> ou tags HTML
+    passam por escapeHtml antes de entrar no DOM da Central de Entregáveis.
+    """
+    import re
+    import subprocess
+    import shutil
+
+    res = client.get("/entregaveis")
+    assert res.status_code == 200
+    html = res.text
+
+    # 1. Confere que os campos críticos são interpolados exclusivamente via escapeHtml(...)
+    assert "${escapeHtml(item.pergunta)}" in html
+    assert "${escapeHtml(modoA.resposta" in html
+    assert "${escapeHtml(modoB.resposta" in html
+    assert "${escapeHtml(f.nome)}" in html
+    assert "${escapeHtml(f.ra)}" in html
+
+    # 2. Extrai a função escapeHtml do próprio HTML e valida o comportamento com payload <script>
+    match = re.search(r"function escapeHtml\(valor\)\s*\{.*?\n    \}", html, flags=re.DOTALL)
+    assert match is not None, "Função escapeHtml não encontrada em /entregaveis"
+
+    node_bin = shutil.which("node")
+    if node_bin:
+        payload = "<script>alert('xss')</script><img src=x onerror=\"alert(1)\">"
+        js_code = (
+            match.group(0)
+            + f"\nconst out = escapeHtml({payload!r});\n"
+            + "if (out.includes('<script>') || out.includes('<img') || !out.includes('&lt;script&gt;')) process.exit(1);\n"
+            + "console.log(out);\n"
+        )
+        proc = subprocess.run([node_bin, "-e", js_code], capture_output=True, text=True, check=False)
+        assert proc.returncode == 0, f"Falha no escapeHtml via Node: {proc.stderr}"
+        assert "<script>" not in proc.stdout
+        assert "&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;" in proc.stdout
+    else:
+        # Validação equivalente das regras de substituição definidas na função escapeHtml
+        corpo_fn = match.group(0)
+        assert ".replace(/&/g, '&amp;')" in corpo_fn
+        assert ".replace(/</g, '&lt;')" in corpo_fn
+        assert ".replace(/>/g, '&gt;')" in corpo_fn
+        assert ".replace(/\"/g, '&quot;')" in corpo_fn
+        assert ".replace(/'/g, '&#39;')" in corpo_fn
 
 
 def test_rotas_download_e_visualizacao_semana3(tmp_path):
