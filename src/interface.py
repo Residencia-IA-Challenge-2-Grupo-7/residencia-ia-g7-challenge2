@@ -113,9 +113,7 @@ LANDING_PAGE = """<!DOCTYPE html>
       font-size: 2.1rem;
       font-weight: 800;
       margin-bottom: 8px;
-      background: linear-gradient(90deg, #58a6ff, #bc8cff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: var(--text);
       letter-spacing: -0.5px;
     }
 
@@ -189,6 +187,13 @@ LANDING_PAGE = """<!DOCTYPE html>
     }
     .btn-entregaveis:hover { opacity: 0.94; transform: translateY(-1px); }
 
+    .btn-comparativo {
+      background: linear-gradient(180deg, #1f6feb, #388bfd);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(56, 139, 253, 0.3);
+    }
+    .btn-comparativo:hover { opacity: 0.94; transform: translateY(-1px); }
+
     .features-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -221,6 +226,7 @@ LANDING_PAGE = """<!DOCTYPE html>
     <div class="nav-links">
       <a href="/" class="nav-link active">🏠 Início</a>
       <a href="/rag" class="nav-link">🤖 Chat RAG</a>
+      <a href="/comparativo" class="nav-link">⚖️ Comparativo LLM vs. RAG</a>
       <a href="/entregaveis" class="nav-link highlight">📂 Central de Entregáveis</a>
     </div>
   </nav>
@@ -240,6 +246,7 @@ LANDING_PAGE = """<!DOCTYPE html>
 
       <div class="cta-group">
         <a href="/rag" class="btn btn-rag">🤖 Testar Chat RAG &rarr;</a>
+        <a href="/comparativo" class="btn btn-comparativo">⚖️ Comparativo LLM vs. RAG &rarr;</a>
         <a href="/entregaveis" class="btn btn-entregaveis">📂 Central de Entregáveis &rarr;</a>
       </div>
 
@@ -339,9 +346,7 @@ HTML_PAGE = """<!DOCTYPE html>
       font-size: 1.6rem;
       font-weight: 700;
       margin-bottom: 4px;
-      background: linear-gradient(90deg, #58a6ff, #bc8cff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: var(--text);
     }
 
     header p {
@@ -460,7 +465,10 @@ HTML_PAGE = """<!DOCTYPE html>
   <div class="container">
     <div class="top-nav">
       <a href="/" style="font-weight:600; color:#e6edf3;">&larr; Início</a>
-      <a href="/entregaveis" class="nav-highlight">📂 Central de Entregáveis &rarr;</a>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <a href="/comparativo" class="nav-highlight" style="color:#58a6ff; background:rgba(88,166,255,0.12); border-color:rgba(88,166,255,0.35);">⚖️ Comparativo LLM vs. RAG</a>
+        <a href="/entregaveis" class="nav-highlight">📂 Central de Entregáveis &rarr;</a>
+      </div>
     </div>
 
     <header>
@@ -663,7 +671,7 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Central de Entregáveis — Semana 02 (Grupo 7)</title>
+  <title>Central de Entregáveis — Semanas 02 e 03 (Grupo 7)</title>
   <style>
     :root {
       --bg: #0d1117;
@@ -746,9 +754,7 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
       font-size: 1.55rem;
       font-weight: 800;
       margin-bottom: 3px;
-      background: linear-gradient(90deg, #58a6ff, #bc8cff);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      color: var(--text);
     }
 
     .page-header p {
@@ -1069,20 +1075,106 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
     <div class="nav-links">
       <a href="/" class="nav-link">🏠 Início</a>
       <a href="/rag" class="nav-link">🤖 Chat RAG</a>
+      <a href="/comparativo" class="nav-link">⚖️ Comparativo LLM vs. RAG</a>
       <a href="/entregaveis" class="nav-link active">📂 Central de Entregáveis</a>
     </div>
   </nav>
 
   <div class="main-container">
     <header class="page-header" id="pageHeader">
-      <h1>📂 Central de Entregáveis — Semana 02</h1>
+      <div style="display:inline-block; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#58a6ff; background:rgba(88,166,255,0.15); border:1px solid rgba(88,166,255,0.3); padding:4px 12px; border-radius:20px; margin-bottom:8px;">
+        🚀 Semanas 02 &amp; 03 — Challenge 2 (Grupo 7)
+      </div>
+      <h1>📂 Central Interativa de Entregáveis</h1>
       <p>
-        Selecione um dos módulos para visualizar relatórios, dados auditados 2FA, vetores semânticos, evidências de teste e telemetria diretamente na página.
+        Explore relatórios técnicos, datasets auditados, placar de alucinações, benchmark empírico e pacotes para download das Semanas 02 e 03.
       </p>
     </header>
 
-    <!-- OS 7 QUADRADOS (COMPACTO SEM SCROLL) -->
-    <div class="quadrados-grid" id="quadradosGrid">
+    <!-- SEÇÃO SEMANA 03: DESTAQUE ATUAL -->
+    <div id="secaoSemana3" style="margin-bottom: 24px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; border-bottom:1px solid #30363d; padding-bottom:8px; flex-wrap:wrap; gap:8px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="background:rgba(88,166,255,0.15); color:#79c0ff; border:1px solid rgba(88,166,255,0.4); font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:12px;">NOVO &bull; SEMANA 03</span>
+          <h2 style="font-size:1.15rem; font-weight:700; color:var(--text);">Comparação LLM Pura vs. RAG (Respostas com Evidências)</h2>
+        </div>
+        <a href="/comparativo" style="background:linear-gradient(180deg, #1f6feb, #238636); color:#fff; font-size:0.8rem; font-weight:700; padding:6px 14px; border-radius:6px; text-decoration:none; display:inline-flex; align-items:center; gap:5px; box-shadow:0 2px 8px rgba(31,111,235,0.3);">
+          ⚡ Testar ao Vivo no Comparador &rarr;
+        </a>
+      </div>
+
+      <div class="quadrados-grid" id="quadradosGridSemana3">
+        <!-- 3.1 PLACAR COMPARATIVO & AVALIAÇÃO -->
+        <div class="quadrado-card" style="border-color: rgba(88,166,255,0.4);" onclick="abrirModulo('placar_semana3')">
+          <div>
+            <div class="quadrado-top">
+              <span class="quadrado-icon">⚖️</span>
+              <span class="quadrado-badge blue">Placar A/B</span>
+            </div>
+            <div class="quadrado-title">Placar Comparativo LLM x RAG</div>
+            <p class="quadrado-desc">
+              Métricas calculadas direto do benchmark oficial (20 consultas &times; 6 configurações): alucinação, afirmações fora da base, acerto do gabarito e latência p50/p90.
+            </p>
+          </div>
+          <div class="quadrado-action">Ver Placar &amp; Métricas &rarr;</div>
+        </div>
+
+        <!-- 3.2 GOLDEN DATASET SEMANA 3 -->
+        <div class="quadrado-card" style="border-color: rgba(63,185,80,0.4);" onclick="abrirModulo('golden_semana3')">
+          <div>
+            <div class="quadrado-top">
+              <span class="quadrado-icon">🎯</span>
+              <span class="quadrado-badge green">20 Casos DF</span>
+            </div>
+            <div class="quadrado-title">Golden Dataset da Semana 3</div>
+            <p class="quadrado-desc">
+              Visualizador interativo dos 20 casos de teste com gabarito oficial (preços, horários, RAs periféricas e armadilhas da LLM pura).
+            </p>
+          </div>
+          <div class="quadrado-action">Inspecionar Golden Dataset &rarr;</div>
+        </div>
+
+        <!-- 3.3 BENCHMARK A/B OFICIAL -->
+        <div class="quadrado-card" style="border-color: rgba(188,140,255,0.4);" onclick="abrirModulo('benchmark_semana3')">
+          <div>
+            <div class="quadrado-top">
+              <span class="quadrado-icon">📊</span>
+              <span class="quadrado-badge purple">Auditoria A/B</span>
+            </div>
+            <div class="quadrado-title">Resultados do Benchmark A/B</div>
+            <p class="quadrado-desc">
+              Tabela interativa com seletor entre as 6 configurações avaliadas, respostas reais e notas do avaliador híbrido para cada pergunta.
+            </p>
+          </div>
+          <div class="quadrado-action">Ver Tabela de Resultados &rarr;</div>
+        </div>
+
+        <!-- 3.4 RELATORIO E ZIP DA SEMANA 3 -->
+        <div class="quadrado-card" style="border-color: rgba(240,136,62,0.4);" onclick="abrirModulo('relatorio_semana3')">
+          <div>
+            <div class="quadrado-top">
+              <span class="quadrado-icon">📑</span>
+              <span class="quadrado-badge orange">Entrega Sem. 03</span>
+            </div>
+            <div class="quadrado-title">Relatório Técnico &amp; ZIP Sem. 03</div>
+            <p class="quadrado-desc">
+              Download do Relatório Técnico Oficial da Semana 03 (PDF em padrão ABNT) e pacote consolidado ZIP com todos os artefatos.
+            </p>
+          </div>
+          <div class="quadrado-action">Downloads da Semana 03 &rarr;</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEÇÃO SEMANA 02: HISTÓRICO RNF-12 -->
+    <div id="secaoSemana2" style="margin-bottom: 24px;">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px; border-bottom:1px solid #30363d; padding-bottom:8px;">
+        <span style="background:#21262d; color:#8b949e; border:1px solid #30363d; font-size:0.75rem; font-weight:600; padding:2px 8px; border-radius:12px;">RNF-12</span>
+        <h2 style="font-size:1.15rem; font-weight:700; color:var(--text);">Semana 02 — Base de Conhecimento Curada 2FA e Protótipo de RAG</h2>
+      </div>
+
+      <!-- OS 7 QUADRADOS (COMPACTO SEM SCROLL) -->
+      <div class="quadrados-grid" id="quadradosGrid">
       
       <!-- 1. RELATORIO HTML -->
       <div class="quadrado-card" onclick="abrirModulo('pdf')">
@@ -1188,11 +1280,197 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
         </div>
         <div class="quadrado-action">Baixar ZIP Completo &rarr;</div>
       </div>
+      </div>
     </div>
 
     <!-- ========================================================================= -->
     <!-- MÓDULOS EXPANDIDOS (UM DE CADA VEZ COM BOTÃO VOLTAR)                      -->
     <!-- ========================================================================= -->
+
+    <!-- MÓDULO SEMANA 3: PLACAR COMPARATIVO (DINÂMICO A PARTIR DA API) -->
+    <div id="moduloPlacarSemana3" class="modulo-detalhe">
+      <div class="detalhe-header">
+        <button class="btn-voltar" onclick="fecharModulos()">&larr; Voltar aos Entregáveis</button>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <a href="/api/entregaveis/dados?colecao=benchmark_semana3" target="_blank" class="btn-action secondary">JSON Oficial do Benchmark</a>
+          <a href="/comparativo" class="btn-action" style="background: linear-gradient(180deg, #1f6feb, #238636);">
+            ⚡ Abrir Comparador Lado a Lado ao Vivo (/comparativo)
+          </a>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 18px;">
+        <h2 style="font-size: 1.3rem; color: var(--text); font-weight: 800; margin-bottom: 6px;">
+          ⚖️ Placar Comparativo Consolidado: LLM Pura vs. RAG Ancorado
+        </h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.45;">
+          Métricas carregadas diretamente de <code>/api/entregaveis/dados?colecao=benchmark_semana3</code> (20 casos do Golden Dataset &times; 6 configurações, avaliados por verificação determinística RNF-04 + juiz independente <code>xiaomi/mimo-v2.6-pro</code>). Destaques para as configurações <strong>#1 (LLM pura)</strong>, <strong>#3 (vencedora pelo critério da #38 — RAG sem LLM)</strong>, <strong>#4 (escolha do produto — RAG + LLM por palavras)</strong> e <strong>#6 (RAG + LLM, busca vetorial)</strong>.
+        </p>
+      </div>
+
+      <!-- CARDS DINÂMICOS DAS 4 CONFIGURAÇÕES PRINCIPAIS (#1, #3, #4 e #6) -->
+      <div id="placarKpisSemana3" class="telemetria-kpis" style="margin-bottom: 20px;">
+        <div class="telemetria-box">
+          <div style="font-size: 0.82rem; color: var(--text-muted);">Carregando métricas oficiais de <code>benchmark_semana3</code>...</div>
+        </div>
+      </div>
+
+      <!-- ESCOLHA VENCEDORA E DECISÃO DE PRODUTO (DINÂMICO) -->
+      <div id="placarEscolhaVencedora" style="margin-bottom: 20px;"></div>
+
+      <!-- TABELA COMPLETA DAS 6 CONFIGURAÇÕES (DINÂMICA) -->
+      <div id="placarTabelaConfiguracoes" style="margin-bottom: 24px; overflow-x: auto;"></div>
+
+      <!-- BOTÃO DESTAQUE COMPARATIVO -->
+      <div style="background: rgba(88,166,255,0.08); border: 1px solid rgba(88,166,255,0.3); border-radius: 8px; padding: 18px 20px; text-align: center; margin-bottom: 24px;">
+        <h3 style="color: #79c0ff; font-size: 1.05rem; margin-bottom: 6px;">Quer ver os dois modelos respondendo lado a lado em tempo real?</h3>
+        <p style="color: #c9d1d9; font-size: 0.84rem; max-width: 600px; margin: 0 auto 14px auto;">
+          Criamos uma interface dedicada com alternância de raciocínio, busca por palavras vs. embeddings e inspeção completa das fontes citadas.
+        </p>
+        <a href="/comparativo" style="background: linear-gradient(180deg, #1f6feb, #238636); color: #fff; padding: 10px 24px; border-radius: 6px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-size: 0.92rem; box-shadow: 0 4px 12px rgba(31,111,235,0.35);">
+          🚀 Ir para a Página de Comparativo (/comparativo) &rarr;
+        </a>
+      </div>
+    </div>
+
+    <!-- MÓDULO SEMANA 3: GOLDEN DATASET -->
+    <div id="moduloGoldenSemana3" class="modulo-detalhe">
+      <div class="detalhe-header">
+        <button class="btn-voltar" onclick="fecharModulos()">&larr; Voltar aos Entregáveis</button>
+        <div style="display:flex; gap:8px;">
+          <a href="/api/entregaveis/dados?colecao=golden_semana3" target="_blank" class="btn-action secondary">JSON Bruto API</a>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <h2 style="font-size: 1.25rem; color: var(--text); font-weight: 800; margin-bottom: 4px;">
+          🎯 Golden Dataset da Semana 03 (20 Casos de Teste do DF)
+        </h2>
+        <p style="color: var(--text-muted); font-size: 0.84rem;">
+          Conjunto de testes desafiadores com gabarito comprovado por 2FA do TikTok para medir alucinação de LLM pura vs. fidelidade do RAG.
+        </p>
+      </div>
+
+      <div class="toolbar">
+        <input type="text" id="buscaGoldenSemana3" class="input-busca" placeholder="Buscar por pergunta, RA, local ou armadilha..." oninput="filtrarGoldenSemana3()">
+        <select id="filtroCatGolden" class="select-filtro" onchange="filtrarGoldenSemana3()">
+          <option value="">Todas as categorias</option>
+          <option value="geoespacial_ra_fora_centro">Geoespacial (Fora do Plano Piloto)</option>
+          <option value="janela_horario">Janela de Horário</option>
+          <option value="fora_de_escopo_df">Fora de Escopo do DF</option>
+          <option value="precisao_financeira">Precisão Financeira (Preços Exatos)</option>
+          <option value="vibes_e_restricoes">Ambiência e Restrições</option>
+          <option value="conflito_e_girias">Conflito e Gírias Candangas</option>
+        </select>
+        <span id="counterGoldenSemana3" style="font-size:0.78rem; color:var(--text-muted); margin-left:auto;">Carregando...</span>
+      </div>
+
+      <div class="cards-list" id="gridGoldenSemana3"></div>
+    </div>
+
+    <!-- MÓDULO SEMANA 3: RESULTADOS BENCHMARK A/B -->
+    <div id="moduloBenchmarkSemana3" class="modulo-detalhe">
+      <div class="detalhe-header">
+        <button class="btn-voltar" onclick="fecharModulos()">&larr; Voltar aos Entregáveis</button>
+        <div style="display:flex; gap:8px;">
+          <a href="/api/entregaveis/dados?colecao=benchmark_semana3" target="_blank" class="btn-action secondary">JSON Bruto API</a>
+          <a href="/comparativo" class="btn-action">⚡ Comparar ao Vivo</a>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <h2 style="font-size: 1.25rem; color: var(--text); font-weight: 800; margin-bottom: 4px;">
+          📊 Resultados Consolidados do Benchmark A/B (Semana 03)
+        </h2>
+        <p style="color: var(--text-muted); font-size: 0.84rem;">
+          Respostas auditadas caso a caso nas 6 configurações oficiais do benchmark (com notas do avaliador híbrido RNF-04 + juiz MiMo-V2.6-Pro).
+        </p>
+      </div>
+
+      <div class="toolbar">
+        <input type="text" id="buscaBenchmarkSemana3" class="input-busca" placeholder="Buscar por pergunta, ID, RA ou termo da resposta..." oninput="filtrarBenchmarkSemana3()">
+        <label for="selectCfgEsquerda" style="font-size:0.76rem; color:var(--text-muted); font-weight:600;">Lado A:</label>
+        <select id="selectCfgEsquerda" class="select-filtro" onchange="filtrarBenchmarkSemana3()">
+          <option value="1_llm_pura_sem_raciocinio" selected>Cfg #1 — LLM pura, sem raciocínio</option>
+          <option value="2_llm_pura_raciocinio_alto">Cfg #2 — LLM pura, raciocínio alto</option>
+          <option value="3_rag_sem_llm_texto_fixo">Cfg #3 — RAG sem LLM (vencedora #38)</option>
+          <option value="4_rag_llm_busca_lexica">Cfg #4 — RAG + LLM, busca léxica (produto)</option>
+          <option value="5_rag_llm_busca_lexica_raciocinio_alto">Cfg #5 — RAG + LLM, léxica + raciocínio alto</option>
+          <option value="6_rag_llm_busca_vetorial">Cfg #6 — RAG + LLM, busca vetorial</option>
+        </select>
+        <label for="selectCfgDireita" style="font-size:0.76rem; color:var(--text-muted); font-weight:600;">Lado B:</label>
+        <select id="selectCfgDireita" class="select-filtro" onchange="filtrarBenchmarkSemana3()">
+          <option value="1_llm_pura_sem_raciocinio">Cfg #1 — LLM pura, sem raciocínio</option>
+          <option value="2_llm_pura_raciocinio_alto">Cfg #2 — LLM pura, raciocínio alto</option>
+          <option value="3_rag_sem_llm_texto_fixo">Cfg #3 — RAG sem LLM (vencedora #38)</option>
+          <option value="4_rag_llm_busca_lexica" selected>Cfg #4 — RAG + LLM, busca léxica (produto)</option>
+          <option value="5_rag_llm_busca_lexica_raciocinio_alto">Cfg #5 — RAG + LLM, léxica + raciocínio alto</option>
+          <option value="6_rag_llm_busca_vetorial">Cfg #6 — RAG + LLM, busca vetorial</option>
+        </select>
+        <span id="counterBenchmarkSemana3" style="font-size:0.78rem; color:var(--text-muted); margin-left:auto;">Carregando...</span>
+      </div>
+
+      <div id="gridBenchmarkSemana3" style="display:flex; flex-direction:column; gap:16px;"></div>
+    </div>
+
+    <!-- MÓDULO SEMANA 3: RELATÓRIO E DOWNLOADS -->
+    <div id="moduloRelatorioSemana3" class="modulo-detalhe">
+      <div class="detalhe-header">
+        <button class="btn-voltar" onclick="fecharModulos()">&larr; Voltar aos Entregáveis</button>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <a href="/visualizar/relatorio-semana3-pdf" target="_blank" class="btn-action secondary">↗ Visualizar PDF</a>
+          <a href="/download/relatorio-semana3-pdf" class="btn-action">📥 Baixar PDF Semana 3</a>
+          <a href="/download/entregavel-semana3-zip" class="btn-action" style="background:#8957e5;">📦 Baixar Pacote ZIP</a>
+        </div>
+      </div>
+
+      <article class="relatorio-html">
+        <div style="background:#161b22; border-left:4px solid #f0883e; padding:16px 20px; border-radius:8px; margin-bottom:24px;">
+          <div style="font-size:0.85rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">
+            Instituto de Pesquisas Eldorado &bull; Universidade de Brasília &bull; Residência em IA &bull; Grupo 07
+          </div>
+          <h1 style="margin:8px 0 6px 0; font-size:1.35rem; color:var(--text); font-weight:800;">
+            Relatório Técnico da Semana 03: Comparação LLM Pura vs. RAG (Respostas com Evidências)
+          </h1>
+          <div style="font-size:0.92rem; color:#f0883e; font-weight:600; margin-bottom:8px;">
+            Avaliação Empírica (20 Consultas &times; 6 Configurações), Motor Híbrido de Avaliação e Observabilidade Langfuse
+          </div>
+          <div style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+            <strong>Autores:</strong> Letícia Miti Takahashi, Maria Eduarda, Maria Carolina, Cauan Soares e Samara Letícia<br>
+            <strong>Central de Entregáveis:</strong> <a href="/entregaveis" style="color:#bc8cff; text-decoration:underline;">/entregaveis</a> &bull;
+            <strong>Interface Comparativa:</strong> <a href="/comparativo" style="color:#58a6ff; text-decoration:underline;">/comparativo</a>
+          </div>
+        </div>
+
+        <h2>Resumo da Entrega da Semana 03</h2>
+        <p>A Semana 03 avaliou empiricamente o impacto da ancoragem em documentos reais (base curada 2FA de 93 locais do Distrito Federal) frente ao uso de LLM pura (<code>deepseek/deepseek-v4.1-flash-1017</code>), executando as 20 consultas do Golden Dataset em 6 configurações e 2 rodadas independentes com avaliação automatizada híbrida (verificação determinística RNF-04 + juiz <code>xiaomi/mimo-v2.6-pro</code>).</p>
+        <p>Os resultados completos do experimento (Issue #38) e a análise detalhada para o relatório técnico (Issue #40) demonstram que:</p>
+        <ul>
+          <li><strong>LLM pura sem raciocínio (Configuração #1):</strong> não acertou nenhum local do gabarito no DF (<code>0 de 18</code>; <code>2 de 20</code> no geral considerando as 2 recusas fora do DF), concentrou <strong>97,0% das afirmações fora da base</strong> (inventando 32 locais em 13 de 20 casos), teve <strong>3,0% de alucinação</strong> (contradição direta à base), precisão de RA de <code>0 de 15</code> e latência mediana (p50) de <code>3,75 s</code> (p90 de <code>5,26 s</code>).</li>
+          <li><strong>Vencedora pelo critério estrito da Issue #38 — Configuração #3 (RAG sem LLM, texto fixo):</strong> atende ao SLA de latência RNF-14 (&le; 5 s) com <code>p50 = 0,02 s</code> e <code>p90 = 0,03 s</code>, registra <strong>0,0% de alucinação</strong> (0 locais inventados, 99,2% de fidelidade factual), acerta <code>10 de 18</code> locais no DF (<code>12 de 20</code> no geral) com precisão de RA de <code>13 de 16</code> (81,2%) e vence no desempate por ter <strong>custo zero (R$ 0,00)</strong>.</li>
+          <li><strong>Escolha de produto com síntese em linguagem natural — Configuração #4 (RAG + LLM, busca por palavras):</strong> empata em acerto com a #3 (<code>10 de 18</code> no DF e <code>12 de 20</code> no geral, evidenciando que na busca léxica o gargalo está no <code>Recall@3 = 10 de 18</code>), mantendo <strong>0,0% de alucinação na Rodada 1</strong> (98,7% de fidelidade factual), precisão de RA de <code>13 de 16</code> (81,2%) e latência dentro do SLA RNF-14 (<code>p50 = 3,15 s</code>, <code>p90 = 3,61 s</code>).</li>
+          <li><strong>Busca vetorial — Configuração #6 (RAG + LLM, busca vetorial):</strong> eleva o <code>Recall@3</code> para <code>16 de 18</code> (88,9%) e o acerto para <code>16 de 18</code> no DF (<code>18 de 20</code> no geral, precisão de RA de <code>16 de 17</code> = 94,1%, fidelidade de 96,8% e 0,7% de alucinação), com latência <code>p50 = 5,10 s</code> e <code>p90 = 5,83 s</code> devido ao tempo de geração do embedding da consulta.</li>
+        </ul>
+
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin:20px 0;">
+          <a href="/visualizar/relatorio-semana3-pdf" target="_blank" class="btn-action secondary" style="padding:10px 18px; font-size:0.9rem;">
+            📄 Visualizar Relatório em PDF Inline
+          </a>
+          <a href="/download/relatorio-semana3-pdf" class="btn-action" style="padding:10px 18px; font-size:0.9rem;">
+            📥 Baixar Relatório Técnico Oficial (.PDF)
+          </a>
+          <a href="/download/entregavel-semana3-zip" class="btn-action" style="padding:10px 18px; font-size:0.9rem; background:#8957e5;">
+            📦 Baixar Pacote ZIP da Semana 03 (.ZIP)
+          </a>
+          <a href="/api/entregaveis/arquivo?caminho=docs/experimentos/2026-11-13-benchmark-semana3.md" target="_blank" class="btn-action secondary" style="padding:10px 18px; font-size:0.9rem;">
+            📊 Ver Relatório do Experimento (Markdown JSON)
+          </a>
+          <a href="/api/entregaveis/arquivo?caminho=docs/entregas/semana-03/BENCHMARK_LLM_VS_RAG_LOG.txt" target="_blank" class="btn-action secondary" style="padding:10px 18px; font-size:0.9rem;">
+            🧾 Ver Log Comprobatório (.TXT)
+          </a>
+        </div>
+      </article>
+    </div>
 
     <!-- MÓDULO 1: RELATÓRIO TÉCNICO EM HTML (COM BOTÕES DE PDF NO TOPO) -->
     <div id="moduloPdf" class="modulo-detalhe">
@@ -1703,20 +1981,93 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
     let cacheAprovados = null;
     let cacheQuarentena = null;
     let cacheVetores = null;
+    let cacheGoldenSemana3 = null;
+    let cacheBenchmarkSemana3 = null;
+
+    function escapeHtml(valor) {
+      if (valor === null || valor === undefined) return '';
+      return String(valor)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function formatarPct(valor) {
+      if (valor === null || valor === undefined || Number.isNaN(Number(valor))) return 'N/A';
+      return (Number(valor) * 100).toFixed(1).replace('.', ',') + '%';
+    }
+
+    function formatarSegundos(ms, sExplicito) {
+      if (sExplicito !== null && sExplicito !== undefined && !Number.isNaN(Number(sExplicito))) {
+        return Number(sExplicito).toFixed(2).replace('.', ',') + ' s';
+      }
+      if (ms === null || ms === undefined || Number.isNaN(Number(ms))) return 'N/A';
+      return (Number(ms) / 1000).toFixed(2).replace('.', ',') + ' s';
+    }
+
+    const ROTULOS_CONFIG_SEMANA3 = {
+      '1_llm_pura_sem_raciocinio': { curto: 'Configuração 1', titulo: 'Cfg #1 — LLM pura, sem raciocínio', cor: '#f85149', badge: 'Baseline LLM Pura' },
+      '2_llm_pura_raciocinio_alto': { curto: 'Configuração 2', titulo: 'Cfg #2 — LLM pura, raciocínio alto', cor: '#f0883e', badge: 'LLM Pura (High)' },
+      '3_rag_sem_llm_texto_fixo': { curto: 'Configuração 3', titulo: 'Cfg #3 — RAG sem LLM (texto fixo)', cor: '#3fb950', badge: '🏆 Vencedora #38' },
+      '4_rag_llm_busca_lexica': { curto: 'Configuração 4', titulo: 'Cfg #4 — RAG + LLM (busca por palavras)', cor: '#58a6ff', badge: '✨ Escolha do Produto' },
+      '5_rag_llm_busca_lexica_raciocinio_alto': { curto: 'Configuração 5', titulo: 'Cfg #5 — RAG + LLM (léxica + raciocínio alto)', cor: '#d2a8ff', badge: 'RAG Léxica (High)' },
+      '6_rag_llm_busca_vetorial': { curto: 'Configuração 6', titulo: 'Cfg #6 — RAG + LLM (busca vetorial)', cor: '#bc8cff', badge: '🎯 Maior Recall@3' }
+    };
+
+    async function garantirBenchmarkSemana3() {
+      if (!cacheBenchmarkSemana3) {
+        const res = await fetch('/api/entregaveis/dados?colecao=benchmark_semana3');
+        const json = await res.json();
+        cacheBenchmarkSemana3 = json.dados || [];
+      }
+      return cacheBenchmarkSemana3;
+    }
 
     function fecharModulos() {
       document.querySelectorAll('.modulo-detalhe').forEach(el => el.classList.remove('active'));
-      document.getElementById('quadradosGrid').style.display = 'grid';
+      const secSemana3 = document.getElementById('secaoSemana3');
+      if (secSemana3) secSemana3.style.display = 'block';
+      const secSemana2 = document.getElementById('secaoSemana2');
+      if (secSemana2) secSemana2.style.display = 'block';
       document.getElementById('pageHeader').style.display = 'block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     async function abrirModulo(tipo) {
-      document.getElementById('quadradosGrid').style.display = 'none';
+      const secSemana3 = document.getElementById('secaoSemana3');
+      if (secSemana3) secSemana3.style.display = 'none';
+      const secSemana2 = document.getElementById('secaoSemana2');
+      if (secSemana2) secSemana2.style.display = 'none';
       document.getElementById('pageHeader').style.display = 'none';
       document.querySelectorAll('.modulo-detalhe').forEach(el => el.classList.remove('active'));
 
-      if (tipo === 'pdf') {
+      if (tipo === 'placar_semana3') {
+        document.getElementById('moduloPlacarSemana3').classList.add('active');
+        await garantirBenchmarkSemana3();
+        renderizarPlacarSemana3();
+      }
+      else if (tipo === 'golden_semana3') {
+        const modulo = document.getElementById('moduloGoldenSemana3');
+        modulo.classList.add('active');
+        if (!cacheGoldenSemana3) {
+          const res = await fetch('/api/entregaveis/dados?colecao=golden_semana3');
+          const json = await res.json();
+          cacheGoldenSemana3 = json.dados || [];
+        }
+        filtrarGoldenSemana3();
+      }
+      else if (tipo === 'benchmark_semana3') {
+        const modulo = document.getElementById('moduloBenchmarkSemana3');
+        modulo.classList.add('active');
+        await garantirBenchmarkSemana3();
+        filtrarBenchmarkSemana3();
+      }
+      else if (tipo === 'relatorio_semana3') {
+        document.getElementById('moduloRelatorioSemana3').classList.add('active');
+      }
+      else if (tipo === 'pdf') {
         document.getElementById('moduloPdf').classList.add('active');
       }
       else if (tipo === 'aprovados') {
@@ -1760,6 +2111,262 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
       }
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderizarPlacarSemana3() {
+      const containerKpis = document.getElementById('placarKpisSemana3');
+      const containerEscolha = document.getElementById('placarEscolhaVencedora');
+      const containerTabela = document.getElementById('placarTabelaConfiguracoes');
+      if (!containerKpis || !cacheBenchmarkSemana3 || cacheBenchmarkSemana3.length === 0) return;
+
+      const primeiro = cacheBenchmarkSemana3[0] || {};
+      const resumoBench = primeiro.resumo_benchmark || {};
+      const resumos = resumoBench.resumo_configuracoes || [];
+      const escolha = resumoBench.configuracao_escolhida || {};
+      const porId = {};
+      resumos.forEach(r => { porId[r.id_configuracao] = r; });
+
+      const idsDestaque = [
+        '1_llm_pura_sem_raciocinio',
+        '3_rag_sem_llm_texto_fixo',
+        '4_rag_llm_busca_lexica',
+        '6_rag_llm_busca_vetorial'
+      ];
+
+      containerKpis.innerHTML = idsDestaque.map(cid => {
+        const r = porId[cid];
+        const info = ROTULOS_CONFIG_SEMANA3[cid] || { titulo: cid, cor: '#58a6ff', badge: '' };
+        if (!r) return '';
+        const p50 = formatarSegundos(r.latencia_p50_ms, r.latencia_p50_s);
+        const p90 = formatarSegundos(r.latencia_p90_ms, r.latencia_p90_s);
+        return `
+          <div class="telemetria-box" style="border-left: 3px solid ${escapeHtml(info.cor)};">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; margin-bottom:6px;">
+              <strong style="font-size:0.82rem; color:var(--text);">${escapeHtml(info.titulo)}</strong>
+              <span class="quadrado-badge" style="color:${escapeHtml(info.cor)};">${escapeHtml(info.badge)}</span>
+            </div>
+            <div style="font-size:0.78rem; color:#c9d1d9; line-height:1.55;">
+              <div>🎯 <strong>Acerto gabarito:</strong> ${escapeHtml(r.acerto_gabarito_df_contagem)} no DF (${escapeHtml(r.acerto_gabarito_contagem)} geral &bull; ${escapeHtml(formatarPct(r.acerto_gabarito_taxa))})</div>
+              <div>📍 <strong>Precisão RA:</strong> ${escapeHtml(r.precisao_geoespacial_ra_contagem)} (${escapeHtml(formatarPct(r.precisao_geoespacial_ra_media))})</div>
+              <div>⚠️ <strong>Alucinação (contradiz base):</strong> ${escapeHtml(formatarPct(r.taxa_alucinacao_media))} (${escapeHtml(r.casos_com_alucinacao_contagem || '0 de 20')} casos)</div>
+              <div>🚫 <strong>Fora da base:</strong> ${escapeHtml(formatarPct(r.taxa_fora_da_base_media))} (${escapeHtml(r.lugares_inventados_total)} lugares inventados)</div>
+              <div>✅ <strong>Fidelidade (RNF-03):</strong> ${escapeHtml(formatarPct(r.fidelidade_factual_rnf03_media))}</div>
+              <div>⏱️ <strong>Latência p50 / p90 (RNF-14 &le; 5 s):</strong> ${escapeHtml(p50)} / ${escapeHtml(p90)} (${escapeHtml(r.sla_latencia_rnf14_contagem)} em &le; 5 s)</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      if (containerEscolha && escolha.id_configuracao) {
+        const prod = escolha.decisao_produto_com_llm || {};
+        containerEscolha.innerHTML = `
+          <div style="background:#0d1117; border:1px solid rgba(63,185,80,0.35); border-radius:8px; padding:14px 16px; font-size:0.82rem; line-height:1.5; color:#c9d1d9;">
+            <div style="margin-bottom:6px;">
+              <strong style="color:#3fb950;">🏆 Vencedora pelo critério da Issue #38 (${escapeHtml(escolha.nome)}):</strong>
+              ${escapeHtml(escolha.justificativa)}
+            </div>
+            ${prod.nome ? `
+              <div>
+                <strong style="color:#58a6ff;">✨ Escolha de produto com LLM (${escapeHtml(prod.nome)}):</strong>
+                ${escapeHtml(prod.motivo)}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }
+
+      if (containerTabela && resumos.length > 0) {
+        containerTabela.innerHTML = `
+          <table style="width:100%; border-collapse:collapse; font-size:0.78rem; background:#0d1117; border:1px solid var(--card-border);">
+            <thead>
+              <tr style="background:#161b22; color:var(--blue); text-align:left;">
+                <th style="padding:8px 10px; border:1px solid var(--card-border);">Configuração</th>
+                <th style="padding:8px 10px; border:1px solid var(--card-border);">Acerto DF / Geral</th>
+                <th style="padding:8px 10px; border:1px solid var(--card-border);">Precisão RA</th>
+                <th style="padding:8px 10px; border:1px solid var(--card-border);">Fidelidade (RNF-03)</th>
+                <th style="padding:8px 10px; border:1px solid var(--card-border);">Alucinação</th>
+                <th style="padding:8px 10px; border:1px solid var(--card-border);">Fora da Base (Inventados)</th>
+                <th style="padding:8px 10px; border:1px solid var(--card-border);">Latência p50 / p90</th>
+                <th style="padding:8px 10px; border:1px solid var(--card-border);">SLA &le; 5 s (RNF-14)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${resumos.map(r => `
+                <tr>
+                  <td style="padding:8px 10px; border:1px solid var(--card-border); font-weight:600;">#${escapeHtml(r.ordem)} — ${escapeHtml(r.nome)}</td>
+                  <td style="padding:8px 10px; border:1px solid var(--card-border);">${escapeHtml(r.acerto_gabarito_df_contagem)} (${escapeHtml(r.acerto_gabarito_contagem)})</td>
+                  <td style="padding:8px 10px; border:1px solid var(--card-border);">${escapeHtml(r.precisao_geoespacial_ra_contagem)} (${escapeHtml(formatarPct(r.precisao_geoespacial_ra_media))})</td>
+                  <td style="padding:8px 10px; border:1px solid var(--card-border);">${escapeHtml(formatarPct(r.fidelidade_factual_rnf03_media))}</td>
+                  <td style="padding:8px 10px; border:1px solid var(--card-border);">${escapeHtml(formatarPct(r.taxa_alucinacao_media))}</td>
+                  <td style="padding:8px 10px; border:1px solid var(--card-border);">${escapeHtml(formatarPct(r.taxa_fora_da_base_media))} (${escapeHtml(r.lugares_inventados_total)})</td>
+                  <td style="padding:8px 10px; border:1px solid var(--card-border);">${escapeHtml(formatarSegundos(r.latencia_p50_ms, r.latencia_p50_s))} / ${escapeHtml(formatarSegundos(r.latencia_p90_ms, r.latencia_p90_s))}</td>
+                  <td style="padding:8px 10px; border:1px solid var(--card-border);">${escapeHtml(r.sla_latencia_rnf14_contagem)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      }
+    }
+
+    function filtrarGoldenSemana3() {
+      if (!cacheGoldenSemana3) return;
+      const q = (document.getElementById('buscaGoldenSemana3').value || '').toLowerCase().trim();
+      const cat = document.getElementById('filtroCatGolden').value;
+
+      const filtrados = cacheGoldenSemana3.filter(item => {
+        const matchQ = !q ||
+          (item.pergunta || '').toLowerCase().includes(q) ||
+          (item.ra_esperada || '').toLowerCase().includes(q) ||
+          (item.armadilha_llm_pura || '').toLowerCase().includes(q) ||
+          (item.locais_gabarito || []).some(l => l.toLowerCase().includes(q));
+
+        const matchCat = !cat || item.categoria === cat;
+        return matchQ && matchCat;
+      });
+
+      document.getElementById('counterGoldenSemana3').innerText = `Exibindo ${filtrados.length} de ${cacheGoldenSemana3.length} casos`;
+
+      const grid = document.getElementById('gridGoldenSemana3');
+      grid.innerHTML = '';
+      filtrados.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'item-card';
+        const locaisGab = (item.locais_gabarito || []).map(l => escapeHtml(l)).join(', ');
+        card.innerHTML = `
+          <div>
+            <div class="item-card-title">
+              <span>#${escapeHtml(item.id)}: ${escapeHtml(item.ra_esperada || 'DF')}</span>
+              <span class="quadrado-badge green">${escapeHtml(item.categoria)}</span>
+            </div>
+            <div style="font-weight:700; color:var(--text); font-size:0.88rem; margin:6px 0;">
+              "${escapeHtml(item.pergunta)}"
+            </div>
+            <div style="background:#161b22; border-left:3px solid #3fb950; padding:8px 10px; border-radius:4px; font-size:0.78rem; margin-bottom:8px;">
+              <strong style="color:#3fb950;">Gabarito 2FA:</strong> ${locaisGab}<br>
+              <span style="color:var(--text-muted);">Teto: R$ ${escapeHtml(item.preco_maximo_gabarito ?? 'N/A')} &bull; ${escapeHtml(item.horario_gabarito || '')}</span>
+            </div>
+            <div class="item-card-quarentena" style="margin-bottom:6px;">
+              <strong>Armadilha da LLM Pura:</strong><br>
+              ${escapeHtml(item.armadilha_llm_pura || 'N/A')}
+            </div>
+          </div>
+          <div style="margin-top:6px; border-top:1px solid #21262d; padding-top:6px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:0.72rem; color:var(--text-muted); font-family:monospace;">${escapeHtml(item.evidencia_id_tiktok || '')}</span>
+            <a href="/comparativo" style="color:var(--blue); font-weight:600; font-size:0.75rem; text-decoration:none;">Testar no Comparativo &rarr;</a>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function renderizarBadgesScores(scores) {
+      if (!scores || typeof scores !== 'object') return '';
+      const itens = [
+        { chave: 'acerto_gabarito', rotulo: 'Gabarito' },
+        { chave: 'fidelidade_factual_rnf03', rotulo: 'Fidelidade' },
+        { chave: 'taxa_alucinacao', rotulo: 'Alucinação' },
+        { chave: 'taxa_fora_da_base', rotulo: 'Fora da base' },
+        { chave: 'precisao_geoespacial_ra', rotulo: 'RA' },
+        { chave: 'sla_latencia_rnf14', rotulo: 'SLA <=5s' }
+      ];
+      return `
+        <div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; padding-top:6px; border-top:1px solid #21262d;">
+          ${itens.map(it => {
+            const val = scores[it.chave];
+            const txt = (val === null || val === undefined) ? 'N/A' : formatarPct(val);
+            return `<span class="quadrado-badge" style="font-size:0.68rem;">${escapeHtml(it.rotulo)}: ${escapeHtml(txt)}</span>`;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function obterResultadoConfig(item, cfgId, fallbackCampo) {
+      const cfgs = item.resultados_configuracoes || {};
+      if (cfgs[cfgId]) return cfgs[cfgId];
+      return item[fallbackCampo] || {};
+    }
+
+    function filtrarBenchmarkSemana3() {
+      if (!cacheBenchmarkSemana3) return;
+      const q = (document.getElementById('buscaBenchmarkSemana3').value || '').toLowerCase().trim();
+      const selEsq = document.getElementById('selectCfgEsquerda');
+      const selDir = document.getElementById('selectCfgDireita');
+      const cfgEsqId = selEsq ? selEsq.value : '1_llm_pura_sem_raciocinio';
+      const cfgDirId = selDir ? selDir.value : '4_rag_llm_busca_lexica';
+      const infoEsq = ROTULOS_CONFIG_SEMANA3[cfgEsqId] || { curto: cfgEsqId, titulo: cfgEsqId, cor: '#ff7b72' };
+      const infoDir = ROTULOS_CONFIG_SEMANA3[cfgDirId] || { curto: cfgDirId, titulo: cfgDirId, cor: '#3fb950' };
+
+      const filtrados = cacheBenchmarkSemana3.filter(item => {
+        const ladoA = obterResultadoConfig(item, cfgEsqId, 'modo_a_llm_pura');
+        const ladoB = obterResultadoConfig(item, cfgDirId, 'modo_b_rag');
+        const p = (item.pergunta || '').toLowerCase();
+        const a = (ladoA.resposta || '').toLowerCase();
+        const b = (ladoB.resposta || '').toLowerCase();
+        const id = (item.id_golden || '').toLowerCase();
+        const ra = ((item.gabarito && item.gabarito.ra_esperada) || '').toLowerCase();
+        return !q || p.includes(q) || a.includes(q) || b.includes(q) || id.includes(q) || ra.includes(q);
+      });
+
+      document.getElementById('counterBenchmarkSemana3').innerText = `Exibindo ${filtrados.length} de ${cacheBenchmarkSemana3.length} testes (${infoEsq.curto} × ${infoDir.curto})`;
+
+      const grid = document.getElementById('gridBenchmarkSemana3');
+      grid.innerHTML = '';
+      filtrados.forEach((item, idx) => {
+        const modoA = obterResultadoConfig(item, cfgEsqId, 'modo_a_llm_pura');
+        const modoB = obterResultadoConfig(item, cfgDirId, 'modo_b_rag');
+        const gab = item.gabarito || {};
+        const locaisGab = (gab.locais_gabarito || []).map(l => escapeHtml(l)).join(', ');
+
+        const fontesA = (modoA.fontes_utilizadas || []).map(f => `${escapeHtml(f.nome)} (${escapeHtml(f.ra)})`).join(', ');
+        const fontesB = (modoB.fontes_utilizadas || []).map(f => `${escapeHtml(f.nome)} (${escapeHtml(f.ra)})`).join(', ');
+        const invA = ((modoA.verificacao_deterministica && modoA.verificacao_deterministica.locais_inventados) || []).map(l => escapeHtml(l)).join(', ');
+        const invB = ((modoB.verificacao_deterministica && modoB.verificacao_deterministica.locais_inventados) || []).map(l => escapeHtml(l)).join(', ');
+
+        const card = document.createElement('div');
+        card.style.cssText = 'background:#161b22; border:1px solid var(--card-border); border-radius:10px; padding:16px;';
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid #21262d; padding-bottom:8px; flex-wrap:wrap; gap:6px;">
+            <div>
+              <span class="quadrado-badge blue" style="margin-right:6px;">Caso #${escapeHtml(item.id_golden || (idx+1))}</span>
+              <span class="quadrado-badge green" style="margin-right:6px;">${escapeHtml(gab.ra_esperada || 'DF')}</span>
+              <span class="quadrado-badge purple">${escapeHtml(infoEsq.curto)} &times; ${escapeHtml(infoDir.curto)}</span>
+              <h3 style="font-size:0.98rem; font-weight:700; color:var(--text); margin-top:6px;">${escapeHtml(item.pergunta)}</h3>
+              ${locaisGab ? `<div style="font-size:0.75rem; color:var(--text-muted); margin-top:3px;"><strong>Gabarito:</strong> ${locaisGab}</div>` : ''}
+            </div>
+            <span style="font-size:0.75rem; color:var(--text-muted);">
+              ${modoA.latencia_ms ? Math.round(modoA.latencia_ms) + ' ms' : ''} vs. ${modoB.latencia_ms ? Math.round(modoB.latencia_ms) + ' ms' : ''}
+            </span>
+          </div>
+
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:12px; margin-bottom:10px;">
+            <!-- LADO ESQUERDO -->
+            <div style="background:#0d1117; border:1px solid rgba(248,81,73,0.3); border-radius:8px; padding:12px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:6px; gap:6px; flex-wrap:wrap;">
+                <strong style="color:#ff7b72; font-size:0.8rem;">${escapeHtml(infoEsq.titulo)}</strong>
+                <span style="font-size:0.7rem; color:#ff7b72; background:rgba(248,81,73,0.15); padding:1px 6px; border-radius:4px;">${modoA.latencia_ms ? Math.round(modoA.latencia_ms) + ' ms' : ''}</span>
+              </div>
+              <p style="font-size:0.8rem; color:#c9d1d9; line-height:1.45; white-space:pre-wrap;">${escapeHtml(modoA.resposta || 'Sem resposta registrada')}</p>
+              ${invA ? `<div style="margin-top:8px; font-size:0.72rem; color:#ff7b72;"><strong>Locais fora da base:</strong> ${invA}</div>` : ''}
+              ${fontesA ? `<div style="margin-top:8px; border-top:1px solid #21262d; padding-top:6px; font-size:0.72rem; color:var(--text-muted);"><strong>Fontes recuperadas:</strong> ${fontesA}</div>` : ''}
+              ${renderizarBadgesScores(modoA.scores)}
+            </div>
+
+            <!-- LADO DIREITO -->
+            <div style="background:#0d1117; border:1px solid rgba(63,185,80,0.3); border-radius:8px; padding:12px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:6px; gap:6px; flex-wrap:wrap;">
+                <strong style="color:#3fb950; font-size:0.8rem;">${escapeHtml(infoDir.titulo)}</strong>
+                <span style="font-size:0.7rem; color:#3fb950; background:rgba(63,185,80,0.15); padding:1px 6px; border-radius:4px;">${modoB.latencia_ms ? Math.round(modoB.latencia_ms) + ' ms' : ''}</span>
+              </div>
+              <p style="font-size:0.8rem; color:#c9d1d9; line-height:1.45; white-space:pre-wrap;">${escapeHtml(modoB.resposta || 'Sem resposta registrada')}</p>
+              ${invB ? `<div style="margin-top:8px; font-size:0.72rem; color:#ff7b72;"><strong>Locais fora da base:</strong> ${invB}</div>` : ''}
+              ${fontesB ? `<div style="margin-top:8px; border-top:1px solid #21262d; padding-top:6px; font-size:0.72rem; color:var(--text-muted);"><strong>Fontes citadas:</strong> ${fontesB}</div>` : ''}
+              ${renderizarBadgesScores(modoB.scores)}
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
     }
 
     function filtrarAprovados() {
@@ -1892,6 +2499,1765 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
         container.appendChild(div);
       });
     }
+  </script>
+</body>
+</html>
+"""
+
+
+COMPARATIVO_PAGE = """<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Comparativo Lado a Lado: LLM Pura vs. RAG Ancorado | Orquestrador de Rolês DF</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-canvas: #FAFAFA;
+      --surface-white: #FFFFFF;
+      --surface-elevated: #F4F9F9;
+      --border-soft: #E5E7EB;
+      --shadow-elev: 0 10px 30px rgba(0, 0, 0, 0.05);
+
+      --brand-primary: #132E31;
+      --brand-secondary: #337A89;
+      --brand-highlight: #7DC5CF;
+      --brand-detail: #E9F7F7;
+
+      --text-primary: #132E31;
+      --text-muted: #475569;
+      --track-bg: #E5E7EB;
+      --danger-text: #991B1B;
+      --danger-bg: #FEF2F2;
+      --danger-border: #FECACA;
+    }
+
+    body.dark-mode {
+      --bg-canvas: #0D1B1D;
+      --surface-white: #132E31;
+      --surface-elevated: #1A3C40;
+      --border-soft: #264F54;
+      --shadow-elev: 0 10px 30px rgba(0, 0, 0, 0.32);
+
+      --text-primary: #F8FAFC;
+      --text-muted: #B8D4D8;
+      --track-bg: #1F474C;
+      --brand-detail: #1C4246;
+      --danger-text: #FCA5A5;
+      --danger-bg: rgba(153, 27, 27, 0.25);
+      --danger-border: rgba(252, 165, 165, 0.35);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--bg-canvas);
+      color: var(--text-primary);
+      font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    h1, h2, h3, .kpi-value, .brand-name {
+      font-family: "DM Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: -0.02em;
+    }
+
+    /* Sidebar Executiva Limpa */
+    .sidebar {
+      width: 268px;
+      flex-shrink: 0;
+      background: var(--surface-white);
+      border-right: 1px solid var(--border-soft);
+      padding: 24px 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 24px;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    .brand-box {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 4px 8px 16px;
+      border-bottom: 1px solid var(--border-soft);
+    }
+
+    .brand-name {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      letter-spacing: -0.02em;
+    }
+
+    .brand-sub {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .sidebar-nav {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .sidebar-section-label {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      padding: 0 10px 6px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      text-decoration: none;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      border: 1px solid transparent;
+      transition: all 0.16s ease;
+    }
+
+    .nav-item:hover {
+      background: var(--surface-elevated);
+      color: var(--text-primary);
+    }
+
+    .nav-item.active {
+      background: var(--brand-detail);
+      color: var(--text-primary);
+      border-color: var(--brand-highlight);
+      border-left: 4px solid var(--brand-primary);
+      font-weight: 700;
+    }
+
+    body.dark-mode .nav-item.active {
+      border-left-color: var(--brand-highlight);
+    }
+
+    .sidebar-footer {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      padding-top: 16px;
+      border-top: 1px solid var(--border-soft);
+    }
+
+    .sidebar-badge-2fa {
+      background: var(--brand-detail);
+      color: var(--text-primary);
+      border: 1px solid var(--border-soft);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.76rem;
+      line-height: 1.45;
+      font-weight: 500;
+    }
+
+    .theme-toggle-btn {
+      width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: var(--brand-primary);
+      color: #FFFFFF;
+      border: 1px solid var(--brand-primary);
+      padding: 9px 14px;
+      border-radius: 10px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.18s ease;
+    }
+
+    body.dark-mode .theme-toggle-btn {
+      background: var(--brand-secondary);
+      border-color: var(--brand-highlight);
+      color: #FFFFFF;
+    }
+
+    .theme-toggle-btn:hover {
+      opacity: 0.92;
+    }
+
+    /* Área Principal */
+    .workspace {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .main-wrapper {
+      max-width: 1320px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 28px 32px 40px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      flex: 1;
+    }
+
+    header.exec-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      flex-wrap: wrap;
+      gap: 14px;
+      padding-bottom: 6px;
+    }
+
+    header.exec-header h1 {
+      font-size: 1.7rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+    }
+
+    header.exec-header p {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      line-height: 1.5;
+      max-width: 820px;
+      margin-top: 6px;
+    }
+
+    .header-tag {
+      background: var(--brand-detail);
+      color: var(--text-primary);
+      border: 1px solid var(--brand-highlight);
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    /* 3 KPI Metric Cards */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .kpi-card {
+      background: var(--surface-white);
+      border: 1px solid var(--border-soft);
+      border-radius: 14px;
+      padding: 18px 20px;
+      box-shadow: var(--shadow-elev);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      border-top: 3px solid var(--brand-secondary);
+    }
+
+    .kpi-card.kpi-primary {
+      border-top-color: var(--brand-primary);
+    }
+
+    .kpi-card.kpi-highlight {
+      border-top-color: var(--brand-highlight);
+    }
+
+    .kpi-label {
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+    }
+
+    .kpi-value {
+      font-size: 1.55rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      line-height: 1.2;
+    }
+
+    .kpi-foot {
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* Gráfico de Barras de Desempenho (Latência & Tokens) */
+    .chart-card {
+      background: var(--surface-white);
+      border: 1px solid var(--border-soft);
+      border-radius: 14px;
+      padding: 18px 22px;
+      box-shadow: var(--shadow-elev);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .chart-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .chart-legend {
+      display: flex;
+      gap: 16px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      display: inline-block;
+    }
+
+    .chart-rows {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 18px;
+    }
+
+    .chart-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .chart-group-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .bar-line {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .bar-tag {
+      width: 58px;
+      flex-shrink: 0;
+      color: var(--text-primary);
+    }
+
+    .bar-track {
+      flex: 1;
+      height: 12px;
+      background: var(--track-bg);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 999px;
+      transition: width 0.35s ease;
+      width: 0%;
+    }
+
+    .bar-fill-a {
+      background: var(--brand-primary);
+    }
+
+    body.dark-mode .bar-fill-a {
+      background: #7DC5CF;
+    }
+
+    .bar-fill-b {
+      background: var(--brand-secondary);
+    }
+
+    .bar-num {
+      width: 76px;
+      text-align: right;
+      flex-shrink: 0;
+      color: var(--text-primary);
+    }
+
+    /* Seletor Golden Dataset + Barra de Pergunta */
+    .control-panel {
+      background: var(--surface-white);
+      border: 1px solid var(--border-soft);
+      border-radius: 14px;
+      padding: 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: var(--shadow-elev);
+    }
+
+    .control-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .control-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: var(--text-primary);
+    }
+
+    .golden-select {
+      flex: 1;
+      min-width: 260px;
+      background: var(--surface-white);
+      color: var(--text-primary);
+      border: 1px solid var(--border-soft);
+      border-radius: 8px;
+      padding: 9px 12px;
+      font-size: 0.88rem;
+      font-weight: 500;
+      outline: none;
+    }
+
+    .golden-select:focus {
+      border-color: var(--brand-secondary);
+    }
+
+    .golden-select.config-select {
+      flex: 1 1 200px;
+      min-width: 0;
+    }
+
+    .chips-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .golden-chip {
+      background: var(--brand-detail);
+      color: var(--text-primary);
+      border: 1px solid var(--border-soft);
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.16s ease;
+    }
+
+    .golden-chip:hover {
+      border-color: var(--brand-secondary);
+      background: var(--surface-elevated);
+    }
+
+    .golden-chip.active {
+      background: var(--brand-primary);
+      color: #FFFFFF;
+      border-color: var(--brand-primary);
+    }
+
+    body.dark-mode .golden-chip.active {
+      background: var(--brand-highlight);
+      color: #132E31;
+      border-color: var(--brand-highlight);
+    }
+
+    .search-bar {
+      display: flex;
+      gap: 10px;
+    }
+
+    .search-input {
+      flex: 1;
+      background: var(--surface-white);
+      border: 1px solid var(--border-soft);
+      color: var(--text-primary);
+      border-radius: 10px;
+      padding: 12px 15px;
+      font-size: 0.94rem;
+      outline: none;
+    }
+
+    .search-input:focus {
+      border-color: var(--brand-secondary);
+      box-shadow: 0 0 0 3px rgba(51, 122, 137, 0.15);
+    }
+
+    .btn-executar {
+      background: var(--brand-primary);
+      color: #FFFFFF;
+      border: 1px solid var(--brand-primary);
+      border-radius: 10px;
+      padding: 12px 22px;
+      font-size: 0.92rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      white-space: nowrap;
+    }
+
+    .btn-executar:hover {
+      background: var(--brand-secondary);
+      border-color: var(--brand-secondary);
+    }
+
+    .btn-executar:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+    }
+
+    /* Banners de Erro e Gabarito */
+    .erro-banner {
+      background: var(--danger-bg);
+      border: 1px solid var(--danger-border);
+      color: var(--danger-text);
+      border-radius: 10px;
+      padding: 12px 16px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      display: none;
+    }
+
+    .gabarito-banner {
+      background: var(--surface-white);
+      border: 1px solid var(--border-soft);
+      border-left: 4px solid var(--brand-secondary);
+      border-radius: 12px;
+      padding: 14px 18px;
+      box-shadow: var(--shadow-elev);
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .gabarito-title {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+    }
+
+    .gabarito-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 0.8rem;
+    }
+
+    /* Grid Lado a Lado */
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .mode-column {
+      background: var(--surface-white);
+      border: 1px solid var(--border-soft);
+      border-radius: 14px;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      box-shadow: var(--shadow-elev);
+    }
+
+    .mode-column.modo-a {
+      border-top: 4px solid var(--brand-primary);
+    }
+
+    .mode-column.modo-b {
+      border-top: 4px solid var(--brand-secondary);
+    }
+
+    .mode-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .mode-title {
+      font-size: 1.08rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .mode-subtitle {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+    }
+
+    .llm-model-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      background: var(--brand-detail);
+      border: 1px solid var(--border-soft);
+      color: var(--text-primary);
+    }
+
+    .status-badge {
+      padding: 5px 12px;
+      border-radius: 999px;
+      font-size: 0.74rem;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .badge-warning-a {
+      background: var(--danger-bg);
+      color: var(--danger-text);
+      border: 1px solid var(--danger-border);
+    }
+
+    .badge-verified-b {
+      background: var(--brand-primary);
+      color: #FFFFFF;
+      border: 1px solid var(--brand-primary);
+    }
+
+    body.dark-mode .badge-verified-b {
+      background: var(--brand-secondary);
+      border-color: var(--brand-highlight);
+    }
+
+    /* Info Popover (apenas hover) */
+    .info-trigger {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+    }
+
+    .info-btn {
+      width: 20px;
+      height: 20px;
+      border-radius: 999px;
+      border: 1px solid var(--brand-highlight);
+      background: var(--brand-detail);
+      color: var(--text-primary);
+      font-size: 0.72rem;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: help;
+      user-select: none;
+    }
+
+    .info-popover {
+      display: none;
+      position: absolute;
+      bottom: calc(100% + 8px);
+      right: 0;
+      width: 260px;
+      background: var(--brand-primary);
+      color: #FFFFFF;
+      border: 1px solid var(--brand-highlight);
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 0.76rem;
+      line-height: 1.45;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.25);
+      z-index: 40;
+      pointer-events: none;
+    }
+
+    .info-popover.popover-left {
+      left: 0;
+      right: auto;
+    }
+
+    .info-trigger:hover .info-popover {
+      display: block;
+    }
+
+    .response-box {
+      background: var(--surface-elevated);
+      border: 1px solid var(--border-soft);
+      border-radius: 10px;
+      padding: 14px 16px;
+      font-size: 0.91rem;
+      line-height: 1.6;
+      color: var(--text-primary);
+      min-height: 112px;
+    }
+
+    .fonte-cite {
+      display: inline-block;
+      background: var(--brand-primary);
+      color: #FFFFFF;
+      padding: 1px 6px;
+      border-radius: 5px;
+      font-weight: 700;
+      font-size: 0.8em;
+    }
+
+    .metrics-strip {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .metric-card {
+      position: relative;
+      background: var(--surface-elevated);
+      border: 1px solid var(--border-soft);
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .metric-card .info-trigger {
+      position: absolute;
+      top: 7px;
+      right: 7px;
+    }
+
+    .metric-val {
+      font-size: 1.12rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .metric-lbl {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+      font-weight: 600;
+    }
+
+    .scores-panel {
+      background: var(--surface-elevated);
+      border: 1px solid var(--border-soft);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .scores-title {
+      font-size: 0.78rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      color: var(--text-primary);
+    }
+
+    .not-evaluated-box {
+      background: var(--surface-white);
+      border: 1px dashed var(--border-soft);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    .trace-banner {
+      background: var(--brand-detail);
+      border: 1px solid var(--brand-highlight);
+      border-radius: 10px;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 0.82rem;
+    }
+
+    .trace-link {
+      color: var(--brand-primary);
+      font-weight: 700;
+      text-decoration: underline;
+    }
+
+    body.dark-mode .trace-link {
+      color: var(--brand-highlight);
+    }
+
+    .sources-section {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .sources-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: var(--text-primary);
+    }
+
+    .empty-sources-box {
+      background: var(--danger-bg);
+      border: 1px dashed var(--danger-border);
+      border-radius: 10px;
+      padding: 14px;
+      text-align: center;
+      color: var(--danger-text);
+      font-size: 0.84rem;
+    }
+
+    .guardrail-box {
+      background: rgba(51, 122, 137, 0.1);
+      border: 1px dashed var(--brand-secondary);
+      border-radius: 10px;
+      padding: 14px;
+      font-size: 0.84rem;
+      color: var(--text-primary);
+    }
+
+    .source-card {
+      background: var(--surface-white);
+      border: 1px solid var(--border-soft);
+      border-left: 4px solid var(--brand-secondary);
+      border-radius: 10px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .source-card.dimmed {
+      opacity: 0.55;
+      border-left-color: var(--text-muted);
+    }
+
+    .source-card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .source-name {
+      font-weight: 800;
+      font-size: 0.94rem;
+      color: var(--text-primary);
+    }
+
+    .source-sim {
+      background: var(--brand-detail);
+      color: var(--text-primary);
+      border: 1px solid var(--brand-highlight);
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .cite-pill {
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    .cite-pill-yes {
+      background: var(--brand-primary);
+      color: #FFFFFF;
+    }
+
+    .cite-pill-no {
+      background: var(--surface-elevated);
+      color: var(--text-muted);
+      border: 1px solid var(--border-soft);
+    }
+
+    .source-meta {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      font-size: 0.76rem;
+      color: var(--text-muted);
+    }
+
+    .meta-pill {
+      background: var(--brand-detail);
+      color: var(--text-primary);
+      border: 1px solid var(--border-soft);
+      padding: 3px 9px;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+
+    .source-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 2px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .btn-tiktok {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--brand-primary);
+      color: #FFFFFF;
+      border: 1px solid var(--brand-primary);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 0.76rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: background 0.16s ease;
+    }
+
+    .btn-tiktok:hover {
+      background: var(--brand-secondary);
+      border-color: var(--brand-secondary);
+    }
+
+    footer {
+      text-align: center;
+      padding: 16px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-soft);
+    }
+
+    @media (max-width: 980px) {
+      body {
+        flex-direction: column;
+      }
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+        border-right: none;
+        border-bottom: 1px solid var(--border-soft);
+        padding: 16px;
+      }
+      .sidebar-nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+      }
+      .kpi-grid,
+      .chart-rows,
+      .comparison-grid {
+        grid-template-columns: 1fr;
+      }
+      .main-wrapper {
+        padding: 18px 16px 32px;
+      }
+      .search-bar {
+        flex-direction: column;
+      }
+      .btn-executar {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar" aria-label="Navegação Principal">
+    <div>
+      <div class="brand-box">
+        <div class="brand-name">🎭 Orquestrador DF</div>
+        <div class="brand-sub">Analytics Executive Dashboard</div>
+      </div>
+
+      <nav class="sidebar-nav" style="margin-top:16px;">
+        <div class="sidebar-section-label">Navegação</div>
+        <a href="/comparativo" class="nav-item active">⚖️ Comparativo LLM vs. RAG</a>
+      </nav>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="sidebar-badge-2fa">
+        <strong>Base Curada 2FA</strong><br/>
+        93 lugares do TikTok, auditada em 2 etapas.
+      </div>
+      <button
+        type="button"
+        class="theme-toggle-btn"
+        id="themeToggleBtn"
+        onclick="alternarTema()"
+        aria-label="Alternar entre Modo Claro e Modo Escuro"
+      >
+        🌙 Modo Escuro
+      </button>
+    </div>
+  </aside>
+
+  <div class="workspace">
+    <main class="main-wrapper">
+      <header class="exec-header">
+        <div>
+          <h1>⚖️ Comparativo Lado a Lado: LLM Pura vs. RAG Ancorado (2FA)</h1>
+          <p>
+            Demonstração executiva de mitigação de alucinações (<strong>RNF-03</strong>) e precisão geoespacial no Distrito Federal. Compare a resposta de uma LLM sem contexto contra o pipeline RAG ancorado na base de 93 lugares do TikTok, auditada em 2 etapas.
+          </p>
+        </div>
+        <span class="header-tag">RNF-03 &bull; RNF-05 &bull; RNF-14</span>
+      </header>
+
+      <!-- 3 KPI Metric Cards -->
+      <section class="kpi-grid" aria-label="Indicadores Principais">
+        <div class="kpi-card kpi-primary">
+          <div class="kpi-label">Base Auditada (2FA)</div>
+          <div class="kpi-value">93 locais</div>
+          <div class="kpi-foot">Base de 93 lugares do TikTok, auditada em 2 etapas</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Golden Dataset (Semana 3)</div>
+          <div class="kpi-value"><span id="kpiGoldenCount">—</span> casos</div>
+          <div class="kpi-foot">Carregado dinamicamente de /api/comparativo/golden</div>
+        </div>
+        <div class="kpi-card kpi-highlight">
+          <div class="kpi-label">Latência Medida (SLA RNF-14)</div>
+          <div class="kpi-value" id="kpiLatenciaResumo">—</div>
+          <div class="kpi-foot">Modo A vs. Modo B (meta &le; 5.000 ms)</div>
+        </div>
+      </section>
+
+      <!-- Painel de Seleção do Golden Dataset e Input Livre -->
+      <section class="control-panel" aria-label="Seletor de Perguntas do Golden Dataset">
+        <div class="control-row">
+          <span class="control-label" id="goldenLabel">🎯 Golden Dataset:</span>
+          <select id="goldenSelect" class="golden-select" onchange="selecionarGoldenDropdown()">
+            <option value="">✍️ Pergunta livre (sem gabarito)</option>
+          </select>
+        </div>
+
+        <div class="chips-row" id="goldenChips"></div>
+
+        <div class="control-row">
+          <span class="control-label">⚙️ Configuração:</span>
+          <select id="raciocinioSelect" class="golden-select config-select" aria-label="Raciocínio do modelo nos dois modos">
+            <option value="desligado">🧠 Raciocínio desligado (padrão)</option>
+            <option value="high">🧠 Raciocínio alto (mais lento)</option>
+          </select>
+          <select id="buscaSelect" class="golden-select config-select" aria-label="Tipo de busca do Modo B">
+            <option value="lexica">🔎 Busca do Modo B: por palavras (padrão)</option>
+            <option value="vetorial">🔎 Busca do Modo B: por embeddings</option>
+            <option value="hibrida">🔎 Busca do Modo B: híbrida</option>
+          </select>
+        </div>
+
+        <form class="search-bar" onsubmit="executarComparativo(event)">
+          <input
+            type="text"
+            id="perguntaComparativoInput"
+            class="search-input"
+            value=""
+            oninput="aoDigitarPergunta()"
+            placeholder="Digite uma pergunta ou selecione um caso do Golden Dataset acima..."
+          />
+          <button type="submit" class="btn-executar" id="btnExecutarComparativo">
+            ⚡ Comparar Lado a Lado
+          </button>
+        </form>
+      </section>
+
+      <div class="erro-banner" id="erroBanner" role="alert"></div>
+
+      <section class="gabarito-banner" id="gabaritoBanner" aria-label="Gabarito do Caso Golden">
+        <div class="gabarito-title">📌 Gabarito do Golden Dataset</div>
+        <div class="gabarito-pills" id="gabaritoPills"></div>
+      </section>
+
+      <!-- Gráfico de Barras de Desempenho (Latência & Tokens Reais) -->
+      <section class="chart-card" aria-label="Gráfico de Desempenho da Execução">
+        <div class="chart-header">
+          <div class="chart-title">📊 Desempenho Comparativo da Execução (Valores Medidos)</div>
+          <div class="chart-legend">
+            <span class="legend-item"><span class="legend-dot" style="background:var(--brand-primary);"></span> Modo A (LLM Pura)</span>
+            <span class="legend-item"><span class="legend-dot" style="background:var(--brand-secondary);"></span> Modo B (RAG 2FA)</span>
+          </div>
+        </div>
+        <div class="chart-rows">
+          <div class="chart-group">
+            <div class="chart-group-title">Latência Total (ms)</div>
+            <div class="bar-line">
+              <span class="bar-tag">Modo A</span>
+              <div class="bar-track"><div class="bar-fill bar-fill-a" id="chartLatenciaBarA"></div></div>
+              <span class="bar-num" id="chartLatenciaValA">—</span>
+            </div>
+            <div class="bar-line">
+              <span class="bar-tag">Modo B</span>
+              <div class="bar-track"><div class="bar-fill bar-fill-b" id="chartLatenciaBarB"></div></div>
+              <span class="bar-num" id="chartLatenciaValB">—</span>
+            </div>
+          </div>
+          <div class="chart-group">
+            <div class="chart-group-title">Tokens Totais Consumidos</div>
+            <div class="bar-line">
+              <span class="bar-tag">Modo A</span>
+              <div class="bar-track"><div class="bar-fill bar-fill-a" id="chartTokensBarA"></div></div>
+              <span class="bar-num" id="chartTokensValA">—</span>
+            </div>
+            <div class="bar-line">
+              <span class="bar-tag">Modo B</span>
+              <div class="bar-track"><div class="bar-fill bar-fill-b" id="chartTokensBarB"></div></div>
+              <span class="bar-num" id="chartTokensValB">—</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Grid 2 Colunas: Modo A (LLM Pura) vs Modo B (RAG Ancorado) -->
+      <section class="comparison-grid">
+        <!-- COLUNA ESQUERDA: MODO A — LLM PURA (ZERO-SHOT) -->
+        <article class="mode-column modo-a" id="colunaModoA">
+          <div class="mode-header">
+            <div>
+              <div class="mode-title">
+                <span>🤖 Modo A — LLM Pura (Zero-Shot)</span>
+                <div class="info-trigger">
+                  <span class="info-btn" aria-label="Informação sobre Zero-Shot">i</span>
+                  <div class="info-popover popover-left">
+                    <strong>🎯 O que é Zero-Shot:</strong> A LLM responde direto pela sua memória de treinamento, sem receber documentos nem consultar a base de 93 lugares do TikTok.
+                  </div>
+                </div>
+              </div>
+              <div class="mode-subtitle">Geração paramétrica sem acesso à base de 93 lugares ou validação 2FA</div>
+              <div class="llm-model-pill" id="modeloPillA">🧠 Modelo: aguardando execução</div>
+            </div>
+            <span class="status-badge badge-warning-a" id="badgeModoA">
+              ⚠️ Sem Evidências — Sujeito a Alucinação
+            </span>
+          </div>
+
+          <div class="response-box" id="respostaModoA">
+            Selecione uma pergunta do Golden Dataset ou digite uma pergunta acima e clique em <strong>Comparar Lado a Lado</strong> para executar o modelo em tempo real.
+          </div>
+
+          <div class="metrics-strip">
+            <div class="metric-card">
+              <div class="info-trigger">
+                <span class="info-btn" aria-label="Informação sobre Latência">i</span>
+                <div class="info-popover">
+                  <strong>⏱️ Latência (RNF-14):</strong> Tempo medido que o modelo levou para responder (meta SLA &le; 5.000 ms).
+                </div>
+              </div>
+              <div class="metric-val" id="latenciaModoA">—</div>
+              <div class="metric-lbl">Latência (RNF-14)</div>
+            </div>
+            <div class="metric-card">
+              <div class="info-trigger">
+                <span class="info-btn" aria-label="Informação sobre Tokens Totais">i</span>
+                <div class="info-popover">
+                  <strong>🔤 Tokens Totais:</strong> Soma das unidades de texto de entrada e saída medidas na chamada ao modelo.
+                </div>
+              </div>
+              <div class="metric-val" id="tokensModoA">—</div>
+              <div class="metric-lbl">Tokens Totais</div>
+            </div>
+          </div>
+
+          <div class="scores-panel">
+            <div class="scores-title">📊 Scores de Qualidade &amp; Governança</div>
+            <div class="not-evaluated-box" id="scoresModoA">
+              <strong>não avaliado</strong> — Execute uma comparação para gerar os scores automáticos (issue #36).
+            </div>
+          </div>
+
+          <div class="sources-section">
+            <div class="sources-header">
+              <span>📂 Fontes Utilizadas</span>
+              <span>0 Evidências</span>
+            </div>
+            <div class="empty-sources-box" id="fontesModoA">
+              🚫 <strong>Nenhuma fonte auditada utilizada.</strong><br/>
+              O Modo A responde sem acesso à base de 93 lugares do TikTok, auditada em 2 etapas.
+            </div>
+          </div>
+        </article>
+
+        <!-- COLUNA DIREITA: MODO B — RAG ANCORADO (BASE 2FA) -->
+        <article class="mode-column modo-b" id="colunaModoB">
+          <div class="mode-header">
+            <div>
+              <div class="mode-title">🛡️ Modo B — RAG Ancorado (Base 2FA)</div>
+              <div class="mode-subtitle">Busca na base de 93 lugares do TikTok, auditada em 2 etapas + guardrails</div>
+              <div class="llm-model-pill pill-rag" id="modeloPillB">🧠 Modelo: aguardando execução</div>
+            </div>
+            <span class="status-badge badge-verified-b" id="badgeModoB">
+              ✅ Fundamentado na Base Curada do DF
+            </span>
+          </div>
+
+          <div class="response-box" id="respostaModoB">
+            Aguardando execução. O Modo B recuperará os lugares compatíveis da base de 93 locais do TikTok, aplicando os guardrails e gerando a resposta ancorada.
+          </div>
+
+          <div class="metrics-strip">
+            <div class="metric-card">
+              <div class="info-trigger">
+                <span class="info-btn" aria-label="Informação sobre Latência">i</span>
+                <div class="info-popover">
+                  <strong>⏱️ Latência (RNF-14):</strong> Tempo medido de recuperação na base + geração ancorada (meta SLA &le; 5.000 ms).
+                </div>
+              </div>
+              <div class="metric-val" id="latenciaModoB">—</div>
+              <div class="metric-lbl">Latência (RNF-14)</div>
+            </div>
+            <div class="metric-card">
+              <div class="info-trigger">
+                <span class="info-btn" aria-label="Informação sobre Tokens Totais">i</span>
+                <div class="info-popover">
+                  <strong>🔤 Tokens Totais:</strong> Soma dos tokens da pergunta, dos documentos 2FA injetados e da resposta gerada.
+                </div>
+              </div>
+              <div class="metric-val" id="tokensModoB">—</div>
+              <div class="metric-lbl">Tokens Totais</div>
+            </div>
+          </div>
+
+          <div class="scores-panel">
+            <div class="scores-title">📊 Scores de Qualidade &amp; Governança</div>
+            <div class="not-evaluated-box" id="scoresModoB">
+              <strong>não avaliado</strong> — Execute uma comparação para gerar os scores automáticos (issue #36).
+            </div>
+          </div>
+
+          <div class="trace-banner" id="traceBannerB" style="display:none;">
+            <span>🔭 <strong>Telemetria LLMOps (RNF-18):</strong> Trace registrado no Langfuse</span>
+            <a
+              href="#"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="trace-link"
+              id="traceLinkModoB"
+            >
+              Ver Trace no Langfuse &nearr;
+            </a>
+          </div>
+
+          <div class="sources-section">
+            <div class="sources-header">
+              <span>📂 Fontes Auditadas 2FA</span>
+              <span id="contadorFontesB">0 Fontes</span>
+            </div>
+            <div id="fontesModoB" style="display:flex; flex-direction:column; gap:10px;">
+              <div class="not-evaluated-box">Nenhuma fonte carregada ainda. Execute uma comparação acima.</div>
+            </div>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <footer>
+      Residência em IA &bull; Challenge 02 &bull; Grupo 07 &bull; Interface Comparativa LLM Pura vs. RAG Ancorado (Issue #37)
+    </footer>
+  </div>
+
+  <script>
+    let goldenDataset = [];
+    let perguntaSelecionadaDoGolden = "";
+
+    function aplicarTema(modoEscuro) {
+      document.body.classList.toggle("dark-mode", modoEscuro);
+      const btn = document.getElementById("themeToggleBtn");
+      if (btn) {
+        btn.textContent = modoEscuro ? "☀️ Modo Claro" : "🌙 Modo Escuro";
+      }
+    }
+
+    function alternarTema() {
+      aplicarTema(!document.body.classList.contains("dark-mode"));
+    }
+
+    const NOMES_BUSCA = { lexica: "por palavras", vetorial: "por embeddings", hibrida: "híbrida" };
+
+    function escaparHtml(texto) {
+      return String(texto || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function formatarRespostaSegura(texto, destacarFontes) {
+      let html = escaparHtml(texto);
+      html = html.replace(/\\*\\*(.+?)\\*\\*/g, "<strong>$1</strong>");
+      if (destacarFontes) {
+        html = html.replace(/\\[FONTE #(\\d+)\\]/g, '<span class="fonte-cite">[FONTE #$1]</span>');
+      }
+      html = html.replace(/\\n/g, "<br>");
+      return html;
+    }
+
+    function formatarPreco(valor) {
+      if (valor === null || valor === undefined || Number.isNaN(Number(valor))) {
+        return "preço não informado";
+      }
+      return "R$ " + Number(valor).toFixed(2).replace(".", ",");
+    }
+
+    function criarEl(tag, className, text) {
+      const el = document.createElement(tag);
+      if (className) el.className = className;
+      if (text !== undefined && text !== null) el.textContent = String(text);
+      return el;
+    }
+
+    function urlSegura(url) {
+      if (!url || typeof url !== "string") return null;
+      const limpa = url.trim();
+      if (limpa.startsWith("https://") || limpa.startsWith("http://") || limpa.startsWith("/")) {
+        return limpa;
+      }
+      return null;
+    }
+
+    async function carregarGoldenDataset() {
+      const select = document.getElementById("goldenSelect");
+      const chips = document.getElementById("goldenChips");
+      const label = document.getElementById("goldenLabel");
+      const kpiGolden = document.getElementById("kpiGoldenCount");
+      try {
+        const res = await fetch("/api/comparativo/golden");
+        if (!res.ok) return;
+        const data = await res.json();
+        goldenDataset = Array.isArray(data.perguntas) ? data.perguntas : [];
+        label.textContent = `🎯 Golden Dataset (${goldenDataset.length} Casos):`;
+        if (kpiGolden) kpiGolden.textContent = String(goldenDataset.length);
+
+        select.innerHTML = "";
+        select.appendChild(criarEl("option", "", "✍️ Pergunta livre (sem gabarito)"));
+        select.firstChild.value = "";
+
+        chips.innerHTML = "";
+        goldenDataset.forEach((item, idx) => {
+          const opt = document.createElement("option");
+          opt.value = item.id;
+          opt.textContent = `${item.id} — ${item.pergunta}`;
+          select.appendChild(opt);
+
+          if (idx < 8) {
+            const chip = criarEl("button", "golden-chip", `#${String(idx + 1).padStart(2, "0")} ${item.categoria || item.id}`);
+            chip.type = "button";
+            chip.dataset.id = item.id;
+            chip.addEventListener("click", () => selecionarChip(item.id));
+            chips.appendChild(chip);
+          }
+        });
+      } catch (err) {
+        console.error("Erro ao carregar /api/comparativo/golden:", err);
+      }
+    }
+
+    function atualizarChipsAtivos(idGolden) {
+      document.querySelectorAll(".golden-chip").forEach(btn => {
+        btn.classList.toggle("active", Boolean(idGolden) && btn.dataset.id === idGolden);
+      });
+    }
+
+    function selecionarGoldenDropdown() {
+      const sel = document.getElementById("goldenSelect");
+      const idGolden = sel.value;
+      atualizarChipsAtivos(idGolden);
+      if (!idGolden) {
+        perguntaSelecionadaDoGolden = "";
+        return;
+      }
+      const item = goldenDataset.find(g => g.id === idGolden);
+      if (item) {
+        perguntaSelecionadaDoGolden = item.pergunta;
+        document.getElementById("perguntaComparativoInput").value = item.pergunta;
+      }
+      executarComparativo();
+    }
+
+    function selecionarChip(idGolden) {
+      document.getElementById("goldenSelect").value = idGolden;
+      selecionarGoldenDropdown();
+    }
+
+    function aoDigitarPergunta() {
+      const atual = document.getElementById("perguntaComparativoInput").value.trim();
+      const sel = document.getElementById("goldenSelect");
+      if (sel.value && atual !== perguntaSelecionadaDoGolden.trim()) {
+        sel.value = "";
+        atualizarChipsAtivos("");
+      }
+    }
+
+    function renderizarGabarito(gabarito) {
+      const banner = document.getElementById("gabaritoBanner");
+      const pills = document.getElementById("gabaritoPills");
+      pills.innerHTML = "";
+      if (!gabarito) {
+        banner.style.display = "none";
+        return;
+      }
+      banner.style.display = "flex";
+      if (gabarito.categoria) pills.appendChild(criarEl("span", "meta-pill", `🏷️ Categoria: ${gabarito.categoria}`));
+      if (gabarito.ra_esperada) pills.appendChild(criarEl("span", "meta-pill", `📍 RA esperada: ${gabarito.ra_esperada}`));
+      if (Array.isArray(gabarito.locais_gabarito) && gabarito.locais_gabarito.length) {
+        pills.appendChild(criarEl("span", "meta-pill", `⭐ Locais esperados: ${gabarito.locais_gabarito.join(", ")}`));
+      }
+      if (gabarito.preco_maximo_gabarito != null) {
+        pills.appendChild(criarEl("span", "meta-pill", `💰 Teto esperado: ${formatarPreco(gabarito.preco_maximo_gabarito)}`));
+      }
+      if (gabarito.horario_gabarito) {
+        pills.appendChild(criarEl("span", "meta-pill", `🕒 Horário: ${gabarito.horario_gabarito}`));
+      }
+    }
+
+    function atualizarGraficoDesempenho(latA, latB, tokA, tokB) {
+      const maxLat = Math.max(latA, latB, 1);
+      const maxTok = Math.max(tokA, tokB, 1);
+      document.getElementById("chartLatenciaBarA").style.width = `${Math.max(4, Math.round((latA / maxLat) * 100))}%`;
+      document.getElementById("chartLatenciaBarB").style.width = `${Math.max(4, Math.round((latB / maxLat) * 100))}%`;
+      document.getElementById("chartLatenciaValA").textContent = `${latA.toFixed(1)} ms`;
+      document.getElementById("chartLatenciaValB").textContent = `${latB.toFixed(1)} ms`;
+
+      document.getElementById("chartTokensBarA").style.width = `${Math.max(4, Math.round((tokA / maxTok) * 100))}%`;
+      document.getElementById("chartTokensBarB").style.width = `${Math.max(4, Math.round((tokB / maxTok) * 100))}%`;
+      document.getElementById("chartTokensValA").textContent = `${tokA}`;
+      document.getElementById("chartTokensValB").textContent = `${tokB}`;
+
+      const kpiLat = document.getElementById("kpiLatenciaResumo");
+      if (kpiLat) {
+        kpiLat.textContent = `${Math.round(latA)} vs ${Math.round(latB)} ms`;
+      }
+    }
+
+    function renderizarModoIndisponivel(elResposta, elPill, elBadge, modo) {
+      if (modo.modelo === "texto-fixo-sem-llm") {
+        elPill.textContent = "⚠️ Resposta fixa sem LLM (modelo indisponível)";
+      } else {
+        elPill.textContent = `⚠️ Modelo indisponível (${modo.modelo || "desconhecido"})`;
+      }
+      elBadge.textContent = "❌ Modelo não respondeu";
+      const motivo = modo.erro ? `Motivo: ${modo.erro}` : "Sem detalhes adicionais do erro.";
+      elResposta.innerHTML = "";
+      if (modo.resposta) {
+        const respDiv = document.createElement("div");
+        respDiv.innerHTML = formatarRespostaSegura(modo.resposta, true);
+        elResposta.appendChild(respDiv);
+      }
+      const errNote = criarEl("div", "guardrail-box", `⚠️ O modelo não respondeu. ${motivo}`);
+      errNote.style.marginTop = modo.resposta ? "10px" : "0";
+      elResposta.appendChild(errNote);
+    }
+
+    function renderizarComparativo(payload) {
+      const modoA = payload.modo_a_llm_pura || {};
+      const modoB = payload.modo_b_rag || {};
+
+      renderizarGabarito(payload.gabarito || null);
+
+      const latA = Number(modoA.latencia_ms ?? 0);
+      const latB = Number(modoB.latencia_ms ?? 0);
+      const tokA = Number(modoA.tokens_total ?? 0);
+      const tokB = Number(modoB.tokens_total ?? 0);
+
+      // Modo A
+      const pillA = document.getElementById("modeloPillA");
+      const badgeA = document.getElementById("badgeModoA");
+      const respA = document.getElementById("respostaModoA");
+      if (modoA.disponivel === false) {
+        renderizarModoIndisponivel(respA, pillA, badgeA, modoA);
+      } else {
+        pillA.textContent = `🧠 Modelo: ${modoA.modelo || payload.modelo || "não informado"}`;
+        badgeA.textContent = "⚠️ Sem Evidências — Sujeito a Alucinação";
+        respA.innerHTML = formatarRespostaSegura(modoA.resposta || "", false);
+      }
+      document.getElementById("latenciaModoA").textContent = `${latA.toFixed(1)} ms`;
+      document.getElementById("tokensModoA").textContent = `${tokA}`;
+
+      // Modo B
+      const pillB = document.getElementById("modeloPillB");
+      const badgeB = document.getElementById("badgeModoB");
+      const respB = document.getElementById("respostaModoB");
+      if (modoB.disponivel === false) {
+        renderizarModoIndisponivel(respB, pillB, badgeB, modoB);
+      } else {
+        pillB.textContent = `🧠 Modelo: ${modoB.modelo || payload.modelo || "não informado"} · 🔎 Busca: ${NOMES_BUSCA[modoB.busca] || modoB.busca || "por palavras"}`;
+        badgeB.textContent = "✅ Fundamentado na Base Curada do DF";
+        respB.innerHTML = formatarRespostaSegura(modoB.resposta || "", true);
+      }
+      document.getElementById("latenciaModoB").textContent = `${latB.toFixed(1)} ms`;
+      document.getElementById("tokensModoB").textContent = `${tokB}`;
+
+      atualizarGraficoDesempenho(latA, latB, tokA, tokB);
+
+      // Trace Langfuse: exibir apenas quando trace_url não for nulo
+      const traceBanner = document.getElementById("traceBannerB");
+      const traceLink = document.getElementById("traceLinkModoB");
+      const traceSeguro = urlSegura(modoB.trace_url);
+      if (traceSeguro) {
+        traceLink.href = traceSeguro;
+        traceBanner.style.display = "flex";
+      } else {
+        traceBanner.style.display = "none";
+      }
+
+      // Fontes do Modo B (DOM seguro com textContent, sem innerHTML para dados externos)
+      const fontes = Array.isArray(modoB.fontes_utilizadas) ? modoB.fontes_utilizadas : [];
+      const containerFontes = document.getElementById("fontesModoB");
+      document.getElementById("contadorFontesB").textContent = `${fontes.length} Fonte(s) Recuperada(s)`;
+      containerFontes.innerHTML = "";
+
+      const buscaPedida = payload.configuracao && payload.configuracao.busca;
+      if (buscaPedida && modoB.busca && buscaPedida !== modoB.busca) {
+        const erroBusca = (modoB.guardrails && modoB.guardrails.busca_erro) || "embedding indisponível";
+        containerFontes.appendChild(criarEl("div", "guardrail-box",
+          `⚠️ A busca ${NOMES_BUSCA[buscaPedida] || buscaPedida} não pôde ser usada (${erroBusca}); o Modo B usou a busca por palavras.`));
+      }
+
+      if (fontes.length === 0) {
+        const motivoGuardrail = modoB.guardrails && modoB.guardrails.motivo
+          ? `Motivo do guardrail: ${modoB.guardrails.motivo}`
+          : "Nenhum estabelecimento compatível foi recuperado na base.";
+        const box = criarEl("div", "guardrail-box", `🛡️ Pergunta recusada pelos guardrails — ${motivoGuardrail}`);
+        containerFontes.appendChild(box);
+        return;
+      }
+
+      fontes.forEach((f, idx) => {
+        const card = criarEl("div", f.citada === false ? "source-card dimmed" : "source-card");
+
+        const top = criarEl("div", "source-card-top");
+        top.appendChild(criarEl("div", "source-name", `[FONTE #${idx + 1}] ${f.nome || "Local sem nome"}`));
+
+        const badgesRight = criarEl("div", "");
+        badgesRight.style.display = "flex";
+        badgesRight.style.gap = "6px";
+        badgesRight.style.flexWrap = "wrap";
+        badgesRight.appendChild(
+          criarEl(
+            "span",
+            f.citada === false ? "cite-pill cite-pill-no" : "cite-pill cite-pill-yes",
+            f.citada === false ? "Recuperada (não citada)" : "✔ Citada na resposta"
+          )
+        );
+        badgesRight.appendChild(criarEl("span", "source-sim", `Similaridade: ${Number(f.score_similaridade ?? 0).toFixed(2)}`));
+        top.appendChild(badgesRight);
+        card.appendChild(top);
+
+        const meta = criarEl("div", "source-meta");
+        meta.appendChild(criarEl("span", "meta-pill", `📍 RA: ${f.ra || "não informada"}`));
+        meta.appendChild(criarEl("span", "meta-pill", `💰 Custo Médio: ${formatarPreco(f.custo_medio_rs)}`));
+        meta.appendChild(criarEl("span", "meta-pill", `🆔 ${f.id || ""}`));
+        card.appendChild(meta);
+
+        const actions = criarEl("div", "source-actions");
+        const selo = criarEl("span", "", "✔ Base de 93 lugares do TikTok, auditada em 2 etapas");
+        selo.style.fontSize = "0.74rem";
+        selo.style.color = "var(--brand-secondary)";
+        selo.style.fontWeight = "700";
+        actions.appendChild(selo);
+
+        const linkTiktok = urlSegura(f.url_tiktok);
+        if (linkTiktok) {
+          const a = criarEl("a", "btn-tiktok", "🎵 Ver Vídeo Original no TikTok ↗");
+          a.href = linkTiktok;
+          a.target = "_blank";
+          a.rel = "noopener noreferrer";
+          actions.appendChild(a);
+        }
+        card.appendChild(actions);
+        containerFontes.appendChild(card);
+      });
+    }
+
+    async function executarComparativo(event) {
+      if (event) event.preventDefault();
+      const idGolden = document.getElementById("goldenSelect").value;
+      const pergunta = document.getElementById("perguntaComparativoInput").value.trim();
+      const erroBanner = document.getElementById("erroBanner");
+      erroBanner.style.display = "none";
+      erroBanner.textContent = "";
+
+      if (!idGolden && !pergunta) {
+        erroBanner.textContent = "Selecione um caso do Golden Dataset ou digite uma pergunta.";
+        erroBanner.style.display = "block";
+        return;
+      }
+
+      const btn = document.getElementById("btnExecutarComparativo");
+      const textoOriginal = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = "⏳ Consultando modelos (3–5s)...";
+
+      document.getElementById("respostaModoA").textContent = "⏳ Consultando Modo A (LLM Pura)...";
+      document.getElementById("respostaModoB").textContent = "⏳ Recuperando base 2FA e consultando Modo B (RAG)...";
+
+      const corpoReq = idGolden ? { id_golden: idGolden } : { pergunta: pergunta };
+      corpoReq.raciocinio = document.getElementById("raciocinioSelect").value;
+      corpoReq.busca = document.getElementById("buscaSelect").value;
+      if (corpoReq.raciocinio !== "desligado") btn.textContent = "⏳ Consultando modelos com raciocínio (até ~12s)...";
+
+      try {
+        const res = await fetch("/api/comparativo/executar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(corpoReq)
+        });
+        const dados = await res.json();
+        if (!res.ok) {
+          erroBanner.textContent = dados.detail || `Erro ${res.status} ao executar comparativo.`;
+          erroBanner.style.display = "block";
+          document.getElementById("respostaModoA").textContent = "Erro ao executar comparação.";
+          document.getElementById("respostaModoB").textContent = "Erro ao executar comparação.";
+          return;
+        }
+        renderizarComparativo(dados);
+        avaliarComparativo(dados);
+      } catch (err) {
+        console.error("Erro ao consultar /api/comparativo/executar:", err);
+        erroBanner.textContent = "Falha de comunicação com o servidor ao executar comparativo.";
+        erroBanner.style.display = "block";
+      } finally {
+        btn.disabled = false;
+        btn.textContent = textoOriginal;
+      }
+    }
+
+    // Issue #36: avaliação híbrida (RNF-04 determinístico + juiz GLM 5.3 Flash, ADR 0014), em segundo plano
+    const ROTULOS_SCORES = [
+      ["acerto_gabarito", "🏁 Acertou o lugar do gabarito", false],
+      ["fidelidade_factual_rnf03", "🎯 Fidelidade factual (RNF-03)", false],
+      ["taxa_alucinacao", "👻 Alucinação (a base desmente)", true],
+      ["taxa_fora_da_base", "❔ Não verificável na base", true],
+      ["precisao_geoespacial_ra", "📍 Precisão da RA", false],
+      ["abstencao", "🙊 Recusou / não afirmou nada", null],
+      ["sla_latencia_rnf14", "⏱️ SLA ≤ 5 s (RNF-14)", false],
+    ];
+
+    function preencherScores(alvoId, bloco, extra) {
+      const box = document.getElementById(alvoId);
+      if (!box) return;
+      box.innerHTML = "";
+      const scores = (bloco && bloco.scores) || null;
+      if (!scores) {
+        box.appendChild(criarEl("span", "", "não avaliado — avaliação indisponível."));
+        return;
+      }
+      ROTULOS_SCORES.forEach(([chave, rotulo, menorMelhor]) => {
+        const bruto = scores[chave];
+        if (bruto === undefined) return;
+        const naoAvaliado = bruto === null;
+        const v = naoAvaliado ? NaN : Number(bruto);
+        const linha = criarEl("div", "");
+        linha.style.display = "flex";
+        linha.style.justifyContent = "space-between";
+        linha.style.gap = "8px";
+        linha.appendChild(criarEl("span", "", rotulo));
+        const val = criarEl("strong", "", naoAvaliado ? "n/a" : (chave === "abstencao" ? (v >= 0.5 ? "sim" : "não") : `${(v * 100).toFixed(0)}%`));
+        if (naoAvaliado || menorMelhor === null) {
+          val.style.opacity = "0.8";
+        } else {
+          const bom = menorMelhor ? v <= 0.2 : v >= 0.8;
+          const ruim = menorMelhor ? v >= 0.5 : v < 0.5;
+          val.style.color = bom ? "#16a34a" : (ruim ? "#dc2626" : "#d97706");
+        }
+        linha.appendChild(val);
+        box.appendChild(linha);
+      });
+      const juiz = (bloco && bloco.julgamento_juiz) || {};
+      const origem = juiz.usou_llm
+        ? `⚖️ Juiz: ${juiz.modelo_juiz || "GLM 5.3 Flash"} + verificação determinística`
+        : `⚖️ Verificação determinística (juiz indisponível: ${juiz.motivo_fallback || "sem chave"})`;
+      const rodape = criarEl("div", "", origem);
+      rodape.style.fontSize = "0.72rem";
+      rodape.style.opacity = "0.8";
+      rodape.style.marginTop = "6px";
+      box.appendChild(rodape);
+      if (extra) {
+        const e = criarEl("div", "", extra);
+        e.style.fontSize = "0.72rem";
+        e.style.opacity = "0.8";
+        box.appendChild(e);
+      }
+    }
+
+    async function avaliarComparativo(dados) {
+      ["scoresModoA", "scoresModoB"].forEach((id) => {
+        const box = document.getElementById(id);
+        if (box) box.textContent = "⏳ Avaliando com o juiz GLM 5.3 Flash e as travas RNF-04...";
+      });
+      try {
+        const res = await fetch("/api/comparativo/avaliar", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ id_comparativo: dados.id_comparativo })
+        });
+        const corpo = await res.json();
+        if (!res.ok || !corpo.avaliacao) throw new Error(corpo.detail || `HTTP ${res.status}`);
+        const av = corpo.avaliacao;
+        const modoA = dados.modo_a_llm_pura || {};
+        const extraA = modoA.cache_hit ? "ℹ️ Resposta do cache: latência 0 ms não mede o modelo." : "";
+        const busca = av.metricas_busca || {};
+        const extraB = (busca.recall_at_k !== undefined && busca.recall_at_k !== null)
+          ? `🔎 Busca: recall@k ${Number(busca.recall_at_k).toFixed(2)} · MRR ${Number(busca.mrr ?? 0).toFixed(2)}`
+          : "";
+        preencherScores("scoresModoA", av.modo_a_llm_pura, extraA);
+        preencherScores("scoresModoB", av.modo_b_rag, extraB);
+      } catch (err) {
+        console.error("Erro ao consultar /api/comparativo/avaliar:", err);
+        ["scoresModoA", "scoresModoB"].forEach((id) => {
+          const box = document.getElementById(id);
+          if (box) box.textContent = "não avaliado — falha ao gerar os scores automáticos.";
+        });
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", carregarGoldenDataset);
   </script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 """Testes das salas (src/salas/ e src/state.py): cruzamento de horários, horário dos lugares, cartões,
 votação, rotas e sigilo do orçamento. Sem LLM e sem rede; a base de 93 lugares é lida do repositório."""
 import json
+import re
 from datetime import date, datetime
 from decimal import Decimal
 
@@ -262,9 +263,11 @@ def test_fluxo_completo_pela_api_sem_vazar_orcamento(cliente):
     publico = cliente.get(f"/api/salas/{codigo}").json()
     assert publico["status"] == ORQUESTRADO and publico["placar"]["A"] == 2
     texto = json.dumps(publico, ensure_ascii=False)
-    for segredo in ('"61', "61.00", "61,00", '"47', "47.00", "47,00", "Águas Claras\"", "teto", "token",
-                    "sábado à noite"):
+    for segredo in ("Águas Claras\"", "teto", "token", "sábado à noite"):
         assert segredo not in texto, segredo
+    for teto in ("61", "47"):
+        # o teto como número isolado, sem casar com pedaços de ids aleatórios ("47a3f1") nem de URLs ("%E2%80%93")
+        assert not re.search(rf'(?<![\w.%]){teto}(?:[.,]00?)?(?![\w.%])', texto), teto
     minha = cliente.get(f"/api/salas/{codigo}/participantes/{participantes[1][0]}",
                         headers={"X-Token": participantes[1][1]}).json()
     assert minha["perfil"]["teto"] == "47.00" and minha["meu_custo_e_tempo"]["A"]["modo"] == "publico"

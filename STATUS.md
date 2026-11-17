@@ -3,34 +3,78 @@
 > Arquivo vivo. Toda sessão (humana ou de agente) lê no início e atualiza no fim.
 > Mantenha curto: o histórico fica em `docs/semanas/` e no `git log`.
 
-**Atualizado em:** 2026-11-12
+**Atualizado em:** 2026-11-17
 **Semana do roadmap:** 3 — Comparação RAG × LLM pura, com as Telas 1 a 3 do app em paralelo
 
 ## Agora
 
-- **Telas 1 a 3 do aplicativo (issue #42)** implementadas em [src/telas/](src/telas/rotas.py) (branch `feat/frontend-issue-42`): navegação unificada por 3 abas superiores interativas (`1. Criar Sala`, `2. Meus Dados`, `3. Painel e Votação`), alternância dinâmica com histórico e fallback gracioso para modo demonstração (DEMO) com 4 lugares reais de Brasília do TikTok quando a sala ainda não existe no servidor. Testes de interface passam (`tests/test_interface_app.py`). Servidor local ativo em `http://127.0.0.1:8000/app`.
-
+- **Telas 1 a 3 do aplicativo (Maria Carolina, 17/11), issue #42, PR #79:** implementadas em [src/telas/](src/telas/rotas.py) (branch `feat/frontend-issue-42`): navegação unificada por 3 abas superiores interativas (`1. Criar Sala`, `2. Meus Dados`, `3. Painel e Votação`), alternância dinâmica com histórico e modo demonstração (`DEMO`) com lugares reais de Brasília do catálogo TikTok quando acessado em `/sala/demo`. Testes de interface passam (`tests/test_interface_app.py`).
+- **Juiz do avaliador trocado (Cauan, 17/11):** `z-ai/glm-5.3-flash` no lugar do `xiaomi/mimo-v2.6-pro` ([ADR 0014](docs/decisoes/0014-juiz-glm-5.3-flash.md)). Nas mesmas 94 respostas da rodada 2 da semana 3: US$ 0,057 contra US$ 0,731, p90 de 10,1 s contra 18,8 s, concordância de 90 de 94 sobre haver contradição ([experimento](docs/experimentos/2026-11-17-juiz-glm.md)). O GLM é mais leniente no caso limite do golden_15. Os resultados da semana 3 continuam os do MiMo.
+- **Relatório da Semana 3 (Cauan, 13/11), issue #40, branch `feat/40-relatorio-semana3`:**
+  - texto em [docs/entregas/semana-03/RELATORIO_TECNICO_SEMANA_03.md](docs/entregas/semana-03/RELATORIO_TECNICO_SEMANA_03.md) e `.tex` (preâmbulo ABNT da semana 2), com as 6 configurações, o critério, a escolha, 6 casos e as limitações da medição da LLM pura;
+  - PDF compilado com o Tectonic (`tectonic -X compile docs/entregas/semana-03/RELATORIO_TECNICO_SEMANA_03.tex`; o Overleaf também serve) e pacote `Entregavel_Grupo7_Semana_03.zip`, com o nome que a rota de download do PR #62 procura, gerado por `python scripts/gerar_pacote_semana3.py`. Mudou o `.md`? Atualize o `.tex`, recompile e gere o ZIP de novo;
+  - os links do PDF (`/comparativo` e `/entregaveis` em `orquestrador-roles.onrender.com`) são provisórios: trocar pelo endereço do deploy antes da correção dos mentores (segunda, 16/11).
+- **Central de Entregáveis da Semana 3 (Maria Carolina, 13/11), issue #39, na branch `feat/frontend-issue-39`:**
+  - Interface `/entregaveis` evoluída com o painel da Semana 03 (Comparação LLM Pura vs. RAG) e botão de destaque para `/comparativo`, mantendo os 7 módulos da Semana 02 100% preservados (`RNF-12`);
+  - Placar comparativo preenchido dinamicamente a partir de `/api/entregaveis/dados?colecao=benchmark_semana3` para as configurações #1, #3, #4 e #6 (alucinação, afirmações fora da base, acerto do gabarito, precisão de RA, RNF-03 e RNF-14);
+  - Visualizador interativo do Golden Dataset com 20 casos (`colecao=golden_semana3`) com filtros por categoria e busca textual;
+  - Visualizador dos resultados auditados do Benchmark A/B (`colecao=benchmark_semana3`) com seletor para comparar as 6 configurações avaliadas, notas (`scores`) do avaliador híbrido e escape HTML (`escapeHtml`) contra XSS;
+  - Novas rotas em `src/main.py` com helper `_primeiro_arquivo`: `/visualizar/relatorio-semana3-pdf`, `/download/relatorio-semana3-pdf` e `/download/entregavel-semana3-zip`;
+  - Nova suíte de testes em `tests/test_entregaveis_semana3.py` (cobrindo integridade da Semana 2, coleções da Semana 3, códigos 200/400/404, elementos HTML da interface e escape de `<script>`).
+- **Benchmark oficial A/B das 20 consultas (Letícia Miti, 13/11), issue #38 (revisão da @cadasiso atendida):**
+  - `scripts/executar_benchmark_semana3.py` executa as 20 perguntas de `data/golden_dataset_semana3.json` nas 6 configurações da Semana 3 em 2 rodadas, aciona o avaliador híbrido (`src/telemetria/evals_semana3.py`) e registra os 6 experimentos no dataset `golden_dataset_semana3` do Langfuse Cloud via `run_experiment`;
+  - resultados detalhados salvos em `data/resultados_benchmark_semana3.json`, `data/resultados_benchmark_semana3.csv`, `docs/entregas/semana-03/BENCHMARK_LLM_VS_RAG_LOG.txt` e documentados em [docs/experimentos/2026-11-13-benchmark-semana3.md](docs/experimentos/2026-11-13-benchmark-semana3.md);
+  - **configuração vencedora pelo critério estrito da #38** (p90 <= 5 s, 0 lugares inventados, maior acerto do gabarito, menor custo no desempate): **#3 — RAG sem LLM, texto fixo (`3_rag_sem_llm_texto_fixo`)**, que empata em acerto com a **#4** (**12 de 20** no geral e **10 de 18** no DF), tem **99,2% de fidelidade factual**, **0,0% de alucinação**, **p50 de 0,02 s / p90 de 0,03 s** e vence no desempate por ter **custo real zero (R$ 0,00 e 0 tokens)**. Como decisão de produto à parte para síntese em linguagem natural, usa-se a **#4 — RAG + LLM, busca léxica (`4_rag_llm_busca_lexica`)** (**98,7% de fidelidade**, **0,0% de alucinação na Rodada 1**, **p50 de 3,15 s / p90 de 3,61 s**, **R$ 0,00081/consulta**), evidenciando que na busca por palavras o LLM não aumenta o acerto porque o gargalo está na recuperação (`Recall@3 = 10 de 18`);
+  - a **#6 — RAG + LLM, busca vetorial** alcança **18 de 20 (90,0%)** de acerto (16 de 18 no DF, Recall@3 de 88,9% e MRR de 0,8333) e **96,8% de fidelidade factual** (0,7% de alucinação: 1 afirmação em `golden_15`), mas o embedding adiciona ~1,5 s e leva o p90 a **5,83 s**; a **#1 — LLM pura sem raciocínio** acerta **0 de 18** no DF e inventa **32 lugares em 13 de 20 casos**;
+  - `tests/test_resultados_benchmark.py` adicionado (10 testes validando completude dos 20 casos × 6 configurações, métricas, CSV, respostas da Rodada 2 e log TXT).
+>>>>>>> origin/main
 - **Fonte da verdade sobre o app: [GUIA_OFICIAL_PROJETO.md](GUIA_OFICIAL_PROJETO.md)** (10/11). Resumo do que ele fechou:
   - ciclo completo do rolê: sala, 4 campos secretos, 3 a 4 cartões, votação múltipla e, depois, foto da nota fiscal, divisão e Pix;
   - **sem voz** ([ADR 0009](docs/decisoes/0009-entrada-pelos-4-campos-de-texto.md)); a multimodalidade da semana 5 é a foto da nota fiscal;
   - **base oficial de 93 lugares** do TikTok com validação em 2 fatores ([ADR 0008](docs/decisoes/0008-base-2fa-de-93-lugares-e-lgpd.md)); `src/base/` (Overture) e `src/voz/` saíram do repositório, e os ADRs 0005 e 0006 ficaram como substituídos;
   - distância e transporte pelas 35 RAs com a regra da Menor Miséria; banco das salas no Supabase.
   - As tarefas da semana de cada integrante estão na seção 4 do guia.
-- **Back-end das salas (Cauan, 10/11), na branch `feat/salas-backend`:**
+- **Comparação LLM pura × RAG (Cauan, 12/11), issue #34, na branch `feat/34-comparador-ab`:**
+  - `POST /api/comparativo/executar` roda a mesma pergunta nos dois modos, em paralelo, e devolve o contrato JSON da issue, com o gabarito quando a pergunta vem do golden; `GET /api/comparativo/golden` lista as perguntas ([ADR 0011](docs/decisoes/0011-comparativo-ab-com-o-mesmo-llm.md));
+  - **Modo A:** DeepSeek V4.1 Flash sem documentos ([ADR 0010](docs/decisoes/0010-baseline-llm-pura-e-guardrails.md), PR #49). **Modo B:** busca com guardrails e o mesmo modelo com os lugares recuperados (`src/rag/llm_rag.py`). Antes, o Modo B era um texto fixo sem LLM;
+  - prévia com os 10 casos do golden: o lugar do gabarito veio nas fontes do Modo B em 6 de 8 casos do DF, e as 2 perguntas fora do DF foram recusadas sem chamar o LLM. p90 de 5,1 s no Modo A e 4,8 s no Modo B. Os 2 erros são da busca: o VBQ (Samambaia) não foi recuperado, e o golden_06 foi bloqueado com aderência 0,62;
+  - com o raciocínio alto ligado nos dois modos ([experimento](docs/experimentos/2026-11-12-comparativo-raciocinio.md)), o Modo B acertou os mesmos 6 de 8, mas o p90 foi a 7,3 s; a LLM pura passou a recusar em 6 de 10. O Modo B sem raciocínio continua a melhor configuração;
+  - PRs #52 (tela) e #53 (motor) na `main`.
+- **Busca vetorial e raciocínio no comparativo (Cauan, 12/11), PR #56 na `main`:**
+  - busca vetorial com o `gemini-embedding-001` pela OpenRouter, a mesma chave do resto do projeto (vetores idênticos aos da base, cosseno 1,0), e híbrida ([ADR 0012](docs/decisoes/0012-busca-vetorial-pela-openrouter.md));
+  - prévia com 10 casos ([experimento](docs/experimentos/2026-11-12-busca-vetorial.md)): lugar certo em 7 de 8 com a vetorial (6 de 8 por palavras), mas o p90 do Modo B vai a 6,1 s por causa do embedding (1,6 s). O padrão segue sendo a busca por palavras até a #38 escolher;
+  - a rota e a tela do comparativo ganharam a escolha do raciocínio (dois modos) e da busca (Modo B);
+  - a base tem lugares repetidos (Espaguete, Dunkin' Donuts, Johnny Joy, Anime Summit, ExpoFlores 2026; Filomenambúrguer com duas grafias), para a curadoria;
+  - 208 testes no PR.
+- **Golden dataset completo (Samara, 12/11), issue #32, PR #57 na `main`:**
+  - os 20 casos em `data/golden_dataset_semana3.json`: 5 geoespaciais, 3 de horário, 2 fora do DF, 5 de preço exato, 3 de ambiência e restrição alimentar e 2 de conflito e gírias;
+  - catálogo, regras e limitações conhecidas em [docs/dados/golden-dataset-semana3.md](docs/dados/golden-dataset-semana3.md); `tests/test_golden_dataset.py` trava os 20 casos, as 6 categorias e o preço contra o `custo_medio_rs`;
+  - a prévia do comparativo usou só os 10 primeiros; os casos 11 a 20 já aparecem em `GET /api/comparativo/golden`.
+- **Avaliação automatizada híbrida e Haystack (Eduarda, 12/11), issue #36, PR #60 (revisão da @cadasiso atendida em 13/11):**
+  - `src/telemetria/evals_semana3.py`: checagem em código (RNF-04) + juiz MiMo-V2.6-Pro (`xiaomi/mimo-v2.6-pro`, temperatura 0, sem retenção), com fallback offline. Detalhe de regras e notas no docstring do módulo;
+  - notas (`None` = não avaliado): `fidelidade_factual_rnf03`, `taxa_alucinacao` (só o que a base desmente), `taxa_fora_da_base` (não verificável), `precisao_geoespacial_ra`, `acerto_gabarito`, `abstencao` e `sla_latencia_rnf14`. Recusa e "não sei" valem igual nos dois modos; sem piso fixo; o juiz vê os mesmos campos do Modo B e não vê o veredito do código;
+  - `POST /api/comparativo/avaliar` recebe só o `id_comparativo` devolvido por `/executar` (resultado guardado 15 min em memória, avaliado uma vez por id); erros viram 404 ou 500 sem a mensagem da exceção;
+  - Langfuse: `input` e `output` nas gerações, scores no trace, sem a nota fixa `fidelidade_rnf03_zero_alucinacao`;
+  - Haystack (`src/rag/pipeline_haystack.py`) com os campos reais da base: recall@3 de 2 para 14 de 18 ([experimento](docs/experimentos/2026-11-13-haystack-recall.md));
+  - **565 testes passam** (`PYTHONPATH=. pytest tests`, fora o `test_smoke`, que precisa do `torch`).
+- **Back-end das salas (Cauan, 10/11), PR #48 na `main`:**
   - `src/interpretador/campos.py`: os 4 campos viram RA (apelidos, quadras como SQN e QNM, estações de metrô), janelas pelo `tempo.py`, teto pelo `numeros.py` e tags com os rótulos da base. Tudo por regras; o LLM do ADR 0007 só entra se as regras não acharem nenhum dia ([ADR 0009](docs/decisoes/0009-entrada-pelos-4-campos-de-texto.md));
   - `src/state.py` (repositório em memória, pronto para trocar pelo Supabase) e `src/salas/` (gerenciador, cruzamento de horários, horário de funcionamento dos lugares, cartões, votação);
   - rotas em `/api/salas`: criar, painel, participantes (entrar, corrigir, confirmar, própria visão), gerar sugestões, votar e fechar votação. Contrato e exemplo em [src/salas/README.md](src/salas/README.md);
   - **110 testes passam** (`python -m pytest tests`), entre eles o fluxo de 3 participantes da issue #43 (`tests/test_salas_backend.py`) e uma varredura das respostas públicas atrás do teto de cada um; o CI e o `make test` passaram a rodar todos os testes;
-  - códigos de sala no formato `ROLE-7KQ2`; PR aberto para fechar a issue #43.
+  - códigos de sala no formato `ROLE-7KQ2`; issue #43 fechada.
+- **Banco das salas (Eduarda), PR #50 na `main`:** `RepositorioSupabase` com `ROLES_REPOSITORIO=supabase`; o caminho do Postgres ainda não roda em nenhum teste, então o padrão continua `memoria`.
+- **Finanças (Cauan, 12/11), issue #45, na branch `feat/45-financas`:** `src/financas/` com o orçamento sigiloso (só respostas sim ou não para fora), a divisão da conta com itens que só parte consumiu e centavos com quem pagou (RF-32), e o código Pix copia e cola estático (BR Code com CRC16, RF-33). O gerador reproduz um exemplo de código estático que tomamos como do manual do Banco Central (não conferido na fonte). `teto_seguro_grupo` já encaixa nas salas. Faltam as rotas da Tela 4 (lançar gasto, ver dívida, marcar como pago) e a criptografia da chave Pix no banco. 236 testes.
 - **Encaixes pendentes** (o código usa uma reserva simples até chegarem; assinaturas em [src/salas/README.md](src/salas/README.md#encaixe-das-peças-das-colegas)):
-  - Eduarda: `teto_seguro_grupo` em `src/financas/` e um `Repositorio` do Supabase em `src/db/`;
-  - Samara: `estimar_deslocamento` e `nota_menor_miseria` em `src/logistica/transporte_df.py` e `data/regioes_df_gps.json`;
+  - Eduarda: `teto_seguro_grupo` em `src/financas/`;
+  - Samara: **entregue na issue #44** (`estimar_deslocamento`, `nota_menor_miseria` e `calcular_score_justica_espacial` em `src/logistica/transporte_df.py`, pontos das 35 RAs em `data/regioes_df_gps.json`); as salas já usam o módulo no lugar da reserva. Regra, números e pendências no [ADR 0012](docs/decisoes/0012-deslocamento-e-menor-miseria.md);
   - Letícia: a busca com filtros, que hoje entra pela `calcular_similaridade_leticia`;
   - Maria Carolina: as Telas 1 a 3 chamando as rotas acima (tokens no cabeçalho `X-Token`).
 - **Problemas achados na base** (para a Letícia, registrados no [ADR 0008](docs/decisoes/0008-base-2fa-de-93-lugares-e-lgpd.md#riscos-e-limitações)):
   - os 2 eventos do Gama têm coordenadas no Plano Piloto, e o lugar de Planaltina não tem coordenadas;
   - 14 itens são eventos ou promoções com datas que já passaram e saem das sugestões;
-  - 21 lugares só dizem "Consultar no local".
+  - 21 lugares só dizem "Consultar no local";
+  - a Lefit tem `custo_medio_rs = 28.0` e `trava_2_preco_ok = true`, mas o vídeo não cita preço; o `horario_funcionamento` do Saguari é o do happy hour, não o de abertura.
 - **Risco aberto:** os termos do TikTok e o direito autoral do perfil de origem. O app mostra só fatos curtos e o link do vídeo; para uso além do acadêmico, pedir permissão por escrito ao autor.
 - **Requisitos v0.4** em [docs/produto/requisitos.md](docs/produto/requisitos.md): voz removida (RF-39, RF-40), 4 campos no lugar da conversa privada, votação múltipla. A revisão completa com o grupo continua pendente.
 - **Mapa da arquitetura** atualizado com o guia oficial (base de 93, 4 campos, sem voz, Supabase, salas e pós-rolê) em [docs/arquitetura/index.html](docs/arquitetura/index.html). **Falta publicar** com `publicar.sh`.
@@ -42,7 +86,8 @@
 
 ## Próximos passos (Cauan, conforme o guia)
 
-- Hoje: issue #33 (LLM pura e guardrails do RAG), que destrava a #34.
+- Abrir o PR da issue #34, que destrava a #36 (Eduarda), a #37 (Maria Carolina) e a #38 (Letícia Miti). O PR #52 (interface do comparativo) precisa passar a usar estas rotas.
+- Melhorar a busca do Modo B (filtro por RA; o golden_06 bloqueado pelo limiar), sem misturar com a avaliação da #38.
 - Quinta: ligar as peças da Eduarda, da Samara e da Letícia quando chegarem e apoiar a Maria Carolina na integração das telas.
 - Sexta: rodar o fluxo de uma sala inteira com as peças reais e o Supabase; revisar os ADRs 0008 e 0009 com o grupo.
 - Ainda faltam no back-end das salas: prazos de resposta (RF-12), confirmação de presença (RF-26), modo "palavra final do organizador" (RF-24) e regra de datas do organizador (RF-14).

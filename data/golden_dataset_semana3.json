@@ -108,5 +108,115 @@
     "horario_gabarito": null,
     "evidencia_id_tiktok": null,
     "armadilha_llm_pura": "A LLM pura inventa hamburguerias em Pinheiros; o RAG, guiado por 'hambúrguer até R$ 50', pode devolver hamburguerias do DF (ex.: Mr. John, Cabiburger) sem perceber que a cidade pedida é SP"
+  },
+  {
+    "id": "golden_11",
+    "pergunta": "Onde tem rodízio de churrasco japonês na Asa Sul e quanto custa por pessoa, sem bebida?",
+    "categoria": "precisao_financeira",
+    "ra_esperada": "Plano Piloto (Asa Sul)",
+    "locais_gabarito": ["Yaki Nikuya"],
+    "preco_maximo_gabarito": 124.9,
+    "horario_gabarito": "Almoço e jantar",
+    "evidencia_id_tiktok": "tiktok_7670312188657011976",
+    "armadilha_llm_pura": "Inventar um preço de rodízio japonês comum (bem abaixo do real), dar o valor com refri liberado (R$ 139,90) como se fosse o do rodízio ou indicar uma churrascaria brasileira no lugar do churrasco japonês"
+  },
+  {
+    "id": "golden_12",
+    "pergunta": "Quanto custa, num sábado, o rodízio de pizza com buffet de mini burger em Taguatinga?",
+    "categoria": "precisao_financeira",
+    "ra_esperada": "Taguatinga",
+    "locais_gabarito": ["Casa Bari"],
+    "preco_maximo_gabarito": 69.9,
+    "horario_gabarito": "Aberto todos os dias: R$ 59,90 de segunda a quinta e R$ 69,90 de sexta a domingo e feriados",
+    "evidencia_id_tiktok": "tiktok_7600073980363574535",
+    "armadilha_llm_pura": "Dar o preço de segunda a quinta (R$ 59,90) para o sábado, inventar o valor ou confundir com o Filomenambúrguer (golden_01), que tem rodízio de mini hambúrguer, mas não de pizza"
+  },
+  {
+    "id": "golden_13",
+    "pergunta": "Quero levar as crianças num parque de Natal com neve artificial e túnel de luzes em Taguatinga. Quanto custa o ingresso?",
+    "categoria": "precisao_financeira",
+    "ra_esperada": "Taguatinga",
+    "locais_gabarito": ["Vale Encantado"],
+    "preco_maximo_gabarito": 19.9,
+    "horario_gabarito": "Estreia em 6 de novembro; o lote de ingressos a R$ 19,90 foi liberado em 20 de outubro, às 18h",
+    "evidencia_id_tiktok": "tiktok_7698914646354447634",
+    "armadilha_llm_pura": "A LLM pura não conhece o evento (estreou em novembro de 2026) e tende a inventar preço, data ou local; o RAG pode trazer o Nicolândia, cujo passaporte de R$ 29,90 foi promoção de um dia só (30/03). Obs.: R$ 19,90 é o preço do lote de pré-venda; o valor atual pode ser outro"
+  },
+  {
+    "id": "golden_14",
+    "pergunta": "Moro em Samambaia e posso gastar no máximo R$ 30, nem um centavo a mais. Onde almoçar um prato executivo numa sexta?",
+    "categoria": "precisao_financeira",
+    "ra_esperada": "Samambaia",
+    "locais_gabarito": ["Saguari Gastro House"],
+    "preco_maximo_gabarito": 24.9,
+    "horario_gabarito": "Executivo só às sextas, no almoço (a casa abre às 12h de sexta a domingo e às 16h de segunda a quinta)",
+    "evidencia_id_tiktok": "tiktok_7670567910359829768",
+    "armadilha_llm_pura": "Indicar o VBQ (R$ 44,90, golden_05) ou o Omura Sushi (R$ 70), que estouram o teto, ou dizer que o executivo de R$ 24,90 vale todos os dias. Obs.: o horario_funcionamento da base traz o horário do happy hour; o horário de abertura está na legenda do vídeo"
+  },
+  {
+    "id": "golden_15",
+    "pergunta": "Tenho só R$ 30, nem um centavo a mais. Dá para almoçar no buffet à vontade com tempero nordestino em Vicente Pires numa terça-feira?",
+    "categoria": "precisao_financeira",
+    "ra_esperada": "Vicente Pires",
+    "locais_gabarito": ["Restaurante do Daniel"],
+    "preco_maximo_gabarito": 32.99,
+    "horario_gabarito": "Segunda a sábado, das 7h às 15h; buffet a R$ 32,99 de segunda a quinta e R$ 34,99 às sextas, sábados e feriados",
+    "evidencia_id_tiktok": "tiktok_7673387511963585810",
+    "armadilha_llm_pura": "Dizer que cabe nos R$ 30 (arredondando R$ 32,99 para baixo) ou usar o preço de sexta (R$ 34,99) para a terça. Resposta certa: o buffet não cabe (passa R$ 2,99); o café colonial (R$ 25) cabe"
+  },
+  {
+    "id": "golden_16",
+    "pergunta": "Quero uma gelateria ou doceria aconchegante em Brasília onde tudo seja sem trigo, sem lactose e sem açúcar refinado. Qual é e em que horário abre?",
+    "categoria": "vibes_e_restricoes",
+    "ra_esperada": "Plano Piloto (Asa Sul)",
+    "locais_gabarito": ["Lefit Gelatos e Doces Saudáveis"],
+    "preco_maximo_gabarito": 28.0,
+    "horario_gabarito": "Todos os dias, das 10h às 19h",
+    "evidencia_id_tiktok": "tiktok_7699233720657530119",
+    "armadilha_llm_pura": "Indicar a Pizzaria Natureto, que tem massa sem glúten mas não é doceria, ou uma doceria 'fit' genérica que usa lactose; inventar endereço ou horário. Obs.: o vídeo não cita preço; os R$ 28 da base não têm fonte na legenda nem na transcrição, então este caso não serve para medir precisão de preço"
+  },
+  {
+    "id": "golden_17",
+    "pergunta": "Quero comer feijoada à vontade num sábado em Águas Claras com as crianças, num lugar com brinquedoteca e monitora. Onde é e quanto custa?",
+    "categoria": "vibes_e_restricoes",
+    "ra_esperada": "Águas Claras",
+    "locais_gabarito": ["Vila Carioca"],
+    "preco_maximo_gabarito": 59.97,
+    "horario_gabarito": "Feijoada às sextas (com rabada) e aos sábados (com samba ao vivo); domingo é festival de sabores; happy hour todos os dias",
+    "evidencia_id_tiktok": "tiktok_7610152796129692936",
+    "armadilha_llm_pura": "Indicar o Restaurante Dona Cleide (golden_02), que tem brinquedoteca em Águas Claras mas não serve feijoada, ou dar o preço de sexta (R$ 55,97) ou de domingo (R$ 75,97) para o sábado"
+  },
+  {
+    "id": "golden_18",
+    "pergunta": "Quero um jantar romântico a dois num restaurante chique ao lado da Torre de TV numa terça, com buffet de massas frescas. Onde é e quanto custa por pessoa?",
+    "categoria": "vibes_e_restricoes",
+    "ra_esperada": "Plano Piloto (Asa Sul)",
+    "locais_gabarito": ["Lucca Restaurante"],
+    "preco_maximo_gabarito": 89.0,
+    "horario_gabarito": "Jantar de segunda a sábado, das 19h às 22h (buffet de massas só às terças); almoço de segunda a sexta, das 12h às 15h",
+    "evidencia_id_tiktok": "tiktok_7673387366404427026",
+    "armadilha_llm_pura": "Dar o preço do menu Dolce Vita de quinta (R$ 150 por casal) ou do rodízio de pizza de quarta (R$ 68) para a terça, ou inventar um restaurante na própria Torre de TV"
+  },
+  {
+    "id": "golden_19",
+    "pergunta": "Quero comemorar meu aniversário num rodízio japonês completo na Asa Norte, mas sem pagar nada. Existe rodízio caro totalmente de graça?",
+    "categoria": "conflito_e_girias",
+    "ra_esperada": "Plano Piloto (Asa Norte)",
+    "locais_gabarito": ["Blue Sushi"],
+    "preco_maximo_gabarito": 109.99,
+    "horario_gabarito": "Todos os dias, das 11h30 às 23h (rodízio a R$ 109,99 no almoço e R$ 129,99 no jantar)",
+    "evidencia_id_tiktok": "tiktok_7610154654244130056",
+    "armadilha_llm_pura": "A LLM pura tende a dizer que não existe nada parecido ou a inventar uma promoção; o RAG pode trazer o Uzuki Sushi (Asa Sul), que tem regra parecida. Resposta certa: 'totalmente de graça' para o grupo não existe; só o aniversariante não paga, e só se levar 10 convidados, que pagam a partir de R$ 109,99 no almoço"
+  },
+  {
+    "id": "golden_20",
+    "pergunta": "Saindo do trampo na Asa Norte, ali perto da tesourinha, bora num rolê baratinho de espetinho na brasa no Noroeste numa segunda? Coisa de uns 30 conto.",
+    "categoria": "conflito_e_girias",
+    "ra_esperada": "Plano Piloto (Noroeste)",
+    "locais_gabarito": ["Brasa Meat Burger"],
+    "preco_maximo_gabarito": 30.0,
+    "horario_gabarito": "Segunda a sexta, das 18h às 23h",
+    "evidencia_id_tiktok": "tiktok_7660278692215606536",
+    "armadilha_llm_pura": "Ler as gírias ao pé da letra ('tesourinha' é um trevo viário das Asas, não um estabelecimento; 'conto' é real) ou inventar uma churrascaria; o RAG pode trazer o Dom Frangão (Vicente Pires), que também tem baguete com espeto, mas só abre à noite de quarta a domingo. Obs.: o forte da casa é delivery e retirada (é um quiosque)"
   }
 ]

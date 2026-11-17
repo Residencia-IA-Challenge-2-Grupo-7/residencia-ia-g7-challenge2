@@ -1,0 +1,736 @@
+[
+ {
+  "id_golden": "golden_01",
+  "pergunta": "Onde tem rodízio de mini hambúrguer e pão de queijo em Taguatinga para ir com amigos?",
+  "gabarito": {
+   "categoria": "geoespacial_ra_fora_centro",
+   "ra_esperada": "Taguatinga",
+   "locais_gabarito": [
+    "Filomenambúrguer"
+   ],
+   "preco_maximo_gabarito": 49.99,
+   "horario_gabarito": "Todos os dias (um preço de domingo a quinta e outro às sextas, sábados e feriados)"
+  },
+  "modelo": "deepseek/deepseek-v4.1-flash-1017",
+  "versao_prompt": {
+   "modo_a": "2026-11-10",
+   "modo_b": "2026-11-12"
+  },
+  "modo_a_llm_pura": {
+   "resposta": "Não tenho certeza de lugares específicos em Taguatinga que ofereçam rodízio de mini hambúrguer **e** pão de queijo juntos. Para não inventar informação, prefiro dizer que não sei. Sugiro:\n\n1. **Bar do Candinho** (Taguatinga) — endereço, preço médio e horário: não sei confirmar.\n2. **Boteco do Mané** (Taguatinga) — não sei confirmar dados.\n3. **Praça do Relógio** (Taguatinga) — opção de passeio com amigos; endereço central, mas preço/horário de bar não se aplica.\n\nRecomendo buscar no Instagram/Google Maps por \"rodízio mini hambúrguer Taguatinga\" e ligar para confirmar. Se quiser, posso sugerir opções em outras RAs que eu conheça melhor.",
+   "fontes_utilizadas": [],
+   "latencia_ms": 3525.9,
+   "tokens_total": 370,
+   "custo_estimado_brl": 0.000799,
+   "modelo": "deepseek/deepseek-v4.1-flash-1017",
+   "disponivel": true,
+   "cache_hit": false,
+   "erro": null
+  },
+  "modo_b_rag": {
+   "resposta": "Para rodízio de mini hambúrguer e pão de queijo em Taguatinga, a base indica:\n\n**Filomenambúrguer** — Taguatinga (Taguatinga Norte, Brasília - DF). Preço médio: R$ 49,99 por pessoa. Funcionamento: domingo a quinta, sexta, sábados e feriados. Oferece rodízio de pão de queijo com combinações (linguiça, calabresa, hambúrguer), além de pizza, mini hambúrguer e pastel, com brinquedoteca gratuita [FONTE #2].\n\n**Casa Bari** — Taguatinga (EQNL 21/23, Bloco D, Brasília - DF). Preço médio: R$ 69,90 por pessoa. Aberto todos os dias. Tem rodízio de pizzas premium com buffet de mini hambúrguer, massas e salgadinhos, ambiente animado para grupos de amigos [FONTE #1].\n\nObservação: os documentos não detalham horários exatos de abertura/fechamento, apenas os períodos informados.",
+   "fontes_utilizadas": [
+    {
+     "id": "tiktok_7600073980363574535",
+     "nome": "Casa Bari",
+     "ra": "Taguatinga",
+     "custo_medio_rs": 69.9,
+     "score_similaridade": 0.98,
+     "url_tiktok": "https://www.tiktok.com/@rolezandoembrasilia/video/7600073980363574535",
+     "citada": true
+    },
+    {
+     "id": "tiktok_7626405885388197128",
+     "nome": "Filomenambúrguer",
+     "ra": "Taguatinga",
+     "custo_medio_rs": 49.99,
+     "score_similaridade": 0.98,
+     "url_tiktok": "https://www.tiktok.com/@rolezandoembrasilia/video/7626405885388197128",
+     "citada": true
+    },
+    {
+     "id": "tiktok_7671301329297378567",
+     "nome": "Espaguete",
+     "ra": "Taguatinga",
+     "custo_medio_rs": 59.9,
+     "score_similaridade": 0.98,
+     "url_tiktok": "https://www.tiktok.com/@rolezandoembrasilia/video/7671301329297378567",
+     "citada": false
+    }
+   ],
+   "latencia_ms": 4054.4,
+   "tokens_total": 991,
+   "custo_estimado_brl": 0.001258,
+   "modelo": "deepseek/deepseek-v4.1-flash-1017",
+   "disponivel": true,
+   "cache_hit": false,
+   "erro": null,
+   "guardrails": {
+    "permitido": true,
+    "motivo": null,
+    "avisos": [],
+    "teto": null,
+    "gratis": false,
+    "conflito": false,
+    "lugares_fora_df": [],
+    "score_maximo": 0.98,
+    "filtrados_por_teto": 0
+   },
+   "trace_url": null
+  },
+  "latencia_total_ms": 4061.5
+ },
+ {
+  "id_golden": "golden_02",
+  "pergunta": "Onde tem rodízio de caldos ou de pizza com brinquedoteca em Águas Claras?",
+  "gabarito": {
+   "categoria": "geoespacial_ra_fora_centro",
+   "ra_esperada": "Águas Claras",
+   "locais_gabarito": [
+    "Restaurante Dona Cleide"
+   ],
+   "preco_maximo_gabarito": 54.9,
+   "horario_gabarito": "Rodízios de terça a domingo, das 17h às 23h"
+  },
+  "modelo": "deepseek/deepseek-v4.1-flash-1017",
+  "versao_prompt": {
+   "modo_a": "2026-11-10",
+   "modo_b": "2026-11-12"
+  },
+  "modo_a_llm_pura": {
+   "resposta": "Não tenho certeza de locais com **brinquedoteca** em Águas Claras — esse detalhe é difícil de confirmar sem checagem atualizada. O que posso sugerir com ressalvas:\n\n1. **Rodízio de pizza em Águas Claras**: há várias pizzarias na região, mas não consigo confirmar endereço, preço e horário exatos nem a existência de brinquedoteca. Não sei informar com segurança.\n\n2. **Rodízio de caldos**: não tenho certeza de nenhum estabelecimento específico em Águas Claras com esse formato e brinquedoteca.\n\nRecomendo buscar no Google Maps/Instagram por \"rodízio pizza Águas Claras\" e \"caldos Águas Claras\" e ligar para confirmar brinquedoteca, preço médio e horário. Se quiser, posso sugerir opções de passeios na região que não dependam desse dado.",
+   "fontes_utilizadas": [],
+   "latencia_ms": 3569.4,
+   "tokens_total": 374,
+   "custo_estimado_brl": 0.000828,
+   "modelo": "deepseek/deepseek-v4.1-flash-1017",
+   "disponivel": true,
+   "cache_hit": false,
+   "erro": null
+  },
+  "modo_b_rag": {
+   "resposta": "Em Águas Claras, a base tem uma opção que atende ao pedido:\n\n**Restaurante Dona Cleide** — Águas Claras\nEndereço: Avenida das Araucárias, Mirante Plaza Gourmet, lote 885, loja 12, Brasília - DF\nPreço médio por pessoa: R$ 54,90\nHorário: Terça a domingo, 11h20 às 23h; segunda, 11h20 às 16h. Rodízios: 17h às 23h (ter–dom). Happy Hour: sex/sáb, 16h às 20h.\nTem rodízio de caldos variados e pizzas de forno a lenha, com brinquedoteca ampla com monitora [FONTE #1].\n\nAs demais opções da base (Casa Bari, em Taguatinga, e Vitorino, no Plano Piloto/Asa Sul) têm rodízio de pizza e brinquedoteca, mas ficam fora de Águas Claras [FONTE #2] [FONTE #3].",
+   "fontes_utilizadas": [
+    {
+     "id": "tiktok_7612334793040186632",
+     "nome": "Restaurante Dona Cleide",
+     "ra": "Águas Claras",
+     "custo_medio_rs": 54.9,
+     "score_similaridade": 0.98,
+     "url_tiktok": "https://www.tiktok.com/@rolezandoembrasilia/video/7612334793040186632",
+     "citada": true
+    },
+    {
+     "id": "tiktok_7600073980363574535",
+     "nome": "Casa Bari",
+     "ra": "Taguatinga",
+     "custo_medio_rs": 69.9,
+     "score_similaridade": 0.98,
+     "url_tiktok": "https://www.tiktok.com/@rolezandoembrasilia/video/7600073980363574535",
+     "citada": true
+    },
+    {
+     "id": "tiktok_7610152629813169416",
+     "nome": "Vitorino",
+     "ra": "Plano Piloto (Asa Sul)",
+     "custo_medio_rs": 79.9,
+     "score_similaridade": 0.98,
+     "url_tiktok": "https://www.tiktok.com/@rolezandoembrasilia/video/7610152629813169416",
+     "citada": true
+    }
+   ],
+   "latencia_ms": 3614.5,
+   "tokens_total": 1025,
+   "custo_estimado_brl": 0.000919,
+   "modelo": "deepseek/deepseek-v4.1-flash-1017",
+   "disponivel": true,
+   "cache_hit": false,
+   "erro": null,
+   "guardrails": {
+    "permitido": true,
+    "motivo": null,
+    "avisos": [],
+    "teto": null,
+    "gratis": false,
+    "conflito": false,
+    "lugares_fora_df": [],
+    "score_maximo": 0.98,
+    "filtrados_por_teto": 0
+   },
+   "trace_url": null
+  },
+  "latencia_total_ms": 3622.5
+ },
+ {
+  "id_golden": "golden_03",
+  "pergunta": "Onde comer churrasco americano defumado no Guará?",
+  "gabarito": {
+   "categoria": "geoespacial_ra_fora_centro",
+   "ra_esperada": "Guará",
+   "locais_gabarito": [
+    "Santo Bifidele"
+   ],
+   "preco_maximo_gabarito": 39.9,
+   "horario_gabarito": "Executivos no almoço, de segunda a sexta"
+  },
+  "modelo": "deepseek/deepseek-v4.1-flash-1017",
+  "versao_prompt": {
+   "modo_a": "2026-11-10",
+   "modo_b": "2026-11-12"
+  },
+  "modo_a_llm_pura": {
+   "resposta": "Não tenho certeza de um endereço específico de churrasco americano defumado no Guará. Para não inventar informação, prefiro indicar alternativas que conheço na região e arredores:\n\n1. **Boi na Brasa Steakhouse** – Guará (não sei o endereço exato nem o horário com certeza). Preço médio: cerca de R$ 80–120. Churrasco variado, não necessariamente defumado estilo americano.\n\n2. **Outback Steakhouse** – ParkShopping (Guará/SCS). Endereço: ParkShopping, Guará. Preço médio: R$ 90–130. Horário: almoço e jantar, geralmente até 23h (confirmar).\n\n3. **Madero** – ParkShopping, Guará. Preço médio: R$ 70–100. Horário: conforme o shopping.\n\nSugiro buscar no Instagram por \"defumados Guará\" para opções específicas.",
+   "fontes_utilizadas": [],
+   "latencia_ms": 3861.3,
+   "tokens_total": 377,
+   "custo_estimado_brl": 0.000863,
+   "modelo": "deepseek/deepseek-v4.1-flash-1017",
+   "disponivel": true,
+   "cache_hit": false,
+   "erro": null
+  },
+  "modo_b_rag": {
+   "resposta": "Para churrasco americano defumado no Guará, a base indica:\n\n**Santo Bifidele** [FONTE #1]\n- Região administrativa: Guará\n- Endereço: Guará 2 — Guará, Distrito Federal\n- Preço médio por pessoa: R$ 39,90\n- Horário: almoço de segunda a sexta\n\nÉ a única opção da base que atende ao pedido.",
+   "fontes_utilizadas": [
+    {
+     "id": "tiktok_7600075009423412488",
+     "nome": "Santo Bifidele",
+     "ra": "Guará",
+     "custo_medio_rs": 39.9,
+     "score_similaridade": 0.93,
+     "url_tiktok": "https://www.tiktok.com/@rolezandoembrasilia/video/7600075009423412488",
+     "citada": true
+    },
+    {
+     "id": "tiktok_7621221602457390354",
+     "nome": "New Mercadito",
+     "ra": "Plano Piloto (Asa Sul)",
+     "custo_medio_rs": 54.99,
+     "score_similaridade": 0.81,
+     "url_tiktok": "https://www.tiktok.com/@rolezandoembrasilia/video/7621221602457390354",
+     "citada": false
+    },
+    {
+     "id": "tiktok_7626405737429732615",
+     "nome": "Jucata e Verofato Pizza e Pasta",
+     "ra": "Plano Piloto (Vila Planalto)",
+     "custo_medio_rs": 59.9,
+     "score_similaridade": 0.81,
+     "url_tiktok": "https://www.tiktok.com/@rolezandoembrasilia/video/7626405737429732615",
+     "citada": false
+    }
+   ],
+   "latencia_ms": 2103.3,
+   "tokens_total": 903,
+   "custo_estimado_brl": 0.00073,
+   "modelo": "deepseek/deepseek-v4.1-flash-1017",
+   "disponivel": true,
+   "cache_hit": false,
+   "erro": null,
+   "guardrails": {
+    "permitido": true,
+    "motivo": null,
+    "avisos": [],
+    "teto": null,
+    "gratis": false,
+    "conflito": false,
+    "lugares_fora_df": [],
+    "score_maximo": 0.93,
+    "filtrados_por_teto": 0
+   },
+   "trace_url": null
+  },
+  "latencia_total_ms": 3868.4
+ },
+ {
+  "id_golden": "golden_04",
+  "pergunta": "Onde tem rodízio de almoço barato com parmegiana no Riacho Fundo?",
+  "gabarito": {
+   "categoria": "geoespacial_ra_fora_centro",
+   "ra_esperada": "Riacho Fundo",
+   "locais_gabarito": [
+    "Royal Burger"
+   ],
+   "preco_maximo_gabarito": 29.9,
+   "horario_gabarito": "Almoço às segundas, quartas e quintas; preço maior de sexta a domingo e feriados"
+  },
+  "modelo": "deepseek/deepseek-v4.1-flash-1017",
+  "versao_prompt": {
+   "modo_a": "2026-11-10",
+   "modo_b": "2026-11-12"
+  },
+  "modo_a_llm_pura": {
+   "resposta": "Não tenho certeza de restaurantes específicos de rodízio de parmegiana no Riacho Fundo — esse dado eu não sei com segurança, e prefiro não inventar endereços ou preços.\n\nO que posso sugerir, com ressalvas:\n\n1. **Riacho Fundo I — comércio da QN 1/2**: há vários restaurantes de almoço self-service e caseiros na região, mas não confirmo rodízio de parmegiana nem valores.\n2. **Taguatinga — Setor de Restaurantes**: opções de almoço com parmegiana costumam ter preço médio de R$ 30–50, mas não sei horários exatos.\n3. **Águas Claras — Av. Araucárias**: variedade de almoço, preço médio R$ 40–60; horários variam.\n\nRecomendo buscar no Google Maps \"parmegiana Riacho Fundo\" e ligar para confirmar rodízio, preço e horário.",
+   "fontes_utilizadas": [],
+   "latencia_ms": 3989.0,
+   "tokens_total": 388,
+   "custo_estimado_brl": 0.00088,
+   "modelo": "deepseek/deepseek-v4.1-flash-1017",
+   "disponivel": true,
+   "cache_hit": false,
+   "erro": null
+  },
+  "modo_b_rag": {
+   "resposta": "A base tem uma opção que atende ao pedido:\n\n**Royal Burger** [FONTE #3]\n- Região administrativa: Riacho Fundo\n- Endereço: Riacho Fundo 1 — Riacho Fundo, Distrito Federal\n- Preço médio por pessoa: R$ 29,90 (faixa barata)\n- Horário: almoço às segundas, quartas, quintas, sextas, domingos e feriados; sábado com feijoada\n- Descrição: rodízio de parmegiana, grelhados e guarnições, com caipirinha liberada aos sábados e brinquedoteca.\n\nObservação: o documento não informa o horário exato de abertura e fechamento, apenas os dias/períodos de funcionamento.",
+   "fontes_utilizadas": [
+    {
+     "id": "tiktok_7612334793040186632",
+     "nome": "Restaurante Dona Cleide",
+     "ra": "Águas Claras",
+     "custo_medio_rs": 54.9,
+     "score_similaridade": 0.98,
+     "url_tiktok": "https://www.tiktok.com/@rolezandoembrasilia/video/7612334793040186632",
+     "citada": false
+    },
+    {
+     "id": "tiktok_7600073980363574535",
+     "nome": "Casa Bari",
+     "ra": "Taguatinga",
+     "custo_medio_rs": 69.9,
+     "score_similaridade": 0.98,
+     "url_tiktok": "https://www.tiktok.com/@rolezandoembrasilia/video/7600073980363574535",
+     "citada": false
+    },
+    {
+     "id": "tiktok_7610152917563084050",
+     "nome": "Royal Burger",
+     "ra": "Riacho Fundo",
+     "custo_medio_rs": 29.9,
+     "score_similaridade": 0.98,
+     "url_tiktok": "https://www.tiktok.com/@rolezandoembrasilia/video/7610152917563084050",
+     "citada": true
+    }
+   ],
+   "latencia_ms": 3394.4,
+   "tokens_total": 989,
+   "custo_estimado_brl": 0.000758,
+   "modelo": "deepseek/deepseek-v4.1-flash-1017",
+   "disponivel": true,
+   "cache_hit": false,
+   "erro": null,
+   "guardrails": {
+    "permitido": true,
+    "motivo": null,
+    "avisos": [],
+    "teto": null,
+    "gratis": false,
+    "conflito": false,
+    "lugares_fora_df": [],
+    "score_maximo": 0.98,
+    "filtrados_por_teto": 0
+   },
+   "trace_url": null
+  },
+  "latencia_total_ms": 3995.9
+ },
+ {
+  "id_golden": "golden_05",
+  "pergunta": "Onde comer rodízio de pizza e sushi à noite em Samambaia com a família?",
+  "gabarito": {
+   "categoria": "geoespacial_ra_fora_centro",
+   "ra_esperada": "Samambaia",
+   "locais_gabarito": [
+    "VBQ"
+   ],
+   "preco_maximo_gabarito": 44.9,
+   "horario_gabarito": "Noite (rodízio com reposição a noite toda)"
+  },
+  "modelo": "deepseek/deepseek-v4.1-flash-1017",
+  "versao_prompt": {
+   "modo_a": "2026-11-10",
+   "modo_b": "2026-11-12"
+  },
+  "modo_a_llm_pura": {
+   "resposta": "Não tenho certeza de rodízios específicos que combinem pizza e sushi em Samambaia, então prefiro não inventar nomes e endereços. Sugiro verificar no Google Maps ou iFood os termos \"rodízio de pizza Samambaia\" e \"rodízio de sushi Samambaia\", filtrando por \"aberto agora\" e conferindo avaliações recentes. Duas redes com rodízio de pizza no DF são a **Pizza Prime** e a **Stella Grill**, mas não sei se há unidades em Samambaia nem os preços/horários atuais. Para sushi, não tenho dados confiáveis. Preço médio típico de rodízio de pizza no DF: R$ 50–80 por pessoa; sushi: R$ 80–130 — valores aproximados, a confirmar no local.",
+   "fontes_utilizadas": [],
+   "latencia_ms": 3494.9,
+   "tokens_total": 341,
+   "custo_estimado_brl": 0.000722,
+   "modelo": "deepseek/deepseek-v4.1-flash-1017",
+   "disponivel": true,
+   "cache_hit": false,
+   "erro": null
+  },
+  "modo_b_rag": {
+   "resposta": "A base não tem um lugar que atenda exatamente ao pedido: não há nenhum documento com rodízio de pizza e sushi em Samambaia. Os documentos trazem opções em outras regiões administrativas:\n\n- **Casa Bari** – Taguatinga – EQNL 21/23, Bloco D – R$ 69,90 – aberto todos os dias [FONTE #2]\n- **Vitorino** – Plano Piloto (Asa Sul) – 116 Sul – R$ 79,90 – horário: consultar no local [FONTE #3]\n- **Restaurante Dona Cleide** – Águas Claras – Avenida das Araucárias, Mirante Plaza Gourmet, lote 885, loja 12 – R$ 54,90 – terça a domingo 11h20 às 23h; segunda 11h20 às 16h [FONTE #1]\n\nObservação: os documentos não informam horário noturno específico para a Casa Bari, e o Vitorino não traz horário detalhado.",
+   "fontes_utilizadas": [
+    {
+     "id": "tiktok_7612334793040186632",
+     "nome": "Restaurante Dona Cleide",
+     "ra": "Águas Claras",
+     "custo_medio_rs": 54.9,
+     "score_similaridade": 0.98,
+     "url_tiktok": "https://www.tiktok.com/@rolezandoembrasilia/video/7612334793040186632",
+     "citada": true
+    },
+    {
+     "id": "tiktok_7600073980363574535",
+     "nome": "Casa Bari",
+     "ra": "Taguatinga",
+     "custo_medio_rs": 69.9,
+     "score_similaridade": 0.98,
+     "url_tiktok": "https://www.tiktok.com/@rolezandoembrasilia/video/7600073980363574535",
+     "citada": true
+    },
+    {
+     "id": "tiktok_7610152629813169416",
+     "nome": "Vitorino",
+     "ra": "Plano Piloto (Asa Sul)",
+     "custo_medio_rs": 79.9,
+     "score_similaridade": 0.98,
+     "url_tiktok": "https://www.tiktok.com/@rolezandoembrasilia/video/7610152629813169416",
+     "citada": true
+    }
+   ],
+   "latencia_ms": 4855.4,
+   "tokens_total": 1015,
+   "custo_estimado_brl": 0.000947,
+   "modelo": "deepseek/deepseek-v4.1-flash-1017",
+   "disponivel": true,
+   "cache_hit": false,
+   "erro": null,
+   "guardrails": {
+    "permitido": true,
+    "motivo": null,
+    "avisos": [],
+    "teto": null,
+    "gratis": false,
+    "conflito": false,
+    "lugares_fora_df": [],
+    "score_maximo": 0.98,
+    "filtrados_por_teto": 0
+   },
+   "trace_url": null
+  },
+  "latencia_total_ms": 4860.7
+ },
+ {
+  "id_golden": "golden_06",
+  "pergunta": "Onde dá para comer e beber com os amigos depois da 1h da manhã num sábado?",
+  "gabarito": {
+   "categoria": "janela_horario",
+   "ra_esperada": "Plano Piloto (Asa Sul)",
+   "locais_gabarito": [
+    "New Mercadito"
+   ],
+   "preco_maximo_gabarito": 54.99,
+   "horario_gabarito": "Sexta a domingo até 01h30; segunda a quinta só até 00h"
+  },
+  "modelo": "deepseek/deepseek-v4.1-flash-1017",
+  "versao_prompt": {
+   "modo_a": "2026-11-10",
+   "modo_b": "2026-11-12"
+  },
+  "modo_a_llm_pura": {
+   "resposta": "Não tenho certeza de lugares com funcionamento garantido após 1h de sábado no DF — esse dado muda muito e não quero inventar. O que sei com razoável segurança:\n\n1. **Bar do Calaf** — Plano Piloto (Setor Comercial Sul). Endereço: SCS Quadra 2, Bloco C. Preço médio: R$ 60–90. Funcionamento: costuma fechar por volta de 1h–2h, mas não tenho certeza do horário exato de sábado.\n\n2. **Boteco da Asa** — Asa Norte. Endereço: não tenho certeza. Preço médio: R$ 50–80. Horário: não sei.\n\n3. **Deck Brasília** — Lago Sul (perto da Ponte JK). Preço médio: R$ 80–120. Horário de sábado: não sei.\n\nSugiro checar Instagram/Google Maps no dia, ou considerar postos de gasolina com conveniência 24h e food trucks.",
+   "fontes_utilizadas": [],
+   "latencia_ms": 5091.4,
+   "tokens_total": 399,
+   "custo_estimado_brl": 0.000913,
+   "modelo": "deepseek/deepseek-v4.1-flash-1017",
+   "disponivel": true,
+   "cache_hit": false,
+   "erro": null
+  },
+  "modo_b_rag": {
+   "resposta": "Não encontrei na base de 93 lugares do DF nenhum lugar que atenda bem a esse pedido (maior aderência 0,62, abaixo do mínimo de 0,65). Para não recomendar um lugar aleatório, prefiro não sugerir nada. Tente descrever o tipo de rolê, a região ou o clima.",
+   "fontes_utilizadas": [],
+   "latencia_ms": 7.4,
+   "tokens_total": 0,
+   "custo_estimado_brl": 0.0,
+   "modelo": null,
+   "disponivel": true,
+   "cache_hit": false,
+   "erro": null,
+   "guardrails": {
+    "permitido": false,
+    "motivo": "similaridade_baixa",
+    "avisos": [
+     "Não encontrei na base de 93 lugares do DF nenhum lugar que atenda bem a esse pedido (maior aderência 0,62, abaixo do mínimo de 0,65). Para não recomendar um lugar aleatório, prefiro não sugerir nada. Tente descrever o tipo de rolê, a região ou o clima."
+    ],
+    "teto": null,
+    "gratis": false,
+    "conflito": false,
+    "lugares_fora_df": [],
+    "score_maximo": 0.62,
+    "filtrados_por_teto": 0
+   },
+   "trace_url": null
+  },
+  "latencia_total_ms": 5095.1
+ },
+ {
+  "id_golden": "golden_07",
+  "pergunta": "Onde tem buffet de almoço à vontade por menos de R$ 30 no domingo em Taguatinga?",
+  "gabarito": {
+   "categoria": "janela_horario",
+   "ra_esperada": "Taguatinga",
+   "locais_gabarito": [
+    "Casa Bar"
+   ],
+   "preco_maximo_gabarito": 29.99,
+   "horario_gabarito": "Somente aos domingos, no almoço"
+  },
+  "modelo": "deepseek/deepseek-v4.1-flash-1017",
+  "versao_prompt": {
+   "modo_a": "2026-11-10",
+   "modo_b": "2026-11-12"
+  },
+  "modo_a_llm_pura": {
+   "resposta": "Não tenho certeza de buffets de almoço à vontade por menos de R$ 30 aos domingos em Taguatinga — esse preço está bem abaixo da média atual, e não quero indicar lugares com dados que eu não possa confirmar (endereço, horário e valor).\n\nSugestões do que fazer:\n- Buscar no Google Maps/Instagram por \"buffet Taguatinga\" e filtrar por aberto no domingo, conferindo o preço por telefone.\n- Considerar restaurantes de comida caseira com prato do dia, que costumam sair mais em conta que buffet livre.\n- Verificar feiras e quiosques em Taguatinga Centro e na Praça do Relógio, onde há opções populares.\n\nSe você aceitar um teto um pouco maior (R$ 40–50), posso tentar lembrar de opções que eu conheça com mais segurança.",
+   "fontes_utilizadas": [],
+   "latencia_ms": 4071.6,
+   "tokens_total": 369,
+   "custo_estimado_brl": 0.000802,
+   "modelo": "deepseek/deepseek-v4.1-flash-1017",
+   "disponivel": true,
+   "cache_hit": false,
+   "erro": null
+  },
+  "modo_b_rag": {
+   "resposta": "A base tem uma opção que atende ao pedido:\n\n**Casa Bar** [FONTE #1]\n- Região administrativa: Taguatinga\n- Endereço: Taguatinga, EQNL 21/23, Bloco D, Brasília - DF\n- Preço médio por pessoa: R$ 29,99\n- Horário: somente aos domingos no almoço\n\nÉ um buffet de almoço à vontade com sobremesa liberada, dentro do valor de menos de R$ 30 e com funcionamento no domingo [FONTE #1].\n\nAs outras opções da base (Hamburgueria Espacial e Espaguete) não são buffet à vontade, então não se encaixam no pedido [FONTE #2] [FONTE #3].",
+   "fontes_utilizadas": [
+    {
+     "id": "tiktok_7681780069928324370",
+     "nome": "Casa Bar",
+     "ra": "Taguatinga",
+     "custo_medio_rs": 29.99,
+     "score_similaridade": 0.98,
+     "url_tiktok": "https://www.tiktok.com/@rolezandoembrasilia/video/7681780069928324370",
+     "citada": true
+    },
+    {
+     "id": "tiktok_7610152754647944455",
+     "nome": "Hamburgueria Espacial",
+     "ra": "Taguatinga",
+     "custo_medio_rs": 25.0,
+     "score_similaridade": 0.93,
+     "url_tiktok": "https://www.tiktok.com/@rolezandoembrasilia/video/7610152754647944455",
+     "citada": true
+    },
+    {
+     "id": "tiktok_7610152905391344914",
+     "nome": "Espaguete",
+     "ra": "Taguatinga",
+     "custo_medio_rs": 18.45,
+     "score_similaridade": 0.93,
+     "url_tiktok": "https://www.tiktok.com/@rolezandoembrasilia/video/7610152905391344914",
+     "citada": true
+    }
+   ],
+   "latencia_ms": 2622.8,
+   "tokens_total": 944,
+   "custo_estimado_brl": 0.000781,
+   "modelo": "deepseek/deepseek-v4.1-flash-1017",
+   "disponivel": true,
+   "cache_hit": false,
+   "erro": null,
+   "guardrails": {
+    "permitido": true,
+    "motivo": null,
+    "avisos": [],
+    "teto": 30.0,
+    "gratis": false,
+    "conflito": false,
+    "lugares_fora_df": [],
+    "score_maximo": 0.98,
+    "filtrados_por_teto": 62
+   },
+   "trace_url": null
+  },
+  "latencia_total_ms": 4076.1
+ },
+ {
+  "id_golden": "golden_08",
+  "pergunta": "Quero ir num pizza bar com drinks no domingo à tarde. Qual abre e a partir de que horas?",
+  "gabarito": {
+   "categoria": "janela_horario",
+   "ra_esperada": "Plano Piloto (Asa Sul)",
+   "locais_gabarito": [
+    "Spelunca DF"
+   ],
+   "preco_maximo_gabarito": 65.5,
+   "horario_gabarito": "Domingo a partir das 16h (quarta a sábado a partir das 18h)"
+  },
+  "modelo": "deepseek/deepseek-v4.1-flash-1017",
+  "versao_prompt": {
+   "modo_a": "2026-11-10",
+   "modo_b": "2026-11-12"
+  },
+  "modo_a_llm_pura": {
+   "resposta": "Não tenho certeza sobre horários específicos de domingo à tarde em pizza bars de Brasília, então vou indicar locais que costumam abrir cedo, mas confirme antes:\n\n1. **Pizzaria Dom Bosco** – Asa Sul (Brasília). Endereço: CLS 306, Bloco C, Loja 15. Preço médio: R$ 60–90. Funcionamento: não sei o horário exato de domingo.\n\n2. **Coco Bambu** – Asa Sul (Brasília). Endereço: SHCS CLS 405, Bloco D. Preço médio: R$ 80–120. Tem drinks, mas não é especializado em pizza; horário de domingo: não sei.\n\n3. **Bar do Calaf** – Setor Comercial Sul (Brasília). Endereço: SCS Quadra 2, Bloco C. Preço médio: R$ 50–80. Tem petiscos e drinks; não sei se serve pizza nem o horário de domingo.\n\nRecomendo ligar ou checar o Instagram antes de ir.",
+   "fontes_utilizadas": [],
+   "latencia_ms": 4288.6,
+   "tokens_total": 410,
+   "custo_estimado_brl": 0.000958,
+   "modelo": "deepseek/deepseek-v4.1-flash-1017",
+   "disponivel": true,
+   "cache_hit": false,
+   "erro": null
+  },
+  "modo_b_rag": {
+   "resposta": "A base não tem um lugar que atenda exatamente ao pedido (pizza bar com drinks no domingo à tarde). O mais próximo:\n\n**Spelunca DF** — Bar/Boteco, Plano Piloto (Asa Sul). Endereço: SCS QD ED. Maristela, Brasília - DF. Preço médio: R$ 65,50. Funciona domingo a partir das 16h (quarta a sábado a partir das 18h). Serve pizzas da casa e tem happy hour, mas os documentos não informam sobre drinks especificamente. [FONTE #3]\n\n**Casa Bari** — Restaurante, Taguatinga. Endereço: Taguatinga, EQNL 21/23, Bloco D. Preço médio: R$ 69,90. Aberto todos os dias, mas o horário de abertura não consta nos documentos. [FONTE #1]\n\n**Vitorino** — Ao ar livre, Plano Piloto (Asa Sul). Endereço: 116 Sul — Lago Sul, DF. Preço médio: R$ 79,90. Horário: consultar no local (não sei). [FONTE #2]",
+   "fontes_utilizadas": [
+    {
+     "id": "tiktok_7600073980363574535",
+     "nome": "Casa Bari",
+     "ra": "Taguatinga",
+     "custo_medio_rs": 69.9,
+     "score_similaridade": 0.98,
+     "url_tiktok": "https://www.tiktok.com/@rolezandoembrasilia/video/7600073980363574535",
+     "citada": true
+    },
+    {
+     "id": "tiktok_7610152629813169416",
+     "nome": "Vitorino",
+     "ra": "Plano Piloto (Asa Sul)",
+     "custo_medio_rs": 79.9,
+     "score_similaridade": 0.98,
+     "url_tiktok": "https://www.tiktok.com/@rolezandoembrasilia/video/7610152629813169416",
+     "citada": true
+    },
+    {
+     "id": "tiktok_7628371621136452882",
+     "nome": "Spelunca DF",
+     "ra": "Plano Piloto (Asa Sul)",
+     "custo_medio_rs": 65.5,
+     "score_similaridade": 0.98,
+     "url_tiktok": "https://www.tiktok.com/@rolezandoembrasilia/video/7628371621136452882",
+     "citada": true
+    }
+   ],
+   "latencia_ms": 3444.1,
+   "tokens_total": 1013,
+   "custo_estimado_brl": 0.001094,
+   "modelo": "deepseek/deepseek-v4.1-flash-1017",
+   "disponivel": true,
+   "cache_hit": false,
+   "erro": null,
+   "guardrails": {
+    "permitido": true,
+    "motivo": null,
+    "avisos": [],
+    "teto": null,
+    "gratis": false,
+    "conflito": false,
+    "lugares_fora_df": [],
+    "score_maximo": 0.98,
+    "filtrados_por_teto": 0
+   },
+   "trace_url": null
+  },
+  "latencia_total_ms": 4293.3
+ },
+ {
+  "id_golden": "golden_09",
+  "pergunta": "Quais são os melhores bares em Copacabana, no Rio de Janeiro, para ir com amigos numa sexta à noite?",
+  "gabarito": {
+   "categoria": "fora_de_escopo_df",
+   "ra_esperada": null,
+   "locais_gabarito": [],
+   "preco_maximo_gabarito": null,
+   "horario_gabarito": null
+  },
+  "modelo": "deepseek/deepseek-v4.1-flash-1017",
+  "versao_prompt": {
+   "modo_a": "2026-11-10",
+   "modo_b": "2026-11-12"
+  },
+  "modo_a_llm_pura": {
+   "resposta": "Não consigo ajudar com essa pergunta: meu foco é o Distrito Federal (Brasília e regiões administrativas), não o Rio de Janeiro. Posso recomendar bares em Brasília para sexta à noite, como o **Bar do Calaf** (Plano Piloto, Setor Comercial Sul, Q. 2, Bl. C, loja 40 — preço médio R$ 60–90, funciona até tarde, mas não tenho certeza do horário exato) ou o **Cachaçaria Água Doce** (Asa Sul, CLS 409, Bl. B, loja 35 — cerca de R$ 70–100 por pessoa; horário a confirmar). Quer sugestões em alguma região específica do DF?",
+   "fontes_utilizadas": [],
+   "latencia_ms": 5004.8,
+   "tokens_total": 339,
+   "custo_estimado_brl": 0.000687,
+   "modelo": "deepseek/deepseek-v4.1-flash-1017",
+   "disponivel": true,
+   "cache_hit": false,
+   "erro": null
+  },
+  "modo_b_rag": {
+   "resposta": "A base do Orquestrador de Rolês cobre só o Distrito Federal (93 lugares verificados). Rio de Janeiro e Copacabana (RJ) fica fora do DF, então não vou recomendar nenhum lugar para não inventar informação. Quer uma sugestão em alguma região do DF?",
+   "fontes_utilizadas": [],
+   "latencia_ms": 0.7,
+   "tokens_total": 0,
+   "custo_estimado_brl": 0.0,
+   "modelo": null,
+   "disponivel": true,
+   "cache_hit": false,
+   "erro": null,
+   "guardrails": {
+    "permitido": false,
+    "motivo": "fora_do_df",
+    "avisos": [
+     "A base do Orquestrador de Rolês cobre só o Distrito Federal (93 lugares verificados). Rio de Janeiro e Copacabana (RJ) fica fora do DF, então não vou recomendar nenhum lugar para não inventar informação. Quer uma sugestão em alguma região do DF?"
+    ],
+    "teto": null,
+    "gratis": false,
+    "conflito": false,
+    "lugares_fora_df": [
+     "Rio de Janeiro",
+     "Copacabana (RJ)"
+    ],
+    "score_maximo": null,
+    "filtrados_por_teto": 0
+   },
+   "trace_url": null
+  },
+  "latencia_total_ms": 5009.3
+ },
+ {
+  "id_golden": "golden_10",
+  "pergunta": "Onde comer hambúrguer artesanal em Pinheiros, São Paulo, gastando até R$ 50?",
+  "gabarito": {
+   "categoria": "fora_de_escopo_df",
+   "ra_esperada": null,
+   "locais_gabarito": [],
+   "preco_maximo_gabarito": null,
+   "horario_gabarito": null
+  },
+  "modelo": "deepseek/deepseek-v4.1-flash-1017",
+  "versao_prompt": {
+   "modo_a": "2026-11-10",
+   "modo_b": "2026-11-12"
+  },
+  "modo_a_llm_pura": {
+   "resposta": "Não consigo ajudar com Pinheiros, São Paulo: meu foco é o Distrito Federal (Brasília e regiões administrativas). Posso recomendar hamburguerias artesanais no DF com preço médio até R$ 50, mas não tenho certeza de endereços e horários atualizados de todas — posso indicar apenas o que sei com segurança.\n\nSugestões no DF (confirme endereço/horário antes de ir):\n1. **Brasília Burger** – Asa Sul (Plano Piloto). Preço médio: ~R$ 40–50. Endereço e horário: não tenho certeza.\n2. **Parrilla Burger** – Águas Claras. Preço médio: ~R$ 45. Endereço e horário: não sei ao certo.\n3. **Burger King** não é artesanal — descartado.\n\nQuer que eu monte opções por região administrativa (Asa Norte, Taguatinga, Guará)?",
+   "fontes_utilizadas": [],
+   "latencia_ms": 4503.7,
+   "tokens_total": 390,
+   "custo_estimado_brl": 0.000875,
+   "modelo": "deepseek/deepseek-v4.1-flash-1017",
+   "disponivel": true,
+   "cache_hit": false,
+   "erro": null
+  },
+  "modo_b_rag": {
+   "resposta": "A base do Orquestrador de Rolês cobre só o Distrito Federal (93 lugares verificados). São Paulo e Pinheiros (SP) fica fora do DF, então não vou recomendar nenhum lugar para não inventar informação. Quer uma sugestão em alguma região do DF?",
+   "fontes_utilizadas": [],
+   "latencia_ms": 0.3,
+   "tokens_total": 0,
+   "custo_estimado_brl": 0.0,
+   "modelo": null,
+   "disponivel": true,
+   "cache_hit": false,
+   "erro": null,
+   "guardrails": {
+    "permitido": false,
+    "motivo": "fora_do_df",
+    "avisos": [
+     "A base do Orquestrador de Rolês cobre só o Distrito Federal (93 lugares verificados). São Paulo e Pinheiros (SP) fica fora do DF, então não vou recomendar nenhum lugar para não inventar informação. Quer uma sugestão em alguma região do DF?"
+    ],
+    "teto": null,
+    "gratis": false,
+    "conflito": false,
+    "lugares_fora_df": [
+     "São Paulo",
+     "Pinheiros (SP)"
+    ],
+    "score_maximo": null,
+    "filtrados_por_teto": 0
+   },
+   "trace_url": null
+  },
+  "latencia_total_ms": 4508.7
+ }
+]

@@ -36,6 +36,7 @@ Programa de Residência em IA (Instituto Eldorado + UnB), metodologia CBL (Chall
 | `src/rag/`, `src/telemetria/` | Coleta 2FA do TikTok, busca vetorial e telemetria Langfuse (semana 2) |
 | `src/interpretador/` | Os 4 campos da Tela 2 (`campos.py`, ADR 0009) e o interpretador de mensagens livres (ADR 0007), com o contrato da busca em `contrato.py` |
 | `src/main.py`, `src/state.py` | API FastAPI (rotas de RAG, entregáveis e salas) e onde as salas ficam guardadas |
+| `src/financas/` | Orçamento sigiloso, divisão da conta do pós-rolê e código Pix (BR Code), sem LLM; detalhes no `README.md` da pasta |
 | `src/salas/` | Salas, cruzamento de horários, cartões de sugestão e votação; rotas em `/api/salas`; encaixe das peças de finanças, transporte e busca no `README.md` da pasta |
 | `src/telas/` | Telas 1 a 3 do aplicativo web/PWA (`/app`, `/sala/{codigo}/perfil`, `/sala/{codigo}`) em HTML, CSS e JS sem build, servidas pelo FastAPI |
 | `eval/` | Conjuntos de teste com gabarito (50 frases), roteiro de gravação e resultados das medições; os áudios ficam em `data/raw/voz/` |
@@ -47,7 +48,7 @@ Atualize esta tabela ao criar pastas novas (ex.: `src/`, `data/`, `notebooks/`, 
 ## Convenções
 
 - Documentação em português; código e identificadores podem ser em inglês.
-- Commits curtos no imperativo, com prefixo: `docs: ...`, `feat: ...`, `fix: ...`, `exp: ...` (experimentos).
+- Commits no padrão do [CONTRIBUTING.md](CONTRIBUTING.md): `tipo(escopo): descrição no imperativo e em minúsculas`, com os tipos `feat`, `fix`, `docs`, `ci`, `refactor`, `test` e `chore` (ex.: `feat(agentes): ...`; experimentos: `docs(experimentos): ...`).
 - Nunca commitar segredos (`.env`, chaves de API) nem dados pessoais. O tema envolve dados de qualidade de vida/saúde: trate LGPD como requisito.
 - Datasets e índices vetoriais grandes ficam fora do git (ver `.gitignore`); registre a origem e como reproduzi-los na documentação.
 - Prefira linkar a duplicar: um fato vive em um lugar só.

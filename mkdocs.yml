@@ -39,6 +39,7 @@ nav:
   - Dados & RAG:
       - Esquema da Base: dados/esquema-base.md
       - Guia de Curadoria: dados/guia-curadoria.md
+      - Golden Dataset (Semana 3): dados/golden-dataset-semana3.md
   - Semanas & Entregas:
       - Semana 01: semanas/semana-01.md
       - Semana 02: semanas/semana-02.md

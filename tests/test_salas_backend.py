@@ -126,7 +126,8 @@ def test_fluxo_completo_com_tres_participantes(cliente):
     # Sigilo (RNF-02): nada dos 4 campos de ninguém aparece no painel público
     texto = json.dumps(cliente.get(f"/api/salas/{codigo}").json(), ensure_ascii=False)
     for p in PARTICIPANTES:
-        assert f'"{p["teto"]}' not in texto and f'{p["teto"]}.00' not in texto and f'{p["teto"]},00' not in texto
+        # o teto como número isolado, sem casar com pedaços de ids aleatórios ("60a3f1") nem de URLs ("%E2%80%93")
+        assert not re.search(rf'(?<![\w.%]){p["teto"]}(?:[.,]00?)?(?![\w.%])', texto), p["nome"]
         assert p["origem"] not in texto and p["horarios"] not in texto and p["preferencias"] not in texto
     assert "token" not in texto and "teto" not in texto
 

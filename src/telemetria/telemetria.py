@@ -208,12 +208,30 @@ def calcular_similaridade_leticia(pergunta: str, role: Dict[str, Any], categoria
     return min(max(round(score, 2), 0.20), 0.98)
 
 
+BUSCAS = ("lexica", "vetorial", "hibrida")
+K_FUSAO = 60  # constante usual da fusão por posição (Reciprocal Rank Fusion)
+
+
+def fundir_rankings(rankings: List[List[str]], k: int = K_FUSAO) -> List[str]:
+    """Junta várias ordens de ids pela posição em cada uma (Reciprocal Rank Fusion): soma 1 / (k + posição).
+
+    Não precisa calibrar as escalas das buscas (a léxica vai de 0,20 a 0,98; o cosseno, de outra faixa)."""
+    pontos: Dict[str, float] = {}
+    for ranking in rankings:
+        for posicao, ident in enumerate(ranking, start=1):
+            pontos[ident] = pontos.get(ident, 0.0) + 1.0 / (k + posicao)
+    return sorted(pontos, key=lambda i: -pontos[i])
+
+
 @observe(name="recuperacao_vetorial_tiktok", as_type="retriever")
 def _etapa_retriever(pergunta: str, top_k: int = 3, categoria: Optional[str] = None,
-                     guard: Optional[gr.Guardrails] = None) -> List[Dict[str, Any]]:
-    """Span de recuperação: busca semântica real sobre os 93 rolês auditados da Letícia.
+                     guard: Optional[gr.Guardrails] = None, busca: str = "lexica") -> List[Dict[str, Any]]:
+    """Span de recuperação sobre os 93 rolês auditados da Letícia.
 
-    Com `guard`, aplica antes o filtro duro de teto em reais (guardrail 2, RNF-04)."""
+    `busca`: "lexica" (pontuação por palavras, `calcular_similaridade_leticia`), "vetorial" (cosseno com os
+    embeddings `gemini-embedding-001` da base, `src/rag/busca_vetorial.py`) ou "hibrida" (as duas ordens
+    fundidas por posição). Sem embedding da pergunta (sem chave, API fora), volta para a léxica e registra o
+    motivo em `guard.busca_erro`. Com `guard`, aplica antes o filtro duro de teto em reais (guardrail 2, RNF-04)."""
     client = obter_cliente()
     banco_real = carregar_base_oficial_leticia()
     if guard is not None:
@@ -231,15 +249,40 @@ def _etapa_retriever(pergunta: str, top_k: int = 3, categoria: Optional[str] = N
 
     # Ordena pelo score decrescente
     candidatos.sort(key=lambda x: x["score_similaridade"], reverse=True)
+    efetiva = "lexica"
+    if busca != "lexica" and candidatos:
+        from src.rag import busca_vetorial
+
+        cos, meta = busca_vetorial.similaridades(pergunta)
+        if guard is not None:
+            guard.embedding_ms, guard.embedding_custo_usd = meta["latencia_ms"], meta["custo_usd"]
+            guard.busca_erro = meta["erro"]
+        if cos is not None:
+            efetiva = busca
+            por_id = {c["id"]: c for c in candidatos}
+            for c in candidatos:
+                c["score_lexico"] = c["score_similaridade"]
+                c["score_similaridade"] = cos.get(c["id"], 0.0)  # o guardrail 1b passa a olhar o cosseno
+            ordem_vetorial = sorted(por_id, key=lambda i: -por_id[i]["score_similaridade"])
+            if busca == "vetorial":
+                ordem = ordem_vetorial
+            else:
+                ordem = fundir_rankings([[c["id"] for c in candidatos], ordem_vetorial])
+            candidatos = [por_id[i] for i in ordem]
+    if guard is not None:
+        guard.busca = efetiva
     resultados = candidatos[:top_k]
 
     try:
         client.update_current_span(
+            input=pergunta,
+            output=[{"nome": r.get("nome"), "ra": r.get("regiao_administrativa"), "score": r.get("score_similaridade")} for r in resultados],
             metadata={
                 "base_dados": "data/banco_aprovado_2fa.json",
                 "autor_base": "Letícia Miti (Semana 2)",
                 "total_itens_carregados": len(banco_real),
                 "top_k": top_k,
+                "busca": efetiva,
                 "categoria_filtro": categoria or "todas",
                 "melhor_role_encontrado": resultados[0]["nome"] if resultados else "nenhum",
                 "score_maximo": resultados[0]["score_similaridade"] if resultados else 0.0,
@@ -253,7 +296,10 @@ def _etapa_retriever(pergunta: str, top_k: int = 3, categoria: Optional[str] = N
 
 @observe(name="sintese_resposta_llm", as_type="generation")
 def _etapa_generation(pergunta: str, roles: List[Dict[str, Any]]) -> str:
-    """Span de geração: formata a recomendação fundamentada nos dados da Letícia."""
+    """Span de geração: monta a recomendação com um texto fixo preenchido pelos lugares recuperados.
+
+    Não chama nenhum LLM; tokens e custo abaixo são estimativas. A geração por LLM com os lugares como
+    contexto é a do comparativo A/B (src/rag/llm_rag.py, issue #34)."""
     client = obter_cliente()
 
     if not roles:
@@ -291,7 +337,7 @@ def _etapa_generation(pergunta: str, roles: List[Dict[str, Any]]) -> str:
 
     try:
         client.update_current_generation(
-            model="gemini-1.5-flash",
+            model="texto-fixo-sem-llm",
             usage_details={
                 "input": tokens_input,
                 "output": tokens_output,
@@ -301,7 +347,7 @@ def _etapa_generation(pergunta: str, roles: List[Dict[str, Any]]) -> str:
                 "total": round(custo_usd, 8),
             },
             metadata={
-                "provedor": "Google Gemini API",
+                "provedor": "nenhum (texto montado em Python)",
                 "fonte_dados": "Auditoria 2FA TikTok 2026",
             },
         )
@@ -309,6 +355,29 @@ def _etapa_generation(pergunta: str, roles: List[Dict[str, Any]]) -> str:
         pass
 
     return resposta_formatada
+
+
+def recuperar_com_guardrails(
+    pergunta: str, top_k: int = 3, categoria: Optional[str] = None, busca: str = "lexica"
+) -> tuple[gr.Guardrails, List[Dict[str, Any]]]:
+    """Recuperação do Modo B com os guardrails da issue #33: escopo do DF, teto em reais e aderência mínima.
+
+    Devolve os guardrails avaliados e os lugares recuperados; quando um guardrail bloqueia, a lista vem vazia
+    (nada é recomendado, RNF-03). Usada pela rota /rag/buscar e pelo comparativo A/B (issue #34).
+    `busca`: "lexica" (padrão), "vetorial" ou "hibrida" (ver `_etapa_retriever`). O limiar de aderência é o da
+    escala de cada uma: 0,65 na léxica e `LIMIAR_COSSENO` no cosseno; `guard.busca` diz qual rodou."""
+    if busca not in BUSCAS:
+        raise ValueError(f"busca deve ser um de {BUSCAS}, não {busca!r}")
+    guard = gr.avaliar_pergunta(pergunta)
+    roles: List[Dict[str, Any]] = []
+    if guard.permitido:
+        roles = _etapa_retriever(pergunta, top_k=top_k, categoria=categoria, guard=guard, busca=busca)
+        if guard.permitido:
+            limiar = gr.LIMIAR_SIMILARIDADE if guard.busca == "lexica" else gr.LIMIAR_COSSENO
+            gr.avaliar_recuperacao(guard, [r["score_similaridade"] for r in roles], limiar=limiar)
+    if not guard.permitido:
+        roles = []
+    return guard, roles
 
 
 @observe(name="pipeline_orquestrador_rag")
@@ -323,18 +392,12 @@ def simular_recuperacao_rag(
     trace_id = client.get_current_trace_id()
 
     # Guardrails determinísticos (issue #33): escopo do DF, teto em reais e aderência mínima
-    guard = gr.avaliar_pergunta(pergunta_usuario)
-    roles: List[Dict[str, Any]] = []
-    if guard.permitido:
-        roles = _etapa_retriever(pergunta_usuario, top_k=top_k, categoria=categoria, guard=guard)
-        if guard.permitido:
-            gr.avaliar_recuperacao(guard, [r["score_similaridade"] for r in roles])
+    guard, roles = recuperar_com_guardrails(pergunta_usuario, top_k=top_k, categoria=categoria)
     if guard.permitido:
         resposta = _etapa_generation(pergunta_usuario, roles)
         if guard.avisos:
             resposta = " ".join(guard.avisos) + " " + resposta
     else:
-        roles = []  # nada é recomendado quando um guardrail bloqueia (RNF-03)
         resposta = " ".join(guard.avisos)
 
     duracao_ms = round((time.time() - inicio) * 1000, 2)
@@ -356,12 +419,6 @@ def simular_recuperacao_rag(
                 name="qualidade_recuperacao_rag",
                 value=score_medio_recuperacao,
                 comment=f"Média semântica dos top {len(roles)} rolês",
-            )
-            client.create_score(
-                trace_id=trace_id,
-                name="fidelidade_rnf03_zero_alucinacao",
-                value=1.0,
-                comment="100% dos locais são do arquivo oficial data/banco_aprovado_2fa.json da Letícia",
             )
             client.create_score(
                 trace_id=trace_id,

@@ -1,11 +1,16 @@
 import json
+import logging
 import os
-from typing import Optional
+import secrets
+import threading
+import time
+from typing import Literal, Optional
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
-from src.interface import ENTREGAVEIS_PAGE, HTML_PAGE, LANDING_PAGE
+from src.interface import COMPARATIVO_PAGE, ENTREGAVEIS_PAGE, HTML_PAGE, LANDING_PAGE
+from src.rag.comparador_ab import ErroComparativo, executar_comparacao_ab, listar_golden
 from src.salas.rotas import router as salas_router
 from src.telas.rotas import estaticos as telas_estaticos
 from src.telas.rotas import router as telas_router
@@ -15,6 +20,8 @@ from src.telemetria.telemetria import (
     flush_telemetria,
     simular_recuperacao_rag,
 )
+
+logger = logging.getLogger(__name__)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -37,20 +44,12 @@ class ConsultaRAGRequest(BaseModel):
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
     """
-    Entrega a pagina inicial do Orquestrador de Roles com botao para /rag.
+    Entrega a pagina inicial do Orquestrador de Roles com botao para /rag e /comparativo.
     Se o cliente pedir explicitamente application/json (ex: curl/testes), retorna JSON.
     """
     accept = request.headers.get("accept", "")
     if "application/json" in accept and "text/html" not in accept:
-        langfuse_ok = checar_conexao_langfuse()
-        return {
-            "projeto": "Orquestrador de Roles",
-            "status": "online",
-            "ambiente": os.environ.get("ENVIRONMENT", "desenvolvimento"),
-            "responsavel_devops": "Maria Eduarda",
-            "telemetria_langfuse": "conectado" if langfuse_ok else "desconectado",
-            "doc": "/docs",
-        }
+        return status_api()
     return HTMLResponse(content=LANDING_PAGE)
 
 
@@ -59,6 +58,13 @@ def home(request: Request):
 def demo_interface():
     """Rota direta para a interface web do RAG."""
     return HTMLResponse(content=HTML_PAGE)
+
+
+@app.get("/comparativo", response_class=HTMLResponse)
+@app.get("/comparacao", response_class=HTMLResponse)
+def comparativo_interface():
+    """Rota da Interface Web de Comparação Lado a Lado: LLM Pura vs. RAG Ancorado (Issue #37)."""
+    return HTMLResponse(content=COMPARATIVO_PAGE)
 
 
 @app.get("/status")
@@ -113,6 +119,108 @@ def buscar_roles(requisicao: ConsultaRAGRequest):
     return resultado
 
 
+class ComparativoRequest(BaseModel):
+    """Pergunta livre ou id de um caso do golden dataset (com o id, a pergunta pode ficar vazia)."""
+
+    model_config = ConfigDict(extra="forbid")
+    pergunta: Optional[str] = None
+    id_golden: Optional[str] = None
+    raciocinio: Literal["desligado", "low", "medium", "high"] = "desligado"  # vale para os dois modos
+    busca: Literal["lexica", "vetorial", "hibrida"] = "lexica"  # só o Modo B
+
+
+@app.get("/api/comparativo/golden")
+def comparativo_golden():
+    """Perguntas do golden dataset da semana 3 disponíveis para o comparativo (issue #34)."""
+    perguntas = listar_golden()
+    return {"total": len(perguntas), "perguntas": perguntas}
+
+
+@app.post("/api/comparativo/executar")
+def comparativo_executar(requisicao: ComparativoRequest):
+    """
+    Roda a mesma pergunta no Modo A (LLM pura, sem documentos) e no Modo B (RAG sobre a base de 93 lugares,
+    com guardrails), lado a lado (issue #34). Com `id_golden`, devolve também o gabarito do caso.
+    `raciocinio` liga o raciocínio do modelo nos dois modos; `busca` escolhe a busca do Modo B (por palavras,
+    por embeddings `gemini-embedding-001` ou as duas juntas).
+    """
+    try:
+        resultado = executar_comparacao_ab(requisicao.pergunta, requisicao.id_golden,
+                                           raciocinio=requisicao.raciocinio, busca=requisicao.busca)
+    except ErroComparativo as e:
+        raise HTTPException(status_code=e.status, detail=str(e))
+    flush_telemetria()
+    # O resultado fica guardado no servidor: /avaliar só recebe este id, nunca texto, gabarito ou trace do navegador
+    resultado["id_comparativo"] = _guardar_comparativo(resultado)
+    return resultado
+
+
+class AvaliarRequest(BaseModel):
+    """Só o id devolvido por `POST /api/comparativo/executar` (o resultado avaliado é o guardado no servidor)."""
+
+    model_config = ConfigDict(extra="forbid")
+    id_comparativo: str = Field(min_length=8, max_length=64, pattern=r"^[A-Za-z0-9_-]+$")
+
+
+TTL_COMPARATIVO_S = 900
+MAX_COMPARATIVOS = 200
+_COMPARATIVOS: dict[str, dict] = {}
+_COMPARATIVOS_LOCK = threading.Lock()
+
+
+def _guardar_comparativo(resultado: dict) -> str:
+    """Guarda o resultado em memória com id aleatório e validade curta; descarta vencidos e excedentes."""
+    agora = time.monotonic()
+    id_comparativo = secrets.token_urlsafe(16)
+    with _COMPARATIVOS_LOCK:
+        for chave in [k for k, v in _COMPARATIVOS.items() if v["expira"] <= agora]:
+            del _COMPARATIVOS[chave]
+        while len(_COMPARATIVOS) >= MAX_COMPARATIVOS:
+            del _COMPARATIVOS[next(iter(_COMPARATIVOS))]
+        _COMPARATIVOS[id_comparativo] = {
+            "dados": dict(resultado),
+            "expira": agora + TTL_COMPARATIVO_S,
+            "avaliacao": None,
+            "trava": threading.Lock(),
+        }
+    return id_comparativo
+
+
+@app.post("/api/comparativo/avaliar")
+def comparativo_avaliar(requisicao: AvaliarRequest):
+    """
+    Motor de Avaliação Híbrida da Semana 3 (Issue #36): avalia um comparativo já executado pelo servidor
+    (RNF-04 determinístico + LLM-as-a-Judge GLM 5.3 Flash, ADR 0014) e grava as notas no trace dele no Langfuse.
+    A avaliação é feita uma única vez por id: repetir a chamada devolve o mesmo resultado, sem novo custo.
+    """
+    with _COMPARATIVOS_LOCK:
+        entrada = _COMPARATIVOS.get(requisicao.id_comparativo)
+        if entrada and entrada["expira"] <= time.monotonic():
+            del _COMPARATIVOS[requisicao.id_comparativo]
+            entrada = None
+    if entrada is None:
+        raise HTTPException(status_code=404, detail="Comparativo não encontrado ou expirado. Execute-o de novo.")
+
+    with entrada["trava"]:
+        if entrada["avaliacao"] is None:
+            dados = entrada["dados"]
+            try:
+                from src.telemetria.evals_semana3 import avaliar_par_comparativo
+
+                # O trace vem do resultado gerado pelo servidor, não do navegador
+                trace_url = ((dados.get("modo_b_rag") or {}).get("trace_url") or "").rstrip("/")
+                trace_id = trace_url.rsplit("/", 1)[-1] if "/traces/" in trace_url else None
+                entrada["avaliacao"] = avaliar_par_comparativo(
+                    dados, registrar_langfuse=bool(trace_id), trace_id=trace_id)
+                flush_telemetria()
+            except ErroComparativo as e:
+                raise HTTPException(status_code=e.status, detail=str(e))
+            except Exception:
+                logger.exception("Falha ao avaliar o comparativo %s", requisicao.id_comparativo)
+                raise HTTPException(status_code=500, detail="Falha ao avaliar o comparativo.")
+        return {"comparativo": entrada["dados"], "avaliacao": entrada["avaliacao"]}
+
+
 @app.get("/entregaveis", response_class=HTMLResponse)
 def entregaveis_hub():
     """
@@ -146,6 +254,63 @@ def download_relatorio_pdf():
         pdf_path,
         media_type="application/pdf",
         filename="RELATORIO_TECNICO_RAG_GRUPO7.pdf",
+    )
+
+
+def _primeiro_arquivo(*caminhos: str) -> Optional[str]:
+    """Retorna o primeiro caminho existente na lista de candidatos (relativos a BASE_DIR ou absolutos)."""
+    for caminho in caminhos:
+        absoluto = caminho if os.path.isabs(caminho) else os.path.join(BASE_DIR, caminho)
+        if os.path.isfile(absoluto):
+            return absoluto
+    return None
+
+
+@app.get("/visualizar/relatorio-semana3-pdf")
+def visualizar_relatorio_semana3_pdf():
+    """Visualização inline do Relatório Técnico da Semana 03 diretamente no navegador."""
+    pdf_path = _primeiro_arquivo(
+        "docs/entregas/semana-03/RELATORIO_TECNICO_SEMANA_03.pdf",
+        "docs/entregas/semana-03/RELATORIO_TECNICO_LLM_VS_RAG_GRUPO7.pdf",
+    )
+    if not pdf_path:
+        raise HTTPException(status_code=404, detail="Relatório Técnico da Semana 03 ainda não disponível.")
+    return FileResponse(
+        pdf_path,
+        media_type="application/pdf",
+        content_disposition_type="inline",
+    )
+
+
+@app.get("/download/relatorio-semana3-pdf")
+def download_relatorio_semana3_pdf():
+    """Download do Relatório Técnico Oficial da Semana 03 (PDF)."""
+    pdf_path = _primeiro_arquivo(
+        "docs/entregas/semana-03/RELATORIO_TECNICO_SEMANA_03.pdf",
+        "docs/entregas/semana-03/RELATORIO_TECNICO_LLM_VS_RAG_GRUPO7.pdf",
+    )
+    if not pdf_path:
+        raise HTTPException(status_code=404, detail="Relatório Técnico da Semana 03 ainda não disponível.")
+    return FileResponse(
+        pdf_path,
+        media_type="application/pdf",
+        filename="RELATORIO_TECNICO_SEMANA_03.pdf",
+    )
+
+
+@app.get("/download/entregavel-semana3-zip")
+def download_entregavel_semana3_zip():
+    """Download do Pacote ZIP Completo de Entregáveis da Semana 03."""
+    zip_path = _primeiro_arquivo(
+        "docs/entregas/semana-03/Entregavel_Grupo7_Semana_03.zip",
+        "docs/entregas/semana-03/Entregavel_Grupo7_Comparacao_LLM_RAG.zip",
+    )
+    if not zip_path:
+        raise HTTPException(status_code=404, detail="Pacote ZIP da Semana 03 ainda não disponível.")
+    return FileResponse(
+        zip_path,
+        media_type="application/zip",
+        filename="Entregavel_Grupo7_Semana_03.zip",
     )
 
 
@@ -197,7 +362,7 @@ def api_entregavel_arquivo(caminho: str = Query(..., description="Caminho relati
 
 
 @app.get("/api/entregaveis/dados")
-def api_entregavel_dados(colecao: str = Query("aprovados", description="aprovados, quarentena ou vetores")):
+def api_entregavel_dados(colecao: str = Query("aprovados", description="aprovados, quarentena, vetores, golden_semana3 ou benchmark_semana3")):
     """
     Retorna coleções estruturadas para tabelas interativas na Central de Entregáveis.
     """
@@ -207,8 +372,15 @@ def api_entregavel_dados(colecao: str = Query("aprovados", description="aprovado
         path = os.path.join(BASE_DIR, "data/fila_quarentena_2fa.json")
     elif colecao == "vetores":
         path = os.path.join(BASE_DIR, "data/banco_vetorial_embeddings.json")
+    elif colecao == "golden_semana3":
+        path = os.path.join(BASE_DIR, "data/golden_dataset_semana3.json")
+    elif colecao == "benchmark_semana3":
+        path = os.path.join(BASE_DIR, "data/resultados_benchmark_semana3.json")
     else:
-        raise HTTPException(status_code=400, detail="Coleção inválida. Use: aprovados, quarentena ou vetores.")
+        raise HTTPException(
+            status_code=400,
+            detail="Coleção inválida. Use: aprovados, quarentena, vetores, golden_semana3 ou benchmark_semana3."
+        )
 
     if not os.path.isfile(path):
         raise HTTPException(status_code=404, detail="Arquivo de dados não encontrado.")
