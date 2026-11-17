@@ -25,20 +25,53 @@
     Orq.mostrarAviso($('salaAvisoGeral'), '', 'info');
 
     let sala;
-    try {
-      sala = demo ? Demo.painel() : await Orq.api('GET', '/api/salas/' + encodeURIComponent(codigo));
-    } catch (e) {
-      // Se a sala ainda não existe no servidor (ou servidor foi reiniciado), entra no modo demonstração para permitir testar
-      codigo = Orq.definirCodigoAtivo(Orq.CODIGO_DEMO);
-      demo = true;
-      creds = {};
+    if (demo) {
       sala = Demo.painel();
-      $('botaoReiniciarDemo').hidden = false;
       Orq.mostrarAviso(
         $('salaAvisoGeral'),
         'Você está visualizando a sala de exemplo (DEMO). Crie sua sala na aba "1. Criar Sala" ou vote abaixo para testar a orquestração.',
         'info'
       );
+    } else {
+      try {
+        sala = await Orq.api('GET', '/api/salas/' + encodeURIComponent(codigo));
+      } catch (e) {
+        $('salaTituloRole').textContent = 'Sala não encontrada';
+        $('salaSubtituloRole').textContent = '';
+        $('listaParticipantes').replaceChildren();
+        $('contagemPreencheram').textContent = '0 de 0';
+        $('linkMeuPerfil').hidden = true;
+        $('blocoOrganizadorColeta').hidden = true;
+        $('secaoSugestoes').hidden = true;
+        $('secaoResultado').hidden = true;
+        const aviso = $('salaAvisoGeral');
+        aviso.className = 'aviso aviso-erro';
+        aviso.setAttribute('role', 'alert');
+        if (e.status === 404) {
+          aviso.replaceChildren(
+            document.createTextNode(`Não achei a sala ${codigo}. Confira o código ou o link do convite. `),
+            Orq.el('button', {
+              type: 'button',
+              class: 'botao botao-secundario',
+              style: 'margin-top: 8px; display: inline-block;',
+              text: 'Ver a sala de exemplo (DEMO)',
+              onclick: () => Orq.irParaAba('sala', Orq.CODIGO_DEMO),
+            })
+          );
+        } else {
+          aviso.replaceChildren(
+            document.createTextNode(e.message || 'Erro ao carregar a sala. Tente de novo. '),
+            Orq.el('button', {
+              type: 'button',
+              class: 'botao botao-secundario',
+              style: 'margin-top: 8px; display: inline-block;',
+              text: '🔄 Tentar de novo',
+              onclick: () => carregar(),
+            })
+          );
+        }
+        return;
+      }
     }
     salaAtual = sala;
 

@@ -235,6 +235,8 @@ const Orq = (() => {
       }
     } catch (_) {}
 
+    atualizarModoDev(cod);
+
     for (const fn of ouvintesAba) {
       try { fn(nome, cod); } catch (err) { console.error('Erro em ouvinte de aba:', err); }
     }
@@ -257,20 +259,59 @@ const Orq = (() => {
     return anterior;
   }
 
+  // ------------------------------------------------------------ modo dev e demonstração
+
+  function modoDevAtivo(codigo) {
+    try {
+      const params = new URLSearchParams(location.search);
+      if (params.has('dev')) return true;
+    } catch (_) {}
+    return ehDemo(codigo || codigoAtivo());
+  }
+
+  function atualizarModoDev(codigo) {
+    const ativo = modoDevAtivo(codigo);
+    const elementos = document.querySelectorAll('[data-dev-controle="true"]');
+    for (const el of elementos) {
+      el.hidden = !ativo;
+    }
+  }
+
+  function ligarBotao(id, acao) {
+    const b = document.getElementById(id);
+    if (b) {
+      b.addEventListener('click', (ev) => {
+        if (ev) {
+          ev.preventDefault();
+          ev.stopPropagation();
+        }
+        acao();
+      });
+    }
+  }
+
+  function iniciarDevControles() {
+    ligarBotao('btnDevAnterior', () => voltar());
+    ligarBotao('btnDevProxima', () => avancar());
+    ligarBotao('btnDevAvancarCriar', () => irParaAba('perfil'));
+    ligarBotao('btnDevVoltarPerfil', () => irParaAba('criar'));
+    ligarBotao('btnDevAvancarPerfil', () => irParaAba('sala'));
+    ligarBotao('btnDevVoltarSala', () => irParaAba('perfil'));
+    ligarBotao('btnDevRecomecarSala', () => irParaAba('criar'));
+  }
+
   function iniciarAbas() {
     const abas = { abaCriar: 'criar', abaPerfil: 'perfil', abaSala: 'sala' };
     for (const [id, nome] of Object.entries(abas)) {
       const btn = document.getElementById(id);
       if (btn) {
-        const tratarClique = (ev) => {
+        btn.addEventListener('click', (ev) => {
           if (ev) {
             ev.preventDefault();
             ev.stopPropagation();
           }
           irParaAba(nome);
-        };
-        btn.onclick = tratarClique;
-        btn.addEventListener('click', tratarClique);
+        });
       }
     }
 
@@ -295,26 +336,29 @@ const Orq = (() => {
     }
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => {
-      iniciarFonte();
-      iniciarAbas();
-      registrarServiceWorker();
-    });
-  } else {
+  function inicializarTudo() {
     iniciarFonte();
     iniciarAbas();
+    iniciarDevControles();
+    atualizarModoDev();
     registrarServiceWorker();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', inicializarTudo);
+  } else {
+    inicializarTudo();
   }
 
   return {
     CODIGO_DEMO, ErroApi, api, credenciais, salvarCredenciais, esquecerParticipante, el, mostrarAviso,
     reais, faixaReais, urlSegura, codigoDaUrl, ehDemo, linkConvite, linkWhatsApp, copiar,
     codigoAtivo, definirCodigoAtivo, irParaAba, aoMudarAba, avancar, voltar,
+    modoDevAtivo, atualizarModoDev,
   };
 })();
 
-// Exposição global para chamadas diretas via onclick no HTML
+// Exposição global para compatibilidade e testes
 window.Orq = Orq;
 window.irParaAba = Orq.irParaAba;
 window.avancarTela = Orq.avancar;

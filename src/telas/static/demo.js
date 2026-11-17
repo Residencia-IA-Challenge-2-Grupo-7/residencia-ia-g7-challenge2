@@ -7,33 +7,62 @@ const Demo = (() => {
   const CHAVE = 'orquestrador:demo';
   const SUCESSO = '🎉 Rolê orquestrado com sucesso!';
 
+  function obterProximaData(diaSemanaDesejado) {
+    const agora = new Date();
+    const diaAtual = agora.getDay();
+    let diff = diaSemanaDesejado - diaAtual;
+    if (diff <= 0) diff += 7;
+    return new Date(agora.getFullYear(), agora.getMonth(), agora.getDate() + diff);
+  }
+
+  function formatarDataISO(data, hora) {
+    const a = data.getFullYear();
+    const m = String(data.getMonth() + 1).padStart(2, '0');
+    const d = String(data.getDate()).padStart(2, '0');
+    return `${a}-${m}-${d}T${hora}:00`;
+  }
+
+  function formatarDiaMes(data) {
+    const d = String(data.getDate()).padStart(2, '0');
+    const m = String(data.getMonth() + 1).padStart(2, '0');
+    return `${d}/${m}`;
+  }
+
+  const proximaSexta = obterProximaData(5);
+  const proximoSabado = obterProximaData(6);
+  const rotuloSexta = formatarDiaMes(proximaSexta);
+  const rotuloSabado = formatarDiaMes(proximoSabado);
+
   const CARTOES = [
     {
       id: 'A', posicao: 1, nome: 'Crioula Café', tipo: 'Cafeteria / Doceria', ra: 'Guará',
       regiao_administrativa: 'Guará', endereco: 'QE 19 do Guará, Brasília - DF',
-      inicio: '2026-11-14T16:00:00', fim: '2026-11-14T19:00:00', horario: 'sáb 14/11, 16h às 19h',
+      inicio: formatarDataISO(proximoSabado, '16:00'), fim: formatarDataISO(proximoSabado, '19:00'),
+      horario: `sáb ${rotuloSabado}, 16h às 19h`,
       horario_situacao: 'aberto', quantos_podem: '4 de 4 podem', consumo_estimado_rs: '50.00',
       faixa_gasto_rs: { min: '50.00', max: '61.00' }, tempo_medio_chegada_min: 24, tempo_maximo_chegada_min: 38,
       nota_justica: 86.5,
-      explicacao: 'Fica no meio do caminho entre Ceilândia, Águas Claras e a Asa Norte: ninguém passa de 40 min de viagem. Cabe no orçamento de todos e tem opção vegetariana.',
+      explicacao: 'Fica no meio do caminho para todo mundo: ninguém passa de 40 min de viagem. Cabe no orçamento de todos e tem opção vegetariana.',
       tiktok_url: 'https://www.tiktok.com/@rolezandoembrasilia/video/7626406997541309704',
       fonte: 'Vídeo de @rolezandoembrasilia', vibes: ['Calmo / Bom para Conversar', 'Intimista / Aconchegante'],
     },
     {
       id: 'B', posicao: 2, nome: 'Rossoni', tipo: 'Restaurante / Gastronomia', ra: 'Plano Piloto',
       regiao_administrativa: 'Plano Piloto (Asa Sul)', endereco: 'CLS 306/307, Asa Sul, Brasília - DF',
-      inicio: '2026-11-13T19:30:00', fim: '2026-11-13T22:30:00', horario: 'sex 13/11, 19h30 às 22h30',
+      inicio: formatarDataISO(proximaSexta, '19:30'), fim: formatarDataISO(proximaSexta, '22:30'),
+      horario: `sex ${rotuloSexta}, 19h30 às 22h30`,
       horario_situacao: 'aberto', quantos_podem: '3 de 4 podem', consumo_estimado_rs: '35.00',
       faixa_gasto_rs: { min: '35.00', max: '46.00' }, tempo_medio_chegada_min: 29, tempo_maximo_chegada_min: 52,
       nota_justica: 71.2,
-      explicacao: 'O mais barato das opções e animado, mas quem sai de Ceilândia leva cerca de 50 min de metrô.',
+      explicacao: 'O mais barato das opções e animado, mas para uma pessoa do grupo, o trajeto passa de 50 min de transporte público.',
       tiktok_url: 'https://www.tiktok.com/@rolezandoembrasilia/video/7626407184108129543',
       fonte: 'Vídeo de @rolezandoembrasilia', vibes: ['Baratinho', 'Animado / Galera'],
     },
     {
       id: 'C', posicao: 3, nome: 'Omura Sushi', tipo: 'Restaurante / Gastronomia', ra: 'Samambaia',
       regiao_administrativa: 'Samambaia', endereco: 'QN 122, Conjunto 05, Lote 04, Samambaia - DF',
-      inicio: '2026-11-14T19:00:00', fim: '2026-11-14T22:00:00', horario: 'sáb 14/11, 19h às 22h',
+      inicio: formatarDataISO(proximoSabado, '19:00'), fim: formatarDataISO(proximoSabado, '22:00'),
+      horario: `sáb ${rotuloSabado}, 19h às 22h`,
       horario_situacao: 'provavel', quantos_podem: '4 de 4 podem', consumo_estimado_rs: '70.00',
       faixa_gasto_rs: { min: '70.00', max: '81.00' }, tempo_medio_chegada_min: 33, tempo_maximo_chegada_min: 47,
       nota_justica: 68.0,
@@ -44,7 +73,8 @@ const Demo = (() => {
     {
       id: 'D', posicao: 4, nome: 'Spelunca DF', tipo: 'Bar / Boteco / Pub', ra: 'Plano Piloto',
       regiao_administrativa: 'Plano Piloto (Asa Sul)', endereco: 'SCS, Ed. Maristela, Brasília - DF',
-      inicio: '2026-11-14T20:00:00', fim: '2026-11-14T23:00:00', horario: 'sáb 14/11, 20h às 23h',
+      inicio: formatarDataISO(proximoSabado, '20:00'), fim: formatarDataISO(proximoSabado, '23:00'),
+      horario: `sáb ${rotuloSabado}, 20h às 23h`,
       horario_situacao: 'aberto', quantos_podem: '4 de 4 podem', consumo_estimado_rs: '65.50',
       faixa_gasto_rs: { min: '65.50', max: '76.50' }, tempo_medio_chegada_min: 30, tempo_maximo_chegada_min: 50,
       nota_justica: 64.4,
@@ -87,7 +117,7 @@ const Demo = (() => {
       link_convite: '/sala/DEMO', limite_participantes: 20, participantes: e.participantes,
       preencheram: `${confirmados} de ${e.participantes.length}`,
       pode_gerar_sugestoes: confirmados >= 2 && e.status !== 'orquestrado',
-      janela_escolhida: e.status === 'coletando' ? null : { horario: 'sáb 14/11, 16h às 23h', quantos_podem: '4 de 4 podem' },
+      janela_escolhida: e.status === 'coletando' ? null : { horario: `sáb ${rotuloSabado}, 16h às 23h`, quantos_podem: '4 de 4 podem' },
       sugestoes: e.status === 'coletando' ? [] : CARTOES,
       placar, votaram: `${Object.keys(e.votos).length} de ${confirmados}`,
       resultado: e.resultado && Object.assign({}, e.resultado, {

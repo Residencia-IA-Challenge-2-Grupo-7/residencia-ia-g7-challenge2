@@ -32,15 +32,44 @@
     Orq.mostrarAviso($('perfilAvisoGeral'), '', 'info');
 
     let sala;
-    try {
-      sala = demo ? Demo.painel() : await Orq.api('GET', '/api/salas/' + encodeURIComponent(codigo));
-    } catch (e) {
-      // Se a sala ainda não existe no servidor, entra no modo demonstração para permitir testar
-      codigo = Orq.definirCodigoAtivo(Orq.CODIGO_DEMO);
-      demo = true;
-      creds = {};
+    if (demo) {
       sala = Demo.painel();
       Orq.mostrarAviso($('perfilAvisoGeral'), 'Você está visualizando a sala de exemplo (DEMO). Preencha seus 4 campos abaixo para testar.', 'info');
+    } else {
+      try {
+        sala = await Orq.api('GET', '/api/salas/' + encodeURIComponent(codigo));
+      } catch (e) {
+        bloquearFormulario();
+        $('perfilTituloRole').textContent = 'Sala não encontrada';
+        $('perfilSubtituloRole').textContent = '';
+        const aviso = $('perfilAvisoGeral');
+        aviso.className = 'aviso aviso-erro';
+        aviso.setAttribute('role', 'alert');
+        if (e.status === 404) {
+          aviso.replaceChildren(
+            document.createTextNode(`Não achei a sala ${codigo}. Confira o código ou o link do convite. `),
+            Orq.el('button', {
+              type: 'button',
+              class: 'botao botao-secundario',
+              style: 'margin-top: 8px; display: inline-block;',
+              text: 'Ver uma sala de exemplo (DEMO)',
+              onclick: () => Orq.irParaAba('perfil', Orq.CODIGO_DEMO),
+            })
+          );
+        } else {
+          aviso.replaceChildren(
+            document.createTextNode(e.message || 'Erro ao carregar a sala. Tente de novo. '),
+            Orq.el('button', {
+              type: 'button',
+              class: 'botao botao-secundario',
+              style: 'margin-top: 8px; display: inline-block;',
+              text: '🔄 Tentar de novo',
+              onclick: () => iniciar(),
+            })
+          );
+        }
+        return;
+      }
     }
     $('perfilTituloRole').textContent = sala.nome_role;
     $('perfilSubtituloRole').textContent = `Sala ${sala.codigo} · organizada por ${sala.organizador}`;
