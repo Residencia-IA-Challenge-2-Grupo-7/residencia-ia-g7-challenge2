@@ -8,6 +8,10 @@
 
 ## Agora
 
+- **Relatório da Semana 3 (Cauan, 13/11), issue #40, branch `feat/40-relatorio-semana3`:**
+  - texto em [docs/entregas/semana-03/RELATORIO_TECNICO_SEMANA_03.md](docs/entregas/semana-03/RELATORIO_TECNICO_SEMANA_03.md) e `.tex` (preâmbulo ABNT da semana 2), com as 6 configurações, o critério, a escolha, 6 casos e as limitações da medição da LLM pura;
+  - PDF compilado com o Tectonic (`tectonic -X compile docs/entregas/semana-03/RELATORIO_TECNICO_SEMANA_03.tex`; o Overleaf também serve) e pacote `Entregavel_Grupo7_Semana_03.zip`, com o nome que a rota de download do PR #62 procura, gerado por `python scripts/gerar_pacote_semana3.py`. Mudou o `.md`? Atualize o `.tex`, recompile e gere o ZIP de novo;
+  - os links do PDF (`/comparativo` e `/entregaveis` em `orquestrador-roles.onrender.com`) são provisórios: trocar pelo endereço do deploy antes da correção dos mentores (segunda, 16/11).
 - **Benchmark oficial A/B das 20 consultas (Letícia Miti, 13/11), issue #38 (revisão da @cadasiso atendida):**
   - `scripts/executar_benchmark_semana3.py` executa as 20 perguntas de `data/golden_dataset_semana3.json` nas 6 configurações da Semana 3 em 2 rodadas, aciona o avaliador híbrido (`src/telemetria/evals_semana3.py`) e registra os 6 experimentos no dataset `golden_dataset_semana3` do Langfuse Cloud via `run_experiment`;
   - resultados detalhados salvos em `data/resultados_benchmark_semana3.json`, `data/resultados_benchmark_semana3.csv`, `docs/entregas/semana-03/BENCHMARK_LLM_VS_RAG_LOG.txt` e documentados em [docs/experimentos/2026-11-13-benchmark-semana3.md](docs/experimentos/2026-11-13-benchmark-semana3.md);
