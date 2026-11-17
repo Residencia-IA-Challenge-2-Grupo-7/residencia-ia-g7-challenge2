@@ -8,6 +8,7 @@
 
 ## Agora
 
+- **Juiz do avaliador trocado (Cauan, 17/11):** `z-ai/glm-5.3-flash` no lugar do `xiaomi/mimo-v2.6-pro` ([ADR 0014](docs/decisoes/0014-juiz-glm-5.3-flash.md)). Nas mesmas 94 respostas da rodada 2 da semana 3: US$ 0,057 contra US$ 0,731, p90 de 10,1 s contra 18,8 s, concordância de 90 de 94 sobre haver contradição ([experimento](docs/experimentos/2026-11-17-juiz-glm.md)). O GLM é mais leniente no caso limite do golden_15. Os resultados da semana 3 continuam os do MiMo.
 - **Relatório da Semana 3 (Cauan, 13/11), issue #40, branch `feat/40-relatorio-semana3`:**
   - texto em [docs/entregas/semana-03/RELATORIO_TECNICO_SEMANA_03.md](docs/entregas/semana-03/RELATORIO_TECNICO_SEMANA_03.md) e `.tex` (preâmbulo ABNT da semana 2), com as 6 configurações, o critério, a escolha, 6 casos e as limitações da medição da LLM pura;
   - PDF compilado com o Tectonic (`tectonic -X compile docs/entregas/semana-03/RELATORIO_TECNICO_SEMANA_03.tex`; o Overleaf também serve) e pacote `Entregavel_Grupo7_Semana_03.zip`, com o nome que a rota de download do PR #62 procura, gerado por `python scripts/gerar_pacote_semana3.py`. Mudou o `.md`? Atualize o `.tex`, recompile e gere o ZIP de novo;
