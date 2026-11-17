@@ -47,7 +47,7 @@ Atualize esta tabela ao criar pastas novas (ex.: `src/`, `data/`, `notebooks/`, 
 ## Convenções
 
 - Documentação em português; código e identificadores podem ser em inglês.
-- Commits curtos no imperativo, com prefixo: `docs: ...`, `feat: ...`, `fix: ...`, `exp: ...` (experimentos).
+- Commits no padrão do [CONTRIBUTING.md](CONTRIBUTING.md): `tipo(escopo): descrição no imperativo e em minúsculas`, com os tipos `feat`, `fix`, `docs`, `ci`, `refactor`, `test` e `chore` (ex.: `feat(agentes): ...`; experimentos: `docs(experimentos): ...`).
 - Nunca commitar segredos (`.env`, chaves de API) nem dados pessoais. O tema envolve dados de qualidade de vida/saúde: trate LGPD como requisito.
 - Datasets e índices vetoriais grandes ficam fora do git (ver `.gitignore`); registre a origem e como reproduzi-los na documentação.
 - Prefira linkar a duplicar: um fato vive em um lugar só.
