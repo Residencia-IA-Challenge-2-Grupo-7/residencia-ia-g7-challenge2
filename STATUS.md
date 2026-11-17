@@ -8,6 +8,7 @@
 
 ## Agora
 
+- **Semana 4, issues do Cauan (17/11):** #64 concluída (PR [#77](https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2/pull/77) mesclado: `MultiAgentState` em `src/agentes/estado.py`). #65 (Agente Pessoal) e #70 (Pesquisa) estão no PR [#80](https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2/pull/80), com o registro na Seção 8 do [semana-04.md](docs/semanas/semana-04.md). A #71 (grafo) segue bloqueada pelas #67, #68 e #69; a #74 depende da #71 e da #73.
 - **Juiz do avaliador trocado (Cauan, 17/11):** `z-ai/glm-5.3-flash` no lugar do `xiaomi/mimo-v2.6-pro` ([ADR 0014](docs/decisoes/0014-juiz-glm-5.3-flash.md)). Nas mesmas 94 respostas da rodada 2 da semana 3: US$ 0,057 contra US$ 0,731, p90 de 10,1 s contra 18,8 s, concordância de 90 de 94 sobre haver contradição ([experimento](docs/experimentos/2026-11-17-juiz-glm.md)). O GLM é mais leniente no caso limite do golden_15. Os resultados da semana 3 continuam os do MiMo.
 - **Relatório da Semana 3 (Cauan, 13/11), issue #40, branch `feat/40-relatorio-semana3`:**
   - texto em [docs/entregas/semana-03/RELATORIO_TECNICO_SEMANA_03.md](docs/entregas/semana-03/RELATORIO_TECNICO_SEMANA_03.md) e `.tex` (preâmbulo ABNT da semana 2), com as 6 configurações, o critério, a escolha, 6 casos e as limitações da medição da LLM pura;
