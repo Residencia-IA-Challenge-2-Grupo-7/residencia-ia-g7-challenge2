@@ -197,7 +197,7 @@ Todas as tarefas foram cadastradas no GitHub no padrão unificado `[Semana 4] [�
 | **#72** | `[Semana 4] [LLMOPS] Juiz LLM em 2 Passagens para Validação Factual e Prevenção de Vazamento (ADR 0014)` | `@eduarda-ogomes` | `LLMOPS` | Qui (19/11) | Qui 14:00 | `status:liberada` | Desenvolvimento em paralelo; integração com #68 |
 | **#73** | `[Semana 4] [LLMOPS] Instrumentação de Telemetria e Tracing do Grafo Multiagente no Langfuse Cloud` | `@eduarda-ogomes` | `LLMOPS` | Qui (19/11) | Qui 16:00 | `status:bloqueada` | Bloqueada por #71 (Grafo Compilado) |
 | **#74** | `[Semana 4] [BACKEND] Script Executável de Demonstração CLI do Fluxo Multiagente (demo_multiagente.py)` | `@cadasiso` | `BACKEND` | Qui (19/11) | Qui 17:00 | `status:bloqueada` | Bloqueada por #71, #73 |
-| **#75** | `[Semana 4] [DOCS] Diagrama Visual da Arquitetura do Grafo Multiagente (Mermaid & SVG)` | `@mcznh` | `DOCS` | Ter (17/11) | Qui 15:00 | `status:liberada` | Início imediato (baseado no manual e doc) |
+| **#75** | `[Semana 4] [DOCS] Diagrama Visual da Arquitetura do Grafo Multiagente (Mermaid & SVG)` | `@mcznh` | `DOCS` | Ter (17/11) | Qui 15:00 | `status:concluida` | Concluída com docs, SVG e testes locais |
 | **#76** | `[Semana 4] [DOCS] Relatório Técnico da Semana 4 para o Teams e Submissão Oficial` | `@mitii05` | `DOCS` | Qui (19/11) | **Qui 18:00** | `status:bloqueada` | Bloqueada por #74, #75 (Submissão Final) |
 
 ---
@@ -395,11 +395,28 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
 
 ### 8.12. Issue #75 — Diagrama Visual da Arquitetura do Grafo Multiagente (Mermaid & SVG)
 * **Responsável:** Maria Carolina (`@mcznh`)
-* **Status:** Bloqueada
+* **Status:** Concluída
 * **O que foi feito:**
+  - Elaboração da documentação técnica arquitetural completa em `docs/arquitetura/multiagente.md` com especificações detalhadas do grafo no LangGraph;
+  - Criação de diagrama estrutural em Mermaid evidenciando os nós cognitivos (LLM), nós determinísticos (código puro Python), canais de dados e o loop condicional de feedback;
+  - Desenvolvimento de gerador vetorial automatizado em Python (`scripts/gerar_grafo_multiagente_svg.py`) e exportação de imagem vetorial de alta resolução em `docs/arquitetura/img/grafo_multiagente.svg`;
+  - Atualização do menu de navegação e suporte a diagramas Mermaid no `mkdocs.yml`;
+  - Criação de suíte de testes automatizados em `tests/test_arquitetura_multiagente.py`.
 * **Decisões Técnicas e Arquitetura:**
+  - *RNF-04 (Cálculos Fora do LLM):* Diferenciação visual e estrutural estrita entre nós com LLM (Pesquisa, Comunicação e Juiz) e nós em código puro Python (Sanitização do Agente 0, Logística com Menor Miséria do Agente 2 e Vetos Duros do Agente 3).
+  - *RNF-02 e RF-17 (Sigilo do Perfil e Orçamento):* Representação explícita da segregação em 4 canais privados independentes, garantindo que teto financeiro e localização exata jamais cheguem aos agentes cognitivos generativos.
+  - *Ciclo Condicional e Controle de Convergência:* Modelagem da checagem de parada (Aprovados >= 3 ou máximo de 2 voltas) com feedback anônimo contendo apenas a contagem estruturada dos motivos de veto.
+  - *Observabilidade Ponta a Ponta:* Inclusão do painel de telemetria Langfuse Cloud v5.x com rastreamento por trace raiz e spans individuais por agente para monitoramento de latência (RNF-14) e fidelidade factual (RNF-03).
 * **Arquivos:**
+  - `docs/arquitetura/multiagente.md`
+  - `docs/arquitetura/img/grafo_multiagente.svg`
+  - `scripts/gerar_grafo_multiagente_svg.py`
+  - `mkdocs.yml`
+  - `tests/test_arquitetura_multiagente.py`
+  - `docs/semanas/semana-04.md`
 * **Testes e Validação:**
+  - Execução de `pytest tests/test_arquitetura_multiagente.py` com 5 testes aprovados cobrindo integridade do SVG, nós, canais, requisitos, estrutura markdown e configuração do MkDocs.
+  - Execução da suíte completa de testes locais com 625 testes passando.
 
 ---
 
