@@ -18,8 +18,10 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any, Iterable, Mapping
 
-from src.agentes.contratos import Cofre, MotivoVeto
+from src.agentes.contratos import Cofre, MotivoVeto, SaidaJuizCartoes, SaidaJuizParecer, esquema_estrito
 from src.agentes.estado import PedidoNovaBusca, RelatorioValidacao, Veto
+from src.agentes.llm import MODELO_JUIZ, ClienteLLM, ErroLLM, embrulhar, prompt
+from src.interpretador.lugares import _indice
 from src.interpretador.numeros import canon
 from src.salas.horario_lugar import ano_do_lugar, ler_funcionamento
 from src.salas.janelas import JanelaComum
@@ -147,6 +149,10 @@ def validar_deslocamento_membros(
     if not analises_membros:
         return True, None
 
+    if all(d is None for d in analises_membros.values()):
+        # Nenhum trajeto estimado (lugar sem coordenadas): sem como saber se alguém chega, não aprova (#71)
+        return False, "deslocamento"
+
     for d in analises_membros.values():
         if d is not None and isinstance(d, dict):
             minutos = d.get("minutos")
@@ -247,7 +253,9 @@ def validar_candidatos_regras(
         # -------------------------------------------------------------
         custo_rs = Decimal(str(lugar.get("custo_medio_rs") or 0))
         desl_custos = deslocamentos.get(cand_id, {})
-        orcamento_ok = dentro_do_orcamento_individual(custo_rs, tetos, desl_custos)
+        # Só os presentes na janela em que a Logística avaliou o lugar contam no orçamento (#71)
+        tetos_lugar = {m: t for m, t in tetos.items() if m in analises_lugar} if analises_lugar else tetos
+        orcamento_ok = dentro_do_orcamento_individual(custo_rs, tetos_lugar, desl_custos)
         if not orcamento_ok:
             motivos_do_lugar.append("orcamento")
 
@@ -297,3 +305,91 @@ def gerar_pedido_nova_busca(
         vetos=dict(relatorio.contagem),
         ja_vistos=total_vistos,
     )
+
+
+# ------------------------------------------------------------------ juiz LLM e varredura dos cartões (issue #71)
+
+MINIMO_CARTOES = 3
+MAXIMO_CARTOES = 4
+MAXIMO_POR_RA = 2
+FRASES_DE_ORIGEM = r"quem (vem|sai|mora|parte)|pra quem (e|esta|ta) (de|em|no|na)|saindo de|vindo de"
+FRASES_DE_DINHEIRO = r"apertad|menos dinheiro|pouca grana|grana curta|quem pode gastar|mais pobre|sem grana|liso"
+
+
+def selecionar_cartoes(ranking: list[dict], aprovados: Iterable[str]) -> list[dict]:
+    """Os aprovados na ordem do ranking da Logística: até MAXIMO_CARTOES, no máximo MAXIMO_POR_RA por RA e sem
+    nome repetido (a base tem o mesmo lugar em mais de um vídeo)."""
+    ok = set(aprovados)
+    escolhidos, por_ra, nomes = [], Counter(), set()
+    for r in ranking:
+        nome = canon(r.get("nome", ""))
+        if r["id"] not in ok or nome in nomes or por_ra[r["ra_do_lugar"]] >= MAXIMO_POR_RA:
+            continue
+        escolhidos.append(r)
+        nomes.add(nome)
+        por_ra[r["ra_do_lugar"]] += 1
+        if len(escolhidos) == MAXIMO_CARTOES:
+            break
+    return escolhidos
+
+
+def julgar_parecer(candidatos: list[dict], documentos: dict[str, dict], cliente: ClienteLLM) -> dict:
+    """-> {derrubados: [ids], vereditos: Counter, usou_llm}. Sem LLM, vale a conferência do trecho literal."""
+    if not cliente.disponivel or not candidatos:
+        return {"derrubados": [], "vereditos": {}, "usou_llm": False}
+    dados = {"motivos": [{"id": c["id"], "motivo": c["motivo"], "trecho": c["trecho"]} for c in candidatos],
+             "documentos": [documentos[c["id"]] for c in candidatos if c["id"] in documentos]}
+    try:
+        bruto = cliente.json("juiz_parecer", prompt("juiz_parecer"), embrulhar("parecer_e_documentos", dados),
+                             esquema_estrito(SaidaJuizParecer), modelo=MODELO_JUIZ, max_tokens=4000)
+        saida = SaidaJuizParecer.model_validate(bruto)
+    except (ErroLLM, ValueError):
+        return {"derrubados": [], "vereditos": {}, "usou_llm": False}
+    return {"derrubados": sorted({a.id for a in saida.afirmacoes if a.veredito == "contradiz"}),
+            "vereditos": dict(Counter(a.veredito for a in saida.afirmacoes)), "usou_llm": True}
+
+
+def varrer_cartao(texto: str, cofre: Cofre, ra_do_lugar: str | None) -> list[str]:
+    """Motivos de reprovação achados por código num cartão (RNF-02, RNF-04)."""
+    t = " " + canon(texto) + " "
+    motivos = []
+    if re.search(r"\d", texto):
+        motivos.append("numero_no_texto")
+    if any(re.search(rf"\b{re.escape(canon(n))}\b", t) for n in cofre.nomes() if len(n) >= 3):
+        motivos.append("nome_de_membro")
+    origens = {p.ra for p in cofre.perfis_efetivos.values() if p.ra and p.ra != ra_do_lugar}
+    formas = {f for f, ra in _indice() if ra in origens}
+    if re.search(FRASES_DE_ORIGEM, t) or any(f" {f} " in t for f in formas):
+        motivos.append("origem")
+    if re.search(FRASES_DE_DINHEIRO, t):
+        motivos.append("orcamento")
+    return motivos
+
+
+def verificar_cartoes(cartoes: list[dict], fatos: list[dict], cofre: Cofre, cliente: ClienteLLM) -> dict:
+    """-> {reprovados: {letra: [motivos]}, exposicoes, vereditos, usou_llm}."""
+    fatos_por_letra = {f["id"]: f for f in fatos}
+    reprovados: dict[str, list[str]] = {}
+    for c in cartoes:
+        texto = " ".join((c["titulo"], c["resumo_acesso"], c["por_que_combina"]))
+        motivos = varrer_cartao(texto, cofre, fatos_por_letra.get(c["id"], {}).get("ra_do_lugar"))
+        if motivos:
+            reprovados[c["id"]] = motivos
+    exposicoes, vereditos, usou = [], {}, False
+    if cliente.disponivel and cartoes:
+        try:
+            bruto = cliente.json("juiz_cartoes", prompt("juiz_cartoes"),
+                                 embrulhar("cartoes_e_fatos", {"cartoes": cartoes, "fatos": fatos}),
+                                 esquema_estrito(SaidaJuizCartoes), modelo=MODELO_JUIZ, max_tokens=4000)
+            saida = SaidaJuizCartoes.model_validate(bruto)
+            usou = True
+            vereditos = dict(Counter(a.veredito for a in saida.afirmacoes))
+            for a in saida.afirmacoes:
+                if a.veredito == "contradiz":
+                    reprovados.setdefault(a.cartao, []).append("contradiz_a_base")
+            for e in saida.exposicoes:
+                exposicoes.append(e.model_dump())
+                reprovados.setdefault(e.cartao, []).append(f"expoe_{e.o_que_expoe}")
+        except (ErroLLM, ValueError):
+            pass
+    return {"reprovados": reprovados, "exposicoes": exposicoes, "vereditos": vereditos, "usou_llm": usou}

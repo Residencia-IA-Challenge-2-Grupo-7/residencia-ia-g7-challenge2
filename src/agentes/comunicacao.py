@@ -13,6 +13,7 @@ Responsabilidades:
 from __future__ import annotations
 
 import copy
+import json
 import re
 from datetime import datetime
 from decimal import Decimal
@@ -419,3 +420,73 @@ def no_comunicacao(estado: dict[str, Any], *, llm: ClienteLLM | None = None) -> 
         "cartoes_por_llm": usou_llm,
         "resultado_final_cartoes": cartoes_finais,
     }
+
+
+# ------------------------------------------------------------------ usado pelo grafo da issue #71
+# O grafo monta os fatos de cada cartão a partir do ranking da Logística e escreve com o esquema `SaidaComunicacao`,
+# para a Validação poder reprovar e pedir reescrita de um cartão só. Juntar com `executar_agente_comunicacao`
+# acima é pendência registrada na Seção 8 da semana 4.
+PIOR_TRAJETO_EQUILIBRADO_MIN = 45
+DIFERENCA_EQUILIBRADA_MIN = 30
+
+
+def montar_fatos(aprovados: list[str], ranking: list[dict], candidatos: list[dict], documentos: dict[str, dict],
+                 teto_aplicado: bool) -> list[dict]:
+    """Fatos de grupo por cartão (A, B, C, D), sem números de ninguém."""
+    rank = {r["id"]: r for r in ranking}
+    cand = {c["id"]: c for c in candidatos}
+    fatos = []
+    for letra, lid in zip("ABCD", aprovados):
+        r, c, d = rank[lid], cand.get(lid, {}), documentos.get(lid, {})
+        equilibrada = (r["pior_trajeto_min"] is not None and r["pior_trajeto_min"] <= PIOR_TRAJETO_EQUILIBRADO_MIN
+                       and (r["diferenca_min"] or 0) <= DIFERENCA_EQUILIBRADA_MIN)
+        fatos.append({
+            "id": letra, "lugar_id": lid, "nome": r["nome"], "tipo": d.get("tipo", ""), "ra_do_lugar": r["ra_do_lugar"],
+            "trechos_do_documento": [t for t in (c.get("trecho"), d.get("descricao", "")[:240]) if t],
+            "motivo_da_pesquisa": c.get("motivo", ""), "vibes": d.get("vibes", []),
+            "horario_situacao": r["horario_situacao"],
+            "sinais": {"chegada_equilibrada": equilibrada, "cabe_no_orcamento_do_grupo": teto_aplicado,
+                       "todos_podem_na_janela": _todos_podem(r["quantos_podem"])},
+        })
+    return fatos
+
+
+def _todos_podem(contagem: str) -> bool:
+    m = re.match(r"(\d+) de (\d+)", contagem or "")
+    return bool(m and m.group(1) == m.group(2))
+
+
+def texto_reserva(f: dict, *, seguro: bool = False) -> dict:
+    """Texto por regras, sem LLM e sem números. `seguro`: sem o motivo escrito pela Pesquisa (cartão reprovado)."""
+    acesso = ("Fica no meio do caminho: ninguém precisa atravessar o DF para chegar."
+              if f["sinais"]["chegada_equilibrada"] else "Confira no seu painel quanto tempo você leva para chegar.")
+    generico = f"Combina com o que o grupo pediu: {f['tipo'].split(' / ')[0].lower()}."
+    combina = generico if seguro else (f["motivo_da_pesquisa"] or generico)
+    if f["sinais"]["cabe_no_orcamento_do_grupo"]:
+        combina += " Cabe no orçamento do grupo."
+    if f["horario_situacao"] in ("provavel", "incerto"):
+        combina += " Confirme o horário antes de ir."
+    return {"id": f["id"], "titulo": f["nome"][:60], "resumo_acesso": acesso, "por_que_combina": combina}
+
+
+def escrever(fatos: list[dict], pedido_grupo: dict, cliente: ClienteLLM, correcoes: dict[str, list[str]] | None = None
+             ) -> dict:
+    """-> {cartoes: [...], usou_llm}. `correcoes`: {letra: motivos da Validação} na reescrita."""
+    if not fatos:
+        return {"cartoes": [], "usou_llm": False}
+    if cliente.disponivel:
+        fatos_llm = [{k: v for k, v in f.items() if k not in ("lugar_id",)} for f in fatos]
+        mensagem = embrulhar("fatos_dos_cartoes", {"pedido_do_grupo": pedido_grupo, "cartoes": fatos_llm})
+        if correcoes:
+            mensagem += ("\n\nCorreções da Validação (geradas pelo sistema), reescreva só estes cartões: "
+                         + json.dumps(correcoes, ensure_ascii=False))
+        try:
+            bruto = cliente.json("comunicacao", prompt("comunicacao"), mensagem, esquema_estrito(SaidaComunicacao),
+                                 max_tokens=1500)
+            saida = SaidaComunicacao.model_validate(bruto)
+            por_letra = {c.id: c.model_dump() for c in saida.cartoes}
+            if all(f["id"] in por_letra for f in fatos):
+                return {"cartoes": [por_letra[f["id"]] for f in fatos], "usou_llm": True}
+        except (ErroLLM, ValueError):
+            pass
+    return {"cartoes": [texto_reserva(f) for f in fatos], "usou_llm": False}

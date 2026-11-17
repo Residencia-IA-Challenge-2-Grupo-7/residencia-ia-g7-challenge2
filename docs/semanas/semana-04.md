@@ -470,11 +470,46 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
 
 ### 8.8. Issue #71 — Orquestrador do Grafo no LangGraph com Ciclo Condicional Pesquisa-Validação
 * **Responsável:** Cauan Soares (`@cadasiso`)
-* **Status:** Bloqueada
+* **Status:** Concluída, em revisão (no PR [#80](https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2/pull/80), junto com as #65 e #70)
 * **O que foi feito:**
+  - `src/agentes/grafo.py` monta o `StateGraph` com os nós `no_pessoal` (um por membro, em paralelo com `Send`), `no_consolidar_grupo`, `no_pesquisa`, `no_logistica`, `no_validacao`, `no_comunicacao`, `no_validacao_textos` e `no_finalizar`, e exporta `executar_fluxo_multiagente(dados_sala)`.
+  - O grafo chama as implementações das issues de cada agente:
+    - Logística (#67): `executar_agente_logistica` e `gerar_parecer`;
+    - Validação (#68): `validar_candidatos_regras`.
+  - A aresta condicional `avaliar_convergencia` tem três saídas:
+    - volta para a Pesquisa enquanto houver menos de 3 lugares validados e menos de 2 voltas;
+    - segue para a Comunicação quando há pelo menos um validado;
+    - vai direto para o fim quando nada passou.
+  - `validacao.selecionar_cartoes` escolhe os cartões na ordem do ranking da Logística: até 4, no máximo 2 por RA e sem nome repetido (a base tem o mesmo lugar em mais de um vídeo).
+  - O juiz LLM sobre o parecer e sobre os cartões (`julgar_parecer`, `verificar_cartoes`) e a varredura de vazamento (`varrer_cartao`) foram para o fim de `validacao.py`, sem mudar as funções da #68.
+  - As funções da Comunicação que o grafo usa (`montar_fatos`, `escrever`, `texto_reserva`) foram para o fim de `comunicacao.py`, ao lado do `executar_agente_comunicacao` da #69.
 * **Decisões Técnicas e Arquitetura:**
-* **Arquivos:**
+  - **Sem aprovado, sem Comunicação:** com 0 lugares depois das 2 voltas, o grafo não chama o LLM para escrever cartão nenhum. As mensagens dizem que nada passou e que o grupo precisa flexibilizar algum critério. Antes, a Validação dizia "Autorizado para a síntese" e a varredura dizia "Cartões aprovados" mesmo com 0 cartões.
+  - **Menos de 3 opções é dito ao grupo:** o fim avisa "Só N cartões prontos (menos de 3 opções viáveis na base)", em vez de completar com lugar vetado (RNF-03).
+  - **Janela parcial:** a Logística e a Validação avaliam cada lugar na primeira janela comum em que ele abre, que pode não ter todos. O cartão mostra a contagem ("3 de 4 podem"), e a Validação avisa quantos cartões estão nessa situação.
+  - **Dois ajustes na Validação, apontados na revisão do PR #84:**
+    - o orçamento só conta os presentes da janela em que o lugar foi avaliado;
+    - lugar sem nenhum trajeto estimado é vetado por deslocamento, em vez de passar com R$ 0 de transporte.
+  - **Comunicação:** o grafo ainda usa o esquema `SaidaComunicacao` para poder pedir a reescrita de um cartão só. Juntar com `executar_agente_comunicacao` (#69) fica pendente.
+* **Arquivos:** `src/agentes/grafo.py`, `src/agentes/validacao.py` (fim do arquivo e os dois ajustes), `src/agentes/comunicacao.py` (fim do arquivo), `src/agentes/prompts/juiz_parecer.md`, `src/agentes/prompts/juiz_cartoes.md`, `src/agentes/README.md`, `tests/test_grafo_multiagente.py`, `tests/test_agente_validacao_regras.py`.
 * **Testes e Validação:**
+  - `pytest tests/test_grafo_multiagente.py`: 28 testes sem rede, com um LLM falso que grava cada corpo enviado à OpenRouter. Eles cobrem:
+    - o grafo e as três saídas da aresta;
+    - o limite de 2 voltas;
+    - a reescrita de um cartão que expõe a origem;
+    - o LLM fora do ar;
+    - que nenhum nome, teto ou origem vai para o LLM;
+    - os dois cenários da #66;
+    - a seleção dos cartões.
+  - Cenários da #66 pelo grafo inteiro, sem LLM:
+    - o padrão termina sem cartões depois de 2 voltas e sem passar pela Comunicação;
+    - o de controle termina com 1 cartão, que está entre os 5 viáveis do gabarito, e avisa que há menos de 3 opções.
+  - Suíte inteira (`python -m pytest tests`, sem o `test_pipeline_haystack.py`, que pede o Haystack): 858 aprovados.
+* **Limitação medida (pendência):** sem LLM, a Pesquisa vê 24 dos 93 lugares em 3 rodadas e acha só 1 dos 5 viáveis do cenário de controle.
+  - Causa: a nota da busca léxica satura (0,97 a 0,98 nos 12 primeiros), então a ordem é quase arbitrária.
+  - Fator a mais: 3 dos 5 viáveis são cafeterias, e o grupo pediu restaurante e lugar ao ar livre.
+  - Tentei duas mudanças: priorizar as consultas pelo motivo de veto mais frequente, com uma consulta nas RAs centrais do DF quando o deslocamento veta, e intercalar os resultados das consultas. Nenhuma das duas mudou o resultado, e ambas foram revertidas.
+  - Correção provável: a busca vetorial (ADR 0012) ou outra nota na ferramenta, medida nos dois cenários.
 
 ---
 
@@ -554,6 +589,6 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
   - #77: a revisão da Maria Eduarda foi atendida (varredura de nomes, `trace_url`, commits e template).
   - #79 (Telas 1 a 3): mudanças pedidas à Maria Carolina (conflito no `STATUS.md`, descrição vazia, barra "Modo Dev" em produção, ida para a DEMO em qualquer erro da API).
 - **Pendências:**
-  - **#71 (grafo):** segue bloqueada. Há um rascunho local com a aresta `avaliar_convergencia` e `executar_fluxo_multiagente`, mas ele precisa usar as implementações das #67, #68 e #69 quando entrarem. A Maria Carolina já tem a #69 numa branch.
+  - **#71 (grafo):** segue bloqueada. Há um rascunho local com a aresta `avaliar_convergencia` e `executar_fluxo_multiagente`, mas ele precisa usar as implementações das #67, #68 e #69 quando entrarem. A Maria Carolina já tem a #69 numa branch. *(Atualização de 19/11: concluída; ver Seção 8.8.)*
   - **#73:** pede o `CallbackHandler` do Langfuse, o que contradiz o ADR 0015.
   - **#74:** depende do cenário da #66.
