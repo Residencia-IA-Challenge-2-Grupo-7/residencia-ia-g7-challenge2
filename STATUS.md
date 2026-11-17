@@ -8,6 +8,10 @@
 
 ## Agora
 
+- **Relatório da Semana 3 (Cauan, 13/11), issue #40, branch `feat/40-relatorio-semana3`:**
+  - texto em [docs/entregas/semana-03/RELATORIO_TECNICO_SEMANA_03.md](docs/entregas/semana-03/RELATORIO_TECNICO_SEMANA_03.md) e `.tex` (preâmbulo ABNT da semana 2), com as 6 configurações, o critério, a escolha, 6 casos e as limitações da medição da LLM pura;
+  - PDF compilado com o Tectonic (`tectonic -X compile docs/entregas/semana-03/RELATORIO_TECNICO_SEMANA_03.tex`; o Overleaf também serve) e pacote `Entregavel_Grupo7_Semana_03.zip`, com o nome que a rota de download do PR #62 procura, gerado por `python scripts/gerar_pacote_semana3.py`. Mudou o `.md`? Atualize o `.tex`, recompile e gere o ZIP de novo;
+  - os links do PDF (`/comparativo` e `/entregaveis` em `orquestrador-roles.onrender.com`) são provisórios: trocar pelo endereço do deploy antes da correção dos mentores (segunda, 16/11).
 - **Central de Entregáveis da Semana 3 (Maria Carolina, 13/11), issue #39, na branch `feat/frontend-issue-39`:**
   - Interface `/entregaveis` evoluída com o painel da Semana 03 (Comparação LLM Pura vs. RAG) e botão de destaque para `/comparativo`, mantendo os 7 módulos da Semana 02 100% preservados (`RNF-12`);
   - Placar comparativo preenchido dinamicamente a partir de `/api/entregaveis/dados?colecao=benchmark_semana3` para as configurações #1, #3, #4 e #6 (alucinação, afirmações fora da base, acerto do gabarito, precisão de RA, RNF-03 e RNF-14);
