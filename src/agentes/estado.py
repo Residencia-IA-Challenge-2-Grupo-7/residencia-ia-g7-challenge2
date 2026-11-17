@@ -27,15 +27,22 @@ from typing import Annotated, Any, TypedDict
 from pydantic import BaseModel, ConfigDict
 
 from src.agentes.contratos import Candidato, CartaoTexto, Cofre, MotivoVeto, PerfilAnonimoMembro
+from src.interpretador.numeros import canon
 
 # Chaves que só existem no cofre. Aparecer uma delas em qualquer nível do estado é vazamento (RNF-02).
 CHAVES_PRIVADAS = frozenset({"teto", "teto_rs", "teto_individual", "origem", "origem_ra", "ra_origem", "usuario",
                              "nome_membro", "por_participante", "desl_por", "campos", "perfil"})
+# Partículas de nomes compostos que não identificam ninguém sozinhas ("Ana dos Santos" não procura "dos").
+PARTICULAS = frozenset({"de", "da", "do", "das", "dos", "e", "di", "du", "del", "van", "von"})
+# Campos só com texto copiado da base de lugares, nunca de um membro: ficam fora da varredura de nomes
+# (uma descrição com "vista clara" não é vazamento de uma "Clara"). A varredura de chaves continua valendo.
+CAMPOS_DA_BASE = frozenset({"documentos"})
 
 
 class MultiAgentState(TypedDict, total=False):
     # entrada
     sala_id: str                                               # código da sala (não identifica ninguém)
+    trace_url: str | None                                      # link do trace no Langfuse, anexado por executar()
     membros: list[str]                                         # marcadores m1..mN; o Send abre um Agente Pessoal por um
     # Agente 0 (Pessoal) -> grupo
     membros_anonimos: Annotated[list[dict], operator.add]      # PerfilAnonimoMembro, um por membro, em paralelo
@@ -139,6 +146,7 @@ class Mensagem(_Fechado):
 class EstadoSerializado(_Fechado):
     """Espelho validado de `MultiAgentState`, para gravar e ler o estado em JSON."""
     sala_id: str | None = None
+    trace_url: str | None = None
     membros: list[str] | None = None
     membros_anonimos: list[PerfilAnonimoMembro] | None = None
     preferencias_grupo: PreferenciasGrupo | None = None
@@ -179,30 +187,52 @@ def _chaves_privadas(no: Any, caminho: str = "") -> list[str]:
 
 
 def dados_privados_no_estado(estado: dict, cofre: Cofre | None = None) -> list[str]:
-    """Varre o estado atrás do que só pode estar no cofre: chaves privadas em qualquer nível e, com o cofre, o nome
-    ou o id de usuário de algum membro em qualquer texto. Devolve onde achou; lista vazia é o esperado."""
+    """Varre o estado atrás do que só pode estar no cofre: chaves privadas em qualquer nível e, com o cofre, o id de
+    usuário, o nome ou parte do nome composto de algum membro em qualquer texto, sem diferenciar maiúsculas nem
+    acentos ("bia" pega "Bia", "otavio" pega "Otávio", "Maria" pega "Maria Eduarda"). Devolve onde achou; lista
+    vazia é o esperado."""
     achados = _chaves_privadas(estado)
     if cofre is not None:
-        texto = json.dumps(estado, ensure_ascii=False, default=str)
+        texto = _texto_para_nomes(estado, cofre)
         for m in cofre.membros.values():
-            for valor, rotulo in ((m.nome, "nome"), (m.usuario, "usuario")):
-                if valor and _contem_palavra(texto, valor):
-                    achados.append(f"{rotulo} de {m.id}")
+            if m.usuario and _contem_palavra(texto, canon(m.usuario)):
+                achados.append(f"usuario de {m.id}")
+            nome = " ".join(canon(m.nome or "").split())
+            if nome and _contem_palavra(texto, nome):
+                achados.append(f"nome de {m.id}")
+            elif any(_contem_palavra(texto, parte) for parte in _partes_do_nome(nome)):
+                achados.append(f"nome parcial de {m.id}")
     return achados
 
 
+def _partes_do_nome(nome: str) -> list[str]:
+    partes = nome.split()
+    return [p for p in partes if len(p) >= 3 and p not in PARTICULAS] if len(partes) > 1 else []
+
+
+def _texto_para_nomes(estado: dict, cofre: Cofre) -> str:
+    """O estado em texto, sem os campos da base e sem os nomes dos lugares da base: "Maria Fumaça" é um lugar, não
+    a "Maria" da sala."""
+    texto = canon(json.dumps({k: v for k, v in estado.items() if k not in CAMPOS_DA_BASE},
+                             ensure_ascii=False, default=str))
+    lugares = sorted({canon(l.get("nome") or "") for l in cofre.lugares.values()} - {""}, key=len, reverse=True)
+    for lugar in lugares:
+        texto = re.sub(rf"(?<!\w){re.escape(lugar)}(?!\w)", " ", texto)
+    return texto
+
+
 def _contem_palavra(texto: str, valor: str) -> bool:
+    """`valor` como palavra inteira em `texto`; os dois já normalizados por `canon`."""
     return re.search(rf"(?<!\w){re.escape(valor)}(?!\w)", texto) is not None
 
 
 def serializar_estado(estado: dict, cofre: Cofre | None = None) -> str:
     """JSON do estado, validado por `EstadoSerializado`. Falha com `VazamentoNoEstado` se achar dado do cofre e
     com `pydantic.ValidationError` se um campo tiver forma inesperada ou chave desconhecida."""
-    publico = {k: v for k, v in estado.items() if k != "trace_url"}  # o link do trace é anexado por executar()
-    achados = dados_privados_no_estado(publico, cofre)
+    achados = dados_privados_no_estado(estado, cofre)
     if achados:
         raise VazamentoNoEstado("dados do cofre no estado: " + ", ".join(achados))
-    return EstadoSerializado.model_validate(publico).model_dump_json(exclude_unset=True)
+    return EstadoSerializado.model_validate(estado).model_dump_json(exclude_unset=True)
 
 
 def desserializar_estado(texto: str) -> MultiAgentState:

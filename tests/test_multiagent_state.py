@@ -109,8 +109,9 @@ def test_estado_de_exemplo_nao_tem_dado_do_cofre(cofre):
     assert not CHAVES_PRIVADAS & set(json.loads(serializar_estado(ESTADO)))
 
 
-def test_link_do_trace_anexado_por_executar_fica_fora_do_json():
-    assert "trace_url" not in serializar_estado({**ESTADO, "trace_url": "https://langfuse/trace/1"})
+def test_link_do_trace_faz_parte_do_estado_e_vai_e_volta():
+    com_trace = {**ESTADO, "trace_url": "https://cloud.langfuse.com/project/p/traces/1"}
+    assert desserializar_estado(serializar_estado(com_trace))["trace_url"] == com_trace["trace_url"]
 
 
 @pytest.mark.parametrize("estrago", [
@@ -131,6 +132,42 @@ def test_serializacao_recusa_nome_ou_usuario_de_membro_num_texto(cofre, texto, a
     vazado["historico_erros"].append(texto)
     with pytest.raises(VazamentoNoEstado, match=achado):
         serializar_estado(vazado, cofre)
+
+
+def _cofre_com(*nomes, lugares=("Maria Fumaça",)):
+    membros = {f"m{i}": Membro(id=f"m{i}", usuario=f"usuario-{i}", nome=n, perfil=None) for i, n in enumerate(nomes, 1)}
+    return Cofre(membros=membros, janelas=[], agora=datetime(2026, 11, 17, 10), store=None,
+                 lugares={f"l{i}": {"id": f"l{i}", "nome": n} for i, n in enumerate(lugares, 1)})
+
+
+def _com_texto(texto: str) -> dict:
+    return {**ESTADO, "historico_erros": [texto]}
+
+
+@pytest.mark.parametrize("nome, texto, achado", [
+    ("Bia", "o pedido da bia foi aceito", "nome de m1"),                    # minúsculas
+    ("Otávio", "OTAVIO não pode no sábado", "nome de m1"),                  # sem acento e em maiúsculas
+    ("Maria Eduarda", "Maria não pode no sábado", "nome parcial de m1"),    # parte de nome composto
+    ("Maria Eduarda", "a eduarda pediu vegetariano", "nome parcial de m1"),
+    ("Ana dos Santos", "falou com a santos", "nome parcial de m1"),
+])
+def test_varredura_pega_nome_sem_diferenciar_caixa_acento_e_partes(nome, texto, achado):
+    assert dados_privados_no_estado(_com_texto(texto), _cofre_com(nome)) == [achado]
+
+
+@pytest.mark.parametrize("nome, texto", [
+    ("Maria Eduarda", "Rolê no Maria Fumaça, com trem e doce"),  # lugar da base com o mesmo primeiro nome
+    ("Ana dos Santos", "pedido dos amigos de todos"),             # partículas não contam
+    ("Ana dos Santos", "banana e pão"),                           # parte dentro de outra palavra
+])
+def test_varredura_nao_confunde_lugar_da_base_nem_particula_com_nome(nome, texto):
+    assert dados_privados_no_estado(_com_texto(texto), _cofre_com(nome)) == []
+
+
+def test_texto_copiado_da_base_fica_fora_da_varredura_de_nomes():
+    estado = {**ESTADO, "documentos": {"l1": {**ESTADO["documentos"]["l1"], "descricao": "Mesas com vista clara."}}}
+    assert dados_privados_no_estado(estado, _cofre_com("Clara")) == []
+    assert dados_privados_no_estado(_com_texto("a clara não pode"), _cofre_com("Clara")) == ["nome de m1"]
 
 
 def test_nome_dentro_de_outra_palavra_nao_e_vazamento(cofre):
