@@ -4168,7 +4168,7 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
       }
     }
 
-    // Issue #36: avaliação híbrida (RNF-04 determinístico + juiz MiMo-V2.6-Pro), em segundo plano
+    // Issue #36: avaliação híbrida (RNF-04 determinístico + juiz GLM 5.3 Flash, ADR 0014), em segundo plano
     const ROTULOS_SCORES = [
       ["acerto_gabarito", "🏁 Acertou o lugar do gabarito", false],
       ["fidelidade_factual_rnf03", "🎯 Fidelidade factual (RNF-03)", false],
@@ -4211,7 +4211,7 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
       });
       const juiz = (bloco && bloco.julgamento_juiz) || {};
       const origem = juiz.usou_llm
-        ? `⚖️ Juiz: ${juiz.modelo_juiz || "MiMo-V2.6-Pro"} + verificação determinística`
+        ? `⚖️ Juiz: ${juiz.modelo_juiz || "GLM 5.3 Flash"} + verificação determinística`
         : `⚖️ Verificação determinística (juiz indisponível: ${juiz.motivo_fallback || "sem chave"})`;
       const rodape = criarEl("div", "", origem);
       rodape.style.fontSize = "0.72rem";
@@ -4229,7 +4229,7 @@ COMPARATIVO_PAGE = """<!DOCTYPE html>
     async function avaliarComparativo(dados) {
       ["scoresModoA", "scoresModoB"].forEach((id) => {
         const box = document.getElementById(id);
-        if (box) box.textContent = "⏳ Avaliando com o juiz MiMo-V2.6-Pro e as travas RNF-04...";
+        if (box) box.textContent = "⏳ Avaliando com o juiz GLM 5.3 Flash e as travas RNF-04...";
       });
       try {
         const res = await fetch("/api/comparativo/avaliar", {

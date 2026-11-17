@@ -6,9 +6,10 @@ Combina:
    se a Região Administrativa corresponde à `ra_esperada` e se os preços citados respeitam
    `preco_maximo_gabarito` e os valores oficiais da base.
 2. **Etapa 2 — Avaliação Semântica LLM-as-a-Judge (RNF-03):**
-   Usa o modelo `xiaomi/mimo-v2.6-pro` pela OpenRouter (família diferente do DeepSeek V4.1 Flash
+   Usa o modelo `z-ai/glm-5.3-flash` pela OpenRouter (família diferente do DeepSeek V4.1 Flash
    avaliado nos Modos A e B) com temperatura 0, roteamento sem retenção de dados e saída em JSON
-   para julgar cada afirmação de lugar, preço, endereço e horário como:
+   para julgar cada afirmação de lugar, preço, endereço e horário como (ADR 0014; até 17/11/2026, o
+   juiz era o `xiaomi/mimo-v2.6-pro`, que julgou o benchmark da semana 3):
    - `"confere com a base"`
    - `"contradiz a base"`
    - `"não está na base"`
@@ -43,12 +44,12 @@ from src.interpretador.config import CFG, segredo
 from src.rag import llm_rag
 from src.telemetria.telemetria import carregar_base_oficial_leticia, obter_cliente
 
-MODELO_JUIZ_PADRAO = "xiaomi/mimo-v2.6-pro"
+MODELO_JUIZ_PADRAO = "z-ai/glm-5.3-flash"  # ADR 0014; troca por JUIZ_LLM_MODELO no .env
 URL_OPENROUTER = CFG["llm"]["url"]
 CHAVE_ENV = CFG["llm"]["chave_env"]
 ROTEAMENTO = dict(CFG["llm"]["roteamento"])
 SLA_LATENCIA_MAX_MS = 5000.0
-TIMEOUT_JUIZ_S = 40  # o MiMo raciocina antes do JSON
+TIMEOUT_JUIZ_S = 40  # o juiz pode raciocinar antes do JSON
 
 VEREDITOS_VALIDOS = ("confere com a base", "contradiz a base", "não está na base")
 
@@ -515,7 +516,7 @@ def julgar_com_llm_judge(
     *,
     sessao=None,
 ) -> dict[str, Any]:
-    """Etapa 2: Avalia coerência factual via LLM-as-a-Judge (MiMo-V2.6-Pro) com fallback determinístico."""
+    """Etapa 2: Avalia coerência factual via LLM-as-a-Judge (`MODELO_JUIZ_PADRAO`) com fallback determinístico."""
     chave = segredo(CHAVE_ENV)
     modelo = _modelo_juiz()
 
@@ -577,7 +578,7 @@ def julgar_com_llm_judge(
             {"role": "user", "content": prompt_usuario},
         ],
         "temperature": 0,
-        "max_tokens": 4000,  # os tokens de raciocínio do MiMo contam no limite; com 900 o JSON vinha cortado
+        "max_tokens": 4000,  # os tokens de raciocínio contam no limite; com 900 o JSON do MiMo vinha cortado
         "response_format": {"type": "json_object"},
         "provider": ROTEAMENTO,
     }
@@ -876,7 +877,7 @@ def avaliar_par_comparativo(
     det_a = verificar_deterministico_rnf04(pergunta_str, gabarito, resultado_modo_a, base)
     det_b = verificar_deterministico_rnf04(pergunta_str, gabarito, resultado_modo_b, base)
 
-    # Etapa 2: LLM-as-a-Judge (MiMo-V2.6-Pro via OpenRouter) com fallback determinístico
+    # Etapa 2: LLM-as-a-Judge (GLM 5.3 Flash via OpenRouter) com fallback determinístico
     # Os dois modos são julgados em paralelo; abstenção não tem afirmação, então não gasta chamada ao juiz
     def _julgar(resultado, det):
         if det["abstencao"] or resultado.get("disponivel") is False:
