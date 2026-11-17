@@ -671,7 +671,7 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Central de Entregáveis — Semana 02 (Grupo 7)</title>
+  <title>Central de Entregáveis — Semanas 02 e 03 (Grupo 7)</title>
   <style>
     :root {
       --bg: #0d1117;
@@ -1082,14 +1082,99 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
 
   <div class="main-container">
     <header class="page-header" id="pageHeader">
-      <h1>📂 Central de Entregáveis — Semana 02</h1>
+      <div style="display:inline-block; font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.5px; color:#58a6ff; background:rgba(88,166,255,0.15); border:1px solid rgba(88,166,255,0.3); padding:4px 12px; border-radius:20px; margin-bottom:8px;">
+        🚀 Semanas 02 &amp; 03 — Challenge 2 (Grupo 7)
+      </div>
+      <h1>📂 Central Interativa de Entregáveis</h1>
       <p>
-        Selecione um dos módulos para visualizar relatórios, dados auditados 2FA, vetores semânticos, evidências de teste e telemetria diretamente na página.
+        Explore relatórios técnicos, datasets auditados, placar de alucinações, benchmark empírico e pacotes para download das Semanas 02 e 03.
       </p>
     </header>
 
-    <!-- OS 7 QUADRADOS (COMPACTO SEM SCROLL) -->
-    <div class="quadrados-grid" id="quadradosGrid">
+    <!-- SEÇÃO SEMANA 03: DESTAQUE ATUAL -->
+    <div id="secaoSemana3" style="margin-bottom: 24px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; border-bottom:1px solid #30363d; padding-bottom:8px; flex-wrap:wrap; gap:8px;">
+        <div style="display:flex; align-items:center; gap:8px;">
+          <span style="background:rgba(88,166,255,0.15); color:#79c0ff; border:1px solid rgba(88,166,255,0.4); font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:12px;">NOVO &bull; SEMANA 03</span>
+          <h2 style="font-size:1.15rem; font-weight:700; color:var(--text);">Comparação LLM Pura vs. RAG (Respostas com Evidências)</h2>
+        </div>
+        <a href="/comparativo" style="background:linear-gradient(180deg, #1f6feb, #238636); color:#fff; font-size:0.8rem; font-weight:700; padding:6px 14px; border-radius:6px; text-decoration:none; display:inline-flex; align-items:center; gap:5px; box-shadow:0 2px 8px rgba(31,111,235,0.3);">
+          ⚡ Testar ao Vivo no Comparador &rarr;
+        </a>
+      </div>
+
+      <div class="quadrados-grid" id="quadradosGridSemana3">
+        <!-- 3.1 PLACAR COMPARATIVO & AVALIAÇÃO -->
+        <div class="quadrado-card" style="border-color: rgba(88,166,255,0.4);" onclick="abrirModulo('placar_semana3')">
+          <div>
+            <div class="quadrado-top">
+              <span class="quadrado-icon">⚖️</span>
+              <span class="quadrado-badge blue">Placar A/B</span>
+            </div>
+            <div class="quadrado-title">Placar Comparativo LLM x RAG</div>
+            <p class="quadrado-desc">
+              Métricas calculadas direto do benchmark oficial (20 consultas &times; 6 configurações): alucinação, afirmações fora da base, acerto do gabarito e latência p50/p90.
+            </p>
+          </div>
+          <div class="quadrado-action">Ver Placar &amp; Métricas &rarr;</div>
+        </div>
+
+        <!-- 3.2 GOLDEN DATASET SEMANA 3 -->
+        <div class="quadrado-card" style="border-color: rgba(63,185,80,0.4);" onclick="abrirModulo('golden_semana3')">
+          <div>
+            <div class="quadrado-top">
+              <span class="quadrado-icon">🎯</span>
+              <span class="quadrado-badge green">20 Casos DF</span>
+            </div>
+            <div class="quadrado-title">Golden Dataset da Semana 3</div>
+            <p class="quadrado-desc">
+              Visualizador interativo dos 20 casos de teste com gabarito oficial (preços, horários, RAs periféricas e armadilhas da LLM pura).
+            </p>
+          </div>
+          <div class="quadrado-action">Inspecionar Golden Dataset &rarr;</div>
+        </div>
+
+        <!-- 3.3 BENCHMARK A/B OFICIAL -->
+        <div class="quadrado-card" style="border-color: rgba(188,140,255,0.4);" onclick="abrirModulo('benchmark_semana3')">
+          <div>
+            <div class="quadrado-top">
+              <span class="quadrado-icon">📊</span>
+              <span class="quadrado-badge purple">Auditoria A/B</span>
+            </div>
+            <div class="quadrado-title">Resultados do Benchmark A/B</div>
+            <p class="quadrado-desc">
+              Tabela interativa com seletor entre as 6 configurações avaliadas, respostas reais e notas do avaliador híbrido para cada pergunta.
+            </p>
+          </div>
+          <div class="quadrado-action">Ver Tabela de Resultados &rarr;</div>
+        </div>
+
+        <!-- 3.4 RELATORIO E ZIP DA SEMANA 3 -->
+        <div class="quadrado-card" style="border-color: rgba(240,136,62,0.4);" onclick="abrirModulo('relatorio_semana3')">
+          <div>
+            <div class="quadrado-top">
+              <span class="quadrado-icon">📑</span>
+              <span class="quadrado-badge orange">Entrega Sem. 03</span>
+            </div>
+            <div class="quadrado-title">Relatório Técnico &amp; ZIP Sem. 03</div>
+            <p class="quadrado-desc">
+              Download do Relatório Técnico Oficial da Semana 03 (PDF em padrão ABNT) e pacote consolidado ZIP com todos os artefatos.
+            </p>
+          </div>
+          <div class="quadrado-action">Downloads da Semana 03 &rarr;</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SEÇÃO SEMANA 02: HISTÓRICO RNF-12 -->
+    <div id="secaoSemana2" style="margin-bottom: 24px;">
+      <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px; border-bottom:1px solid #30363d; padding-bottom:8px;">
+        <span style="background:#21262d; color:#8b949e; border:1px solid #30363d; font-size:0.75rem; font-weight:600; padding:2px 8px; border-radius:12px;">RNF-12</span>
+        <h2 style="font-size:1.15rem; font-weight:700; color:var(--text);">Semana 02 — Base de Conhecimento Curada 2FA e Protótipo de RAG</h2>
+      </div>
+
+      <!-- OS 7 QUADRADOS (COMPACTO SEM SCROLL) -->
+      <div class="quadrados-grid" id="quadradosGrid">
       
       <!-- 1. RELATORIO HTML -->
       <div class="quadrado-card" onclick="abrirModulo('pdf')">
@@ -1195,11 +1280,197 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
         </div>
         <div class="quadrado-action">Baixar ZIP Completo &rarr;</div>
       </div>
+      </div>
     </div>
 
     <!-- ========================================================================= -->
     <!-- MÓDULOS EXPANDIDOS (UM DE CADA VEZ COM BOTÃO VOLTAR)                      -->
     <!-- ========================================================================= -->
+
+    <!-- MÓDULO SEMANA 3: PLACAR COMPARATIVO (DINÂMICO A PARTIR DA API) -->
+    <div id="moduloPlacarSemana3" class="modulo-detalhe">
+      <div class="detalhe-header">
+        <button class="btn-voltar" onclick="fecharModulos()">&larr; Voltar aos Entregáveis</button>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <a href="/api/entregaveis/dados?colecao=benchmark_semana3" target="_blank" class="btn-action secondary">JSON Oficial do Benchmark</a>
+          <a href="/comparativo" class="btn-action" style="background: linear-gradient(180deg, #1f6feb, #238636);">
+            ⚡ Abrir Comparador Lado a Lado ao Vivo (/comparativo)
+          </a>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 18px;">
+        <h2 style="font-size: 1.3rem; color: var(--text); font-weight: 800; margin-bottom: 6px;">
+          ⚖️ Placar Comparativo Consolidado: LLM Pura vs. RAG Ancorado
+        </h2>
+        <p style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.45;">
+          Métricas carregadas diretamente de <code>/api/entregaveis/dados?colecao=benchmark_semana3</code> (20 casos do Golden Dataset &times; 6 configurações, avaliados por verificação determinística RNF-04 + juiz independente <code>xiaomi/mimo-v2.6-pro</code>). Destaques para as configurações <strong>#1 (LLM pura)</strong>, <strong>#3 (vencedora pelo critério da #38 — RAG sem LLM)</strong>, <strong>#4 (escolha do produto — RAG + LLM por palavras)</strong> e <strong>#6 (RAG + LLM, busca vetorial)</strong>.
+        </p>
+      </div>
+
+      <!-- CARDS DINÂMICOS DAS 4 CONFIGURAÇÕES PRINCIPAIS (#1, #3, #4 e #6) -->
+      <div id="placarKpisSemana3" class="telemetria-kpis" style="margin-bottom: 20px;">
+        <div class="telemetria-box">
+          <div style="font-size: 0.82rem; color: var(--text-muted);">Carregando métricas oficiais de <code>benchmark_semana3</code>...</div>
+        </div>
+      </div>
+
+      <!-- ESCOLHA VENCEDORA E DECISÃO DE PRODUTO (DINÂMICO) -->
+      <div id="placarEscolhaVencedora" style="margin-bottom: 20px;"></div>
+
+      <!-- TABELA COMPLETA DAS 6 CONFIGURAÇÕES (DINÂMICA) -->
+      <div id="placarTabelaConfiguracoes" style="margin-bottom: 24px; overflow-x: auto;"></div>
+
+      <!-- BOTÃO DESTAQUE COMPARATIVO -->
+      <div style="background: rgba(88,166,255,0.08); border: 1px solid rgba(88,166,255,0.3); border-radius: 8px; padding: 18px 20px; text-align: center; margin-bottom: 24px;">
+        <h3 style="color: #79c0ff; font-size: 1.05rem; margin-bottom: 6px;">Quer ver os dois modelos respondendo lado a lado em tempo real?</h3>
+        <p style="color: #c9d1d9; font-size: 0.84rem; max-width: 600px; margin: 0 auto 14px auto;">
+          Criamos uma interface dedicada com alternância de raciocínio, busca por palavras vs. embeddings e inspeção completa das fontes citadas.
+        </p>
+        <a href="/comparativo" style="background: linear-gradient(180deg, #1f6feb, #238636); color: #fff; padding: 10px 24px; border-radius: 6px; font-weight: 700; text-decoration: none; display: inline-flex; align-items: center; gap: 8px; font-size: 0.92rem; box-shadow: 0 4px 12px rgba(31,111,235,0.35);">
+          🚀 Ir para a Página de Comparativo (/comparativo) &rarr;
+        </a>
+      </div>
+    </div>
+
+    <!-- MÓDULO SEMANA 3: GOLDEN DATASET -->
+    <div id="moduloGoldenSemana3" class="modulo-detalhe">
+      <div class="detalhe-header">
+        <button class="btn-voltar" onclick="fecharModulos()">&larr; Voltar aos Entregáveis</button>
+        <div style="display:flex; gap:8px;">
+          <a href="/api/entregaveis/dados?colecao=golden_semana3" target="_blank" class="btn-action secondary">JSON Bruto API</a>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <h2 style="font-size: 1.25rem; color: var(--text); font-weight: 800; margin-bottom: 4px;">
+          🎯 Golden Dataset da Semana 03 (20 Casos de Teste do DF)
+        </h2>
+        <p style="color: var(--text-muted); font-size: 0.84rem;">
+          Conjunto de testes desafiadores com gabarito comprovado por 2FA do TikTok para medir alucinação de LLM pura vs. fidelidade do RAG.
+        </p>
+      </div>
+
+      <div class="toolbar">
+        <input type="text" id="buscaGoldenSemana3" class="input-busca" placeholder="Buscar por pergunta, RA, local ou armadilha..." oninput="filtrarGoldenSemana3()">
+        <select id="filtroCatGolden" class="select-filtro" onchange="filtrarGoldenSemana3()">
+          <option value="">Todas as categorias</option>
+          <option value="geoespacial_ra_fora_centro">Geoespacial (Fora do Plano Piloto)</option>
+          <option value="janela_horario">Janela de Horário</option>
+          <option value="fora_de_escopo_df">Fora de Escopo do DF</option>
+          <option value="precisao_financeira">Precisão Financeira (Preços Exatos)</option>
+          <option value="vibes_e_restricoes">Ambiência e Restrições</option>
+          <option value="conflito_e_girias">Conflito e Gírias Candangas</option>
+        </select>
+        <span id="counterGoldenSemana3" style="font-size:0.78rem; color:var(--text-muted); margin-left:auto;">Carregando...</span>
+      </div>
+
+      <div class="cards-list" id="gridGoldenSemana3"></div>
+    </div>
+
+    <!-- MÓDULO SEMANA 3: RESULTADOS BENCHMARK A/B -->
+    <div id="moduloBenchmarkSemana3" class="modulo-detalhe">
+      <div class="detalhe-header">
+        <button class="btn-voltar" onclick="fecharModulos()">&larr; Voltar aos Entregáveis</button>
+        <div style="display:flex; gap:8px;">
+          <a href="/api/entregaveis/dados?colecao=benchmark_semana3" target="_blank" class="btn-action secondary">JSON Bruto API</a>
+          <a href="/comparativo" class="btn-action">⚡ Comparar ao Vivo</a>
+        </div>
+      </div>
+
+      <div style="margin-bottom: 14px;">
+        <h2 style="font-size: 1.25rem; color: var(--text); font-weight: 800; margin-bottom: 4px;">
+          📊 Resultados Consolidados do Benchmark A/B (Semana 03)
+        </h2>
+        <p style="color: var(--text-muted); font-size: 0.84rem;">
+          Respostas auditadas caso a caso nas 6 configurações oficiais do benchmark (com notas do avaliador híbrido RNF-04 + juiz MiMo-V2.6-Pro).
+        </p>
+      </div>
+
+      <div class="toolbar">
+        <input type="text" id="buscaBenchmarkSemana3" class="input-busca" placeholder="Buscar por pergunta, ID, RA ou termo da resposta..." oninput="filtrarBenchmarkSemana3()">
+        <label for="selectCfgEsquerda" style="font-size:0.76rem; color:var(--text-muted); font-weight:600;">Lado A:</label>
+        <select id="selectCfgEsquerda" class="select-filtro" onchange="filtrarBenchmarkSemana3()">
+          <option value="1_llm_pura_sem_raciocinio" selected>Cfg #1 — LLM pura, sem raciocínio</option>
+          <option value="2_llm_pura_raciocinio_alto">Cfg #2 — LLM pura, raciocínio alto</option>
+          <option value="3_rag_sem_llm_texto_fixo">Cfg #3 — RAG sem LLM (vencedora #38)</option>
+          <option value="4_rag_llm_busca_lexica">Cfg #4 — RAG + LLM, busca léxica (produto)</option>
+          <option value="5_rag_llm_busca_lexica_raciocinio_alto">Cfg #5 — RAG + LLM, léxica + raciocínio alto</option>
+          <option value="6_rag_llm_busca_vetorial">Cfg #6 — RAG + LLM, busca vetorial</option>
+        </select>
+        <label for="selectCfgDireita" style="font-size:0.76rem; color:var(--text-muted); font-weight:600;">Lado B:</label>
+        <select id="selectCfgDireita" class="select-filtro" onchange="filtrarBenchmarkSemana3()">
+          <option value="1_llm_pura_sem_raciocinio">Cfg #1 — LLM pura, sem raciocínio</option>
+          <option value="2_llm_pura_raciocinio_alto">Cfg #2 — LLM pura, raciocínio alto</option>
+          <option value="3_rag_sem_llm_texto_fixo">Cfg #3 — RAG sem LLM (vencedora #38)</option>
+          <option value="4_rag_llm_busca_lexica" selected>Cfg #4 — RAG + LLM, busca léxica (produto)</option>
+          <option value="5_rag_llm_busca_lexica_raciocinio_alto">Cfg #5 — RAG + LLM, léxica + raciocínio alto</option>
+          <option value="6_rag_llm_busca_vetorial">Cfg #6 — RAG + LLM, busca vetorial</option>
+        </select>
+        <span id="counterBenchmarkSemana3" style="font-size:0.78rem; color:var(--text-muted); margin-left:auto;">Carregando...</span>
+      </div>
+
+      <div id="gridBenchmarkSemana3" style="display:flex; flex-direction:column; gap:16px;"></div>
+    </div>
+
+    <!-- MÓDULO SEMANA 3: RELATÓRIO E DOWNLOADS -->
+    <div id="moduloRelatorioSemana3" class="modulo-detalhe">
+      <div class="detalhe-header">
+        <button class="btn-voltar" onclick="fecharModulos()">&larr; Voltar aos Entregáveis</button>
+        <div style="display:flex; gap:8px; flex-wrap:wrap;">
+          <a href="/visualizar/relatorio-semana3-pdf" target="_blank" class="btn-action secondary">↗ Visualizar PDF</a>
+          <a href="/download/relatorio-semana3-pdf" class="btn-action">📥 Baixar PDF Semana 3</a>
+          <a href="/download/entregavel-semana3-zip" class="btn-action" style="background:#8957e5;">📦 Baixar Pacote ZIP</a>
+        </div>
+      </div>
+
+      <article class="relatorio-html">
+        <div style="background:#161b22; border-left:4px solid #f0883e; padding:16px 20px; border-radius:8px; margin-bottom:24px;">
+          <div style="font-size:0.85rem; color:var(--text-muted); font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">
+            Instituto de Pesquisas Eldorado &bull; Universidade de Brasília &bull; Residência em IA &bull; Grupo 07
+          </div>
+          <h1 style="margin:8px 0 6px 0; font-size:1.35rem; color:var(--text); font-weight:800;">
+            Relatório Técnico da Semana 03: Comparação LLM Pura vs. RAG (Respostas com Evidências)
+          </h1>
+          <div style="font-size:0.92rem; color:#f0883e; font-weight:600; margin-bottom:8px;">
+            Avaliação Empírica (20 Consultas &times; 6 Configurações), Motor Híbrido de Avaliação e Observabilidade Langfuse
+          </div>
+          <div style="font-size:0.85rem; color:var(--text-muted); line-height:1.5;">
+            <strong>Autores:</strong> Letícia Miti Takahashi, Maria Eduarda, Maria Carolina, Cauan Soares e Samara Letícia<br>
+            <strong>Central de Entregáveis:</strong> <a href="/entregaveis" style="color:#bc8cff; text-decoration:underline;">/entregaveis</a> &bull;
+            <strong>Interface Comparativa:</strong> <a href="/comparativo" style="color:#58a6ff; text-decoration:underline;">/comparativo</a>
+          </div>
+        </div>
+
+        <h2>Resumo da Entrega da Semana 03</h2>
+        <p>A Semana 03 avaliou empiricamente o impacto da ancoragem em documentos reais (base curada 2FA de 93 locais do Distrito Federal) frente ao uso de LLM pura (<code>deepseek/deepseek-v4.1-flash-1017</code>), executando as 20 consultas do Golden Dataset em 6 configurações e 2 rodadas independentes com avaliação automatizada híbrida (verificação determinística RNF-04 + juiz <code>xiaomi/mimo-v2.6-pro</code>).</p>
+        <p>Os resultados completos do experimento (Issue #38) e a análise detalhada para o relatório técnico (Issue #40) demonstram que:</p>
+        <ul>
+          <li><strong>LLM pura sem raciocínio (Configuração #1):</strong> não acertou nenhum local do gabarito no DF (<code>0 de 18</code>; <code>2 de 20</code> no geral considerando as 2 recusas fora do DF), concentrou <strong>97,0% das afirmações fora da base</strong> (inventando 32 locais em 13 de 20 casos), teve <strong>3,0% de alucinação</strong> (contradição direta à base), precisão de RA de <code>0 de 15</code> e latência mediana (p50) de <code>3,75 s</code> (p90 de <code>5,26 s</code>).</li>
+          <li><strong>Vencedora pelo critério estrito da Issue #38 — Configuração #3 (RAG sem LLM, texto fixo):</strong> atende ao SLA de latência RNF-14 (&le; 5 s) com <code>p50 = 0,02 s</code> e <code>p90 = 0,03 s</code>, registra <strong>0,0% de alucinação</strong> (0 locais inventados, 99,2% de fidelidade factual), acerta <code>10 de 18</code> locais no DF (<code>12 de 20</code> no geral) com precisão de RA de <code>13 de 16</code> (81,2%) e vence no desempate por ter <strong>custo zero (R$ 0,00)</strong>.</li>
+          <li><strong>Escolha de produto com síntese em linguagem natural — Configuração #4 (RAG + LLM, busca por palavras):</strong> empata em acerto com a #3 (<code>10 de 18</code> no DF e <code>12 de 20</code> no geral, evidenciando que na busca léxica o gargalo está no <code>Recall@3 = 10 de 18</code>), mantendo <strong>0,0% de alucinação na Rodada 1</strong> (98,7% de fidelidade factual), precisão de RA de <code>13 de 16</code> (81,2%) e latência dentro do SLA RNF-14 (<code>p50 = 3,15 s</code>, <code>p90 = 3,61 s</code>).</li>
+          <li><strong>Busca vetorial — Configuração #6 (RAG + LLM, busca vetorial):</strong> eleva o <code>Recall@3</code> para <code>16 de 18</code> (88,9%) e o acerto para <code>16 de 18</code> no DF (<code>18 de 20</code> no geral, precisão de RA de <code>16 de 17</code> = 94,1%, fidelidade de 96,8% e 0,7% de alucinação), com latência <code>p50 = 5,10 s</code> e <code>p90 = 5,83 s</code> devido ao tempo de geração do embedding da consulta.</li>
+        </ul>
+
+        <div style="display:flex; gap:12px; flex-wrap:wrap; margin:20px 0;">
+          <a href="/visualizar/relatorio-semana3-pdf" target="_blank" class="btn-action secondary" style="padding:10px 18px; font-size:0.9rem;">
+            📄 Visualizar Relatório em PDF Inline
+          </a>
+          <a href="/download/relatorio-semana3-pdf" class="btn-action" style="padding:10px 18px; font-size:0.9rem;">
+            📥 Baixar Relatório Técnico Oficial (.PDF)
+          </a>
+          <a href="/download/entregavel-semana3-zip" class="btn-action" style="padding:10px 18px; font-size:0.9rem; background:#8957e5;">
+            📦 Baixar Pacote ZIP da Semana 03 (.ZIP)
+          </a>
+          <a href="/api/entregaveis/arquivo?caminho=docs/experimentos/2026-11-13-benchmark-semana3.md" target="_blank" class="btn-action secondary" style="padding:10px 18px; font-size:0.9rem;">
+            📊 Ver Relatório do Experimento (Markdown JSON)
+          </a>
+          <a href="/api/entregaveis/arquivo?caminho=docs/entregas/semana-03/BENCHMARK_LLM_VS_RAG_LOG.txt" target="_blank" class="btn-action secondary" style="padding:10px 18px; font-size:0.9rem;">
+            🧾 Ver Log Comprobatório (.TXT)
+          </a>
+        </div>
+      </article>
+    </div>
 
     <!-- MÓDULO 1: RELATÓRIO TÉCNICO EM HTML (COM BOTÕES DE PDF NO TOPO) -->
     <div id="moduloPdf" class="modulo-detalhe">
@@ -1710,20 +1981,93 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
     let cacheAprovados = null;
     let cacheQuarentena = null;
     let cacheVetores = null;
+    let cacheGoldenSemana3 = null;
+    let cacheBenchmarkSemana3 = null;
+
+    function escapeHtml(valor) {
+      if (valor === null || valor === undefined) return '';
+      return String(valor)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function formatarPct(valor) {
+      if (valor === null || valor === undefined || Number.isNaN(Number(valor))) return 'N/A';
+      return (Number(valor) * 100).toFixed(1).replace('.', ',') + '%';
+    }
+
+    function formatarSegundos(ms, sExplicito) {
+      if (sExplicito !== null && sExplicito !== undefined && !Number.isNaN(Number(sExplicito))) {
+        return Number(sExplicito).toFixed(2).replace('.', ',') + ' s';
+      }
+      if (ms === null || ms === undefined || Number.isNaN(Number(ms))) return 'N/A';
+      return (Number(ms) / 1000).toFixed(2).replace('.', ',') + ' s';
+    }
+
+    const ROTULOS_CONFIG_SEMANA3 = {
+      '1_llm_pura_sem_raciocinio': { curto: 'Configuração 1', titulo: 'Cfg #1 — LLM pura, sem raciocínio', cor: '#f85149', badge: 'Baseline LLM Pura' },
+      '2_llm_pura_raciocinio_alto': { curto: 'Configuração 2', titulo: 'Cfg #2 — LLM pura, raciocínio alto', cor: '#f0883e', badge: 'LLM Pura (High)' },
+      '3_rag_sem_llm_texto_fixo': { curto: 'Configuração 3', titulo: 'Cfg #3 — RAG sem LLM (texto fixo)', cor: '#3fb950', badge: '🏆 Vencedora #38' },
+      '4_rag_llm_busca_lexica': { curto: 'Configuração 4', titulo: 'Cfg #4 — RAG + LLM (busca por palavras)', cor: '#58a6ff', badge: '✨ Escolha do Produto' },
+      '5_rag_llm_busca_lexica_raciocinio_alto': { curto: 'Configuração 5', titulo: 'Cfg #5 — RAG + LLM (léxica + raciocínio alto)', cor: '#d2a8ff', badge: 'RAG Léxica (High)' },
+      '6_rag_llm_busca_vetorial': { curto: 'Configuração 6', titulo: 'Cfg #6 — RAG + LLM (busca vetorial)', cor: '#bc8cff', badge: '🎯 Maior Recall@3' }
+    };
+
+    async function garantirBenchmarkSemana3() {
+      if (!cacheBenchmarkSemana3) {
+        const res = await fetch('/api/entregaveis/dados?colecao=benchmark_semana3');
+        const json = await res.json();
+        cacheBenchmarkSemana3 = json.dados || [];
+      }
+      return cacheBenchmarkSemana3;
+    }
 
     function fecharModulos() {
       document.querySelectorAll('.modulo-detalhe').forEach(el => el.classList.remove('active'));
-      document.getElementById('quadradosGrid').style.display = 'grid';
+      const secSemana3 = document.getElementById('secaoSemana3');
+      if (secSemana3) secSemana3.style.display = 'block';
+      const secSemana2 = document.getElementById('secaoSemana2');
+      if (secSemana2) secSemana2.style.display = 'block';
       document.getElementById('pageHeader').style.display = 'block';
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     async function abrirModulo(tipo) {
-      document.getElementById('quadradosGrid').style.display = 'none';
+      const secSemana3 = document.getElementById('secaoSemana3');
+      if (secSemana3) secSemana3.style.display = 'none';
+      const secSemana2 = document.getElementById('secaoSemana2');
+      if (secSemana2) secSemana2.style.display = 'none';
       document.getElementById('pageHeader').style.display = 'none';
       document.querySelectorAll('.modulo-detalhe').forEach(el => el.classList.remove('active'));
 
-      if (tipo === 'pdf') {
+      if (tipo === 'placar_semana3') {
+        document.getElementById('moduloPlacarSemana3').classList.add('active');
+        await garantirBenchmarkSemana3();
+        renderizarPlacarSemana3();
+      }
+      else if (tipo === 'golden_semana3') {
+        const modulo = document.getElementById('moduloGoldenSemana3');
+        modulo.classList.add('active');
+        if (!cacheGoldenSemana3) {
+          const res = await fetch('/api/entregaveis/dados?colecao=golden_semana3');
+          const json = await res.json();
+          cacheGoldenSemana3 = json.dados || [];
+        }
+        filtrarGoldenSemana3();
+      }
+      else if (tipo === 'benchmark_semana3') {
+        const modulo = document.getElementById('moduloBenchmarkSemana3');
+        modulo.classList.add('active');
+        await garantirBenchmarkSemana3();
+        filtrarBenchmarkSemana3();
+      }
+      else if (tipo === 'relatorio_semana3') {
+        document.getElementById('moduloRelatorioSemana3').classList.add('active');
+      }
+      else if (tipo === 'pdf') {
         document.getElementById('moduloPdf').classList.add('active');
       }
       else if (tipo === 'aprovados') {
@@ -1767,6 +2111,262 @@ ENTREGAVEIS_PAGE = """<!DOCTYPE html>
       }
 
       window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderizarPlacarSemana3() {
+      const containerKpis = document.getElementById('placarKpisSemana3');
+      const containerEscolha = document.getElementById('placarEscolhaVencedora');
+      const containerTabela = document.getElementById('placarTabelaConfiguracoes');
+      if (!containerKpis || !cacheBenchmarkSemana3 || cacheBenchmarkSemana3.length === 0) return;
+
+      const primeiro = cacheBenchmarkSemana3[0] || {};
+      const resumoBench = primeiro.resumo_benchmark || {};
+      const resumos = resumoBench.resumo_configuracoes || [];
+      const escolha = resumoBench.configuracao_escolhida || {};
+      const porId = {};
+      resumos.forEach(r => { porId[r.id_configuracao] = r; });
+
+      const idsDestaque = [
+        '1_llm_pura_sem_raciocinio',
+        '3_rag_sem_llm_texto_fixo',
+        '4_rag_llm_busca_lexica',
+        '6_rag_llm_busca_vetorial'
+      ];
+
+      containerKpis.innerHTML = idsDestaque.map(cid => {
+        const r = porId[cid];
+        const info = ROTULOS_CONFIG_SEMANA3[cid] || { titulo: cid, cor: '#58a6ff', badge: '' };
+        if (!r) return '';
+        const p50 = formatarSegundos(r.latencia_p50_ms, r.latencia_p50_s);
+        const p90 = formatarSegundos(r.latencia_p90_ms, r.latencia_p90_s);
+        return `
+          <div class="telemetria-box" style="border-left: 3px solid ${escapeHtml(info.cor)};">
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:6px; margin-bottom:6px;">
+              <strong style="font-size:0.82rem; color:var(--text);">${escapeHtml(info.titulo)}</strong>
+              <span class="quadrado-badge" style="color:${escapeHtml(info.cor)};">${escapeHtml(info.badge)}</span>
+            </div>
+            <div style="font-size:0.78rem; color:#c9d1d9; line-height:1.55;">
+              <div>🎯 <strong>Acerto gabarito:</strong> ${escapeHtml(r.acerto_gabarito_df_contagem)} no DF (${escapeHtml(r.acerto_gabarito_contagem)} geral &bull; ${escapeHtml(formatarPct(r.acerto_gabarito_taxa))})</div>
+              <div>📍 <strong>Precisão RA:</strong> ${escapeHtml(r.precisao_geoespacial_ra_contagem)} (${escapeHtml(formatarPct(r.precisao_geoespacial_ra_media))})</div>
+              <div>⚠️ <strong>Alucinação (contradiz base):</strong> ${escapeHtml(formatarPct(r.taxa_alucinacao_media))} (${escapeHtml(r.casos_com_alucinacao_contagem || '0 de 20')} casos)</div>
+              <div>🚫 <strong>Fora da base:</strong> ${escapeHtml(formatarPct(r.taxa_fora_da_base_media))} (${escapeHtml(r.lugares_inventados_total)} lugares inventados)</div>
+              <div>✅ <strong>Fidelidade (RNF-03):</strong> ${escapeHtml(formatarPct(r.fidelidade_factual_rnf03_media))}</div>
+              <div>⏱️ <strong>Latência p50 / p90 (RNF-14 &le; 5 s):</strong> ${escapeHtml(p50)} / ${escapeHtml(p90)} (${escapeHtml(r.sla_latencia_rnf14_contagem)} em &le; 5 s)</div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      if (containerEscolha && escolha.id_configuracao) {
+        const prod = escolha.decisao_produto_com_llm || {};
+        containerEscolha.innerHTML = `
+          <div style="background:#0d1117; border:1px solid rgba(63,185,80,0.35); border-radius:8px; padding:14px 16px; font-size:0.82rem; line-height:1.5; color:#c9d1d9;">
+            <div style="margin-bottom:6px;">
+              <strong style="color:#3fb950;">🏆 Vencedora pelo critério da Issue #38 (${escapeHtml(escolha.nome)}):</strong>
+              ${escapeHtml(escolha.justificativa)}
+            </div>
+            ${prod.nome ? `
+              <div>
+                <strong style="color:#58a6ff;">✨ Escolha de produto com LLM (${escapeHtml(prod.nome)}):</strong>
+                ${escapeHtml(prod.motivo)}
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }
+
+      if (containerTabela && resumos.length > 0) {
+        containerTabela.innerHTML = `
+          <table style="width:100%; border-collapse:collapse; font-size:0.78rem; background:#0d1117; border:1px solid var(--card-border);">
+            <thead>
+              <tr style="background:#161b22; color:var(--blue); text-align:left;">
+                <th style="padding:8px 10px; border:1px solid var(--card-border);">Configuração</th>
+                <th style="padding:8px 10px; border:1px solid var(--card-border);">Acerto DF / Geral</th>
+                <th style="padding:8px 10px; border:1px solid var(--card-border);">Precisão RA</th>
+                <th style="padding:8px 10px; border:1px solid var(--card-border);">Fidelidade (RNF-03)</th>
+                <th style="padding:8px 10px; border:1px solid var(--card-border);">Alucinação</th>
+                <th style="padding:8px 10px; border:1px solid var(--card-border);">Fora da Base (Inventados)</th>
+                <th style="padding:8px 10px; border:1px solid var(--card-border);">Latência p50 / p90</th>
+                <th style="padding:8px 10px; border:1px solid var(--card-border);">SLA &le; 5 s (RNF-14)</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${resumos.map(r => `
+                <tr>
+                  <td style="padding:8px 10px; border:1px solid var(--card-border); font-weight:600;">#${escapeHtml(r.ordem)} — ${escapeHtml(r.nome)}</td>
+                  <td style="padding:8px 10px; border:1px solid var(--card-border);">${escapeHtml(r.acerto_gabarito_df_contagem)} (${escapeHtml(r.acerto_gabarito_contagem)})</td>
+                  <td style="padding:8px 10px; border:1px solid var(--card-border);">${escapeHtml(r.precisao_geoespacial_ra_contagem)} (${escapeHtml(formatarPct(r.precisao_geoespacial_ra_media))})</td>
+                  <td style="padding:8px 10px; border:1px solid var(--card-border);">${escapeHtml(formatarPct(r.fidelidade_factual_rnf03_media))}</td>
+                  <td style="padding:8px 10px; border:1px solid var(--card-border);">${escapeHtml(formatarPct(r.taxa_alucinacao_media))}</td>
+                  <td style="padding:8px 10px; border:1px solid var(--card-border);">${escapeHtml(formatarPct(r.taxa_fora_da_base_media))} (${escapeHtml(r.lugares_inventados_total)})</td>
+                  <td style="padding:8px 10px; border:1px solid var(--card-border);">${escapeHtml(formatarSegundos(r.latencia_p50_ms, r.latencia_p50_s))} / ${escapeHtml(formatarSegundos(r.latencia_p90_ms, r.latencia_p90_s))}</td>
+                  <td style="padding:8px 10px; border:1px solid var(--card-border);">${escapeHtml(r.sla_latencia_rnf14_contagem)}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        `;
+      }
+    }
+
+    function filtrarGoldenSemana3() {
+      if (!cacheGoldenSemana3) return;
+      const q = (document.getElementById('buscaGoldenSemana3').value || '').toLowerCase().trim();
+      const cat = document.getElementById('filtroCatGolden').value;
+
+      const filtrados = cacheGoldenSemana3.filter(item => {
+        const matchQ = !q ||
+          (item.pergunta || '').toLowerCase().includes(q) ||
+          (item.ra_esperada || '').toLowerCase().includes(q) ||
+          (item.armadilha_llm_pura || '').toLowerCase().includes(q) ||
+          (item.locais_gabarito || []).some(l => l.toLowerCase().includes(q));
+
+        const matchCat = !cat || item.categoria === cat;
+        return matchQ && matchCat;
+      });
+
+      document.getElementById('counterGoldenSemana3').innerText = `Exibindo ${filtrados.length} de ${cacheGoldenSemana3.length} casos`;
+
+      const grid = document.getElementById('gridGoldenSemana3');
+      grid.innerHTML = '';
+      filtrados.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'item-card';
+        const locaisGab = (item.locais_gabarito || []).map(l => escapeHtml(l)).join(', ');
+        card.innerHTML = `
+          <div>
+            <div class="item-card-title">
+              <span>#${escapeHtml(item.id)}: ${escapeHtml(item.ra_esperada || 'DF')}</span>
+              <span class="quadrado-badge green">${escapeHtml(item.categoria)}</span>
+            </div>
+            <div style="font-weight:700; color:var(--text); font-size:0.88rem; margin:6px 0;">
+              "${escapeHtml(item.pergunta)}"
+            </div>
+            <div style="background:#161b22; border-left:3px solid #3fb950; padding:8px 10px; border-radius:4px; font-size:0.78rem; margin-bottom:8px;">
+              <strong style="color:#3fb950;">Gabarito 2FA:</strong> ${locaisGab}<br>
+              <span style="color:var(--text-muted);">Teto: R$ ${escapeHtml(item.preco_maximo_gabarito ?? 'N/A')} &bull; ${escapeHtml(item.horario_gabarito || '')}</span>
+            </div>
+            <div class="item-card-quarentena" style="margin-bottom:6px;">
+              <strong>Armadilha da LLM Pura:</strong><br>
+              ${escapeHtml(item.armadilha_llm_pura || 'N/A')}
+            </div>
+          </div>
+          <div style="margin-top:6px; border-top:1px solid #21262d; padding-top:6px; display:flex; justify-content:space-between; align-items:center;">
+            <span style="font-size:0.72rem; color:var(--text-muted); font-family:monospace;">${escapeHtml(item.evidencia_id_tiktok || '')}</span>
+            <a href="/comparativo" style="color:var(--blue); font-weight:600; font-size:0.75rem; text-decoration:none;">Testar no Comparativo &rarr;</a>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
+    }
+
+    function renderizarBadgesScores(scores) {
+      if (!scores || typeof scores !== 'object') return '';
+      const itens = [
+        { chave: 'acerto_gabarito', rotulo: 'Gabarito' },
+        { chave: 'fidelidade_factual_rnf03', rotulo: 'Fidelidade' },
+        { chave: 'taxa_alucinacao', rotulo: 'Alucinação' },
+        { chave: 'taxa_fora_da_base', rotulo: 'Fora da base' },
+        { chave: 'precisao_geoespacial_ra', rotulo: 'RA' },
+        { chave: 'sla_latencia_rnf14', rotulo: 'SLA <=5s' }
+      ];
+      return `
+        <div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px; padding-top:6px; border-top:1px solid #21262d;">
+          ${itens.map(it => {
+            const val = scores[it.chave];
+            const txt = (val === null || val === undefined) ? 'N/A' : formatarPct(val);
+            return `<span class="quadrado-badge" style="font-size:0.68rem;">${escapeHtml(it.rotulo)}: ${escapeHtml(txt)}</span>`;
+          }).join('')}
+        </div>
+      `;
+    }
+
+    function obterResultadoConfig(item, cfgId, fallbackCampo) {
+      const cfgs = item.resultados_configuracoes || {};
+      if (cfgs[cfgId]) return cfgs[cfgId];
+      return item[fallbackCampo] || {};
+    }
+
+    function filtrarBenchmarkSemana3() {
+      if (!cacheBenchmarkSemana3) return;
+      const q = (document.getElementById('buscaBenchmarkSemana3').value || '').toLowerCase().trim();
+      const selEsq = document.getElementById('selectCfgEsquerda');
+      const selDir = document.getElementById('selectCfgDireita');
+      const cfgEsqId = selEsq ? selEsq.value : '1_llm_pura_sem_raciocinio';
+      const cfgDirId = selDir ? selDir.value : '4_rag_llm_busca_lexica';
+      const infoEsq = ROTULOS_CONFIG_SEMANA3[cfgEsqId] || { curto: cfgEsqId, titulo: cfgEsqId, cor: '#ff7b72' };
+      const infoDir = ROTULOS_CONFIG_SEMANA3[cfgDirId] || { curto: cfgDirId, titulo: cfgDirId, cor: '#3fb950' };
+
+      const filtrados = cacheBenchmarkSemana3.filter(item => {
+        const ladoA = obterResultadoConfig(item, cfgEsqId, 'modo_a_llm_pura');
+        const ladoB = obterResultadoConfig(item, cfgDirId, 'modo_b_rag');
+        const p = (item.pergunta || '').toLowerCase();
+        const a = (ladoA.resposta || '').toLowerCase();
+        const b = (ladoB.resposta || '').toLowerCase();
+        const id = (item.id_golden || '').toLowerCase();
+        const ra = ((item.gabarito && item.gabarito.ra_esperada) || '').toLowerCase();
+        return !q || p.includes(q) || a.includes(q) || b.includes(q) || id.includes(q) || ra.includes(q);
+      });
+
+      document.getElementById('counterBenchmarkSemana3').innerText = `Exibindo ${filtrados.length} de ${cacheBenchmarkSemana3.length} testes (${infoEsq.curto} × ${infoDir.curto})`;
+
+      const grid = document.getElementById('gridBenchmarkSemana3');
+      grid.innerHTML = '';
+      filtrados.forEach((item, idx) => {
+        const modoA = obterResultadoConfig(item, cfgEsqId, 'modo_a_llm_pura');
+        const modoB = obterResultadoConfig(item, cfgDirId, 'modo_b_rag');
+        const gab = item.gabarito || {};
+        const locaisGab = (gab.locais_gabarito || []).map(l => escapeHtml(l)).join(', ');
+
+        const fontesA = (modoA.fontes_utilizadas || []).map(f => `${escapeHtml(f.nome)} (${escapeHtml(f.ra)})`).join(', ');
+        const fontesB = (modoB.fontes_utilizadas || []).map(f => `${escapeHtml(f.nome)} (${escapeHtml(f.ra)})`).join(', ');
+        const invA = ((modoA.verificacao_deterministica && modoA.verificacao_deterministica.locais_inventados) || []).map(l => escapeHtml(l)).join(', ');
+        const invB = ((modoB.verificacao_deterministica && modoB.verificacao_deterministica.locais_inventados) || []).map(l => escapeHtml(l)).join(', ');
+
+        const card = document.createElement('div');
+        card.style.cssText = 'background:#161b22; border:1px solid var(--card-border); border-radius:10px; padding:16px;';
+        card.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; border-bottom:1px solid #21262d; padding-bottom:8px; flex-wrap:wrap; gap:6px;">
+            <div>
+              <span class="quadrado-badge blue" style="margin-right:6px;">Caso #${escapeHtml(item.id_golden || (idx+1))}</span>
+              <span class="quadrado-badge green" style="margin-right:6px;">${escapeHtml(gab.ra_esperada || 'DF')}</span>
+              <span class="quadrado-badge purple">${escapeHtml(infoEsq.curto)} &times; ${escapeHtml(infoDir.curto)}</span>
+              <h3 style="font-size:0.98rem; font-weight:700; color:var(--text); margin-top:6px;">${escapeHtml(item.pergunta)}</h3>
+              ${locaisGab ? `<div style="font-size:0.75rem; color:var(--text-muted); margin-top:3px;"><strong>Gabarito:</strong> ${locaisGab}</div>` : ''}
+            </div>
+            <span style="font-size:0.75rem; color:var(--text-muted);">
+              ${modoA.latencia_ms ? Math.round(modoA.latencia_ms) + ' ms' : ''} vs. ${modoB.latencia_ms ? Math.round(modoB.latencia_ms) + ' ms' : ''}
+            </span>
+          </div>
+
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:12px; margin-bottom:10px;">
+            <!-- LADO ESQUERDO -->
+            <div style="background:#0d1117; border:1px solid rgba(248,81,73,0.3); border-radius:8px; padding:12px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:6px; gap:6px; flex-wrap:wrap;">
+                <strong style="color:#ff7b72; font-size:0.8rem;">${escapeHtml(infoEsq.titulo)}</strong>
+                <span style="font-size:0.7rem; color:#ff7b72; background:rgba(248,81,73,0.15); padding:1px 6px; border-radius:4px;">${modoA.latencia_ms ? Math.round(modoA.latencia_ms) + ' ms' : ''}</span>
+              </div>
+              <p style="font-size:0.8rem; color:#c9d1d9; line-height:1.45; white-space:pre-wrap;">${escapeHtml(modoA.resposta || 'Sem resposta registrada')}</p>
+              ${invA ? `<div style="margin-top:8px; font-size:0.72rem; color:#ff7b72;"><strong>Locais fora da base:</strong> ${invA}</div>` : ''}
+              ${fontesA ? `<div style="margin-top:8px; border-top:1px solid #21262d; padding-top:6px; font-size:0.72rem; color:var(--text-muted);"><strong>Fontes recuperadas:</strong> ${fontesA}</div>` : ''}
+              ${renderizarBadgesScores(modoA.scores)}
+            </div>
+
+            <!-- LADO DIREITO -->
+            <div style="background:#0d1117; border:1px solid rgba(63,185,80,0.3); border-radius:8px; padding:12px;">
+              <div style="display:flex; justify-content:space-between; margin-bottom:6px; gap:6px; flex-wrap:wrap;">
+                <strong style="color:#3fb950; font-size:0.8rem;">${escapeHtml(infoDir.titulo)}</strong>
+                <span style="font-size:0.7rem; color:#3fb950; background:rgba(63,185,80,0.15); padding:1px 6px; border-radius:4px;">${modoB.latencia_ms ? Math.round(modoB.latencia_ms) + ' ms' : ''}</span>
+              </div>
+              <p style="font-size:0.8rem; color:#c9d1d9; line-height:1.45; white-space:pre-wrap;">${escapeHtml(modoB.resposta || 'Sem resposta registrada')}</p>
+              ${invB ? `<div style="margin-top:8px; font-size:0.72rem; color:#ff7b72;"><strong>Locais fora da base:</strong> ${invB}</div>` : ''}
+              ${fontesB ? `<div style="margin-top:8px; border-top:1px solid #21262d; padding-top:6px; font-size:0.72rem; color:var(--text-muted);"><strong>Fontes citadas:</strong> ${fontesB}</div>` : ''}
+              ${renderizarBadgesScores(modoB.scores)}
+            </div>
+          </div>
+        `;
+        grid.appendChild(card);
+      });
     }
 
     function filtrarAprovados() {
