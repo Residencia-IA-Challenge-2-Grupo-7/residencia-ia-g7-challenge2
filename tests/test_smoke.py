@@ -3,6 +3,12 @@ def test_ambiente_container_ok():
     Smoke test: garante que o ambiente Python e as dependencias essenciais
     carregam com sucesso dentro do container.
     """
+    import os
+    import pytest
+
+    if os.environ.get("ORQ_SEM_TORCH") == "1":
+        pytest.skip("torch pulado via ORQ_SEM_TORCH=1 para execucao local fora do container")
+
     import numpy
     import langfuse
     import pydantic

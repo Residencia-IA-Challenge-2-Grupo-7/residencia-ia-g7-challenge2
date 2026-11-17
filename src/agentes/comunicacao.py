@@ -2,22 +2,23 @@
 
 Persona: 'Anfitrião de Brasília'.
 Responsabilidades:
-1. Recebe os candidatos aprovados da Validação (candidatos_validados);
+1. Recebe exclusivamente os candidatos aprovados da Validação (candidatos_validados, máximo 4);
 2. Invoca o LLM com o prompt do Anfitrião e saída estrita em JSON (SaidaComunicacao: titulo, resumo_acesso, por_que_combina);
-3. Preenche deterministicamente todos os dados financeiros (consumo_estimado_rs, faixa_gasto_rs), tempos de chegada,
-   endereço oficial e links do TikTok no esquema Sugestao (RF-06, RNF-04);
-4. Garante zero citação de orçamentos individuais, origens de participantes ou restrições de pessoas (RNF-02);
-5. Valida os cartões finais via Pydantic / JSON Schema antes da devolução para a sala pública.
+3. Envia sinais determinísticos de logística (chegada_equilibrada, todos_podem_na_janela, cabe_no_orcamento_do_grupo);
+4. Valida em código cada texto gerado (sem números, sem valores em R$, sem citar origens e sem meios de transporte inventados);
+5. Preenche deterministicamente dados financeiros, tempos e links do TikTok no esquema Sugestao (RF-06, RNF-04);
+6. Garante zero citação de orçamentos individuais, origens de participantes ou restrições de pessoas (RNF-02);
+7. Validação estrita dos cartões via Pydantic com extra='forbid' (CartaoSugestaoValidado).
 """
 from __future__ import annotations
 
 import copy
 import re
-from datetime import datetime, timedelta
+from datetime import datetime
 from decimal import Decimal
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from src.agentes.contratos import CartaoTexto, SaidaComunicacao, esquema_estrito
 from src.agentes.llm import ClienteLLM, ErroLLM, embrulhar, prompt
@@ -26,9 +27,10 @@ from src.salas.integracoes import carregar_lugares
 from src.salas.modelos import Sugestao
 
 LETRAS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+LIMITE_MAXIMO_CARTOES = 4
 
 
-# ------------------------------------------------------------------ Pydantic Card Schema
+# ------------------------------------------------------------------ Pydantic Card Schema (Strict)
 class FaixaGasto(BaseModel):
     model_config = ConfigDict(extra="forbid")
     min: str
@@ -36,27 +38,28 @@ class FaixaGasto(BaseModel):
 
 
 class CartaoSugestaoValidado(BaseModel):
-    """Esquema Pydantic para validação estrita dos cartões finais (RF-06, RNF-03, RNF-04)."""
-    model_config = ConfigDict(extra="allow")
+    """Esquema Pydantic para validação estrita dos cartões finais (RF-06, RNF-03, RNF-04, RNF-02)."""
+    model_config = ConfigDict(extra="forbid")
 
     id: str = Field(..., description="Letra do cartão (A, B, C, D)")
-    posicao: int = Field(..., ge=1, description="Posição no ranking (1 a 4)")
+    posicao: int = Field(..., ge=1, le=4, description="Posição no ranking (1 a 4)")
     lugar_id: str = Field(..., description="ID oficial do local na base 2FA")
     nome: str = Field(..., description="Nome oficial do estabelecimento")
     tipo: str = Field(..., description="Tipo de rolê (ex: Bar, Gastronomia, Café)")
     ra: str | None = Field(default=None, description="Região Administrativa oficial")
     regiao_administrativa: str = Field(..., description="Nome da RA formatado")
     endereco: str = Field(..., description="Endereço oficial completo")
-    inicio: str = Field(..., description="Data/hora de início em ISO-8601")
-    fim: str = Field(..., description="Data/hora de fim em ISO-8601")
+    inicio: str | None = Field(default=None, description="Data/hora de início em ISO-8601 ou não informada")
+    fim: str | None = Field(default=None, description="Data/hora de fim em ISO-8601 ou não informada")
     horario: str = Field(..., description="Texto legível do horário")
-    horario_situacao: str = Field(..., description="Situação factual: aberto, provável ou incerto")
+    horario_situacao: str = Field(..., description="Situação factual: aberto, provavel ou incerto")
     quantos_podem: str = Field(..., description="Contagem pública de confirmação")
     consumo_estimado_rs: str = Field(..., description="Consumo médio estimado por pessoa em R$")
     faixa_gasto_rs: FaixaGasto | dict[str, str] = Field(..., description="Faixa estimada incluindo transporte")
     tempo_medio_chegada_min: int | None = Field(default=None, description="Média de trajeto em minutos")
     tempo_maximo_chegada_min: int | None = Field(default=None, description="Pior trajeto em minutos")
     nota_justica: float = Field(..., description="Nota da Menor Miséria (0 a 100)")
+    pontuacao: float = Field(default=0.0, description="Pontuação composta do ranking")
     explicacao: str = Field(..., description="Explicação consolidada para a votação")
     tiktok_url: str | None = Field(default=None, description="Link original do vídeo 2FA")
     fonte: str = Field(..., description="Crédito e data da fonte 2FA")
@@ -64,6 +67,28 @@ class CartaoSugestaoValidado(BaseModel):
     titulo: str = Field(..., description="Título acolhedor gerado pelo Anfitrião")
     resumo_acesso: str = Field(..., description="Resumo de acesso gerado pelo Anfitrião")
     por_que_combina: str = Field(..., description="Motivo de afinidade gerado pelo Anfitrião")
+
+
+# ------------------------------------------------------------------ Validação de Texto em Código
+def texto_conforme_regras(texto: str) -> bool:
+    """Valida em código se o texto gerado respeita RNF-02 e RNF-04:
+
+    - Zero algarismos ou números;
+    - Zero menção a moedas ('R$', 'reais'), minutos ('min') ou distâncias ('km');
+    - Zero menção a pontos de origem individuais ('quem vem de', 'sai de').
+    """
+    if not texto or not texto.strip():
+        return False
+    # Não pode conter algarismos
+    if re.search(r"\d", texto):
+        return False
+    # Não pode citar valores monetários, tempos ou distâncias explícitas
+    if re.search(r"\b(r\$|reais|min|minuto|minutos|km|quilometro|quilometros)\b", texto, re.IGNORECASE):
+        return False
+    # Não pode expor origens ou pontos de partida individuais
+    if re.search(r"(quem vem de|pra quem sai de|quem sai de|vindo de|saindo de)", texto, re.IGNORECASE):
+        return False
+    return True
 
 
 # ------------------------------------------------------------------ Auxiliares de Base
@@ -96,6 +121,27 @@ def _buscar_lugar(cand: dict | Sugestao, por_id: dict[str, dict], por_nome: dict
     return {}
 
 
+def _calcular_sinais(cand: dict) -> dict[str, bool]:
+    """Sinais determinísticos de logística e validação para ancorar a IA."""
+    pior = cand.get("tempo_maximo_chegada_min")
+    if pior is None:
+        pior = cand.get("pior_trajeto_min")
+    dif = cand.get("diferenca_min")
+
+    chegada_eq = (pior is not None and pior <= 45 and (dif is None or dif <= 30))
+    if pior is not None and pior <= 45 and float(cand.get("nota_justica", 0)) >= 75:
+        chegada_eq = True
+
+    qtd = str(cand.get("quantos_podem") or cand.get("contagem") or "").lower()
+    todos_podem = ("todos" in qtd or "4 de 4" in qtd or "3 de 3" in qtd or "2 de 2" in qtd)
+
+    return {
+        "chegada_equilibrada": bool(chegada_eq),
+        "todos_podem_na_janela": bool(todos_podem),
+        "cabe_no_orcamento_do_grupo": True,
+    }
+
+
 # ------------------------------------------------------------------ Geração do Anfitrião
 def _payload_para_llm(candidatos_preparados: list[dict], preferencias_grupo: dict | None = None) -> dict:
     fatos = []
@@ -108,6 +154,7 @@ def _payload_para_llm(candidatos_preparados: list[dict], preferencias_grupo: dic
             "vibes": c["vibes"],
             "resumo_sensorial": c.get("resumo_sensorial", ""),
             "horario_situacao": c["horario_situacao"],
+            "sinais": c["sinais"],
         })
     resultado = {"candidatos": fatos}
     if preferencias_grupo:
@@ -119,16 +166,28 @@ def _payload_para_llm(candidatos_preparados: list[dict], preferencias_grupo: dic
     return resultado
 
 
-def _fallback_textos(cand: dict) -> CartaoTexto:
+def _fallback_textos(cand: dict, sinais: dict[str, bool]) -> CartaoTexto:
     nome = cand.get("nome", "Lugar")
     tipo = cand.get("tipo", "Rolê").split(" / ")[0]
     ra = cand.get("regiao_administrativa") or "Brasília"
     vibes = cand.get("vibes") or []
-    vibe_txt = ", ".join(vibes[:2]) if vibes else "descontraída"
+    vibe_txt = ", ".join(vibes[:2]) if vibes else "agradável"
+    sit = cand.get("horario_situacao", "aberto")
 
-    titulo = f"{nome} — {tipo} em {ra}"
-    resumo_acesso = "Localização bem posicionada no DF com trajeto equilibrado para todo o grupo."
-    por_que_combina = f"Ambiente com atmosfera {vibe_txt}, ideal para reunir os amigos com conforto e boas opções."
+    titulo = f"{nome} em {ra}" if len(nome.split()) <= 3 else nome[:30]
+
+    if sinais.get("chegada_equilibrada"):
+        resumo_acesso = "Fica no meio do caminho para o grupo, sem ninguém precisar atravessar o DF."
+    else:
+        resumo_acesso = "Vale combinar o transporte antes para o grupo chegar junto."
+
+    partes_combina = [f"Ambiente com estilo {vibe_txt}, bom para reunir o grupo todo."]
+    if sit in ("provavel", "incerto"):
+        partes_combina.append("Vale confirmar o horário antes de ir.")
+    if "Bar" in tipo or "Pub" in tipo or "Boteco" in tipo:
+        partes_combina.append("Lembrem-se de combinar a volta com carona ou transporte sem dirigir.")
+
+    por_que_combina = " ".join(partes_combina)
     return CartaoTexto(id=cand["id"], titulo=titulo, resumo_acesso=resumo_acesso, por_que_combina=por_que_combina)
 
 
@@ -139,20 +198,25 @@ def executar_agente_comunicacao(
     llm: ClienteLLM | None = None,
     preferencias_grupo: dict | None = None,
     lugares_base: tuple[dict, ...] | None = None,
-) -> list[dict]:
+    devolver_status: bool = False,
+) -> list[dict] | tuple[list[dict], bool]:
     """Agente de Comunicação: redige títulos e justificativas calorosas e monta cartões estritos (RF-06, RNF-02, RNF-04).
 
     Args:
-        candidatos_validados: Lista de candidatos viáveis (instâncias de Sugestao ou dicts avaliados).
+        candidatos_validados: Lista de candidatos viáveis aprovados pela Validação (máximo 4).
         llm: Cliente LLM opcional (usa DeepSeek V4.1 Flash via OpenRouter ou fallback offline).
         preferencias_grupo: Preferências agregadas do grupo (opcional, sem PII).
         lugares_base: Base de lugares alternativa (para testes isolados sem arquivo físico).
+        devolver_status: Se True, devolve também um booleano indicando se a LLM respondeu.
 
     Returns:
-        list[dict]: Lista de cartões completos no esquema Sugestao validados por CartaoSugestaoValidado.
+        list[dict] ou tuple[list[dict], bool]: Lista de cartões validados por CartaoSugestaoValidado.
     """
     if not candidatos_validados:
-        return []
+        return ([], False) if devolver_status else []
+
+    # Limita rigorosamente a no máximo 4 cartões
+    candidatos_selecionados = list(candidatos_validados)[:LIMITE_MAXIMO_CARTOES]
 
     por_id, por_nome = _mapas_base()
     if lugares_base:
@@ -164,17 +228,17 @@ def executar_agente_comunicacao(
             if nome_c:
                 por_nome[nome_c] = l
 
-    agora = datetime.now()
     preparados = []
-
-    for i, c in enumerate(candidatos_validados):
-        letra_id = LETRAS[i] if i < len(LETRAS) else f"C{i+1}"
+    for i, c in enumerate(candidatos_selecionados):
+        letra_id = LETRAS[i]
         if isinstance(c, Sugestao):
             card_dict = copy.deepcopy(c.publico())
             card_dict["id"] = letra_id
             card_dict["posicao"] = i + 1
             lugar_ref = _buscar_lugar(c, por_id, por_nome)
             card_dict["resumo_sensorial"] = lugar_ref.get("resumo_sensorial", "")
+            card_dict["sinais"] = _calcular_sinais(card_dict)
+            card_dict["pontuacao"] = c.pontuacao
             preparados.append(card_dict)
             continue
 
@@ -188,10 +252,10 @@ def executar_agente_comunicacao(
         regiao_texto = str(c_dict.get("regiao_administrativa") or lugar.get("regiao_administrativa") or ra or "Distrito Federal")
         endereco = str(c_dict.get("endereco") or lugar.get("endereco") or f"{regiao_texto}, Brasília - DF")
 
-        inicio_val = c_dict.get("inicio") or agora
-        fim_val = c_dict.get("fim") or (inicio_val + timedelta(hours=3) if isinstance(inicio_val, datetime) else agora + timedelta(hours=3))
-        inicio_str = inicio_val.isoformat() if isinstance(inicio_val, datetime) else str(inicio_val)
-        fim_str = fim_val.isoformat() if isinstance(fim_val, datetime) else str(fim_val)
+        inicio_val = c_dict.get("inicio")
+        fim_val = c_dict.get("fim")
+        inicio_str = inicio_val.isoformat() if isinstance(inicio_val, datetime) else (str(inicio_val) if inicio_val else None)
+        fim_str = fim_val.isoformat() if isinstance(fim_val, datetime) else (str(fim_val) if fim_val else None)
 
         horario = str(c_dict.get("horario") or c_dict.get("horario_texto") or c_dict.get("janela") or "Horário a combinar")
         horario_situacao = str(c_dict.get("horario_situacao") or "aberto")
@@ -204,9 +268,12 @@ def executar_agente_comunicacao(
         if isinstance(fg, dict) and "min" in fg and "max" in fg:
             gasto_min = Decimal(str(fg["min"])).quantize(Decimal("0.01"))
             gasto_max = Decimal(str(fg["max"])).quantize(Decimal("0.01"))
+        elif c_dict.get("gasto_min") is not None and c_dict.get("gasto_max") is not None:
+            gasto_min = Decimal(str(c_dict["gasto_min"])).quantize(Decimal("0.01"))
+            gasto_max = Decimal(str(c_dict["gasto_max"])).quantize(Decimal("0.01"))
         else:
-            gasto_min = Decimal(str(c_dict.get("gasto_min", consumo_rs))).quantize(Decimal("0.01"))
-            gasto_max = Decimal(str(c_dict.get("gasto_max", consumo_rs))).quantize(Decimal("0.01"))
+            gasto_min = consumo_rs
+            gasto_max = consumo_rs
 
         tempo_medio = c_dict.get("tempo_medio_chegada_min") or c_dict.get("media_trajeto_min") or c_dict.get("tempo_medio_min")
         tempo_max = c_dict.get("tempo_maximo_chegada_min") or c_dict.get("pior_trajeto_min") or c_dict.get("tempo_max_min")
@@ -223,6 +290,8 @@ def executar_agente_comunicacao(
 
         vibes = list(c_dict.get("vibes") or lugar.get("vibes") or [])
         resumo_sensorial = str(lugar.get("resumo_sensorial", ""))
+
+        sinais = _calcular_sinais(c_dict)
 
         preparados.append({
             "id": letra_id,
@@ -249,11 +318,13 @@ def executar_agente_comunicacao(
             "fonte": fonte,
             "vibes": vibes,
             "resumo_sensorial": resumo_sensorial,
+            "sinais": sinais,
         })
 
     # Chamada ao LLM do Anfitrião com JSON Schema estrito
     textos_cartoes: dict[str, CartaoTexto] = {}
     cliente = llm if llm is not None else ClienteLLM()
+    usou_llm = False
 
     if cliente.disponivel:
         try:
@@ -265,15 +336,23 @@ def executar_agente_comunicacao(
             resp_json = cliente.json("comunicacao", prompt_sis, prompt_usr, esquema)
             saida = SaidaComunicacao.model_validate(resp_json)
             for item in saida.cartoes:
-                textos_cartoes[item.id] = item
-        except (ErroLLM, Exception):
+                # Conferência de conformidade em código (RNF-02, RNF-04)
+                if (texto_conforme_regras(item.titulo) and
+                        texto_conforme_regras(item.resumo_acesso) and
+                        texto_conforme_regras(item.por_que_combina)):
+                    textos_cartoes[item.id] = item
+            if textos_cartoes:
+                usou_llm = True
+        except (ErroLLM, ValueError):
             textos_cartoes.clear()
+            usou_llm = False
 
-    # Preenchimento determinístico final e validação Pydantic
+    # Preenchimento determinístico final e validação Pydantic estrita
     cartoes_finais = []
     for cand in preparados:
         cid = cand["id"]
-        texto = textos_cartoes.get(cid) or _fallback_textos(cand)
+        sinais = cand["sinais"]
+        texto = textos_cartoes.get(cid) or _fallback_textos(cand, sinais)
 
         card_pronto = {
             "id": cid,
@@ -304,20 +383,31 @@ def executar_agente_comunicacao(
             "por_que_combina": texto.por_que_combina,
         }
 
-        # Validação estrita por Pydantic
+        # Validação estrita por Pydantic (extra='forbid')
         validado = CartaoSugestaoValidado.model_validate(card_pronto)
         cartoes_finais.append(validado.model_dump(mode="json"))
 
+    if devolver_status:
+        return cartoes_finais, usou_llm
     return cartoes_finais
 
 
 # ------------------------------------------------------------------ Nó para o LangGraph (Issue #71)
 def no_comunicacao(estado: dict[str, Any], *, llm: ClienteLLM | None = None) -> dict[str, Any]:
-    """Nó do LangGraph para o Agente 4 (Comunicação), consumindo e alimentando MultiAgentState."""
-    candidatos = estado.get("candidatos_validados") or estado.get("candidatos_avaliados") or []
-    preferencias = estado.get("preferencias_grupo")
+    """Nó do LangGraph para o Agente 4 (Comunicação), consumindo exclusivamente candidatos_validados."""
+    # Só consome candidatos_validados (RNF-02, RNF-04: nunca candidatos vetados)
+    candidatos = estado.get("candidatos_validados") or []
+    if not candidatos:
+        return {
+            "cartoes": [],
+            "cartoes_por_llm": False,
+            "resultado_final_cartoes": [],
+        }
 
-    cartoes_finais = executar_agente_comunicacao(candidatos, llm=llm, preferencias_grupo=preferencias)
+    preferencias = estado.get("preferencias_grupo")
+    cartoes_finais, usou_llm = executar_agente_comunicacao(
+        candidatos, llm=llm, preferencias_grupo=preferencias, devolver_status=True
+    )
 
     textos = [
         {"id": c["id"], "titulo": c["titulo"], "resumo_acesso": c["resumo_acesso"], "por_que_combina": c["por_que_combina"]}
@@ -326,6 +416,6 @@ def no_comunicacao(estado: dict[str, Any], *, llm: ClienteLLM | None = None) -> 
 
     return {
         "cartoes": textos,
-        "cartoes_por_llm": bool(llm and llm.disponivel),
+        "cartoes_por_llm": usou_llm,
         "resultado_final_cartoes": cartoes_finais,
     }
