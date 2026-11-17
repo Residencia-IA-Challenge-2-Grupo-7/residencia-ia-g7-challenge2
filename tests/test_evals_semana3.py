@@ -5,7 +5,7 @@ Garante sem chamadas externas de rede:
    `fidelidade_factual_rnf03 < 0.5`.
 2. Resposta fundamentada no gabarito 2FA recebe `fidelidade_factual_rnf03 == 1.0` e
    `taxa_alucinacao == 0.0`.
-3. O juiz usa `xiaomi/mimo-v2.6-pro`, temperatura 0, `response_format={"type": "json_object"}` e
+3. O juiz usa `z-ai/glm-5.3-flash` (ADR 0014), temperatura 0, `response_format={"type": "json_object"}` e
    roteamento sem retenção, com fallback determinístico quando offline ou sem chave.
 4. As métricas de busca (`recall_at_k`, `mrr`, `recusa_correta`, `recusa_indevida`) e o SLA de
    latência (`sla_latencia_rnf14`) são calculados corretamente.
@@ -36,7 +36,7 @@ class _RespostaHTTPFalsa:
 
 
 class _SessaoJuizFalsa:
-    """Simula a API da OpenRouter para o juiz MiMo-V2.6-Pro."""
+    """Simula a API da OpenRouter para o juiz LLM."""
 
     def __init__(self, respostas_por_chamada: list[dict] | None = None, status_code: int = 200):
         self.respostas = list(respostas_por_chamada or [])
@@ -123,7 +123,7 @@ def caso_golden_01() -> dict:
     }
 
 
-def test_resposta_alucinada_vs_fundamentada_com_juiz_mimo(monkeypatch, caso_golden_01):
+def test_resposta_alucinada_vs_fundamentada_com_juiz_llm(monkeypatch, caso_golden_01):
     """Requisito obrigatório da issue #36:
     - resposta alucinada recebe `taxa_alucinacao > 0.5` e `fidelidade_factual_rnf03 < 0.5`
     - resposta fundamentada no gabarito 2FA recebe `fidelidade_factual_rnf03 == 1.0` e `taxa_alucinacao == 0.0`.
@@ -199,10 +199,10 @@ def test_resposta_alucinada_vs_fundamentada_com_juiz_mimo(monkeypatch, caso_gold
     assert scores_b["precisao_geoespacial_ra"] == 1.0
     assert scores_b["sla_latencia_rnf14"] == 1.0
 
-    # Confere parâmetros da chamada à OpenRouter (modelo MiMo-V2.6-Pro, temperatura 0, JSON object e ZDR)
+    # Confere parâmetros da chamada à OpenRouter (modelo GLM 5.3 Flash, temperatura 0, JSON object e ZDR)
     assert len(sessao.chamadas) == 2
     corpo_enviado = sessao.chamadas[0]["json"]
-    assert corpo_enviado["model"] == "xiaomi/mimo-v2.6-pro"
+    assert corpo_enviado["model"] == "z-ai/glm-5.3-flash"
     assert corpo_enviado["temperature"] == 0
     assert corpo_enviado["response_format"] == {"type": "json_object"}
     assert corpo_enviado["provider"]["zdr"] is True

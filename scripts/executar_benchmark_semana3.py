@@ -3,7 +3,8 @@
 Percorre as 20 perguntas de `data/golden_dataset_semana3.json` nas 6 configurações da Semana 3
 (em 2 rodadas independentes sem cache para medir variação estatística), avalia cada resposta com o
 Avaliador Híbrido (`src/telemetria/evals_semana3.py`: RNF-04 determinístico + LLM-as-a-Judge
-`xiaomi/mimo-v2.6-pro`), registra cada configuração como um experimento do Langfuse Cloud sobre o
+`MODELO_JUIZ_PADRAO`; o benchmark oficial de 13/11 foi julgado pelo `xiaomi/mimo-v2.6-pro`, e desde
+17/11 o padrão é o `z-ai/glm-5.3-flash`, ADR 0014), registra cada configuração como um experimento do Langfuse Cloud sobre o
 dataset `golden_dataset_semana3` (`run_experiment`) e gera os artefatos oficiais:
 
 - `data/resultados_benchmark_semana3.json`
@@ -245,7 +246,7 @@ def avaliar_resposta_individual(
     base_2fa: list[dict[str, Any]],
     sessao: requests.Session | None = None,
 ) -> dict[str, Any]:
-    """Executa Etapa 1 (RNF-04 determinístico) + Etapa 2 (Juiz MiMo-V2.6-Pro) + Scores + Métricas de Busca."""
+    """Executa Etapa 1 (RNF-04 determinístico) + Etapa 2 (juiz LLM) + Scores + Métricas de Busca."""
     det = verificar_deterministico_rnf04(pergunta, gabarito, resultado_modo, base_2fa)
     resposta_txt = str(resultado_modo.get("resposta") or "").strip()
     fontes_nomes = tuple(f.get("nome") for f in (resultado_modo.get("fontes_utilizadas") or []) if f.get("nome"))
@@ -373,7 +374,7 @@ def executar_rodada_caso(
         "6_rag_llm_busca_vetorial": modo_vetorial,
     }
 
-    # Avalia as 6 respostas em paralelo com o Avaliador Híbrido (RNF-04 + LLM-as-a-Judge MiMo-V2.6-Pro)
+    # Avalia as 6 respostas em paralelo com o Avaliador Híbrido (RNF-04 + LLM-as-a-Judge)
     avaliacoes: dict[str, dict[str, Any]] = {}
     with ThreadPoolExecutor(max_workers=6) as pool:
         futuros = {}

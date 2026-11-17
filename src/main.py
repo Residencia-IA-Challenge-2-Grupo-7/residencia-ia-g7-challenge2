@@ -186,7 +186,7 @@ def _guardar_comparativo(resultado: dict) -> str:
 def comparativo_avaliar(requisicao: AvaliarRequest):
     """
     Motor de Avaliação Híbrida da Semana 3 (Issue #36): avalia um comparativo já executado pelo servidor
-    (RNF-04 determinístico + LLM-as-a-Judge MiMo-V2.6-Pro) e grava as notas no trace dele no Langfuse.
+    (RNF-04 determinístico + LLM-as-a-Judge GLM 5.3 Flash, ADR 0014) e grava as notas no trace dele no Langfuse.
     A avaliação é feita uma única vez por id: repetir a chamada devolve o mesmo resultado, sem novo custo.
     """
     with _COMPARATIVOS_LOCK:
