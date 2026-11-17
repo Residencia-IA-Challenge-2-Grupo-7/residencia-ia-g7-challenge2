@@ -335,11 +335,28 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
 
 ### 8.6. Issue #69 — Agente 4 (Comunicação): Prompt do Anfitrião e Formatação de Cartões em JSON
 * **Responsável:** Maria Carolina (`@mcznh`)
-* **Status:** A iniciar
+* **Status:** Concluída
 * **O que foi feito:**
+  - Criação do Agente de Síntese e Comunicação (`src/agentes/comunicacao.py`) e da função principal `executar_agente_comunicacao(candidatos_validados) -> list[dict]`.
+  - Elaboração do system prompt do Anfitrião de Brasília (`src/agentes/prompts/comunicacao.md`) com tom caloroso, empático e candango.
+  - Implementação do preenchimento determinístico de preços médios, tempos de trajeto, links do TikTok e endereços oficiais no esquema `Sugestao` da aplicação.
+  - Validação estrita dos cartões de saída via Pydantic (`CartaoSugestaoValidado`) e integração com o nó do LangGraph (`no_comunicacao`).
+  - Implementação de fallback determinístico offline/gracioso para operação sem chave externa ou em caso de instabilidade na API.
+  - Suíte completa de 10 testes unitários em `tests/test_agente_comunicacao.py`.
 * **Decisões Técnicas e Arquitetura:**
+  - *RF-06 (Apresentação Clara de Sugestões):* Os cartões contêm títulos convidativos (`titulo`), justificativas de afinidade com o grupo (`por_que_combina`) e resumos de conveniência logística (`resumo_acesso`).
+  - *RNF-02 (Privacidade e Orçamento Sigiloso):* Zero citação de quem tem restrições alimentares, de onde cada membro sai ou quanto cada um pode gastar. O Anfitrião recebe apenas fatos aprovados e agregados anônimos do grupo.
+  - *RNF-04 (Cálculos Fora do LLM):* Todos os dados numéricos (consumo estimado, faixa de gasto com transporte, tempos de chegada e notas de justiça) são preenchidos por código determinístico a partir da base oficial curada de 93 lugares (2FA) e dos cálculos de logística.
+  - *JSON Schema Estrito:* Saída gerada pela LLM validada contra o contrato Pydantic `SaidaComunicacao` com `extra="forbid"`, eliminando alucinações de formato.
 * **Arquivos:**
+  - `src/agentes/comunicacao.py`
+  - `src/agentes/prompts/comunicacao.md`
+  - `src/agentes/llm.py`
+  - `tests/test_agente_comunicacao.py`
 * **Testes e Validação:**
+  - `tests/test_agente_comunicacao.py`: 10 testes aprovados cobrindo geração offline, mock de LLM, preenchimento determinístico, sigilo RNF-02, fallbacks, compatibilidade com dataclass `Sugestao`, instâncias de `CandidatoAvaliado` e integração com `no_comunicacao`.
+  - Suíte completa de testes locais passando via pytest.
+
 
 ---
 

@@ -3,10 +3,18 @@
 > Arquivo vivo. Toda sessão (humana ou de agente) lê no início e atualiza no fim.
 > Mantenha curto: o histórico fica em `docs/semanas/` e no `git log`.
 
-**Atualizado em:** 2026-11-13
-**Semana do roadmap:** 3 — Comparação RAG × LLM pura, com as Telas 1 a 3 do app em paralelo
+**Atualizado em:** 2026-11-17
+**Semana do roadmap:** 4 — Primeiro Protótipo Multiagente (LangGraph + Ferramentas Determinísticas)
 
 ## Agora
+
+- **Agente 4 (Comunicação): Prompt do Anfitrião e Formatação de Cartões em JSON (Maria Carolina, 17/11), issue #69, na branch `feat/semana4-agente-comunicacao`:**
+  - Implementação de `src/agentes/comunicacao.py` (`executar_agente_comunicacao(candidatos_validados) -> list[dict]`) e do nó `no_comunicacao` para o LangGraph;
+  - System prompt configurado com a persona "Anfitrião de Brasília" em `src/agentes/prompts/comunicacao.md` gerando estritamente `titulo`, `resumo_acesso` e `por_que_combina`;
+  - Preço médio, tempos de chegada, endereço oficial e links do TikTok preenchidos deterministicamente fora da LLM no esquema `Sugestao` (RF-06, RNF-04);
+  - Zero citação ou vazamento de orçamentos, origens ou restrições individuais (RNF-02);
+  - Validação estrita dos cartões via Pydantic (`CartaoSugestaoValidado`) e fallback determinístico offline;
+  - 10 testes unitários em `tests/test_agente_comunicacao.py`; 625 testes passam no total (`make test-local`).
 
 - **Juiz do avaliador trocado (Cauan, 17/11):** `z-ai/glm-5.3-flash` no lugar do `xiaomi/mimo-v2.6-pro` ([ADR 0014](docs/decisoes/0014-juiz-glm-5.3-flash.md)). Nas mesmas 94 respostas da rodada 2 da semana 3: US$ 0,057 contra US$ 0,731, p90 de 10,1 s contra 18,8 s, concordância de 90 de 94 sobre haver contradição ([experimento](docs/experimentos/2026-11-17-juiz-glm.md)). O GLM é mais leniente no caso limite do golden_15. Os resultados da semana 3 continuam os do MiMo.
 - **Relatório da Semana 3 (Cauan, 13/11), issue #40, branch `feat/40-relatorio-semana3`:**
