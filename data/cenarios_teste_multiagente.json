@@ -6,6 +6,7 @@
   "cenarios": [
     {
       "id": "cenario_padrao_4_amigos",
+      "codigo_sala": "ROLE-PADR",
       "descricao": "Quatro amigos com perfis contrastantes: duas origens periféricas (Ceilândia e Sobradinho), uma intermediária (Águas Claras) e uma central (Asa Norte); tetos de R$ 40 a R$ 120; uma restrição vegetariana; transporte público, carro e Uber.",
       "agora_referencia": "2026-11-17T12:00:00",
       "amigos": [
@@ -178,6 +179,7 @@
     },
     {
       "id": "cenario_controle_viavel",
+      "codigo_sala": "ROLE-CTRL",
       "descricao": "Cenário de controle com solução: o mesmo grupo do cenário padrão com só duas mudanças, a menor que a regra dos vetos aceita. O m1 deixa de pedir opção vegetariana e o m4 sai de Taguatinga em vez de Sobradinho. Cobre o caminho feliz (Validação aprovando, Comunicação, montagem dos cartões), que o cenário padrão não alcança. Mudar só uma das duas coisas, ou subir o teto do m1 para R$ 80, ainda deixa 0 lugares viáveis.",
       "agora_referencia": "2026-11-17T12:00:00",
       "amigos": [

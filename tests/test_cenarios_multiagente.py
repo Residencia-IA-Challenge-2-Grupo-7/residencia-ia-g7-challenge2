@@ -28,12 +28,14 @@ from typing import get_args
 
 import pytest
 
+from src.agentes.cenarios import carregar_cenario, carregar_cenarios, para_entrada_do_grafo
 from src.agentes.contratos import MotivoVeto
 from src.financas.orcamento import teto_seguro_grupo
 from src.interpretador.campos import (RESTRICOES, TETO_MAXIMO, TIPOS, TRANSPORTES, VIBES,
                                       interpretar_campos)
 from src.interpretador.numeros import canon
 from src.logistica.transporte_df import estimar_deslocamento
+from src.salas.gerenciador_salas import ALFABETO_CODIGO, PREFIXO_CODIGO
 from src.salas.horario_lugar import ano_do_lugar, ler_funcionamento
 from src.salas.integracoes import ra_do_lugar
 from src.salas.janelas import cruzar
@@ -59,7 +61,7 @@ BASE_2FA = {
 
 ID_CENARIO_PADRAO = "cenario_padrao_4_amigos"
 ID_CENARIO_CONTROLE = "cenario_controle_viavel"
-CAMPOS_CENARIO = ("id", "descricao", "agora_referencia", "amigos")
+CAMPOS_CENARIO = ("id", "codigo_sala", "descricao", "agora_referencia", "amigos")
 CAMPOS_AMIGO = (
     "marcador",
     "nome_ficticio",
@@ -499,3 +501,50 @@ def test_restricao_e_orcamento_sozinhos_ja_deixam_o_cenario_sem_resposta():
     viaveis = [registro["nome"] for registro in BASE_2FA.values()
                if _viavel(registro, CENARIO_PADRAO, motivos={"restricao", "orcamento"})]
     assert viaveis == []
+
+
+# ------------------------------------------------------------------ entrada do grafo (src/agentes/cenarios.py)
+
+CODIGO_SALA = re.compile(rf"{re.escape(PREFIXO_CODIGO)}[{ALFABETO_CODIGO}]{{4}}")
+CAMPOS_MEMBRO_GRAFO = {"nome", *CAMPOS_TELA2}
+
+
+def test_codigo_de_sala_de_cada_cenario_e_valido_e_unico():
+    """O código fixo de cada cenário segue o formato das salas (ROLE- + 4 do alfabeto) e não se repete."""
+    codigos = [cenario["codigo_sala"] for cenario in CENARIOS]
+    assert len(codigos) == len(set(codigos))
+    assert all(CODIGO_SALA.fullmatch(codigo) for codigo in codigos), codigos
+
+
+def test_carregar_cenarios_le_o_mesmo_arquivo_dos_testes():
+    """O módulo e os testes leem o mesmo dataset, na mesma ordem."""
+    assert [c["id"] for c in carregar_cenarios()] == [c["id"] for c in CENARIOS]
+    assert carregar_cenario(ID_CENARIO_CONTROLE)["id"] == ID_CENARIO_CONTROLE
+
+
+def test_cenario_inexistente_diz_quais_existem():
+    with pytest.raises(KeyError, match=ID_CENARIO_PADRAO):
+        carregar_cenario("cenario_que_nao_existe")
+
+
+@pytest.mark.parametrize("cenario", CENARIOS, ids=lambda c: c["id"])
+def test_entrada_do_grafo_tem_o_formato_e_a_data_do_cenario(cenario):
+    """codigo, agora (sempre o agora_referencia) e um membro por amigo, com nome e os 4 campos da Tela 2."""
+    entrada = para_entrada_do_grafo(cenario)
+    assert set(entrada) == {"codigo", "agora", "membros"}
+    assert entrada["codigo"] == cenario["codigo_sala"]
+    assert entrada["agora"] == cenario["agora_referencia"]
+    assert len(entrada["membros"]) == len(cenario["amigos"])
+    for membro, amigo in zip(entrada["membros"], cenario["amigos"], strict=True):
+        assert set(membro) == CAMPOS_MEMBRO_GRAFO
+        assert membro["nome"] == amigo["nome_ficticio"]
+        assert all(membro[campo] == amigo["campos_tela2"][campo] for campo in CAMPOS_TELA2)
+
+
+@pytest.mark.parametrize("cenario", CENARIOS, ids=lambda c: c["id"])
+def test_entrada_do_grafo_nao_leva_o_gabarito(cenario):
+    """Nem a interpretação esperada, nem os resultados, nem os marcadores chegam ao sistema testado."""
+    texto = json.dumps(para_entrada_do_grafo(cenario), ensure_ascii=False)
+    for proibido in ("interpretacao_esperada", "resultados_esperados", "vetos", "veredito", "marcador",
+                     "papel_no_cenario", '"m1"', '"m4"'):
+        assert proibido not in texto
