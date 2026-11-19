@@ -405,11 +405,27 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
 
 ### 8.9. Issue #72 — Juiz LLM em 2 Passagens para Validação Factual e Prevenção de Vazamento (ADR 0014)
 * **Responsável:** Maria Eduarda (`@eduarda-ogomes`)
-* **Status:** Bloqueada
+* **Status:** Concluída (PR pronto com testes)
 * **O que foi feito:**
+  - Implementação do Avaliador Semântico (LLM-as-a-Judge) em 2 Passagens em `src/agentes/juiz.py` e prompts em `src/agentes/prompts/`.
+  - **Passagem 1 (Auditoria da Pesquisa - `julgar_parecer_pesquisa`):** Audita semanticamente os candidatos propostos pelo Agente de Pesquisa, verificando se cada afirmação/trecho `confere`, `contradiz` ou está `sem_apoio` na base oficial 2FA de 93 locais curados (RNF-03).
+  - **Passagem 2 (Auditoria da Comunicação - `julgar_cartoes_comunicacao`):** Audita os textos gerados pelo Anfitrião (`titulo`, `resumo_acesso`, `por_que_combina`), assegurando fidelidade factual e prevenção absoluta de vazamento de PII (orçamento individual, origem de membros, restrições pessoais ou citações diretas) (RNF-02).
+  - Implementação de fallback determinístico robusto em ambas as passagens para operação offline e resiliência a indisponibilidades do endpoint da OpenRouter.
+  - Funções de integração e orquestração: `filtrar_candidatos_aprovados_pelo_juiz` (segregação de candidatos aptos e catalogação de `derrubados_pelo_juiz`) e `avaliar_reprovacoes_cartoes` (mapeamento estruturado de reprovações de cartões por vazamento e alucinação).
 * **Decisões Técnicas e Arquitetura:**
+  - *ADR 0014 (Juiz semântico):* Utilização de `z-ai/glm-5.3-flash` como padrão de baixo custo e alta fidelidade (com suporte a `xiaomi/mimo-v2.6-pro` via variável `JUIZ_LLM_MODELO`, atendendo RNF-12).
+  - *JSON Schema Estrito (`esquema_estrito`):* Validação estrita via Pydantic com `extra="forbid"` (`SaidaJuizParecer` e `SaidaJuizCartoes`), garantindo estruturação determinística dos julgamentos.
+  - *RNF-03 (Fidelidade e Alucinação):* Separação explícita entre afirmações corroboradas e alucinações sem apoio no vídeo/legenda oficial 2FA.
+  - *RNF-02 (Prevenção de Vazamento de PII):* Varredura em 4 categorias de exposição (`origem`, `orcamento`, `restricao`, `texto_pessoal`), impedindo que textos públicos contenham pistas identificáveis de participantes.
+  - *Spotlighting de Segurança:* Entrada do modelo delimitada via `embrulhar` para mitigar injeção de prompt vinda de conteúdos externos.
 * **Arquivos:**
+  - `src/agentes/juiz.py`
+  - `src/agentes/prompts/juiz_pesquisa.md`
+  - `src/agentes/prompts/juiz_comunicacao.md`
+  - `tests/test_juiz_agentes.py`
 * **Testes e Validação:**
+  - 16 testes automatizados em `tests/test_juiz_agentes.py` cobrindo fallback offline, MockLLM, detecção estrita de vazamento de PII em todas as categorias, integração com a base 2FA e troca de modelo via env.
+  - Validação de tipagem e execução rápida em 0.03s.
 
 ---
 
