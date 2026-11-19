@@ -1,0 +1,113 @@
+{
+  "versao": 1,
+  "descricao": "Cenários de teste do sistema multiagente da Semana 4 (issue #66). Cada amigo traz os 4 campos de texto da Tela 2 exatamente como seriam digitados e, ao lado, o que o Agente 0 (src/interpretador/campos.py) deve entender deles. Pessoas fictícias: nenhum dado pessoal real (LGPD).",
+  "fonte_lugares": "data/banco_aprovado_2fa.json",
+  "fonte_regioes": "data/regioes_df_gps.json",
+  "cenarios": [
+    {
+      "id": "cenario_padrao_4_amigos",
+      "descricao": "Quatro amigos com perfis contrastantes: duas origens periféricas (Ceilândia e Sobradinho), uma intermediária (Águas Claras) e uma central (Asa Norte); tetos de R$ 40 a R$ 120; uma restrição vegetariana; transporte público, carro e Uber.",
+      "agora_referencia": "2026-11-17T12:00:00",
+      "amigos": [
+        {
+          "marcador": "m1",
+          "nome_ficticio": "Bia",
+          "papel_no_cenario": "Periferia oeste, menor orçamento do grupo e restrição alimentar dura.",
+          "tolerancia_deslocamento_max_min": 75,
+          "campos_tela2": {
+            "origem": "Ceilândia Centro, perto da estação do metrô",
+            "horarios": "sábado das 14h às 22h",
+            "teto": "40",
+            "preferencias": "Quero um rolê baratinho, sou vegetariana, vou de metrô"
+          },
+          "interpretacao_esperada": {
+            "ra": "Ceilândia",
+            "macrorregiao": "oeste",
+            "teto_rs": 40.00,
+            "janelas": [
+              {"inicio": "2026-11-21T14:00:00", "fim": "2026-11-21T22:00:00"}
+            ],
+            "tipos": [],
+            "vibes": ["Baratinho"],
+            "restricoes": ["alim_vegetariano"],
+            "transporte": ["publico"]
+          }
+        },
+        {
+          "marcador": "m2",
+          "nome_ficticio": "Rafa",
+          "papel_no_cenario": "Meio do caminho entre o oeste e o Plano Piloto; quer rolê ao ar livre.",
+          "tolerancia_deslocamento_max_min": 75,
+          "campos_tela2": {
+            "origem": "Águas Claras, perto da estação Concessionárias",
+            "horarios": "sábado à tarde ou domingo de manhã",
+            "teto": "70",
+            "preferencias": "Quero um rolê ao ar livre, tipo parque, vou de ônibus ou metrô"
+          },
+          "interpretacao_esperada": {
+            "ra": "Águas Claras",
+            "macrorregiao": "oeste_proximo",
+            "teto_rs": 70.00,
+            "janelas": [
+              {"inicio": "2026-11-21T13:00:00", "fim": "2026-11-21T18:00:00"},
+              {"inicio": "2026-11-22T08:00:00", "fim": "2026-11-22T12:00:00"}
+            ],
+            "tipos": ["Ao Ar Livre / Parque"],
+            "vibes": [],
+            "restricoes": [],
+            "transporte": ["publico"]
+          }
+        },
+        {
+          "marcador": "m3",
+          "nome_ficticio": "Léo",
+          "papel_no_cenario": "Origem central (Asa Norte, RA Plano Piloto), maior orçamento e vibe gastronômica.",
+          "tolerancia_deslocamento_max_min": 75,
+          "campos_tela2": {
+            "origem": "Asa Norte, SQN 210",
+            "horarios": "sexta à noite ou sábado das 15h às 23h",
+            "teto": "120",
+            "preferencias": "Quero comer bem num restaurante caprichado, vou de carro ou Uber"
+          },
+          "interpretacao_esperada": {
+            "ra": "Plano Piloto",
+            "macrorregiao": "centro",
+            "teto_rs": 120.00,
+            "janelas": [
+              {"inicio": "2026-11-20T19:00:00", "fim": "2026-11-21T00:00:00"},
+              {"inicio": "2026-11-21T15:00:00", "fim": "2026-11-21T23:00:00"}
+            ],
+            "tipos": ["Restaurante / Gastronomia"],
+            "vibes": [],
+            "restricoes": [],
+            "transporte": ["app", "carro"]
+          }
+        },
+        {
+          "marcador": "m4",
+          "nome_ficticio": "Nina",
+          "papel_no_cenario": "Periferia norte, sem metrô; aceita deslocamento moderado (até 60 min).",
+          "tolerancia_deslocamento_max_min": 60,
+          "campos_tela2": {
+            "origem": "Sobradinho",
+            "horarios": "sábado depois das 13h",
+            "teto": "R$ 50",
+            "preferencias": "Topo um rolê calmo para conversar, vou de transporte público, mas nada muito longe"
+          },
+          "interpretacao_esperada": {
+            "ra": "Sobradinho",
+            "macrorregiao": "norte",
+            "teto_rs": 50.00,
+            "janelas": [
+              {"inicio": "2026-11-21T13:00:00", "fim": "2026-11-22T00:00:00"}
+            ],
+            "tipos": [],
+            "vibes": ["Calmo / Bom para Conversar"],
+            "restricoes": [],
+            "transporte": ["publico"]
+          }
+        }
+      ]
+    }
+  ]
+}
