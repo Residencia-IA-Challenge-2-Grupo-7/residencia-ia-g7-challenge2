@@ -52,7 +52,7 @@ flowchart TD
 
     AG1 --> AG2["2. AGENTE DE LOGÍSTICA & JUSTIÇA<br/>(Código Puro — RNF-04, ADR 0013)<br/>• Estimativa Multimodal 35 RAs (<= 75 min)<br/>• Cálculo da 'Menor Miséria'<br/>• Score: 45% Vibe + 35% Justiça + 20% Horário"]:::code
 
-    AG2 --> AG3["3. AGENTE DE VALIDAÇÃO<br/>(Híbrido: Código + Juiz LLM)<br/>• Vetos Duros em Python (Teto, Horário, Restrições)<br/>• Juiz LLM: MiMo-V2.6-Pro (ADR 0014)<br/>• Auditoria de Fatos vs Documentos"]:::code
+    AG2 --> AG3["3. AGENTE DE VALIDAÇÃO<br/>(Híbrido: Código + Juiz LLM)<br/>• Vetos Duros em Python (Teto, Horário, Restrições)<br/>• Juiz LLM: GLM 5.3 Flash (ADR 0014)<br/>• Auditoria de Fatos vs Documentos"]:::code
 
     AG3 --> COND{"Avaliador de Convergência<br/>Aprovados >= 3?"}:::decision
 
@@ -115,7 +115,7 @@ flowchart TD
 ---
 
 ### 🛡️ 3. Agente de Validação e Consistência (Validation Agent)
-* **Natureza Técnica:** Arquitetura híbrida combinando filtros determinísticos em Python puro com **LLM-as-a-Judge** (**MiMo-V2.6-Pro**, `xiaomi/mimo-v2.6-pro` via OpenRouter, ADR 0014).
+* **Natureza Técnica:** Arquitetura híbrida combinando filtros determinísticos em Python puro com **LLM-as-a-Judge** (**GLM 5.3 Flash**, `z-ai/glm-5.3-flash` via OpenRouter, ADR 0014; trocado do MiMo-V2.6-Pro no PR #78).
 * **Persona & System Prompt do Juiz:**
   > *"Você é um auditor factual. Compare cada afirmação do texto com os documentos da base e diga se confere, se contradiz ou se não está na base. Aponte também qualquer trecho que permita deduzir o orçamento, a origem ou as restrições de uma pessoa específica."*
 * **Responsabilidade Principal:**
@@ -481,7 +481,8 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
     - segue para a Comunicação quando há pelo menos um validado;
     - vai direto para o fim quando nada passou.
   - `validacao.selecionar_cartoes` escolhe os cartões na ordem do ranking da Logística: até 4, no máximo 2 por RA e sem nome repetido (a base tem o mesmo lugar em mais de um vídeo).
-  - O juiz LLM sobre o parecer e sobre os cartões (`julgar_parecer`, `verificar_cartoes`) e a varredura de vazamento (`varrer_cartao`) foram para o fim de `validacao.py`, sem mudar as funções da #68.
+  - A varredura de vazamento dos cartões (`varrer_cartao`, `verificar_cartoes`), em código, foi para o fim de `validacao.py`, sem mudar as funções da #68. Ela procura número, nome ou parte de nome composto de membro (sem contar nomes de lugares da base) e a RA de onde alguém sai (sem contar formas que são palavras comuns, como "plano" e "gama").
+  - **O juiz LLM ficou de fora:** é a entrega da #72 (PR #86, `src/agentes/juiz.py`). Uma versão provisória dele estava neste PR e foi tirada na revisão; o grafo passa a chamar o `juiz.py` quando o #86 entrar.
   - As funções da Comunicação que o grafo usa (`montar_fatos`, `escrever`, `texto_reserva`) foram para o fim de `comunicacao.py`, ao lado do `executar_agente_comunicacao` da #69.
 * **Decisões Técnicas e Arquitetura:**
   - **Sem aprovado, sem Comunicação:** com 0 lugares depois das 2 voltas, o grafo não chama o LLM para escrever cartão nenhum. As mensagens dizem que nada passou e que o grupo precisa flexibilizar algum critério. Antes, a Validação dizia "Autorizado para a síntese" e a varredura dizia "Cartões aprovados" mesmo com 0 cartões.
@@ -490,21 +491,28 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
   - **Dois ajustes na Validação, apontados na revisão do PR #84:**
     - o orçamento só conta os presentes da janela em que o lugar foi avaliado;
     - lugar sem nenhum trajeto estimado é vetado por deslocamento, em vez de passar com R$ 0 de transporte.
-  - **Comunicação:** o grafo ainda usa o esquema `SaidaComunicacao` para poder pedir a reescrita de um cartão só. Juntar com `executar_agente_comunicacao` (#69) fica pendente.
-* **Arquivos:** `src/agentes/grafo.py`, `src/agentes/validacao.py` (fim do arquivo e os dois ajustes), `src/agentes/comunicacao.py` (fim do arquivo), `src/agentes/prompts/juiz_parecer.md`, `src/agentes/prompts/juiz_cartoes.md`, `src/agentes/README.md`, `tests/test_grafo_multiagente.py`, `tests/test_agente_validacao_regras.py`.
+  - **Comunicação:** o grafo ainda usa o esquema `SaidaComunicacao` para poder pedir a reescrita de um cartão só. Juntar com `executar_agente_comunicacao` (#69) fica para depois da entrega de 19/11.
+  - **Revisão do PR #80 (Maria Eduarda), atendida em 19/11:**
+    - na reescrita, só os cartões reprovados vão para o LLM; a resposta parcial é aceita, e os outros cartões ficam como estavam (antes, a resposta parcial caía na reserva por regras e marcava todos como "reserva_por_regras");
+    - `texto_por` foi declarado no `CartaoSugestaoValidado`, e o cartão final do grafo valida nesse esquema;
+    - a varredura passou a pegar parte de nome composto ("Maria" de "Maria Eduarda") e RA no fim da frase ("…de Ceilândia."), e deixou de reprovar "um ótimo plano" e nome de lugar igual ao de membro;
+    - a Pesquisa só marca `usou_llm` quando a seleção final veio do LLM (o planejamento vai em `planejou_com_llm`);
+    - o juiz LLM provisório e os prompts `juiz_parecer.md` e `juiz_cartoes.md` saíram (ficam na #72).
+* **Arquivos:** `src/agentes/grafo.py`, `src/agentes/validacao.py` (fim do arquivo e os dois ajustes), `src/agentes/comunicacao.py` (fim do arquivo e o campo `texto_por` do `CartaoSugestaoValidado`), `src/agentes/pesquisa.py` (`usou_llm`), `src/agentes/README.md`, `tests/test_grafo_multiagente.py`, `tests/test_agente_validacao_regras.py`.
 * **Testes e Validação:**
-  - `pytest tests/test_grafo_multiagente.py`: 28 testes sem rede, com um LLM falso que grava cada corpo enviado à OpenRouter. Eles cobrem:
+  - `pytest tests/test_grafo_multiagente.py`: 32 testes sem rede, com um LLM falso que grava cada corpo enviado à OpenRouter. Eles cobrem:
     - o grafo e as três saídas da aresta;
     - o limite de 2 voltas;
     - a reescrita de um cartão que expõe a origem;
     - o LLM fora do ar;
     - que nenhum nome, teto ou origem vai para o LLM;
     - os dois cenários da #66;
-    - a seleção dos cartões.
+    - a seleção dos cartões;
+    - a reescrita parcial, o cartão final no esquema da Comunicação e a varredura de nomes e RAs (revisão do #80).
   - Cenários da #66 pelo grafo inteiro, sem LLM:
     - o padrão termina sem cartões depois de 2 voltas e sem passar pela Comunicação;
     - o de controle termina com 1 cartão, que está entre os 5 viáveis do gabarito, e avisa que há menos de 3 opções.
-  - Suíte inteira (`python -m pytest tests`, sem o `test_pipeline_haystack.py`, que pede o Haystack): 858 aprovados.
+  - Suíte inteira (`python -m pytest tests`, sem o `test_pipeline_haystack.py`, que pede o Haystack): 862 aprovados.
 * **Limitação medida (pendência):** sem LLM, a Pesquisa vê 24 dos 93 lugares em 3 rodadas e acha só 1 dos 5 viáveis do cenário de controle.
   - Causa: a nota da busca léxica satura (0,97 a 0,98 nos 12 primeiros), então a ordem é quase arbitrária.
   - Fator a mais: 3 dos 5 viáveis são cafeterias, e o grupo pediu restaurante e lugar ao ar livre.

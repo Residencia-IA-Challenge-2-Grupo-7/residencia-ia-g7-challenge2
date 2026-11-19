@@ -15,11 +15,11 @@ from datetime import datetime
 import pytest
 
 from src.agentes.contratos import SaidaJuizCartoes, esquema_estrito
-from src.agentes.estado import desserializar_estado, serializar_estado
+from src.agentes.estado import Veto, desserializar_estado, serializar_estado
 from src.agentes import validacao
 from src.agentes.grafo import (MAX_VOLTAS_PESQUISA, avaliar_convergencia, construir_grafo, cofre_da_sala,
                                cofre_dos_dados, executar, executar_fluxo_multiagente)
-from src.agentes.llm import ClienteLLM, MODELO_JUIZ
+from src.agentes.llm import ClienteLLM
 from src.salas.gerenciador_salas import GerenciadorSalas
 from src.state import RepositorioMemoria
 
@@ -159,7 +159,7 @@ def test_validacao_que_nunca_aprova_para_depois_de_duas_voltas(sala_e_lugares, m
 
     def nada_passa(candidatos, **kw):
         r = original(candidatos, **kw)
-        return r.model_copy(update={"aprovados": [], "vetos": r.vetos + [{"id": i, "motivo": "horario"}
+        return r.model_copy(update={"aprovados": [], "vetos": r.vetos + [Veto(id=i, motivo="horario")
                                                                          for i in r.aprovados]})
 
     monkeypatch.setattr(validacao, "validar_candidatos_regras", nada_passa)
@@ -242,10 +242,11 @@ def test_nenhum_nome_teto_ou_origem_vai_para_o_llm(sala_e_lugares):
     sala, lugares = sala_e_lugares
     sessao = SessaoFalsa(_respostas())
     cliente = ClienteLLM(sessao=sessao, chave="teste")
-    final = executar(cofre_da_sala(sala, lugares, AGORA), cliente, juiz_parecer=True)
+    final = executar(cofre_da_sala(sala, lugares, AGORA), cliente)
     assert final["resultado_final_cartoes"]
     agentes = {c["response_format"]["json_schema"]["name"] for c in sessao.corpos}
-    assert {"pesquisa_planejar", "pesquisa_selecionar", "juiz_parecer", "comunicacao", "juiz_cartoes"} <= agentes
+    assert {"pesquisa_planejar", "pesquisa_selecionar", "comunicacao"} <= agentes
+    assert not any(a.startswith("juiz") for a in agentes), "o juiz LLM é da #72 (PR #86)"
     for corpo in sessao.corpos:
         texto = json.dumps(corpo, ensure_ascii=False)
         for nome, *_ in MEMBROS:
@@ -257,16 +258,12 @@ def test_nenhum_nome_teto_ou_origem_vai_para_o_llm(sala_e_lugares):
             assert not re.search(r"\b(80|150|60|100)\b", " ".join(grupo["trechos_pedido"]))
 
 
-def test_juiz_usa_o_glm_sem_desligar_o_raciocinio_e_os_agentes_o_deepseek(sala_e_lugares):
+def test_agentes_usam_o_deepseek_sem_raciocinio_e_sem_retencao(sala_e_lugares):
     sala, lugares = sala_e_lugares
     sessao = SessaoFalsa(_respostas())
     executar(cofre_da_sala(sala, lugares, AGORA), ClienteLLM(sessao=sessao, chave="teste"))
     for corpo in sessao.corpos:
-        agente = corpo["response_format"]["json_schema"]["name"]
-        if agente.startswith("juiz"):
-            assert corpo["model"] == MODELO_JUIZ and "reasoning" not in corpo
-        else:
-            assert corpo["model"].startswith("deepseek/") and corpo["reasoning"] == {"enabled": False}
+        assert corpo["model"].startswith("deepseek/") and corpo["reasoning"] == {"enabled": False}
         assert corpo["provider"]["zdr"] is True and corpo["temperature"] == 0
 
 
@@ -362,3 +359,59 @@ def test_selecionar_cartoes_tira_nome_repetido_e_limita_duas_por_ra():
     escolhidos = [c["id"] for c in selecionar_cartoes(ranking, "abcdefg")]
     assert escolhidos == ["a", "c", "e", "f"]
     assert [c["id"] for c in selecionar_cartoes(ranking, {"c", "g"})] == ["c", "g"]
+
+
+# ------------------------------------------------------------------ revisão do #80 (Duda)
+
+def test_reescrita_troca_so_o_cartao_reprovado_e_guarda_o_texto_do_llm(sala_e_lugares):
+    """O LLM devolve só o cartão corrigido, como o prompt pede: ele entra no lugar do reprovado, os outros ficam
+    como estavam e todos continuam marcados como escritos pela Comunicação."""
+    def comunicar(corpo, n):
+        fatos = _dados(corpo["messages"][1]["content"], "fatos_dos_cartoes")["cartoes"]
+        cartoes = [{"id": c["id"], "titulo": f"Rolê {c['id']}", "resumo_acesso": "Todo mundo chega junto.",
+                    "por_que_combina": "Combina com o pedido do grupo."} for c in fatos]
+        if n == 1:
+            cartoes[0]["resumo_acesso"] = "Pertinho pra quem vem de Samambaia!"
+            return {"cartoes": cartoes}
+        assert [c["id"] for c in fatos] == ["A"], "na reescrita só o reprovado vai para o LLM"
+        return {"cartoes": [{**cartoes[0], "titulo": "Rolê A reescrito"}]}
+    respostas = {**_respostas(), "comunicacao": comunicar}
+    sala, lugares = sala_e_lugares
+    final = executar(cofre_da_sala(sala, lugares, AGORA), ClienteLLM(sessao=SessaoFalsa(respostas), chave="teste"))
+    cartoes = final["resultado_final_cartoes"]
+    assert cartoes[0]["titulo"] == "Rolê A reescrito"
+    assert [c["titulo"] for c in cartoes[1:]] == [f"Rolê {c['id']}" for c in cartoes[1:]]
+    assert {c["texto_por"] for c in cartoes} == {"agente_comunicacao"}
+
+
+def test_cartao_final_valida_no_esquema_da_comunicacao():
+    from src.agentes.comunicacao import CartaoSugestaoValidado
+    final = executar_fluxo_multiagente(SALA_DICT, cliente=ClienteLLM(offline=True))
+    assert final["resultado_final_cartoes"]
+    for c in final["resultado_final_cartoes"]:
+        CartaoSugestaoValidado.model_validate(c)
+
+
+def test_varredura_pega_parte_do_nome_e_nao_reprova_palavra_comum():
+    from src.agentes.validacao import varrer_cartao
+    dados = json.loads(json.dumps(SALA_DICT))
+    dados["membros"][0]["nome"] = "Maria Eduarda"      # Ceilândia; o Caio sai da Asa Norte (Plano Piloto)
+    cofre = cofre_dos_dados(dados)
+    cofre.perfis_efetivos = {m: mb.perfil for m, mb in cofre.membros.items()}
+    lugar = "Águas Claras"
+    assert varrer_cartao("Ótimo para a Maria curtir.", cofre, lugar) == ["nome_de_membro"]
+    assert varrer_cartao("Um excelente plano de sábado para reunir a turma.", cofre, lugar) == []
+    assert varrer_cartao("Uma gama de pratos num recanto tranquilo.", cofre, lugar) == []
+    assert varrer_cartao("Perfeito pra galera do Plano Piloto.", cofre, lugar) == ["origem"]
+    assert varrer_cartao("Pertinho de Ceilândia.", cofre, lugar) == ["origem"]
+
+
+def test_varredura_ignora_nome_de_lugar_igual_ao_de_membro():
+    from src.agentes.validacao import varrer_cartao
+    dados = json.loads(json.dumps(SALA_DICT))
+    dados["membros"][0]["nome"] = "Chico"
+    lugar = {"id": "x", "nome": "Chico Padeiro", "tipo_de_role": "Cafeteria / Doceria"}
+    cofre = cofre_dos_dados(dados, lugares=[lugar])
+    cofre.perfis_efetivos = {m: mb.perfil for m, mb in cofre.membros.items()}
+    assert varrer_cartao("Chico Padeiro: pão quentinho.", cofre, "Águas Claras") == []
+    assert varrer_cartao("O Chico vai adorar.", cofre, "Águas Claras") == ["nome_de_membro"]

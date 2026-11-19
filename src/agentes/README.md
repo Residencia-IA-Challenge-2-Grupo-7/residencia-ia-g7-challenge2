@@ -7,7 +7,7 @@ Grafo em LangGraph ([ADR 0015](../../docs/decisoes/0015-orquestracao-com-langgra
 | `pessoal.py` | 0. Agente Pessoal, um por membro (issue #65): `executar_agente_pessoal(campos)` devolve os 4 canais (orçamento, restrições, preferências públicas, logística); log pessoal antes do rolê; comentário → memória depois | só depois do rolê |
 | `pesquisa.py` | 1. Pesquisa (issue #70): `executar_agente_pesquisa(perfil_grupo, feedback_validacao)` planeja até 3 consultas, chama a ferramenta `buscar_lugares_rag` e escolhe 8 a 10 candidatos com `trecho_citado` conferido | sim (DeepSeek V4.1 Flash) |
 | `logistica.py` | 2. Logística e Justiça (issue #67): `executar_agente_logistica` mede o trajeto de cada um, aplica a Menor Miséria e ordena; `gerar_parecer` escreve o parecer sem apontar ninguém | não |
-| `validacao.py` | 3. Validação: `validar_candidatos_regras` faz os vetos em código (issue #68); `selecionar_cartoes`, o juiz sobre o parecer (opcional) e sobre os cartões e a varredura de vazamento ficam no fim do arquivo (issue #71) | juiz GLM 5.3 Flash |
+| `validacao.py` | 3. Validação: `validar_candidatos_regras` faz os vetos em código (issue #68); `selecionar_cartoes` e a varredura de vazamento dos cartões (`varrer_cartao`, `verificar_cartoes`) ficam no fim do arquivo (issue #71). O juiz LLM em 2 passagens é da issue #72 (PR #86, `juiz.py`) e entra no grafo depois | não (o juiz da #72 usa o GLM 5.3 Flash) |
 | `comunicacao.py` | 4. Comunicação: `executar_agente_comunicacao` (issue #69) e, no fim do arquivo, `montar_fatos`, `escrever` e `texto_reserva`, que o grafo usa para reescrever um cartão só | sim (DeepSeek V4.1 Flash) |
 | `grafo.py` | Orquestrador (issue #71): os nós `no_*`, a aresta `avaliar_convergencia` (volta para a Pesquisa enquanto houver menos de 3 validados, até 2 voltas; sem nenhum validado, vai direto ao fim), a reescrita dos cartões, o cofre, `executar_fluxo_multiagente(dados_sala)` e os spans do Langfuse | não |
 | `estado.py` | `MultiAgentState` (issue #64): o estado público do grafo, os esquemas que o validam e a serialização em JSON que recusa dado do cofre | — |
@@ -32,7 +32,7 @@ final["resultado_final_cartoes"], final["mensagens"], final["historico_erros"], 
 
 Com uma sala de `src/salas` (participantes confirmados): `executar(cofre_da_sala(sala, lugares, agora, store), ClienteLLM())`.
 
-Demonstração completa: `PYTHONPATH=. python scripts/demo_multiagente.py` (`--offline` sem LLM). Testes sem rede: `python -m pytest tests/test_grafo_multiagente.py tests/test_multiagent_state.py tests/test_agente_pessoal.py tests/test_agente_pesquisa.py`.
+Demonstração completa: `scripts/demo_multiagente.py`, que entra no PR da issue #74. Testes sem rede: `python -m pytest tests/test_grafo_multiagente.py tests/test_multiagent_state.py tests/test_agente_pessoal.py tests/test_agente_pesquisa.py`.
 
 ## Regras do RNF-02 no código
 

@@ -74,7 +74,8 @@ def pesquisar(grupo: dict, pedido: dict | None, lugares: list[dict], cliente: Cl
     grupo = PreferenciasGrupo.model_validate(grupo).model_dump()
     pedido = PedidoNovaBusca.model_validate(pedido).model_dump() if pedido else None
     sistema = prompt("pesquisa")
-    usou_llm = False
+    planejou_com_llm = False   # as consultas vieram do LLM
+    usou_llm = False           # a seleção final veio do LLM (revisão do #80: reserva por regras não conta)
     # 1. planejar
     consultas: list[Consulta] = []
     if cliente.disponivel:
@@ -84,7 +85,7 @@ def pesquisar(grupo: dict, pedido: dict | None, lugares: list[dict], cliente: Cl
             validas = set(ras_validas())
             consultas = [c.model_copy(update={"ras": [r for r in c.ras if r in validas]})
                          for c in SaidaPlanejar.model_validate(bruto).consultas]
-            usou_llm = True
+            planejou_com_llm = True
         except (ErroLLM, ValueError):
             consultas = []
     consultas = consultas or _consultas_por_regras(grupo, pedido)
@@ -121,7 +122,7 @@ def pesquisar(grupo: dict, pedido: dict | None, lugares: list[dict], cliente: Cl
                 else:
                     descartados += 1
             observacao = saida.observacao
-            usou_llm = True
+            usou_llm = bool(candidatos)
         except (ErroLLM, ValueError):
             candidatos = []
     if len(candidatos) < 3:  # reserva: os mais bem pontuados da busca
@@ -134,7 +135,8 @@ def pesquisar(grupo: dict, pedido: dict | None, lugares: list[dict], cliente: Cl
                 candidatos.append(Candidato(id=d["id"], trecho=d["nome"],
                                             motivo=f"{tipo.capitalize()} entre os mais próximos do pedido do grupo."))
     return {"candidatos": [c.model_dump() for c in candidatos[:MAX_CANDIDATOS]], "observacao": observacao,
-            "consultas": [c.model_dump() for c in consultas], "usou_llm": usou_llm, "descartados": descartados,
+            "consultas": [c.model_dump() for c in consultas], "usou_llm": usou_llm,
+            "planejou_com_llm": planejou_com_llm, "descartados": descartados,
             "buscas": buscas, "documentos": {d["id"]: d for d in documentos}}
 
 

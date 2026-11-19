@@ -17,7 +17,7 @@ import json
 import re
 from datetime import datetime
 from decimal import Decimal
-from typing import Any
+from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
@@ -68,6 +68,9 @@ class CartaoSugestaoValidado(BaseModel):
     titulo: str = Field(..., description="Título acolhedor gerado pelo Anfitrião")
     resumo_acesso: str = Field(..., description="Resumo de acesso gerado pelo Anfitrião")
     por_que_combina: str = Field(..., description="Motivo de afinidade gerado pelo Anfitrião")
+    texto_por: Literal["agente_comunicacao", "reserva_por_regras"] = Field(
+        default="reserva_por_regras",
+        description="Quem escreveu o texto do cartão: o LLM da Comunicação ou a reserva por regras (grafo, #71)")
 
 
 # ------------------------------------------------------------------ Validação de Texto em Código
@@ -474,6 +477,8 @@ def escrever(fatos: list[dict], pedido_grupo: dict, cliente: ClienteLLM, correco
     """-> {cartoes: [...], usou_llm}. `correcoes`: {letra: motivos da Validação} na reescrita."""
     if not fatos:
         return {"cartoes": [], "usou_llm": False}
+    if correcoes:  # na reescrita, só os cartões reprovados vão para o LLM e voltam (revisão do #80)
+        fatos = [f for f in fatos if f["id"] in correcoes]
     if cliente.disponivel:
         fatos_llm = [{k: v for k, v in f.items() if k not in ("lugar_id",)} for f in fatos]
         mensagem = embrulhar("fatos_dos_cartoes", {"pedido_do_grupo": pedido_grupo, "cartoes": fatos_llm})

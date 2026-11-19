@@ -18,9 +18,8 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Any, Iterable, Mapping
 
-from src.agentes.contratos import Cofre, MotivoVeto, SaidaJuizCartoes, SaidaJuizParecer, esquema_estrito
-from src.agentes.estado import PedidoNovaBusca, RelatorioValidacao, Veto
-from src.agentes.llm import MODELO_JUIZ, ClienteLLM, ErroLLM, embrulhar, prompt
+from src.agentes.contratos import Cofre, MotivoVeto
+from src.agentes.estado import PedidoNovaBusca, RelatorioValidacao, Veto, _contem_palavra, _partes_do_nome
 from src.interpretador.lugares import _indice
 from src.interpretador.numeros import canon
 from src.salas.horario_lugar import ano_do_lugar, ler_funcionamento
@@ -307,13 +306,20 @@ def gerar_pedido_nova_busca(
     )
 
 
-# ------------------------------------------------------------------ juiz LLM e varredura dos cartões (issue #71)
+# ------------------------------------------------------------------ seleção e varredura dos cartões (issue #71)
+# O juiz LLM em 2 passagens é da issue #72 (PR #86, src/agentes/juiz.py); o grafo passa a chamá-lo quando entrar.
 
 MINIMO_CARTOES = 3
 MAXIMO_CARTOES = 4
 MAXIMO_POR_RA = 2
 FRASES_DE_ORIGEM = r"quem (vem|sai|mora|parte)|pra quem (e|esta|ta) (de|em|no|na)|saindo de|vindo de"
 FRASES_DE_DINHEIRO = r"apertad|menos dinheiro|pouca grana|grana curta|quem pode gastar|mais pobre|sem grana|liso"
+# Formas de RA de uma palavra que também são palavras comuns ("um ótimo plano", "uma gama de pratos", "um recanto"):
+# sozinhas não indicam origem. A RA continua achada pelo nome completo ("plano piloto", "aguas claras") e pelas
+# frases de origem ("quem vem de...").
+FORMAS_AMBIGUAS = frozenset({"plano", "aguas", "gama", "recanto", "cruzeiro", "estrutural", "bandeirante", "noroeste",
+                             "sudoeste", "esplanada", "rodoviaria", "eixao", "furnas", "concessionarias", "conic",
+                             "sia", "unb"})
 
 
 def selecionar_cartoes(ranking: list[dict], aprovados: Iterable[str]) -> list[dict]:
@@ -333,41 +339,42 @@ def selecionar_cartoes(ranking: list[dict], aprovados: Iterable[str]) -> list[di
     return escolhidos
 
 
-def julgar_parecer(candidatos: list[dict], documentos: dict[str, dict], cliente: ClienteLLM) -> dict:
-    """-> {derrubados: [ids], vereditos: Counter, usou_llm}. Sem LLM, vale a conferência do trecho literal."""
-    if not cliente.disponivel or not candidatos:
-        return {"derrubados": [], "vereditos": {}, "usou_llm": False}
-    dados = {"motivos": [{"id": c["id"], "motivo": c["motivo"], "trecho": c["trecho"]} for c in candidatos],
-             "documentos": [documentos[c["id"]] for c in candidatos if c["id"] in documentos]}
-    try:
-        bruto = cliente.json("juiz_parecer", prompt("juiz_parecer"), embrulhar("parecer_e_documentos", dados),
-                             esquema_estrito(SaidaJuizParecer), modelo=MODELO_JUIZ, max_tokens=4000)
-        saida = SaidaJuizParecer.model_validate(bruto)
-    except (ErroLLM, ValueError):
-        return {"derrubados": [], "vereditos": {}, "usou_llm": False}
-    return {"derrubados": sorted({a.id for a in saida.afirmacoes if a.veredito == "contradiz"}),
-            "vereditos": dict(Counter(a.veredito for a in saida.afirmacoes)), "usou_llm": True}
+def _sem_nomes_de_lugares(texto: str, cofre: Cofre) -> str:
+    """Tira do texto os nomes dos lugares da base: "Chico Padeiro" é um lugar, não o Chico da sala."""
+    lugares = sorted({canon(l.get("nome") or "") for l in cofre.lugares.values()} - {""}, key=len, reverse=True)
+    for lugar in lugares:
+        texto = re.sub(rf"(?<!\w){re.escape(lugar)}(?!\w)", " ", texto)
+    return texto
 
 
 def varrer_cartao(texto: str, cofre: Cofre, ra_do_lugar: str | None) -> list[str]:
-    """Motivos de reprovação achados por código num cartão (RNF-02, RNF-04)."""
+    """Motivos de reprovação achados por código num cartão (RNF-02, RNF-04).
+
+    Nome: o nome inteiro ou uma parte de nome composto ("Maria" de "Maria Eduarda"), com a mesma regra da varredura
+    do estado (#64), depois de tirar os nomes dos lugares da base. Origem: frase de origem ou forma de RA de onde
+    alguém sai, menos as formas que são palavras comuns (FORMAS_AMBIGUAS)."""
     t = " " + canon(texto) + " "
     motivos = []
     if re.search(r"\d", texto):
         motivos.append("numero_no_texto")
-    if any(re.search(rf"\b{re.escape(canon(n))}\b", t) for n in cofre.nomes() if len(n) >= 3):
-        motivos.append("nome_de_membro")
+    sem_lugares = _sem_nomes_de_lugares(t, cofre)
+    for m in cofre.membros.values():
+        nome = " ".join(canon(m.nome or "").split())
+        if (len(nome) >= 3 and _contem_palavra(sem_lugares, nome)) or \
+                any(_contem_palavra(sem_lugares, parte) for parte in _partes_do_nome(nome)):
+            motivos.append("nome_de_membro")
+            break
     origens = {p.ra for p in cofre.perfis_efetivos.values() if p.ra and p.ra != ra_do_lugar}
-    formas = {f for f, ra in _indice() if ra in origens}
-    if re.search(FRASES_DE_ORIGEM, t) or any(f" {f} " in t for f in formas):
+    formas = {f for f, ra in _indice() if ra in origens and f not in FORMAS_AMBIGUAS}
+    if re.search(FRASES_DE_ORIGEM, t) or any(_contem_palavra(t, f) for f in formas):  # "...de Ceilândia." também
         motivos.append("origem")
     if re.search(FRASES_DE_DINHEIRO, t):
         motivos.append("orcamento")
     return motivos
 
 
-def verificar_cartoes(cartoes: list[dict], fatos: list[dict], cofre: Cofre, cliente: ClienteLLM) -> dict:
-    """-> {reprovados: {letra: [motivos]}, exposicoes, vereditos, usou_llm}."""
+def verificar_cartoes(cartoes: list[dict], fatos: list[dict], cofre: Cofre) -> dict:
+    """-> {reprovados: {letra: [motivos]}}: a varredura em código de cada cartão da Comunicação."""
     fatos_por_letra = {f["id"]: f for f in fatos}
     reprovados: dict[str, list[str]] = {}
     for c in cartoes:
@@ -375,21 +382,4 @@ def verificar_cartoes(cartoes: list[dict], fatos: list[dict], cofre: Cofre, clie
         motivos = varrer_cartao(texto, cofre, fatos_por_letra.get(c["id"], {}).get("ra_do_lugar"))
         if motivos:
             reprovados[c["id"]] = motivos
-    exposicoes, vereditos, usou = [], {}, False
-    if cliente.disponivel and cartoes:
-        try:
-            bruto = cliente.json("juiz_cartoes", prompt("juiz_cartoes"),
-                                 embrulhar("cartoes_e_fatos", {"cartoes": cartoes, "fatos": fatos}),
-                                 esquema_estrito(SaidaJuizCartoes), modelo=MODELO_JUIZ, max_tokens=4000)
-            saida = SaidaJuizCartoes.model_validate(bruto)
-            usou = True
-            vereditos = dict(Counter(a.veredito for a in saida.afirmacoes))
-            for a in saida.afirmacoes:
-                if a.veredito == "contradiz":
-                    reprovados.setdefault(a.cartao, []).append("contradiz_a_base")
-            for e in saida.exposicoes:
-                exposicoes.append(e.model_dump())
-                reprovados.setdefault(e.cartao, []).append(f"expoe_{e.o_que_expoe}")
-        except (ErroLLM, ValueError):
-            pass
-    return {"reprovados": reprovados, "exposicoes": exposicoes, "vereditos": vereditos, "usou_llm": usou}
+    return {"reprovados": reprovados}
