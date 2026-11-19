@@ -409,8 +409,21 @@ def test_nenhum_lugar_da_base_passa_em_todos_os_filtros():
     )
 
 
-def test_so_o_deslocamento_ja_deixa_o_cenario_sem_resposta():
-    """Mesmo sem olhar restrição, orçamento e horário, nenhum lugar fica a até a tolerância de todos."""
-    alcancaveis = [registro["nome"] for registro in BASE_2FA.values()
-                   if _viavel(registro, motivos={"deslocamento"})]
-    assert alcancaveis == []
+# O veredito se apoia no que não depende da calibração do estimador de deslocamento (#67):
+# o texto da base (quem comprova opção vegetariana) e o dinheiro. Com o estimador atual o
+# deslocamento também veta tudo, mas isso pode mudar sem mudar o veredito.
+LUGARES_COM_OPCAO_VEGETARIANA = ["Pizzaria Natureto", "Yaki Nikuya", "The Plenty"]
+
+
+def test_so_3_lugares_da_base_comprovam_opcao_vegetariana():
+    """Pela restrição sozinha, sobram só os 3 lugares cujo texto cita opção vegetariana ou vegana."""
+    sem_veto_de_restricao = [registro["nome"] for registro in BASE_2FA.values()
+                             if _viavel(registro, motivos={"restricao"})]
+    assert sorted(sem_veto_de_restricao) == sorted(LUGARES_COM_OPCAO_VEGETARIANA)
+
+
+def test_restricao_e_orcamento_sozinhos_ja_deixam_o_cenario_sem_resposta():
+    """Sem olhar deslocamento nem horário, nenhum dos 3 vegetarianos cabe no teto de R$ 40 do m1."""
+    viaveis = [registro["nome"] for registro in BASE_2FA.values()
+               if _viavel(registro, motivos={"restricao", "orcamento"})]
+    assert viaveis == []
