@@ -38,6 +38,7 @@ Programa de Residência em IA (Instituto Eldorado + UnB), metodologia CBL (Chall
 | `src/main.py`, `src/state.py` | API FastAPI (rotas de RAG, entregáveis e salas) e onde as salas ficam guardadas |
 | `src/financas/` | Orçamento sigiloso, divisão da conta do pós-rolê e código Pix (BR Code), sem LLM; detalhes no `README.md` da pasta |
 | `src/salas/` | Salas, cruzamento de horários, cartões de sugestão e votação; rotas em `/api/salas`; encaixe das peças de finanças, transporte e busca no `README.md` da pasta |
+| `src/telas/` | Telas 1 a 3 do aplicativo web/PWA (`/app`, `/sala/{codigo}/perfil`, `/sala/{codigo}`) em HTML, CSS e JS sem build, servidas pelo FastAPI |
 | `eval/` | Conjuntos de teste com gabarito (50 frases), roteiro de gravação e resultados das medições; os áudios ficam em `data/raw/voz/` |
 | `tests/` | Testes da API, do interpretador, dos 4 campos e das salas (`python -m pytest tests`; o `conftest.py` ajusta o caminho) |
 | `docs/pesquisa/` | Instrumentos de pesquisa com usuários (questionários, roteiros de entrevista) e o script que gera o Google Forms |

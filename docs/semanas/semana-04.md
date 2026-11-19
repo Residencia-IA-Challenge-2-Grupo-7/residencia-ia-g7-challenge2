@@ -300,11 +300,34 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
 
 ### 8.3. Issue #66 — Dataset de Teste com Cenário dos 4 Amigos no DF (Golden de Rolê)
 * **Responsável:** Samara Letícia (`@samarawwleticia`)
-* **Status:** A iniciar
+* **Status:** Concluída (revisão do PR atendida)
 * **O que foi feito:**
+  - Criação de `data/cenarios_teste_multiagente.json` com dois cenários de pessoas fictícias (marcadores `m1` a `m4`), cada um com código de sala fixo:
+    - `cenario_padrao_4_amigos` (`ROLE-PADR`), o pedido pela issue: Ceilândia (teto R$ 40, metrô, vegetariana), Águas Claras (R$ 70, ônibus/metrô, ar livre), Asa Norte/Plano Piloto (R$ 120, carro/Uber, gastronomia) e Sobradinho (R$ 50, transporte público, "nada muito longe");
+    - `cenario_controle_viavel` (`ROLE-CTRL`), o mesmo grupo com só duas mudanças (m1 sem a restrição vegetariana e m4 saindo de Taguatinga), para cobrir o caminho feliz.
+  - Para cada amigo, os 4 campos de texto da Tela 2 como seriam digitados (`campos_tela2`) e o que o Agente 0 deve entender deles (`interpretacao_esperada`: RA oficial, macrorregião, teto, janelas, tipos, vibes, restrições e transporte).
+  - Para cada cenário, `resultados_esperados`: janela comum (sábado 21/11, 15h–18h, os 4 presentes), teto do grupo (R$ 40), restrições duras, veredito, lugares viáveis, lugares plausíveis com os vetos esperados e lugares que nunca devem ser sugeridos.
+  - `src/agentes/cenarios.py`: `carregar_cenario()` e `para_entrada_do_grafo()`, a conversão única de um cenário para a entrada do fluxo (`{"codigo", "agora", "membros"}`), para a demonstração (#74) e os testes da #67 e da #68.
+  - Suíte `tests/test_cenarios_multiagente.py` com 97 testes.
 * **Decisões Técnicas e Arquitetura:**
+  - *Entrada e gabarito no mesmo registro:* o texto cru alimenta o Agente 0 e a demonstração; a interpretação esperada é o gabarito. O teste roda `interpretar_campos()` sobre cada texto e exige a saída exata. A conversão para o grafo leva só o que a Tela 2 teria recebido: nada do gabarito nem os marcadores chegam ao sistema testado.
+  - *Data de referência fixa (`agora_referencia` = 17/11/2026 12h):* "sábado das 14h às 22h" só vira data relativa a um "agora". Sem ela, o teste quebraria sozinho depois do sábado (pendência `janela_passada`). A conversão para o grafo sempre usa esse valor.
+  - *Dois cenários: estresse e controle.* O cenário pedido na issue **não tem lugar viável**: o veredito é `sem_lugar_viavel` e o comportamento esperado é vetar tudo, devolver à Pesquisa só a contagem dos vetos (até 2 voltas) e avisar que há menos de 3 opções, sem inventar cartão (RNF-03). Com só esse cenário, um sistema que nunca gera cartão passaria em tudo e a demonstração terminaria vazia; por isso o cenário de controle tem 5 lugares viáveis (Fábrica de Bolos Valzira, Denise Suítez, Debeche Açaí, Golden Black e Saguari Gastro House). Mudar só uma das duas coisas, ou subir o teto do m1 para R$ 80, ainda deixa 0 viáveis.
+  - *Causa estável do veredito do cenário padrão:* a restrição vegetariana com o teto de R$ 40. Só 3 lugares da base comprovam opção vegetariana (Pizzaria Natureto, Yaki Nikuya e The Plenty) e nenhum cabe no teto do m1 com a passagem. Com o estimador atual de transporte público, o deslocamento também veta os 93 lugares (Ceilândia e Sobradinho ficam em pontas opostas do DF), mas isso depende da calibração do `estimar_deslocamento` (#67); o teste do veredito não depende dela e continua passando com um estimador simulado que dá 10 min para tudo.
+  - *Regra dos vetos "nem na melhor hipótese":* `deslocamento` usa o meio mais rápido da pessoa contra o teto de 75 min da Logística, o mesmo para todos (o "nada muito longe" do m4 fica só no texto, porque o sistema não lê minutos da Tela 2); `orcamento` usa o meio mais barato (consumo médio + ida e volta). Os motivos são os de `MotivoVeto` (`src/agentes/contratos.py`).
+  - *Vetos do lugar separados dos vetos por membro:* `vetos_do_lugar` (horário, encerrado) e `vetos_por_membro` (deslocamento, orçamento, restrição, sempre com alguém barrado). A saída da Validação (`Veto(id, motivo)`) é comparada só pelo conjunto de motivos de cada lugar, porque ela não diz quem foi barrado (RNF-02); os marcadores servem só aos testes internos da Logística e da Validação.
+  - *Oráculo independente:* o teste recalcula os vetos com regra própria e usa do repositório só as medidas (`estimar_deslocamento` e `ler_funcionamento`) e os parâmetros (teto de 75 min, motivos de veto), não a decisão dos agentes; assim o gabarito pode pegar erro neles em vez de repeti-los.
+  - *Lugares citados por `id` da base 2FA:* o teste confere id, nome e RA contra `data/banco_aprovado_2fa.json` (RNF-03, RNF-04).
+  - *Achados para outras issues:* (1) a Hamburgueria Espacial está como Taguatinga, mas endereço e coordenada são de Sobradinho; no cenário de controle a armadilha se inverte (mesma RA do m4, mas longe de verdade); (2) o gerador atual de cartões (`src/salas/sugestoes.py`) não descarta trajetos acima de 75 min: para o cenário padrão sugere o Cachorrão da 5 (Santa Maria) com mais de 3 horas para quem sai de Sobradinho; (3) o Golden Black (R$ 1,99) é viável no controle, mas o valor é preço de promoção (Raio-X da base) e deve ser revisado pela curadoria antes da demonstração. Os três estão anotados no dataset e devem orientar a Logística (#67), a Validação (#68) e a curadoria da base.
 * **Arquivos:**
+  - `data/cenarios_teste_multiagente.json`
+  - `src/agentes/cenarios.py`
+  - `tests/test_cenarios_multiagente.py`
+  - `docs/semanas/semana-04.md` (esta seção) e `STATUS.md`
 * **Testes e Validação:**
+  - `pytest -v tests/test_cenarios_multiagente.py`: 97 testes aprovados (estrutura, 35 RAs oficiais, vocabulário do interpretador, contraste dos perfis, `interpretar_campos()` reproduzindo o gabarito, janela comum via `cruzar()`, teto via `teto_seguro_grupo()`, vetos de cada lugar citado nos dois cenários, lugares viáveis iguais aos calculados, causa estável do veredito, diferença mínima entre os cenários e conversão para a entrada do grafo).
+  - Testes de mutação manuais: retirar um veto anotado, trocar um viável, pôr `horario` em `vetos_por_membro` ou mudar um teto no JSON faz os testes correspondentes falharem; simular um estimador que dá 10 min para tudo não muda o veredito do cenário padrão.
+  - `make test-local`: 742 aprovados, 1 pulado (`test_ambiente_container_ok`, só roda no Docker).
 
 ---
 
@@ -343,11 +366,28 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
 
 ### 8.6. Issue #69 — Agente 4 (Comunicação): Prompt do Anfitrião e Formatação de Cartões em JSON
 * **Responsável:** Maria Carolina (`@mcznh`)
-* **Status:** A iniciar
+* **Status:** Concluída
 * **O que foi feito:**
+  - Criação do Agente de Síntese e Comunicação (`src/agentes/comunicacao.py`) e da função principal `executar_agente_comunicacao(candidatos_validados) -> list[dict]`.
+  - Elaboração do system prompt do Anfitrião de Brasília (`src/agentes/prompts/comunicacao.md`) com tom caloroso, empático e candango.
+  - Implementação do preenchimento determinístico de preços médios, tempos de trajeto, links do TikTok e endereços oficiais no esquema `Sugestao` da aplicação.
+  - Validação estrita dos cartões de saída via Pydantic (`CartaoSugestaoValidado`) e integração com o nó do LangGraph (`no_comunicacao`).
+  - Implementação de fallback determinístico offline/gracioso para operação sem chave externa ou em caso de instabilidade na API.
+  - Suíte completa de 10 testes unitários em `tests/test_agente_comunicacao.py`.
 * **Decisões Técnicas e Arquitetura:**
+  - *RF-06 (Apresentação Clara de Sugestões):* Os cartões contêm títulos convidativos (`titulo`), justificativas de afinidade com o grupo (`por_que_combina`) e resumos de conveniência logística (`resumo_acesso`).
+  - *RNF-02 (Privacidade e Orçamento Sigiloso):* Zero citação de quem tem restrições alimentares, de onde cada membro sai ou quanto cada um pode gastar. O Anfitrião recebe apenas fatos aprovados e agregados anônimos do grupo.
+  - *RNF-04 (Cálculos Fora do LLM):* Todos os dados numéricos (consumo estimado, faixa de gasto com transporte, tempos de chegada e notas de justiça) são preenchidos por código determinístico a partir da base oficial curada de 93 lugares (2FA) e dos cálculos de logística.
+  - *JSON Schema Estrito:* Saída gerada pela LLM validada contra o contrato Pydantic `SaidaComunicacao` com `extra="forbid"`, eliminando alucinações de formato.
 * **Arquivos:**
+  - `src/agentes/comunicacao.py`
+  - `src/agentes/prompts/comunicacao.md`
+  - `src/agentes/llm.py`
+  - `tests/test_agente_comunicacao.py`
 * **Testes e Validação:**
+  - `tests/test_agente_comunicacao.py`: 10 testes aprovados cobrindo geração offline, mock de LLM, preenchimento determinístico, sigilo RNF-02, fallbacks, compatibilidade com dataclass `Sugestao`, instâncias de `CandidatoAvaliado` e integração com `no_comunicacao`.
+  - Suíte completa de testes locais passando via pytest.
+
 
 ---
 
