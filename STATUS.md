@@ -3,12 +3,18 @@
 > Arquivo vivo. Toda sessão (humana ou de agente) lê no início e atualiza no fim.
 > Mantenha curto: o histórico fica em `docs/semanas/` e no `git log`.
 
-**Atualizado em:** 2026-11-17
+**Atualizado em:** 2026-11-19
 <<<<<<< HEAD
 **Semana do roadmap:** 4 — Primeiro Protótipo Multiagente (LangGraph + Ferramentas Determinísticas)
 
 ## Agora
 
+- **Dataset de cenários do multiagente (Samara Letícia, 19/11), issue #66, PR na branch `feat/semana4-dataset-cenarios` (revisão atendida):**
+  - `data/cenarios_teste_multiagente.json` com dois cenários dos 4 amigos: o padrão da issue (Ceilândia, Águas Claras, Asa Norte e Sobradinho), **sem lugar viável** na base atual, e o de controle (m1 sem vegetariano, m4 saindo de Taguatinga), com 5 lugares viáveis para o caminho feliz;
+  - a causa estável do "sem lugar viável" é a restrição vegetariana com o teto de R$ 40 (só 3 lugares da base comprovam opção vegetariana); o deslocamento também veta tudo com o estimador atual, mas isso depende da calibração (#67);
+  - `src/agentes/cenarios.py` converte um cenário na entrada do grafo (`para_entrada_do_grafo`), para a #74 e os testes da #67 e da #68 usarem a mesma conversão;
+  - achados para a #67, a #68 e a curadoria: o gerador de cartões das salas não descarta trajetos acima de 75 min (sugere o Cachorrão da 5 com mais de 3 h para Sobradinho), a Hamburgueria Espacial tem RA contraditória (Taguatinga no registro, Sobradinho no endereço e na coordenada) e o R$ 1,99 do Golden Black é preço de promoção;
+  - 97 testes em `tests/test_cenarios_multiagente.py`; detalhes na Seção 8.3 de [docs/semanas/semana-04.md](docs/semanas/semana-04.md).
 - **Agente 4 (Comunicação): Prompt do Anfitrião e Formatação de Cartões em JSON (Maria Carolina, 17/11), issue #69, na branch `feat/semana4-agente-comunicacao`:**
   - Implementação de `src/agentes/comunicacao.py` (`executar_agente_comunicacao(candidatos_validados) -> list[dict]`) e do nó `no_comunicacao` para o LangGraph;
   - System prompt configurado com a persona "Anfitrião de Brasília" em `src/agentes/prompts/comunicacao.md` gerando estritamente `titulo`, `resumo_acesso` e `por_que_combina`;
