@@ -599,3 +599,10 @@ def test_escolha_real_entre_metro_e_app_saindo_de_ceilandia():
 
     assert escolha("Plano Piloto") == "app"
     assert escolha("Taguatinga") == "publico"
+
+
+def test_sugestoes_reexporta_o_tempo_aceitavel():
+    """A constante mudou de módulo na #67, mas quem a importava de src.salas.sugestoes continua funcionando."""
+    from src.salas import sugestoes
+
+    assert sugestoes.TEMPO_ACEITAVEL_MIN is TEMPO_ACEITAVEL_MIN

@@ -21,7 +21,7 @@ from decimal import Decimal
 
 from src.interpretador.campos import PerfilInterpretado
 from src.interpretador.numeros import canon
-from src.logistica.transporte_df import escolher_meio
+from src.logistica.transporte_df import TEMPO_ACEITAVEL_MIN, escolher_meio  # noqa: F401 (reexportado, ver abaixo)
 from src.salas import integracoes as integ
 from src.salas.horario_lugar import ano_do_lugar, ler_funcionamento
 from src.salas.janelas import JanelaComum, texto_intervalo
@@ -39,6 +39,8 @@ NOME_RESTRICAO = {"alim_vegetariano": "opção vegetariana", "alim_vegano": "op�
                   "alim_sem_gluten": "opção sem glúten", "alim_sem_lactose": "opção sem lactose",
                   "acess_entrada_sem_degrau": "acessibilidade"}
 LETRAS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+# TEMPO_ACEITAVEL_MIN mora em src/logistica/transporte_df.py desde a #67, junto com escolher_meio. Fica importado
+# aqui para quem já o importava deste módulo (tests/test_cenarios_multiagente.py, da #66): não remover.
 
 
 @dataclass
