@@ -15,9 +15,12 @@ Requisitos atendidos:
 from __future__ import annotations
 
 import json
+import logging
 import os
 import re
 from typing import Any, Mapping, Sequence
+
+from pydantic import ValidationError
 
 from src.agentes.contratos import (
     AfirmacaoCartao,
@@ -33,6 +36,8 @@ from src.agentes.llm import MODELO_JUIZ, ClienteLLM, ErroLLM, embrulhar, prompt
 from src.interpretador.numeros import canon
 from src.salas.integracoes import carregar_lugares
 
+logger = logging.getLogger(__name__)
+
 # Categorias de exposição de dados individuais (RNF-02)
 CATEGORIAS_EXPOSICAO = frozenset({"origem", "orcamento", "restricao", "texto_pessoal"})
 
@@ -44,12 +49,15 @@ RE_ORIGEM = re.compile(
 )
 RE_ORCAMENTO = re.compile(
     r"(?:r\$|\b\d+\s*reais\b|teto\s+de|or[çc]amento\s+de|teto\s+individual|bolso\s+d[eo]|"
-    r"cada\s+um\s+gasta\s+at[ée]\s+\d+|\bgrana\b|\bteto\s+m[áa]ximo\b)",
+    r"cada\s+um\s+gasta\s+at[ée]\s+\d+|\bteto\s+m[áa]ximo\b|"
+    r"(?:sua\s+grana|grana\s+curta|pouca\s+grana|sem\s+grana|grana\s+d[eo]\s+[A-ZÀ-Úa-zà-ú]+))",
     re.IGNORECASE,
 )
 RE_RESTRICAO_INDIVIDUAL = re.compile(
-    r"(?:j[áa]\s+que\s+o|membro\s+que\s+[ée]|para\s+o\s+amigo\s+(?:vegano|vegetariano|cel[íi]aco)|"
-    r"algu[ée]m\s+n[ãa]o\s+come|restri[çc][ãa]o\s+d[eo]|para\s+quem\s+n[ãa]o\s+come)\s+([A-ZÀ-Úa-zà-ú]+)?",
+    r"\b(?:(?:j[áa]\s+que\s+(?:o|a|[A-ZÀ-Úa-zà-ú]+)\b[^.!?]*?\b(?:vegan[oa]|vegetarian[oa]|cel[íi]ac[oa]|al[ée]rgic[oa]|intolerante|cadeirante|restri[çc][ãa]o\s+alimentar))\b|"
+    r"membro\b[^.!?]*?\b(?:vegan[oa]|vegetarian[oa]|cel[íi]ac[oa]|al[ée]rgic[oa]|intolerante)|"
+    r"para\s+o\s+amigo\b[^.!?]*?\b(?:vegan[oa]|vegetarian[oa]|cel[íi]ac[oa]|al[ée]rgic[oa]|intolerante)|"
+    r"algu[ée]m\s+n[ãa]o\s+come|restri[çc][ãa]o\s+d[eo]\s+[A-ZÀ-Úa-zà-ú]+|para\s+quem\s+n[ãa]o\s+come\s+carne)",
     re.IGNORECASE,
 )
 RE_TEXTO_PESSOAL = re.compile(
@@ -234,9 +242,12 @@ def julgar_parecer_pesquisa(
             resultado = SaidaJuizParecer.model_validate(saida_bruta)
             usou_llm = True
             return (resultado, usou_llm) if devolver_status else resultado
-        except (ErroLLM, Exception):
-            # Fallback determinístico caso o endpoint falhe
+        except (ErroLLM, ValidationError):
+            # Fallback determinístico caso o endpoint falhe ou esquema seja inválido
             pass
+        except Exception as e:
+            # Registra no log erros inesperados de programação para a telemetria antes do fallback
+            logger.warning("Falha inesperada no juiz_pesquisa (%s: %s). Ativando fallback.", type(e).__name__, e)
 
     # Execução do fallback determinístico
     resultado = _fallback_julgar_parecer(candidatos, base)
@@ -383,9 +394,27 @@ def julgar_cartoes_comunicacao(
             for c in cartoes
         ]
         fatos_payload = list(fatos or [])
+
+        # RNF-14: Envia ao juiz apenas os documentos dos lugares presentes nos cartões
+        lugar_ids: set[str] = set()
+        for f in fatos_payload:
+            lid = f.get("lugar_id") or f.get("id")
+            if lid:
+                lugar_ids.add(str(lid))
+        for c in cartoes:
+            lid = getattr(c, "lugar_id", None) or (c.get("lugar_id") if isinstance(c, dict) else None)
+            if lid:
+                lugar_ids.add(str(lid))
+            else:
+                cid = c.id if isinstance(c, CartaoTexto) else c.get("id")
+                if cid and cid in base:
+                    lugar_ids.add(str(cid))
+
+        alvos = lugar_ids if lugar_ids else set(base.keys())
         docs_payload = {
-            lid: formatar_documento_para_juiz(doc)
-            for lid, doc in base.items()
+            lid: formatar_documento_para_juiz(base[lid])
+            for lid in alvos
+            if lid in base
         }
 
         usuario = (
@@ -408,9 +437,12 @@ def julgar_cartoes_comunicacao(
             resultado = SaidaJuizCartoes.model_validate(saida_bruta)
             usou_llm = True
             return (resultado, usou_llm) if devolver_status else resultado
-        except (ErroLLM, Exception):
-            # Fallback determinístico em caso de falha da LLM
+        except (ErroLLM, ValidationError):
+            # Fallback determinístico em caso de falha da LLM ou validação
             pass
+        except Exception as e:
+            # Registra no log erros inesperados de programação para a telemetria antes do fallback
+            logger.warning("Falha inesperada no juiz_comunicacao (%s: %s). Ativando fallback.", type(e).__name__, e)
 
     resultado = _fallback_julgar_cartoes(cartoes, fatos, base)
     return (resultado, usou_llm) if devolver_status else resultado
@@ -424,7 +456,12 @@ def filtrar_candidatos_aprovados_pelo_juiz(
     candidatos: Sequence[dict | Candidato],
     julgamento: SaidaJuizParecer,
 ) -> tuple[list[dict | Candidato], list[str]]:
-    """Separa os candidatos que conferem com a base daqueles derrubados pelo Juiz (contradiz ou sem_apoio).
+    """Separa os candidatos aprovados daqueles derrubados pelo Juiz (ADR 0014).
+    
+    Regra oficial (ADR 0014):
+    - Derruba SOMENTE o que contradiz ('contradiz') o documento da base.
+    - 'confere' e 'sem_apoio' (motivo genérico que o vídeo não confirma nem desmente) são mantidos em aprovados.
+    - Candidato cujo ID não constar no julgamento é tratado como não-julgado e também mantido.
     
     Retorna (candidatos_aprovados, ids_derrubados_pelo_juiz).
     """
@@ -435,12 +472,13 @@ def filtrar_candidatos_aprovados_pelo_juiz(
 
     for c in candidatos:
         cid = str(c.id if isinstance(c, Candidato) else (c.get("id") or c.get("lugar_id") or ""))
-        veredito = mapa_vereditos.get(cid, "sem_apoio")
+        veredito = mapa_vereditos.get(cid)
 
-        if veredito == "confere":
-            aprovados.append(c)
-        else:
+        if veredito == "contradiz":
             derrubados.append(cid)
+        else:
+            # 'confere', 'sem_apoio' ou omitidos/não-julgados permanecem aprovados
+            aprovados.append(c)
 
     return aprovados, derrubados
 

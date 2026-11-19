@@ -359,24 +359,24 @@ def test_passagem2_executa_com_mock_llm(base_docs_mock):
 # -----------------------------------------------------------------------------
 
 def test_filtrar_candidatos_aprovados_pelo_juiz():
-    """Cenário 13: Filtra candidatos aprovando apenas 'confere' e catalogando os derrubados."""
+    """Cenário 13: Filtra candidatos derrubando SOMENTE 'contradiz' e mantendo 'confere', 'sem_apoio' e omitidos."""
     candidatos = [
         {"id": "c1", "nome": "Local Bom"},
-        {"id": "c2", "nome": "Local Alucinado"},
+        {"id": "c2", "nome": "Local Sem Apoio"},
         {"id": "c3", "nome": "Local Contraditório"},
+        {"id": "c4", "nome": "Local Omitido"},
     ]
     julgamento = SaidaJuizParecer(
         afirmacoes=[
             AfirmacaoParecer(id="c1", justificativa="OK", veredito="confere"),
-            AfirmacaoParecer(id="c2", justificativa="Inventou atração", veredito="sem_apoio"),
+            AfirmacaoParecer(id="c2", justificativa="Motivo genérico", veredito="sem_apoio"),
             AfirmacaoParecer(id="c3", justificativa="Preço divergente", veredito="contradiz"),
         ]
     )
 
     aprovados, derrubados = filtrar_candidatos_aprovados_pelo_juiz(candidatos, julgamento)
-    assert len(aprovados) == 1
-    assert aprovados[0]["id"] == "c1"
-    assert sorted(derrubados) == ["c2", "c3"]
+    assert [c["id"] for c in aprovados] == ["c1", "c2", "c4"]
+    assert derrubados == ["c3"]
 
 
 def test_avaliar_reprovacoes_cartoes():
@@ -435,3 +435,56 @@ def test_passagem1_integracao_com_base_real_2fa():
     assert len(resultado.afirmacoes) == 1
     assert resultado.afirmacoes[0].id == lugar["id"]
     assert resultado.afirmacoes[0].veredito == "confere"
+
+
+class MockLLMSpyCartoes:
+    """Mock que grava o prompt de usuário enviado para inspecionar os documentos recebidos."""
+    disponivel = True
+    offline = False
+
+    def __init__(self):
+        self.ultimo_usuario = ""
+
+    def json(self, agente: str, sistema: str, usuario: str, esquema: dict, **kwargs) -> dict:
+        self.ultimo_usuario = usuario
+        return {"afirmacoes": [], "exposicoes": []}
+
+
+def test_passagem2_envia_somente_documentos_dos_lugares_dos_cartoes(base_docs_mock):
+    """Cenário 17 (RNF-14): Garante que apenas os documentos dos cartões são enviados ao juiz."""
+    cartoes = [
+        CartaoTexto(id="A", titulo="Café", resumo_acesso="Acesso bom", por_que_combina="Combina")
+    ]
+    fatos = [{"id": "A", "lugar_id": "lugar_01"}]
+    spy = MockLLMSpyCartoes()
+
+    # Fornece base com 2 lugares (lugar_01 e lugar_02)
+    julgar_cartoes_comunicacao(cartoes, fatos=fatos, documentos=base_docs_mock, llm=spy)
+
+    assert "lugar_01" in spy.ultimo_usuario
+    assert "lugar_02" not in spy.ultimo_usuario
+
+
+def test_passagem2_frases_comuns_sem_vazamento_nao_reprovam(base_docs_mock):
+    """Cenário 18: Frases inofensivas com 'já que o' ou 'grana' não devem ser reprovadas no fallback."""
+    cartoes = [
+        CartaoTexto(
+            id="A",
+            titulo="Local Calmo",
+            resumo_acesso="Ambiente tranquilo.",
+            por_que_combina="Combina já que o grupo pediu um lugar calmo.",
+        ),
+        CartaoTexto(
+            id="B",
+            titulo="Bar e Petiscos",
+            resumo_acesso="Fácil acesso.",
+            por_que_combina="Tem cerveja gelada e muita grana bem gasta no petisco.",
+        ),
+    ]
+    fatos = [
+        {"id": "A", "lugar_id": "lugar_01"},
+        {"id": "B", "lugar_id": "lugar_02"},
+    ]
+    resultado = julgar_cartoes_comunicacao(cartoes, fatos=fatos, documentos=base_docs_mock, llm=None)
+    assert len(resultado.exposicoes) == 0
+
