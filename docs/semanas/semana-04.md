@@ -320,16 +320,24 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
 
 ### 8.5. Issue #68 — Agente 3 (Validação): Filtros Determinísticos de Horário, Orçamento e Restrições
 * **Responsável:** Maria Eduarda (`@eduarda-ogomes`)
-* **Status:** Em andamento
+* **Status:** Concluída (PR pronto com testes)
 * **O que foi feito:**
+  - Implementação da camada completa de Vetos Duros Determinísticos do Agente de Validação em código Python puro (`src/agentes/validacao.py`).
+  - Veto 1: `dentro_do_orcamento_individual` (com alias `cabe_para_cada_um`), conferindo se consumo estimado + custo de deslocamento de ida e volta <= teto individual de cada membro participante, ignorando membros sem teto informado (RF-17).
+  - Veto 2 e 3: `validar_horario_e_evento`, integrando com `horario_lugar.py` para verificar sobreposição com a janela comum do grupo (aberto, provavel, incerto) e vetando locais fechados no dia/horário (`"horario"`) ou eventos com datas expiradas (`"encerrado"`).
+  - Veto 4: `atende_restricoes_duras`, conferindo compatibilidade com restrições alimentares duras e acessibilidade (ex: vetando churrascarias 100% carnes sem opção para membros vegetarianos/veganos).
+  - Orquestrador determinístico `validar_candidatos_regras`, que processa listas de candidatos (aceitando parâmetros isolados ou extraindo diretamente do `Cofre`) e gera o `RelatorioValidacao` estruturado com contagem agregada de motivos e flag de teto aplicado.
+  - Função de feedback condicional `gerar_pedido_nova_busca` para alimentar o loop do LangGraph com `PedidoNovaBusca` quando restarem menos de 3 candidatos viáveis.
 * **Decisões Técnicas e Arquitetura:**
-  - *RNF-04 (Cálculos Fora do LLM):* Implementação dos 4 vetos duros (`cabe_para_cada_um`, `horario`, `encerrado`, `restricao`) em Python puro para garantir 100% de determinismo e zero alucinação aritmética.
-  - *RF-17 e RNF-02 (Orçamento Sigiloso):* Validação estritamente individual ($\text{consumo} + \text{transporte individual} \le \text{teto individual}$) sem expor quem estourou o teto nem vazar valores para o estado público.
-  - *Ciclo Condicional:* Emissão de relatório estruturado com contagem agregada de motivos de veto para realimentar o Agente de Pesquisa caso restem menos de 3 candidatos viáveis.
+  - *RNF-04 (Cálculos Fora do LLM):* Toda a checagem de viabilidade temporal, financeira e alimentar roda em Python puro antes de qualquer acionamento de LLM, eliminando risco de alucinação aritmética.
+  - *RF-17 e RNF-02 (Orçamento Sigiloso):* A validação de gastos é estritamente individual e roda na memória do servidor sem expor quem estourou o teto nem vazar valores em reais para o estado compartilhado ou para prompts.
+  - *Ciclo Condicional LangGraph:* O relatório estruturado agrega apenas as contagens dos motivos de veto (`horario`, `orcamento`, `restricao`, `encerrado`, `deslocamento`), permitindo à Pesquisa recalibrar a busca vetorial sem quebrar a privacidade.
 * **Arquivos:**
   - `src/agentes/validacao.py`
   - `tests/test_agente_validacao_regras.py`
 * **Testes e Validação:**
+  - 11 testes unitários e de integração em `tests/test_agente_validacao_regras.py` cobrindo todos os 4 vetos, a base real de 93 locais do TikTok (2FA) e a geração de relatório e feedback.
+  - Suíte completa do repositório validada via `make test-local` (626 testes passando com 100% de sucesso).
 
 ---
 

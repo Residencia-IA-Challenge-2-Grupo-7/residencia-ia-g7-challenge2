@@ -19,3 +19,4 @@ Closes #<!-- Número da Issue, ex: #27 -->
 - [ ] Todos os testes automatizados passaram localmente (`pytest`).
 - [ ] Nenhum segredo ou chave de API privada foi commitada (`.env` isolado).
 - [ ] A documentação correspondente foi atualizada (se aplicável).
+- [ ] **Semana 4:** Registro na Seção 8 de `docs/semanas/semana-04.md` preenchido com decisões técnicas, arquivos e testes.
