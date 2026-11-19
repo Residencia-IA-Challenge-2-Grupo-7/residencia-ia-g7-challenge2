@@ -1,0 +1,961 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EIXO — Recomendações e Votação</title>
+  <!-- Fontes: Cormorant Garamond (título e marca EIXO) + Poppins (interface) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      /* Paleta Warm Tropical Summer / Autumn Ember */
+      --autumn-ember: #B35813;
+      --harvest-gold: #E29420;
+      --jasmine: #FEF870;
+      --cool-blue: #A0BEC3;
+      --blue-slate: #245775;
+      --bg-white: #FFFFFF;
+      --text-dark: #1A1A1A;
+      --text-muted: #6B7280;
+      --border-light: #E5E7EB;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text-dark);
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* FUNDO: GALHOS DE IPÊ AMARELO (IDÊNTICO À TELA 2) */
+    .background-container {
+      position: fixed;
+      inset: 0;
+      background-image: url('assets/galhos_ipe.jpg');
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      z-index: 1;
+      transition: filter 0.4s ease, transform 0.4s ease;
+    }
+
+    /* FINA BARRA BRANCA NO TOPO */
+    .top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      background-color: var(--bg-white);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      z-index: 50;
+      box-shadow: 0 1px 8px rgba(0, 0, 0, 0.05);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    .top-bar-left {
+      display: flex;
+      align-items: center;
+      gap: 24px;
+    }
+
+    /* LOGO EIXO */
+    .brand-logo {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-weight: 700;
+      font-size: 32px;
+      letter-spacing: 0.16em;
+      color: var(--autumn-ember);
+      text-transform: uppercase;
+      text-decoration: none;
+      user-select: none;
+      line-height: 1;
+      transition: opacity 0.2s ease;
+    }
+
+    .brand-logo:hover {
+      opacity: 0.85;
+    }
+
+    .btn-voltar-topo {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      color: #4B5563;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background-color: #FAF8F5;
+      border: 1px solid #E5E7EB;
+      transition: all 0.2s ease;
+    }
+
+    .btn-voltar-topo:hover {
+      background-color: #F3F4F6;
+      color: var(--autumn-ember);
+      border-color: #D1D5DB;
+    }
+
+    /* AÇÕES NO CANTO DIREITO */
+    .top-bar-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .icon-wrapper {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-icon-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 1px solid transparent;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-dark);
+      transition: all 0.2s ease;
+      outline: none;
+      position: relative;
+    }
+
+    .nav-icon-btn:hover {
+      background-color: #F8F9FA;
+      color: var(--autumn-ember);
+      border-color: #EFEFEF;
+      transform: translateY(-1px);
+    }
+
+    .nav-icon-btn svg {
+      width: 22px;
+      height: 22px;
+      stroke-width: 1.85;
+    }
+
+    .badge-dot-tl {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      width: 10px;
+      height: 10px;
+      background-color: var(--jasmine);
+      border: 1.5px solid #FFFFFF;
+      border-radius: 50%;
+      box-shadow: 0 0 0 1px rgba(226, 148, 32, 0.5), 0 2px 4px rgba(0,0,0,0.15);
+      pointer-events: none;
+      z-index: 2;
+    }
+
+    .badge-dot-tl.hidden {
+      display: none;
+    }
+
+    .tooltip {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      background-color: rgba(26, 26, 26, 0.92);
+      backdrop-filter: blur(8px);
+      color: #FFFFFF;
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.02em;
+      padding: 6px 12px;
+      border-radius: 6px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(-4px);
+      transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 60;
+    }
+
+    .tooltip::before {
+      content: '';
+      position: absolute;
+      bottom: 100%;
+      right: 14px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: transparent transparent rgba(26, 26, 26, 0.92) transparent;
+    }
+
+    .icon-wrapper:hover .tooltip {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ============================================== */
+    /* ÁREA PRINCIPAL DA TELA (MESMO QUADRO BRANCO GRANDE) */
+    /* ============================================== */
+    .main-stage {
+      position: relative;
+      z-index: 10;
+      height: calc(100vh - 60px);
+      margin-top: 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 20px;
+      pointer-events: none;
+      box-sizing: border-box;
+    }
+
+    .recomendacoes-container {
+      pointer-events: auto;
+      background-color: var(--bg-white);
+      border-radius: 24px;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.14), 0 2px 10px rgba(0, 0, 0, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      max-width: 1360px;
+      width: 100%;
+      min-height: 540px;
+      padding: 28px 36px 32px 36px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 18px;
+      box-sizing: border-box;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    /* CABEÇALHO DO QUADRO DE RECOMENDAÇÕES */
+    .rec-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      border-bottom: 1px solid #F3EDE4;
+      padding-bottom: 14px;
+    }
+
+    .rec-header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .rec-title-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .rec-title {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--autumn-ember);
+      letter-spacing: 0.03em;
+      line-height: 1;
+      margin: 0;
+    }
+
+    .sala-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background-color: #FAF8F5;
+      color: #374151;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 12px;
+      border-radius: 999px;
+      border: 1px solid #E5E7EB;
+    }
+
+    .rec-subtitle {
+      font-size: 13.5px;
+      color: #4B5563;
+      line-height: 1.5;
+    }
+
+    .rec-subtitle strong {
+      font-weight: 700;
+      color: inherit;
+    }
+
+    /* STATUS DE VOTOS REGISTRADOS NO CABEÇALHO */
+    .votos-progress-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background-color: #FFFDF5;
+      border: 1px solid rgba(226, 148, 32, 0.3);
+      padding: 8px 16px;
+      border-radius: 999px;
+      font-size: 12.5px;
+      color: var(--autumn-ember);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    /* GRID DOS 3 LUGARES SELECIONADOS */
+    .rec-cards-grid {
+      display: flex;
+      gap: 20px;
+      width: 100%;
+      justify-content: flex-start;
+      align-items: stretch;
+    }
+
+    .rec-card {
+      background-color: #FAF8F5;
+      border: 1px solid #EFE8DE;
+      border-radius: 18px;
+      padding: 22px 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex: 1 1 0;
+      min-width: 0;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      box-sizing: border-box;
+      position: relative;
+    }
+
+    .rec-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.07);
+      border-color: rgba(179, 88, 19, 0.3);
+    }
+
+    .rec-card.voted {
+      border: 2px solid var(--autumn-ember);
+      background-color: #FFFDF8;
+      box-shadow: 0 8px 24px rgba(179, 88, 19, 0.12);
+    }
+
+    .rec-card-top {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .rec-lugar-nome {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-dark);
+      letter-spacing: 0.02em;
+      line-height: 1.15;
+      margin: 0;
+    }
+
+    .rec-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #6B7280;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .rec-meta-categoria {
+      font-weight: 500;
+      color: #4B5563;
+    }
+
+    .rec-meta-budget {
+      background-color: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 600;
+      color: var(--autumn-ember);
+      font-size: 11px;
+    }
+
+    /* BOX DE JUSTIFICATIVA DO EIXO */
+    .rec-explicacao-box {
+      background: #FFFFFF;
+      border: 1px solid #F0ECE4;
+      border-radius: 12px;
+      padding: 14px 15px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    .explicacao-header {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--harvest-gold);
+    }
+
+    .explicacao-texto {
+      font-size: 12.5px;
+      color: #4B5563;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .explicacao-texto strong {
+      font-weight: 700;
+      color: inherit;
+    }
+
+    /* AÇÕES DO CARD: TIKTOK E VOTAR */
+    .rec-card-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    /* BOTÃO VER VÍDEO DO TIKTOK (MESMA COR DO VOTAR) */
+    .btn-rec-tiktok {
+      width: 100%;
+      height: 46px;
+      background-color: var(--autumn-ember);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(179, 88, 19, 0.25);
+      transition: all 0.2s ease;
+    }
+
+    .btn-rec-tiktok:hover {
+      background-color: #96470C;
+      transform: translateY(-1px);
+      box-shadow: 0 8px 20px rgba(179, 88, 19, 0.35);
+    }
+
+    /* BOTÃO VOTAR NO LUGAR */
+    .btn-rec-votar {
+      width: 100%;
+      height: 46px;
+      background-color: #FAF8F5;
+      color: var(--text-dark);
+      border: 1.5px solid #D1D5DB;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-rec-votar:hover {
+      background-color: #F3F4F6;
+      border-color: #9CA3AF;
+      color: var(--autumn-ember);
+    }
+
+    .btn-rec-votar.votado {
+      background-color: var(--blue-slate);
+      color: #FFFFFF;
+      border-color: var(--blue-slate);
+      box-shadow: 0 4px 14px rgba(36, 87, 117, 0.25);
+    }
+
+    .btn-rec-votar.votado:hover {
+      background-color: #1A4057;
+      color: #FFFFFF;
+    }
+
+    /* TOAST DE FEEDBACK DE VOTO */
+    .toast-voto {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background-color: rgba(26, 26, 26, 0.95);
+      backdrop-filter: blur(8px);
+      color: #FFFFFF;
+      padding: 14px 24px;
+      border-radius: 999px;
+      font-size: 13.5px;
+      font-weight: 500;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+      z-index: 200;
+      opacity: 0;
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      pointer-events: none;
+    }
+
+    .toast-voto.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .toast-voto strong {
+      color: var(--jasmine);
+    }
+
+    /* ============================================== */
+    /* MODAL DO PLAYER TIKTOK ESTILO DIOR / DIALOG */
+    /* ============================================== */
+    .tiktok-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(14px);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.35s ease, visibility 0.35s ease;
+      z-index: 150;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .tiktok-modal-overlay.open {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .tiktok-card-phone {
+      width: 380px;
+      height: 640px;
+      max-height: calc(100vh - 40px);
+      background-color: #000000;
+      border-radius: 28px;
+      overflow: hidden;
+      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.4), 0 0 0 1px rgba(255, 255, 255, 0.1);
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      transform: scale(0.94);
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    .tiktok-modal-overlay.open .tiktok-card-phone {
+      transform: scale(1);
+    }
+
+    .tiktok-close-btn {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(6px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #FFFFFF;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 20;
+      transition: background-color 0.2s ease;
+    }
+
+    .tiktok-close-btn:hover {
+      background: rgba(0, 0, 0, 0.8);
+    }
+
+    .tiktok-video-mock {
+      flex: 1;
+      position: relative;
+      background-size: cover;
+      background-position: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .tiktok-play-overlay {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(10px);
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #FFFFFF;
+      cursor: pointer;
+      transition: transform 0.2s ease, background-color 0.2s ease;
+    }
+
+    .tiktok-play-overlay:hover {
+      transform: scale(1.1);
+      background-color: rgba(255, 255, 255, 0.4);
+    }
+
+    .tiktok-play-overlay svg {
+      width: 28px;
+      height: 28px;
+      margin-left: 3px;
+    }
+
+    .tiktok-info-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      padding: 24px 20px 20px 20px;
+      background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 0%, rgba(0, 0, 0, 0.4) 70%, transparent 100%);
+      color: #FFFFFF;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      z-index: 10;
+    }
+
+    .tiktok-author {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .tiktok-desc {
+      font-size: 12.5px;
+      line-height: 1.4;
+      color: #F3F4F6;
+    }
+
+    .tiktok-audio-track {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: #D1D5DB;
+      margin-top: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- FUNDO: GALHOS DE IPÊ AMARELO -->
+  <div class="background-container" id="bg-container"></div>
+
+  <!-- FINA BARRA BRANCA SUPERIOR (60PX) -->
+  <header class="top-bar">
+    <div class="top-bar-left">
+      <!-- LOGO EIXO (VOLTA PARA A TELA 2 AO CLICAR) -->
+      <a href="tela2.html" class="brand-logo" title="Voltar ao Hub de Salas">EIXO</a>
+      <!-- BOTÃO VOLTAR -->
+      <a href="tela2.html" class="btn-voltar-topo">
+        <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
+        </svg>
+        <span>Voltar ao Hub</span>
+      </a>
+    </div>
+
+    <!-- ÍCONES À DIREITA -->
+    <div class="top-bar-actions">
+      <!-- ÍCONE: CRIAR SALA NOVA (+) -->
+      <div class="icon-wrapper">
+        <a href="tela2.html#criar-sala" class="nav-icon-btn" aria-label="Criar uma sala nova">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+        </a>
+        <span class="tooltip">Criar uma sala nova</span>
+      </div>
+
+      <!-- ÍCONE: ENVELOPE (CONVITES DE SALAS) -->
+      <div class="icon-wrapper">
+        <a href="tela2.html#convites" class="nav-icon-btn" aria-label="Convites de Salas">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+        </a>
+        <span class="badge-dot-tl" title="Convites pendentes"></span>
+        <span class="tooltip">Convites de Salas</span>
+      </div>
+
+      <!-- ÍCONE: MAPINHA PARA MUDAR ENDEREÇO/RA -->
+      <div class="icon-wrapper">
+        <a href="tela2.html#sidebar" class="nav-icon-btn" aria-label="Mudar endereço da conta">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </a>
+        <span class="tooltip">Mudar endereço da conta (RA)</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ÁREA PRINCIPAL DA TELA 3 (RECOMENDAÇÕES DO EIXO) -->
+  <main class="main-stage">
+    <div class="recomendacoes-container">
+      
+      <!-- CABEÇALHO -->
+      <div class="rec-header">
+        <div class="rec-header-left">
+          <div class="rec-title-row">
+            <h2 class="rec-title">Recomendações</h2>
+            <span class="sala-badge">Sala: Boteco de Sexta &bull; 4 membros</span>
+          </div>
+          <p class="rec-subtitle">
+            O <strong>EIXO</strong> analisou horários livres, preferências de boteco, budget e distâncias e selecionou 3 lugares ideais. Assista aos resumos no TikTok e vote no seu favorito!
+          </p>
+        </div>
+
+        <div id="votos-counter" class="votos-progress-pill">
+          <span id="votos-count-text">0 de 4 votos registrados</span>
+        </div>
+      </div>
+
+      <!-- OS 3 LUGARES SELECIONADOS DO BANCO DE DADOS -->
+      <div class="rec-cards-grid">
+        
+        <!-- LUGAR 1: CERVEJARIA CRIOLINA -->
+        <div class="rec-card" id="card-lugar-1">
+          <div>
+            <div class="rec-card-top">
+              <h3 class="rec-lugar-nome">Cervejaria Criolina</h3>
+              <div class="rec-meta-row">
+                <span class="rec-meta-categoria">SOF Sul &bull; Pub & Cervejas Artesanais</span>
+                <span class="rec-meta-budget">Média R$ 70/pessoa</span>
+              </div>
+            </div>
+
+            <div class="rec-explicacao-box">
+              <span class="explicacao-header">Por que o EIXO selecionou:</span>
+              <p class="explicacao-texto">
+                O <strong>EIXO</strong> selecionou a Criolina pelo ambiente animado com música ao vivo nas sextas, opções de chopps locais e espaço amplo para o grupo comemorar com chopp gelado e petiscos.
+              </p>
+            </div>
+          </div>
+
+          <div class="rec-card-actions">
+            <button type="button" class="btn-rec-tiktok" onclick="abrirTikTokModal('criolina')">
+              <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+              <span>Assistir no TikTok</span>
+            </button>
+            <button type="button" class="btn-rec-votar" id="btn-voto-1" onclick="votarNoLugar(1, 'Cervejaria Criolina')">
+              Votar neste lugar
+            </button>
+          </div>
+        </div>
+
+        <!-- LUGAR 2: BEIRUTE BAR -->
+        <div class="rec-card" id="card-lugar-2">
+          <div>
+            <div class="rec-card-top">
+              <h3 class="rec-lugar-nome">Beirute Bar</h3>
+              <div class="rec-meta-row">
+                <span class="rec-meta-categoria">Asa Sul (CLS 109) &bull; Boteco Tradicional</span>
+                <span class="rec-meta-budget">Média R$ 60/pessoa</span>
+              </div>
+            </div>
+
+            <div class="rec-explicacao-box">
+              <span class="explicacao-header">Por que o EIXO selecionou:</span>
+              <p class="explicacao-texto">
+                O <strong>EIXO</strong> selecionou o Beirute por ser o boteco mais icônico de Brasília, perfeito para conversar, com chopp bem tirado, porções generosas de kibe e localização central para todos.
+              </p>
+            </div>
+          </div>
+
+          <div class="rec-card-actions">
+            <button type="button" class="btn-rec-tiktok" onclick="abrirTikTokModal('beirute')">
+              <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+              <span>Assistir no TikTok</span>
+            </button>
+            <button type="button" class="btn-rec-votar" id="btn-voto-2" onclick="votarNoLugar(2, 'Beirute Bar')">
+              Votar neste lugar
+            </button>
+          </div>
+        </div>
+
+        <!-- LUGAR 3: GODOFREDO BOTECO & CERVEJAS -->
+        <div class="rec-card" id="card-lugar-3">
+          <div>
+            <div class="rec-card-top">
+              <h3 class="rec-lugar-nome">Godofredo Boteco & Cervejas</h3>
+              <div class="rec-meta-row">
+                <span class="rec-meta-categoria">Asa Norte (CLN 408) &bull; Tap House</span>
+                <span class="rec-meta-budget">Média R$ 75/pessoa</span>
+              </div>
+            </div>
+
+            <div class="rec-explicacao-box">
+              <span class="explicacao-header">Por que o EIXO selecionou:</span>
+              <p class="explicacao-texto">
+                O <strong>EIXO</strong> selecionou o Godofredo pelas mais de 30 torneiras de chopp artesanal, mesas na calçada e petiscos premiados, perfeito para quem quer variedade sem estourar o orçamento.
+              </p>
+            </div>
+          </div>
+
+          <div class="rec-card-actions">
+            <button type="button" class="btn-rec-tiktok" onclick="abrirTikTokModal('godofredo')">
+              <svg width="15" height="15" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+              <span>Assistir no TikTok</span>
+            </button>
+            <button type="button" class="btn-rec-votar" id="btn-voto-3" onclick="votarNoLugar(3, 'Godofredo Boteco & Cervejas')">
+              Votar neste lugar
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- TOAST FLUTUANTE DE FEEDBACK DE VOTO -->
+  <div id="toast-voto" class="toast-voto">
+    <span>Seu voto foi registrado em <strong id="toast-lugar-nome">Cervejaria Criolina</strong>!</span>
+  </div>
+
+  <!-- MODAL DE VÍDEO DO TIKTOK -->
+  <div id="tiktok-modal" class="tiktok-modal-overlay" onclick="fecharTikTokModal(event)">
+    <div class="tiktok-card-phone" onclick="event.stopPropagation()">
+      <button class="tiktok-close-btn" onclick="fecharTikTokModal()" aria-label="Fechar">✕</button>
+      
+      <div class="tiktok-video-mock" id="tiktok-video-bg" style="background: linear-gradient(135deg, #1f2937, #111827);">
+        <div class="tiktok-play-overlay" onclick="togglePlayMock()">
+          <svg fill="currentColor" viewBox="0 0 24 24">
+            <path d="M8 5v14l11-7z"/>
+          </svg>
+        </div>
+
+        <div class="tiktok-info-bar">
+          <div class="tiktok-author" id="tiktok-author">@eixorolesdf</div>
+          <div class="tiktok-desc" id="tiktok-desc">Rolê de sexta no DF selecionado pelo EIXO!</div>
+          <div class="tiktok-audio-track">
+            <svg width="12" height="12" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/>
+            </svg>
+            <span>Som original &bull; EIXO Brasília</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let votoUsuarioId = null;
+
+    const dadosTikTok = {
+      criolina: {
+        nome: "Cervejaria Criolina",
+        author: "@eixorolesdf &bull; SOF Sul",
+        desc: "Chopps artesanais brasilienses e música ao vivo no galpão mais charmoso do SOF Sul! 🍺🎶",
+        bg: "linear-gradient(160deg, #371B08, #180D06, #1A1A1A)"
+      },
+      beirute: {
+        nome: "Beirute Bar",
+        author: "@eixorolesdf &bull; Asa Sul",
+        desc: "O boteco mais tradicional do DF desde 1966. Kibe recheado, chopp bem tirado e muita história! 🥙🍻",
+        bg: "linear-gradient(160deg, #241407, #140C04, #1F2937)"
+      },
+      godofredo: {
+        nome: "Godofredo Boteco & Cervejas",
+        author: "@eixorolesdf &bull; Asa Norte",
+        desc: "Mais de 30 torneiras engatadas na 408 Norte com petiscos que combinam perfeitamente com a galera! 🍻✨",
+        bg: "linear-gradient(160deg, #1C2630, #0E161D, #1F2937)"
+      }
+    };
+
+    function votarNoLugar(id, nomeLugar) {
+      votoUsuarioId = id;
+
+      // Atualiza botões e cards
+      for (let i = 1; i <= 3; i++) {
+        const btn = document.getElementById(`btn-voto-${i}`);
+        const card = document.getElementById(`card-lugar-${i}`);
+        if (i === id) {
+          btn.textContent = "Voto Registrado ✓";
+          btn.className = "btn-rec-votar votado";
+          card.classList.add("voted");
+        } else {
+          btn.textContent = "Votar neste lugar";
+          btn.className = "btn-rec-votar";
+          card.classList.remove("voted");
+        }
+      }
+
+      // Atualiza contador no topo
+      document.getElementById('votos-count-text').textContent = "1 de 4 votos registrados";
+
+      // Exibe Toast
+      const toast = document.getElementById('toast-voto');
+      document.getElementById('toast-lugar-nome').textContent = nomeLugar;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3500);
+    }
+
+    function abrirTikTokModal(chave) {
+      const modal = document.getElementById('tiktok-modal');
+      const dados = dadosTikTok[chave];
+      if (dados) {
+        document.getElementById('tiktok-author').innerHTML = dados.author;
+        document.getElementById('tiktok-desc').textContent = dados.desc;
+        document.getElementById('tiktok-video-bg').style.background = dados.bg;
+      }
+      modal.classList.add('open');
+    }
+
+    function fecharTikTokModal() {
+      document.getElementById('tiktok-modal').classList.remove('open');
+    }
+
+    function togglePlayMock() {
+      alert("Reproduzindo preview do TikTok! Em breve o player de vídeo do TikTok estará integrado à base de dados.");
+    }
+
+    // Tecla ESC fecha modal
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        fecharTikTokModal();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EIXO — Tela 1</title>
+  <!-- Fonte Serifada Clássica idêntica à do título AUTUMN EMBER da paleta + Poppins/Inter do Figma -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Paleta enviada: Warm Tropical Summer / Autumn Ember */
+      --autumn-ember: #B35813;
+      --harvest-gold: #E29420;
+      --jasmine: #FEF870;
+      --cool-blue: #A0BEC3;
+      --blue-slate: #245775;
+      --bg-white: #FFFFFF;
+      --text-dark: #1A1A1A;
+      --text-muted: #666666;
+      --border-light: #D9D9D9;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-white);
+      color: var(--text-dark);
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    .page-layout {
+      display: flex;
+      width: 100%;
+      height: 100vh;
+      position: relative;
+    }
+
+    /* LADO ESQUERDO: FORMULÁRIO MAIS PARA A ESQUERDA (42%) */
+    .left-panel {
+      width: 42%;
+      height: 100%;
+      background-color: var(--bg-white);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 48px 56px 48px 40px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .form-container {
+      width: 100%;
+      max-width: 380px;
+    }
+
+    .form-title {
+      font-size: 32px;
+      font-weight: 500;
+      color: #000000;
+      margin-bottom: 8px;
+      letter-spacing: -0.3px;
+    }
+
+    .form-subtitle {
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text-muted);
+      margin-bottom: 36px;
+    }
+
+    .field-group {
+      margin-bottom: 20px;
+    }
+
+    .field-group label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #000000;
+      margin-bottom: 6px;
+    }
+
+    .field-control {
+      width: 100%;
+      height: 40px;
+      padding: 0 14px;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text-dark);
+      background-color: #FFFFFF;
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .field-control::placeholder {
+      color: #BFBFBF;
+    }
+
+    .field-control:focus {
+      border-color: var(--autumn-ember);
+      box-shadow: 0 0 0 3px rgba(179, 88, 19, 0.12);
+    }
+
+    select.field-control {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23B35813' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+    }
+
+    .btn-primary {
+      width: 100%;
+      height: 42px;
+      margin-top: 14px;
+      background-color: var(--autumn-ember);
+      color: #FFFFFF;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+
+    .btn-primary:hover {
+      background-color: var(--harvest-gold);
+    }
+
+    .btn-primary:active {
+      transform: scale(0.99);
+    }
+
+    .switch-auth {
+      margin-top: 28px;
+      text-align: center;
+      font-size: 14px;
+      font-weight: 500;
+      color: #000000;
+    }
+
+    .switch-auth a {
+      color: var(--blue-slate);
+      text-decoration: none;
+      font-weight: 600;
+      margin-left: 4px;
+      cursor: pointer;
+    }
+
+    .switch-auth a:hover {
+      color: var(--autumn-ember);
+      text-decoration: underline;
+    }
+
+    /* NOME "EIXO" ACIMA DO COMECE AGORA / BEM-VINDO DE VOLTA */
+    .brand-header {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-weight: 700;
+      font-size: 46px;
+      letter-spacing: 0.16em;
+      color: var(--autumn-ember);
+      text-transform: uppercase;
+      line-height: 1;
+      margin-bottom: 18px;
+    }
+
+    /* LADO DIREITO: FOTO DA CATEDRAL + IPÊ AMARELO INTEIRA E QUADRADA (58%) */
+    .right-panel {
+      width: 58%;
+      height: 100%;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .right-panel img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: right center;
+      border-radius: 0;
+      display: block;
+    }
+
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="page-layout">
+    <!-- ESQUERDA: ÁREA DE SIGN IN (CADASTRO) E LOG IN -->
+    <div class="left-panel">
+
+      <!-- VISÃO 1: CRIAR CONTA (SIGN IN / CADASTRO) -->
+      <div id="view-signup" class="form-container">
+        <div class="brand-header">EIXO</div>
+        <h1 class="form-title">Comece agora</h1>
+        <p class="form-subtitle">Crie sua conta para organizar rolês com seus amigos</p>
+
+        <form onsubmit="fazerCadastro(event)">
+          <div class="field-group">
+            <label for="signup-nome">Nome</label>
+            <input id="signup-nome" type="text" class="field-control" placeholder="Digite seu nome" required />
+          </div>
+
+          <div class="field-group">
+            <label for="signup-email">Email</label>
+            <input id="signup-email" type="email" class="field-control" placeholder="Digite seu email" required />
+          </div>
+
+          <div class="field-group">
+            <label for="signup-senha">Senha</label>
+            <input id="signup-senha" type="password" class="field-control" placeholder="Crie uma senha" required />
+          </div>
+
+          <div class="field-group">
+            <label for="signup-ra">Região Administrativa (DF)</label>
+            <select id="signup-ra" class="field-control" required>
+              <option value="" disabled selected>Escolha a região onde você mora</option>
+              <option value="Plano Piloto (Asa Sul)">Plano Piloto (Asa Sul)</option>
+              <option value="Plano Piloto (Asa Norte)">Plano Piloto (Asa Norte)</option>
+              <option value="Águas Claras">Águas Claras</option>
+              <option value="Taguatinga">Taguatinga</option>
+              <option value="Samambaia">Samambaia</option>
+              <option value="Guará">Guará</option>
+              <option value="Ceilândia">Ceilândia</option>
+              <option value="Sudoeste / Octogonal">Sudoeste / Octogonal</option>
+              <option value="Noroeste">Noroeste</option>
+              <option value="Lago Sul">Lago Sul</option>
+              <option value="Lago Norte">Lago Norte</option>
+              <option value="Vicente Pires">Vicente Pires</option>
+              <option value="Sobradinho">Sobradinho</option>
+              <option value="Gama">Gama</option>
+              <option value="Santa Maria">Santa Maria</option>
+              <option value="Riacho Fundo">Riacho Fundo</option>
+              <option value="Planaltina">Planaltina</option>
+              <option value="Jardim Botânico">Jardim Botânico</option>
+              <option value="Park Way">Park Way</option>
+              <option value="Cruzeiro">Cruzeiro</option>
+              <option value="Núcleo Bandeirante">Núcleo Bandeirante</option>
+              <option value="Recanto das Emas">Recanto das Emas</option>
+              <option value="São Sebastião">São Sebastião</option>
+            </select>
+          </div>
+
+          <button type="submit" class="btn-primary">Sign In</button>
+        </form>
+
+        <div class="switch-auth">
+          Já tem uma conta? <a onclick="mostrarLogin()">Log In</a>
+        </div>
+      </div>
+
+      <!-- VISÃO 2: LOG IN (PARA QUEM JÁ TEM CONTA) -->
+      <div id="view-login" class="form-container hidden">
+        <div class="brand-header">EIXO</div>
+        <h1 class="form-title">Bem-vindo de volta</h1>
+        <p id="login-subtitle" class="form-subtitle">Digite seu email e senha para acessar suas salas</p>
+
+        <form onsubmit="fazerLogin(event)">
+          <div class="field-group">
+            <label for="login-email">Email</label>
+            <input id="login-email" type="email" class="field-control" placeholder="Digite seu email" required />
+          </div>
+
+          <div class="field-group">
+            <label for="login-senha">Senha</label>
+            <input id="login-senha" type="password" class="field-control" placeholder="Digite sua senha" required />
+          </div>
+
+          <button type="submit" class="btn-primary">Log In</button>
+        </form>
+
+        <div class="switch-auth">
+          Não tem uma conta? <a onclick="mostrarSignup()">Sign In</a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- DIREITA: IMAGEM DA CATEDRAL COM IPÊ AMARELO -->
+    <div class="right-panel">
+      <img src="assets/catedral_ipe.jpg" alt="Catedral de Brasília e Ipê Amarelo" />
+    </div>
+  </div>
+
+  <script>
+    function mostrarLogin() {
+      document.getElementById('view-signup').classList.add('hidden');
+      document.getElementById('view-login').classList.remove('hidden');
+    }
+    function mostrarSignup() {
+      document.getElementById('view-login').classList.add('hidden');
+      document.getElementById('view-signup').classList.remove('hidden');
+    }
+    function fazerCadastro(e) {
+      e.preventDefault();
+      const nome = document.getElementById('signup-nome').value.trim() || 'Letícia';
+      const email = document.getElementById('signup-email').value.trim();
+      const senha = document.getElementById('signup-senha').value;
+      const ra = document.getElementById('signup-ra').value || 'Samambaia';
+      localStorage.setItem('eixo_usuario', JSON.stringify({ nome, email, senha, ra }));
+      document.getElementById('login-email').value = email;
+      document.getElementById('login-subtitle').textContent = 'Conta criada! Agora faça seu Log In para entrar.';
+      document.getElementById('login-subtitle').style.color = '#B35813';
+      mostrarLogin();
+    }
+    function fazerLogin(e) {
+      e.preventDefault();
+      const salvo = JSON.parse(localStorage.getItem('eixo_usuario') || 'null');
+      const email = document.getElementById('login-email').value.trim();
+      if (!salvo) {
+        const nomeExtraido = email.split('@')[0] || 'Letícia';
+        const nomeFormatado = nomeExtraido.charAt(0).toUpperCase() + nomeExtraido.slice(1);
+        localStorage.setItem('eixo_usuario', JSON.stringify({
+          nome: nomeFormatado,
+          email: email,
+          ra: 'Samambaia'
+        }));
+      }
+      window.location.href = 'tela2.html';
+    }
+    if (window.location.hash === '#login') {
+      mostrarLogin();
+    }
+  </script>
+</body>
+</html>

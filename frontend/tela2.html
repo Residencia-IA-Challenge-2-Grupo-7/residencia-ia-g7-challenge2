@@ -1,0 +1,2774 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EIXO — Hub de Eventos</title>
+  <!-- Fontes: Cormorant Garamond (título e marca EIXO) + Poppins (interface) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      /* Paleta Warm Tropical Summer / Autumn Ember */
+      --autumn-ember: #B35813;
+      --harvest-gold: #E29420;
+      --jasmine: #FEF870;
+      --cool-blue: #A0BEC3;
+      --blue-slate: #245775;
+      --bg-white: #FFFFFF;
+      --text-dark: #1A1A1A;
+      --text-muted: #6B7280;
+      --border-light: #E5E7EB;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+      color: var(--text-dark);
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* FUNDO: GALHOS DE IPÊ AMARELO */
+    .background-container {
+      position: fixed;
+      inset: 0;
+      background-image: url('assets/galhos_ipe.jpg');
+      background-size: cover;
+      background-position: center center;
+      background-repeat: no-repeat;
+      z-index: 1;
+      transition: filter 0.4s ease, transform 0.4s ease;
+    }
+
+    /* FINA BARRA BRANCA NO TOPO */
+    .top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 60px;
+      background-color: var(--bg-white);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 40px;
+      z-index: 50;
+      box-shadow: 0 1px 8px rgba(0, 0, 0, 0.05);
+      border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    }
+
+    /* LOGO EIXO */
+    .brand-logo {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-weight: 700;
+      font-size: 32px;
+      letter-spacing: 0.16em;
+      color: var(--autumn-ember);
+      text-transform: uppercase;
+      text-decoration: none;
+      user-select: none;
+      line-height: 1;
+    }
+
+    /* AÇÕES NO CANTO DIREITO */
+    .top-bar-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .icon-wrapper {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .nav-icon-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      border: 1px solid transparent;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-dark);
+      transition: all 0.2s ease;
+      outline: none;
+      position: relative;
+    }
+
+    .nav-icon-btn:hover {
+      background-color: #F8F9FA;
+      color: var(--autumn-ember);
+      border-color: #EFEFEF;
+      transform: translateY(-1px);
+    }
+
+    .nav-icon-btn:active {
+      transform: translateY(0);
+    }
+
+    .nav-icon-btn svg {
+      width: 22px;
+      height: 22px;
+      stroke-width: 1.85;
+    }
+
+    /* BOLINHA AMARELA NO CANTINHO SUPERIOR ESQUERDO DO ENVELOPE */
+    .badge-dot-tl {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      width: 10px;
+      height: 10px;
+      background-color: var(--jasmine);
+      border: 1.5px solid #FFFFFF;
+      border-radius: 50%;
+      box-shadow: 0 0 0 1px rgba(226, 148, 32, 0.5), 0 2px 4px rgba(0,0,0,0.15);
+      pointer-events: none;
+      transition: transform 0.2s ease, opacity 0.2s ease;
+      z-index: 2;
+    }
+
+    .badge-dot-tl.hidden {
+      display: none;
+    }
+
+    /* TOOLTIP ELEGANTE NO HOVER DOS ÍCONES */
+    .tooltip {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      white-space: nowrap;
+      background: rgba(26, 26, 26, 0.92);
+      backdrop-filter: blur(8px);
+      color: #FFFFFF;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 7px 14px;
+      border-radius: 8px;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(-6px);
+      transition: opacity 0.2s cubic-bezier(0.16, 1, 0.3, 1), transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+      z-index: 60;
+    }
+
+    .tooltip::before {
+      content: '';
+      position: absolute;
+      bottom: 100%;
+      right: 14px;
+      border-width: 5px;
+      border-style: solid;
+      border-color: transparent transparent rgba(26, 26, 26, 0.92) transparent;
+    }
+
+    .icon-wrapper:hover .tooltip {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* ÁREA PRINCIPAL DA TELA (CONTEÚDO DO HUB DE SALAS) */
+    .main-stage {
+      position: relative;
+      z-index: 10;
+      height: calc(100vh - 60px);
+      margin-top: 60px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 20px;
+      pointer-events: none;
+      box-sizing: border-box;
+    }
+
+    /* ============================================== */
+    /* HUB DE SALAS (MAXIMIZADO COM CARROSSEL) */
+    /* ============================================== */
+    .hub-container {
+      pointer-events: auto;
+      background-color: var(--bg-white);
+      border-radius: 24px;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.14), 0 2px 10px rgba(0, 0, 0, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      max-width: 1360px;
+      width: 100%;
+      min-height: 540px;
+      padding: 30px 36px 34px 36px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 20px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-sizing: border-box;
+    }
+
+    .hub-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid #F3EDE4;
+      padding-bottom: 16px;
+    }
+
+    .hub-header-left {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .hub-title {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 30px;
+      font-weight: 700;
+      color: var(--autumn-ember);
+      letter-spacing: 0.03em;
+      line-height: 1;
+      margin: 0;
+    }
+
+    .hub-subtitle {
+      font-size: 13.5px;
+      color: #6B7280;
+    }
+
+    /* CARROSSEL DE CARDS DO HUB */
+    .hub-carousel-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+      position: relative;
+    }
+
+    .hub-carousel-arrow {
+      width: 40px;
+      height: 40px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      border: 1px solid #E5E7EB;
+      background-color: #FFFFFF;
+      color: #4B5563;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    }
+
+    .hub-carousel-arrow:hover {
+      background-color: #FAF8F5;
+      color: var(--autumn-ember);
+      border-color: #D1D5DB;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transform: scale(1.05);
+    }
+
+    .hub-carousel-arrow.hidden-space {
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .hub-carousel-track {
+      flex: 1;
+      overflow-x: auto;
+      scroll-behavior: smooth;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+    }
+
+    .hub-carousel-track::-webkit-scrollbar {
+      display: none;
+    }
+
+    .hub-cards-grid {
+      display: flex;
+      gap: 20px;
+      width: 100%;
+      justify-content: flex-start;
+      align-items: stretch;
+    }
+
+    .hub-card {
+      background-color: #FAF8F5;
+      border: 1px solid #EFE8DE;
+      border-radius: 18px;
+      padding: 24px 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      flex: 1 1 0;
+      min-width: 320px;
+      max-width: calc(33.333% - 14px);
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+      transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+      position: relative;
+      box-sizing: border-box;
+    }
+
+    .hub-cards-grid[data-count="1"] .hub-card {
+      max-width: 380px;
+      flex: 0 0 380px;
+    }
+
+    .hub-cards-grid[data-count="2"] .hub-card {
+      max-width: 480px;
+      flex: 0 0 calc(50% - 10px);
+    }
+
+    .hub-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.07);
+      border-color: rgba(179, 88, 19, 0.25);
+    }
+
+    .hub-card-header {
+      margin-bottom: 16px;
+    }
+
+    .hub-card-name {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 26px;
+      font-weight: 700;
+      color: var(--text-dark);
+      letter-spacing: 0.02em;
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    .hub-card-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    /* ESTADO 1: LISTA MINIMALISTA DE MEMBROS E STATUS PENDENTE */
+    .membros-list-title {
+      font-size: 11.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #6B7280;
+      margin: 0;
+    }
+
+    .hub-membros-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+      background: #FFFFFF;
+      border: 1px solid #F0ECE4;
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin: 0;
+    }
+
+    .hub-membro-row {
+      font-size: 14px;
+      color: var(--text-dark);
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+    }
+
+    .pendente-tag {
+      font-size: 13px;
+      color: #9CA3AF;
+      font-style: normal;
+      font-weight: 400;
+      margin-left: 6px;
+    }
+
+    .hub-status-note {
+      font-size: 12px;
+      color: #4B5563;
+      line-height: 1.5;
+      background-color: #FAF8F5;
+      border-radius: 10px;
+      padding: 12px 14px;
+      border: 1px solid #EFE8DE;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .hub-note-badge {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--harvest-gold);
+    }
+
+    .hub-status-note p {
+      margin: 0;
+    }
+
+    .hub-status-note strong {
+      color: inherit;
+      font-weight: 700;
+    }
+
+    /* ESTADO 2: RECOMENDAÇÕES PRONTAS & BOTÃO VOTAR */
+    .hub-prontas-box {
+      background: #FFFFFF;
+      border: 1px solid #F0ECE4;
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .prontas-title {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: var(--autumn-ember);
+      letter-spacing: 0.02em;
+      margin: 0;
+    }
+
+    .prontas-text {
+      font-size: 13px;
+      color: #4B5563;
+      line-height: 1.5;
+      margin: 0;
+    }
+
+    .prontas-text strong {
+      color: inherit;
+      font-weight: 700;
+    }
+
+    .prontas-tag {
+      display: inline-flex;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: #374151;
+      background-color: #F3F4F6;
+      padding: 5px 12px;
+      border-radius: 6px;
+      align-self: flex-start;
+    }
+
+    .hub-confirmados-row {
+      font-size: 12.5px;
+      color: #6B7280;
+      margin-top: 2px;
+    }
+
+    .hub-confirmados-row strong {
+      color: #374151;
+    }
+
+    .btn-hub-votar {
+      width: 100%;
+      height: 50px;
+      background-color: var(--autumn-ember);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 6px 20px rgba(179, 88, 19, 0.3);
+      transition: all 0.25s ease;
+    }
+
+    .btn-hub-votar:hover {
+      background-color: #96470C;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 26px rgba(179, 88, 19, 0.4);
+    }
+
+    /* ESTADO 3: REMINDER DO ROLÊ & BOTÃO TIKTOK (SEM VERDE) */
+    .hub-reminder-box {
+      background: #FFFFFF;
+      border: 1px solid #EFE8DE;
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .reminder-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .reminder-label {
+      font-size: 10.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #6B7280;
+      font-weight: 600;
+    }
+
+    .reminder-destaque {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--text-dark);
+      line-height: 1.25;
+    }
+
+    .reminder-sub {
+      font-size: 12px;
+      color: #6B7280;
+    }
+
+    .reminder-info {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--text-dark);
+    }
+
+    /* BOTÃO TIKTOK (MESMA COR DO BOTÃO VOTAR) */
+    .btn-hub-tiktok {
+      width: 100%;
+      height: 50px;
+      background-color: var(--autumn-ember);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 12px;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 6px 20px rgba(179, 88, 19, 0.3);
+      transition: all 0.25s ease;
+    }
+
+    .btn-hub-tiktok:hover {
+      background-color: #96470C;
+      transform: translateY(-2px);
+      box-shadow: 0 10px 26px rgba(179, 88, 19, 0.4);
+    }
+
+    .btn-hub-tiktok svg {
+      color: #FFFFFF;
+    }
+
+    /* EMPTY STATE DO HUB (QUANDO NÃO HÁ SALAS) */
+    .hub-empty-container {
+      pointer-events: auto;
+      background-color: var(--bg-white);
+      border-radius: 24px;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.14), 0 2px 10px rgba(0, 0, 0, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.85);
+      max-width: 620px;
+      width: 100%;
+      padding: 44px 48px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
+      transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      box-sizing: border-box;
+    }
+
+    .hub-empty-container h2 {
+      font-family: 'Cormorant Garamond', Georgia, serif;
+      font-size: 32px;
+      font-weight: 700;
+      color: var(--autumn-ember);
+      letter-spacing: 0.04em;
+      margin: 0;
+    }
+
+    .hub-empty-container p {
+      font-size: 15px;
+      color: var(--text-dark);
+      line-height: 1.6;
+      margin: 0;
+    }
+
+    /* ============================================== */
+    /* EFEITO ESTILO DIOR: BACKDROP COM BLUR & ESCURECIMENTO */
+    /* ============================================== */
+    .backdrop-overlay {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(15, 23, 42, 0.35);
+      backdrop-filter: blur(12px) saturate(130%);
+      -webkit-backdrop-filter: blur(12px) saturate(130%);
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.4s;
+      z-index: 100;
+    }
+
+    .backdrop-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    /* ============================================== */
+    /* SIDEBARS ESTILO DIOR COM MARGEM FINA EM CIMA E EMBAIXO */
+    /* ============================================== */
+    .dior-sidebar {
+      position: fixed;
+      top: 10px;
+      bottom: 10px;
+      right: 10px;
+      height: calc(100vh - 20px);
+      background-color: var(--bg-white);
+      border-radius: 20px;
+      box-shadow: -12px 0 40px rgba(0, 0, 0, 0.2), 0 8px 24px rgba(0, 0, 0, 0.1);
+      transform: translateX(calc(100% + 20px));
+      transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      z-index: 110;
+      display: flex;
+      flex-direction: column;
+      padding: 30px 32px 32px 32px;
+      overflow-y: auto;
+    }
+
+    .dior-sidebar.open {
+      transform: translateX(0);
+    }
+
+    /* LARGURAS ESPECÍFICAS */
+    .sidebar-ra {
+      width: 430px;
+      max-width: calc(100vw - 20px);
+    }
+
+    .sidebar-convites {
+      width: 540px;
+      max-width: calc(100vw - 20px);
+      overflow: hidden;
+      padding-bottom: 24px;
+    }
+
+    .sidebar-criar-sala {
+      width: 560px;
+      max-width: calc(100vw - 20px);
+      overflow-y: auto;
+      padding-bottom: 28px;
+    }
+
+    #subview-lista-convites {
+      height: 100%;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* DESTINATÁRIOS ESTILO EMAIL (CHIP INPUT) */
+    .destinatarios-wrapper {
+      position: relative;
+      margin-bottom: 18px;
+    }
+
+    .destinatarios-box {
+      min-height: 44px;
+      padding: 6px 10px;
+      background-color: #FFFFFF;
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      cursor: text;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .destinatarios-box:focus-within {
+      border-color: var(--autumn-ember);
+      box-shadow: 0 0 0 3px rgba(179, 88, 19, 0.12);
+    }
+
+    .chips-membros-container {
+      display: contents;
+    }
+
+    .membro-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background-color: #FAF8F5;
+      border: 1px solid #EFE8DE;
+      color: var(--text-dark);
+      font-size: 12px;
+      font-weight: 500;
+      padding: 3px 8px 3px 6px;
+      border-radius: 999px;
+      animation: chipFadeIn 0.2s ease;
+      user-select: none;
+    }
+
+    @keyframes chipFadeIn {
+      from { opacity: 0; transform: scale(0.9); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .membro-chip-avatar {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background-color: var(--autumn-ember);
+      color: #FFFFFF;
+      font-size: 10.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .membro-chip-remove {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: #9CA3AF;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      line-height: 1;
+      transition: all 0.15s ease;
+      padding: 0;
+    }
+
+    .membro-chip-remove:hover {
+      background-color: #FEE2E2;
+      color: #DC2626;
+    }
+
+    .input-busca-membros {
+      flex: 1;
+      min-width: 140px;
+      height: 30px;
+      border: none;
+      outline: none;
+      font-family: inherit;
+      font-size: 13px;
+      color: var(--text-dark);
+      background: transparent;
+    }
+
+    .input-busca-membros::placeholder {
+      color: #BFBFBF;
+    }
+
+    /* AUTOCOMPLETE DROPDOWN */
+    .autocomplete-list {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0;
+      right: 0;
+      background-color: #FFFFFF;
+      border: 1px solid var(--border-light);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.14);
+      max-height: 210px;
+      overflow-y: auto;
+      z-index: 130;
+    }
+
+    .autocomplete-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+      cursor: pointer;
+      transition: background-color 0.15s ease;
+      border-bottom: 1px solid #F9FAFB;
+    }
+
+    .autocomplete-item:last-child {
+      border-bottom: none;
+    }
+
+    .autocomplete-item:hover, .autocomplete-item.active {
+      background-color: #FAF8F5;
+    }
+
+    .autocomplete-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background-color: rgba(179, 88, 19, 0.12);
+      color: var(--autumn-ember);
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .autocomplete-info {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
+
+    .autocomplete-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-dark);
+    }
+
+    .autocomplete-name strong {
+      color: var(--autumn-ember);
+      font-weight: 700;
+    }
+
+    .autocomplete-ra {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* CABEÇALHO DA SIDEBAR */
+    .sidebar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-bottom: 18px;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .sidebar-tag {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--autumn-ember);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sidebar-close-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      border: none;
+      background-color: #F3F4F6;
+      color: var(--text-dark);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+      outline: none;
+    }
+
+    .sidebar-close-btn:hover {
+      background-color: #E5E7EB;
+      color: var(--autumn-ember);
+      transform: rotate(90deg);
+    }
+
+    .sidebar-back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: none;
+      border: none;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .sidebar-back-btn:hover {
+      color: var(--autumn-ember);
+      background-color: #F9FAFB;
+    }
+
+    /* CORPO DA SIDEBAR */
+    .sidebar-body {
+      padding-top: 24px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sidebar-title {
+      font-size: 22px;
+      font-weight: 600;
+      line-height: 1.35;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+    }
+
+    .sidebar-title .highlight-name {
+      color: var(--autumn-ember);
+    }
+
+    .sidebar-desc {
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.55;
+      margin-bottom: 22px;
+    }
+
+    /* BADGE DA RA ATUAL */
+    .current-ra-box {
+      background-color: #FAF8F5;
+      border: 1px solid #EFE8DE;
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .current-ra-label {
+      font-size: 11.5px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 500;
+    }
+
+    .current-ra-value {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: var(--autumn-ember);
+    }
+
+    /* FORMULÁRIO GERAL */
+    .field-group {
+      margin-bottom: 18px;
+    }
+
+    .field-group label {
+      display: block;
+      font-size: 13.5px;
+      font-weight: 500;
+      color: #000000;
+      margin-bottom: 7px;
+    }
+
+    .field-control {
+      width: 100%;
+      height: 42px;
+      padding: 0 14px;
+      font-family: inherit;
+      font-size: 13.5px;
+      color: var(--text-dark);
+      background-color: #FFFFFF;
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .field-control::placeholder {
+      color: #BFBFBF;
+    }
+
+    .field-control:focus {
+      border-color: var(--autumn-ember);
+      box-shadow: 0 0 0 3px rgba(179, 88, 19, 0.12);
+    }
+
+    select.field-control {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23B35813' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 14px center;
+      padding-right: 36px;
+    }
+
+    .input-hint {
+      display: block;
+      font-size: 11.5px;
+      color: var(--text-muted);
+      margin-top: 5px;
+    }
+
+    .btn-submit-ra {
+      width: 100%;
+      height: 44px;
+      margin-top: 8px;
+      background-color: var(--autumn-ember);
+      color: #FFFFFF;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+
+    .btn-submit-ra:hover {
+      background-color: var(--harvest-gold);
+    }
+
+    .btn-submit-ra:active {
+      transform: scale(0.99);
+    }
+
+    .feedback-alert {
+      display: none;
+      margin-top: 18px;
+      padding: 12px 16px;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1.4;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .feedback-alert.success {
+      display: flex;
+      background-color: #FFFDF5;
+      color: var(--autumn-ember);
+      border: 1px solid rgba(179, 88, 19, 0.3);
+    }
+
+    /* ============================================== */
+    /* ESTILOS DOS CARDS DE CONVITES */
+    /* ============================================== */
+    .convites-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .convite-card {
+      background-color: #FAF8F5;
+      border: 1px solid #EFE8DE;
+      border-radius: 14px;
+      padding: 18px 20px;
+      transition: transform 0.25s ease, opacity 0.25s ease, box-shadow 0.25s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .convite-card:hover {
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+    }
+
+    .convite-card.fade-out {
+      opacity: 0;
+      transform: translateY(-8px) scale(0.98);
+      pointer-events: none;
+    }
+
+    .convite-main-text {
+      font-size: 15px;
+      line-height: 1.45;
+      color: var(--text-dark);
+    }
+
+    .convite-main-text strong {
+      color: var(--autumn-ember);
+      font-weight: 600;
+    }
+
+    .convite-sub-text {
+      font-size: 13px;
+      line-height: 1.45;
+      color: #4B5563;
+    }
+
+    .convite-sub-text strong {
+      color: #1F2937;
+      font-weight: 600;
+    }
+
+    .convite-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .btn-recusar {
+      background: transparent;
+      border: 1px solid #D1D5DB;
+      color: #4B5563;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 500;
+      padding: 8px 18px;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-recusar:hover {
+      background-color: #FEE2E2;
+      color: #DC2626;
+      border-color: #FCA5A5;
+    }
+
+    .btn-aceitar {
+      background-color: var(--autumn-ember);
+      border: 1px solid var(--autumn-ember);
+      color: #FFFFFF;
+      font-family: inherit;
+      font-size: 13.5px;
+      font-weight: 600;
+      padding: 8px 22px;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .btn-aceitar:hover {
+      background-color: var(--harvest-gold);
+      border-color: var(--harvest-gold);
+      transform: translateY(-1px);
+    }
+
+    .empty-convites {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--text-muted);
+    }
+
+    .empty-convites svg {
+      width: 44px;
+      height: 44px;
+      stroke-width: 1.5;
+      color: var(--cool-blue);
+      margin-bottom: 12px;
+    }
+
+    .empty-convites h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 6px;
+    }
+
+    .empty-convites p {
+      font-size: 13px;
+    }
+
+    /* ============================================== */
+    /* TELA INTERNA: "NOS DIGA O QUE VOCÊ ESPERA" */
+    /* ============================================== */
+    .questionario-container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      overflow: hidden; /* A sidebar não rola por inteiro */
+    }
+
+    .questionario-body {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden; /* Impede scroll do container */
+      padding-top: 14px;
+    }
+
+    .perguntas-card {
+      flex-shrink: 0;
+      background-color: #FAF8F5;
+      border: 1px solid #EFE8DE;
+      border-radius: 14px;
+      padding: 14px 18px;
+      margin-bottom: 12px;
+    }
+
+    .perguntas-title {
+      font-size: 14.5px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 5px;
+    }
+
+    .perguntas-title strong {
+      color: var(--autumn-ember);
+    }
+
+    .perguntas-lead {
+      font-size: 12px;
+      color: #4B5563;
+      margin-bottom: 8px;
+      line-height: 1.4;
+    }
+
+    .perguntas-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      font-size: 11.5px;
+      line-height: 1.35;
+      color: #374151;
+    }
+
+    .perguntas-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .perguntas-list li .bullet {
+      color: var(--autumn-ember);
+      font-size: 14px;
+      line-height: 1.1;
+      flex-shrink: 0;
+    }
+
+    .perguntas-dica {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 1px dashed #E5E7EB;
+      line-height: 1.35;
+    }
+
+    .perguntas-dica strong {
+      color: var(--autumn-ember);
+    }
+
+    /* ÁREA DO CHAT / INPUT COM MICROFONE (O ÚNICO BLOQUINHO ESCROLÁVEL) */
+    .chat-input-wrapper {
+      flex: 1;
+      min-height: 90px;
+      background-color: #FFFFFF;
+      border: 1.5px solid var(--border-light);
+      border-radius: 14px;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+      overflow: hidden;
+    }
+
+    .chat-input-wrapper:focus-within {
+      border-color: var(--autumn-ember);
+      box-shadow: 0 0 0 3px rgba(179, 88, 19, 0.12);
+    }
+
+    .chat-textarea {
+      flex: 1;
+      width: 100%;
+      border: none;
+      outline: none;
+      font-family: inherit;
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text-dark);
+      resize: none;
+      overflow-y: auto; /* Apenas este bloquinho de texto é escrolável */
+      background: transparent;
+      padding-right: 4px;
+    }
+
+    .chat-textarea::placeholder {
+      color: #9CA3AF;
+    }
+
+    .chat-bottom-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid #F3F4F6;
+      padding-top: 6px;
+      flex-shrink: 0;
+    }
+
+    .audio-recording-indicator {
+      display: none;
+      align-items: center;
+      gap: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #DC2626;
+    }
+
+    .audio-recording-indicator.active {
+      display: inline-flex;
+    }
+
+    .pulse-dot {
+      width: 8px;
+      height: 8px;
+      background-color: #DC2626;
+      border-radius: 50%;
+      animation: pulse 1s infinite alternate;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.8); opacity: 0.5; }
+      100% { transform: scale(1.3); opacity: 1; }
+    }
+
+    .mic-button {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      border: 1px solid var(--border-light);
+      background-color: #F9FAFB;
+      color: var(--text-dark);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      outline: none;
+    }
+
+    .mic-button:hover {
+      border-color: var(--autumn-ember);
+      color: var(--autumn-ember);
+      background-color: #FFFDF9;
+      transform: scale(1.05);
+    }
+
+    .mic-button.recording {
+      background-color: #FEE2E2;
+      color: #DC2626;
+      border-color: #F87171;
+    }
+
+    /* BOTÃO FIXO COM MARGEM BRANCA VISÍVEL EMBAIXO */
+    .questionario-bottom-actions {
+      flex-shrink: 0;
+      margin-top: 14px;
+      margin-bottom: 20px; /* Margem branca antes do final da sidebar */
+    }
+
+    .btn-confirmar-expectativas {
+      width: 100%;
+      height: 44px;
+      background-color: var(--autumn-ember);
+      color: #FFFFFF;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background-color 0.2s ease, transform 0.1s ease;
+    }
+
+    .btn-confirmar-expectativas:hover {
+      background-color: var(--harvest-gold);
+    }
+
+    .btn-confirmar-expectativas:active {
+      transform: scale(0.99);
+    }
+
+    .hidden {
+      display: none !important;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- FUNDO DE GALHOS DE IPÊ -->
+  <div class="background-container"></div>
+
+  <!-- FINA BARRA BRANCA NO TOPO -->
+  <header class="top-bar">
+    <!-- NOME DA MARCA / LOGO -->
+    <a href="#" class="brand-logo">EIXO</a>
+
+    <!-- ÍCONES À DIREITA -->
+    <div class="top-bar-actions">
+      <!-- ÍCONE: CRIAR SALA NOVA (+) -->
+      <div class="icon-wrapper">
+        <button id="btn-criar-sala" class="nav-icon-btn" onclick="abrirSidebarCriarSala()" aria-label="Criar uma sala nova">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+        </button>
+        <!-- TOOLTIP NO HOVER -->
+        <span class="tooltip">Criar uma sala nova</span>
+      </div>
+
+      <!-- ÍCONE: ENVELOPE (CONVITES DE SALAS) -->
+      <div class="icon-wrapper">
+        <button id="btn-convites" class="nav-icon-btn" onclick="abrirSidebarConvites()" aria-label="Convites de Salas">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+        </button>
+        <!-- BOLINHA AMARELA NO CANTINHO SUPERIOR ESQUERDO DO ENVELOPE -->
+        <span id="badge-convites" class="badge-dot-tl" title="Novos convites pendentes"></span>
+        <!-- TOOLTIP NO HOVER -->
+        <span class="tooltip">Convites de Salas</span>
+      </div>
+
+      <!-- ÍCONE 2 (MAIS À DIREITA): MAPINHA PARA MUDAR ENDEREÇO/RA -->
+      <div class="icon-wrapper">
+        <button id="btn-mapa-ra" class="nav-icon-btn" onclick="abrirSidebarRA()" aria-label="Mudar endereço da conta">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </button>
+        <!-- TOOLTIP NO HOVER -->
+        <span class="tooltip">Mudar endereço da conta (RA)</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ÁREA PRINCIPAL DA TELA 2 (HUB DE SALAS) -->
+  <main class="main-stage">
+    <!-- CONTAINER DO HUB COM SALAS ATIVAS (CARROSSEL) -->
+    <div id="hub-salas-container" class="hub-container">
+      <div class="hub-header">
+        <div class="hub-header-left">
+          <h2 class="hub-title">Hub de Salas</h2>
+          <span class="hub-subtitle">Acompanhe suas salas de rolês, status dos convidados e votações</span>
+        </div>
+      </div>
+
+      <!-- CARROSSEL COM SETINHAS MINIMALISTAS E CARDS -->
+      <div class="hub-carousel-wrapper">
+        <button id="hub-carousel-prev" class="hub-carousel-arrow prev hidden-space" onclick="scrollHubCarrossel(-1)" aria-label="Sala anterior">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+          </svg>
+        </button>
+
+        <div id="hub-carousel-track" class="hub-carousel-track">
+          <div id="hub-cards-grid" class="hub-cards-grid">
+            <!-- Renderizado dinamicamente via JS -->
+          </div>
+        </div>
+
+        <button id="hub-carousel-next" class="hub-carousel-arrow next hidden-space" onclick="scrollHubCarrossel(1)" aria-label="Próxima sala">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- EMPTY STATE DO HUB (QUANDO O USUÁRIO AINDA NÃO ESTÁ EM NENHUMA SALA) -->
+    <div id="hub-empty-state" class="hub-empty-container" style="display: none;">
+      <h2>Hub de Salas</h2>
+      <p>Bem-vindo ao <strong>EIXO</strong>! Parece que você ainda nao esta em nenhuma sala. Crie ou  ingresse em salas de rolês com seus amigos e tire a os planos do papel!</p>
+    </div>
+  </main>
+
+  <!-- OVERLAY COM BLUR ESTILO DIOR -->
+  <div id="backdrop-overlay" class="backdrop-overlay" onclick="fecharTodasSidebars()"></div>
+
+  <!-- ============================================== -->
+  <!-- SIDEBAR 1: MUDANÇA DE RA (ESTILO DIOR) -->
+  <!-- ============================================== -->
+  <aside id="sidebar-ra" class="dior-sidebar sidebar-ra" aria-hidden="true">
+    <div class="sidebar-header">
+      <div class="sidebar-tag">
+        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+        </svg>
+        Localização &bull; DF
+      </div>
+      <button class="sidebar-close-btn" onclick="fecharTodasSidebars()" aria-label="Fechar menu">
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="sidebar-body">
+      <h2 class="sidebar-title">
+        Olá <span id="sidebar-user-name" class="highlight-name">Letícia</span>, deseja mudar sua RA?
+      </h2>
+      <p class="sidebar-desc">
+        Sua Região Administrativa é usada como ponto de partida para calcular a distância e indicar os melhores rolês no DF.
+      </p>
+
+      <div class="current-ra-box">
+        <span class="current-ra-label">RA selecionada atualmente</span>
+        <span id="current-ra-pill" class="current-ra-value">Samambaia</span>
+      </div>
+
+      <form id="form-mudar-ra" onsubmit="atualizarRA(event)">
+        <div class="field-group">
+          <label for="select-nova-ra">Nova Região Administrativa (DF)</label>
+          <select id="select-nova-ra" class="field-control" required>
+            <option value="Plano Piloto (Asa Sul)">Plano Piloto (Asa Sul)</option>
+            <option value="Plano Piloto (Asa Norte)">Plano Piloto (Asa Norte)</option>
+            <option value="Águas Claras">Águas Claras</option>
+            <option value="Taguatinga">Taguatinga</option>
+            <option value="Samambaia">Samambaia</option>
+            <option value="Guará">Guará</option>
+            <option value="Ceilândia">Ceilândia</option>
+            <option value="Sudoeste / Octogonal">Sudoeste / Octogonal</option>
+            <option value="Noroeste">Noroeste</option>
+            <option value="Lago Sul">Lago Sul</option>
+            <option value="Lago Norte">Lago Norte</option>
+            <option value="Vicente Pires">Vicente Pires</option>
+            <option value="Sobradinho">Sobradinho</option>
+            <option value="Gama">Gama</option>
+            <option value="Santa Maria">Santa Maria</option>
+            <option value="Riacho Fundo">Riacho Fundo</option>
+            <option value="Planaltina">Planaltina</option>
+            <option value="Jardim Botânico">Jardim Botânico</option>
+            <option value="Park Way">Park Way</option>
+            <option value="Cruzeiro">Cruzeiro</option>
+            <option value="Núcleo Bandeirante">Núcleo Bandeirante</option>
+            <option value="Recanto das Emas">Recanto das Emas</option>
+            <option value="São Sebastião">São Sebastião</option>
+          </select>
+        </div>
+
+        <div class="field-group">
+          <label for="input-confirma-senha">Confirme sua senha</label>
+          <input 
+            id="input-confirma-senha" 
+            type="password" 
+            class="field-control" 
+            placeholder="Digite sua senha atual" 
+            required 
+          />
+          <span class="input-hint">Por segurança, confirme sua senha cadastrada para salvar.</span>
+        </div>
+
+        <button type="submit" class="btn-submit-ra">Mudar RA</button>
+      </form>
+
+      <div id="feedback-alert" class="feedback-alert">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <span id="feedback-text">RA atualizada com sucesso!</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ============================================== -->
+  <!-- SIDEBAR 2: CONVITES DE SALAS (MAIS LARGA LATERALMENTE) -->
+  <!-- ============================================== -->
+  <aside id="sidebar-convites" class="dior-sidebar sidebar-convites" aria-hidden="true">
+    
+    <!-- SUB-TELA 1: LISTA DE CONVITES PENDENTES -->
+    <div id="subview-lista-convites">
+      <div class="sidebar-header">
+        <div class="sidebar-tag">
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+          </svg>
+          Convites Recebidos
+        </div>
+        <button class="sidebar-close-btn" onclick="fecharTodasSidebars()" aria-label="Fechar convites">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="sidebar-body">
+        <h2 class="sidebar-title">Seus Convites</h2>
+        <p class="sidebar-desc">
+          Veja abaixo as salas de rolês para as quais você foi convidado pelos seus amigos:
+        </p>
+
+        <!-- CONTAINER DINÂMICO DOS CARDS -->
+        <div id="convites-container" class="convites-list">
+          <!-- Gerado via JavaScript -->
+        </div>
+
+        <!-- ESTADO VAZIO CASO NÃO HAJA MAIS CONVITES -->
+        <div id="empty-convites-state" class="empty-convites hidden">
+          <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+          <h3>Tudo em dia!</h3>
+          <p>Você não possui convites pendentes no momento.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUB-TELA 2: QUESTIONÁRIO "NOS DIGA O QUE VOCÊ ESPERA" -->
+    <div id="subview-questionario" class="questionario-container hidden">
+      <div class="sidebar-header">
+        <button class="sidebar-back-btn" onclick="voltarParaListaConvites()" aria-label="Voltar para convites">
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          Voltar aos convites
+        </button>
+        <button class="sidebar-close-btn" onclick="fecharTodasSidebars()" aria-label="Fechar">
+          <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="questionario-body">
+        <!-- GUIA DAS 5 PERGUNTAS -->
+        <div class="perguntas-card">
+          <p class="perguntas-title">
+            Nos diga o que você espera do(a) <strong id="questionario-sala-nome">Boteco de Sexta</strong>:
+          </p>
+          <p class="perguntas-lead">
+            Para encontrarmos o lugar ideal para todo o grupo, escreva ou grave um áudio contando livremente:
+          </p>
+          <ul class="perguntas-list">
+            <li>
+              <span class="bullet">&bull;</span>
+              <div><strong>Quando está livre?</strong> Que dia podemos marcar o(a) <span id="questionario-dia-nome">Boteco de Sexta</span>?</div>
+            </li>
+            <li>
+              <span class="bullet">&bull;</span>
+              <div><strong>Que tipo de rolê você prefere?</strong> (Bar / Pub/ Boteco, Restaurante / Gastronomia, Cafeteria / Doceria, Experiência / Evento ou Ao Ar Livre / Parque)</div>
+            </li>
+            <li>
+              <span class="bullet">&bull;</span>
+              <div><strong>Qual a vibe?</strong> (Romântico/ Date, Calmo/ Bom para conversar, Intimista/Aconchegante, Baratinho, Cultural / Alternativo, Kid Friendly ou Animado / Galera)</div>
+            </li>
+            <li>
+              <span class="bullet">&bull;</span>
+              <div><strong>Qual o seu limite de gasto (budget) por pessoa?</strong></div>
+            </li>
+            <li>
+              <span class="bullet">&bull;</span>
+              <div><strong>Até quantos km da sua região (<span id="questionario-user-ra">Samambaia</span>) você topa se deslocar?</strong></div>
+            </li>
+          </ul>
+          <p class="perguntas-dica">
+            <strong>Dica:</strong> Pode responder do seu jeito! Se não mencionar algum item, vamos considerar que para você tanto faz.
+          </p>
+        </div>
+
+        <!-- CHAT INPUT COM BOTÃO DE MICROFONE: ÚNICO BLOQUINHO ESCROLÁVEL -->
+        <div class="chat-input-wrapper">
+          <textarea 
+            id="chat-preferencias-input" 
+            class="chat-textarea" 
+            placeholder="Escreva ou grave um áudio contando livremente o que você espera do rolê..."
+          ></textarea>
+          
+          <div class="chat-bottom-bar">
+            <!-- INDICADOR DE GRAVAÇÃO -->
+            <div id="gravando-status" class="audio-recording-indicator">
+              <span class="pulse-dot"></span>
+              <span>Gravando áudio... fale agora</span>
+            </div>
+
+            <div style="flex: 1;"></div>
+
+            <!-- BOTÃO DE MICROFONE -->
+            <button 
+              id="btn-microfone" 
+              type="button" 
+              class="mic-button" 
+              onclick="toggleMicrofone()" 
+              title="Falar por áudio (Speech-to-Text)"
+              aria-label="Gravar áudio"
+            >
+              <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <!-- BOTÃO FIXO COM MARGEM BRANCA VISÍVEL EMBAIXO -->
+        <div class="questionario-bottom-actions">
+          <button type="button" class="btn-confirmar-expectativas" onclick="confirmarPreferencias()">
+            Confirmar e Entrar na Sala
+          </button>
+        </div>
+
+        <div id="feedback-sala-alert" class="feedback-alert">
+          <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+          </svg>
+          <span id="feedback-sala-text">Preferências salvas com sucesso!</span>
+        </div>
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- ============================================== -->
+  <!-- SIDEBAR 3: CRIAR UMA NOVA SALA (ESTILO DIOR) -->
+  <!-- ============================================== -->
+  <aside id="sidebar-criar-sala" class="dior-sidebar sidebar-criar-sala" aria-hidden="true">
+    <div class="sidebar-header">
+      <div class="sidebar-tag">
+        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4.5v15m7.5-7.5h-15" />
+        </svg>
+        Criar Sala &bull; Novo Rolê
+      </div>
+      <button class="sidebar-close-btn" onclick="fecharTodasSidebars()" aria-label="Fechar">
+        <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="sidebar-body">
+      <h2 class="sidebar-title">Criar uma nova sala</h2>
+      <p class="sidebar-desc">
+        Dê um nome ao rolê, convide seus amigos e conte o que você espera para encontrarmos o lugar perfeito:
+      </p>
+
+      <!-- CAMPO 1: NOME DA SALA -->
+      <div class="field-group">
+        <label for="criar-nome-sala">Nome do Rolê</label>
+        <input 
+          type="text" 
+          id="criar-nome-sala" 
+          class="field-control" 
+          placeholder="Ex: Boteco de Sexta, Niver da Liz, Churrasco..." 
+          required 
+          oninput="atualizarNomeSalaEmCriacao()" 
+        />
+      </div>
+
+      <!-- CAMPO 2: CONVIDAR AMIGOS (DESTINATÁRIOS ESTILO EMAIL) -->
+      <div class="field-group">
+        <label>Convidar Amigos (Destinatários)</label>
+        <div class="destinatarios-wrapper">
+          <div class="destinatarios-box" onclick="focarBuscaMembros()">
+            <div id="chips-membros-selecionados" class="chips-membros-container"></div>
+            <input 
+              type="text" 
+              id="input-busca-membros" 
+              class="input-busca-membros" 
+              placeholder="Digite o nome do amigo..." 
+              oninput="filtrarAmigos(this.value)" 
+              onkeydown="tratarTeclasMembros(event)" 
+              onfocus="filtrarAmigos(this.value)" 
+              autocomplete="off" 
+            />
+          </div>
+          <!-- AUTOCOMPLETE DROPDOWN -->
+          <div id="autocomplete-membros" class="autocomplete-list hidden"></div>
+        </div>
+      </div>
+
+      <!-- CAMPO 3: GUIA DE EXPECTATIVAS DO CRIADOR -->
+      <div class="perguntas-card">
+        <p class="perguntas-title">
+          Nos diga o que você espera do(a) <strong id="criar-sala-nome-preview">seu rolê</strong>:
+        </p>
+        <p class="perguntas-lead">
+          Para encontrarmos o lugar ideal para todo o grupo, escreva ou grave um áudio contando livremente:
+        </p>
+        <ul class="perguntas-list">
+          <li>
+            <span class="bullet">&bull;</span>
+            <div><strong>Quando está livre?</strong> Que dia podemos marcar o(a) <span id="criar-sala-dia-preview">seu rolê</span>?</div>
+          </li>
+          <li>
+            <span class="bullet">&bull;</span>
+            <div><strong>Que tipo de rolê você prefere?</strong> (Bar / Pub/ Boteco, Restaurante / Gastronomia, Cafeteria / Doceria, Experiência / Evento ou Ao Ar Livre / Parque)</div>
+          </li>
+          <li>
+            <span class="bullet">&bull;</span>
+            <div><strong>Qual a vibe?</strong> (Romântico/ Date, Calmo/ Bom para conversar, Intimista/Aconchegante, Baratinho, Cultural / Alternativo, Kid Friendly ou Animado / Galera)</div>
+          </li>
+          <li>
+            <span class="bullet">&bull;</span>
+            <div><strong>Qual o seu limite de gasto (budget) por pessoa?</strong></div>
+          </li>
+          <li>
+            <span class="bullet">&bull;</span>
+            <div><strong>Até quantos km da sua região (<span id="criar-sala-ra-user">Samambaia</span>) você topa se deslocar?</strong></div>
+          </li>
+        </ul>
+        <p class="perguntas-dica">
+          <strong>Dica:</strong> Pode responder do seu jeito! Se não mencionar algum item, vamos considerar que para você tanto faz.
+        </p>
+      </div>
+
+      <!-- TEXTAREA + MICROFONE DO CRIADOR -->
+      <div class="chat-input-wrapper">
+        <textarea 
+          id="chat-criar-sala-input" 
+          class="chat-textarea" 
+          placeholder="Escreva ou grave um áudio contando livremente o que você espera do rolê..."
+        ></textarea>
+        
+        <div class="chat-bottom-bar">
+          <div id="gravando-status-criar" class="audio-recording-indicator">
+            <span class="pulse-dot"></span>
+            <span>Gravando áudio... fale agora</span>
+          </div>
+
+          <div style="flex: 1;"></div>
+
+          <button 
+            id="btn-microfone-criar" 
+            type="button" 
+            class="mic-button" 
+            onclick="toggleMicrofoneCriar()" 
+            title="Falar por áudio (Speech-to-Text)"
+            aria-label="Gravar áudio"
+          >
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- BOTÃO DE CRIAÇÃO -->
+      <div class="questionario-bottom-actions">
+        <button type="button" class="btn-confirmar-expectativas" onclick="confirmarCriacaoSala()">
+          Criar Sala e Enviar Convites
+        </button>
+      </div>
+
+      <div id="feedback-criar-alert" class="feedback-alert">
+        <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+        </svg>
+        <span id="feedback-criar-text">Sala criada com sucesso!</span>
+      </div>
+    </div>
+  </aside>
+
+  <script>
+    // DADOS INICIAIS DE CONVITES
+    let convites = [
+      {
+        id: 'conv-1',
+        quemConvidou: 'Davi',
+        nomeSala: 'Niver',
+        demaisConvidados: ['Liz', 'Davidi', 'Dudu']
+      },
+      {
+        id: 'conv-2',
+        quemConvidou: 'Marina',
+        nomeSala: 'Boteco de Sexta',
+        demaisConvidados: ['Sofia', 'Caio']
+      }
+    ];
+
+    let conviteSelecionado = null;
+    let recognition = null;
+    let isRecording = false;
+
+    // Recupera dados do usuário do localStorage
+    function carregarDadosUsuario() {
+      const salvo = JSON.parse(localStorage.getItem('eixo_usuario') || 'null');
+      const nome = (salvo && salvo.nome) ? salvo.nome : 'Letícia';
+      const ra = (salvo && salvo.ra) ? salvo.ra : 'Samambaia';
+
+      document.getElementById('sidebar-user-name').textContent = nome;
+      const curPill = document.getElementById('current-ra-pill');
+      if (curPill) curPill.textContent = ra;
+      const mainRa = document.getElementById('main-ra-display');
+      if (mainRa) mainRa.textContent = ra;
+
+      const select = document.getElementById('select-nova-ra');
+      if (select) {
+        select.value = ra;
+      }
+      const qRa = document.getElementById('questionario-user-ra');
+      if (qRa) {
+        qRa.textContent = ra;
+      }
+      atualizarBadgeConvites();
+      renderizarConvites();
+    }
+
+    // Atualiza a bolinha amarela no topo do envelope
+    function atualizarBadgeConvites() {
+      const badge = document.getElementById('badge-convites');
+      if (convites.length > 0) {
+        badge.classList.remove('hidden');
+      } else {
+        badge.classList.add('hidden');
+      }
+    }
+
+    // Renderiza a lista de cards de convites
+    function renderizarConvites() {
+      const container = document.getElementById('convites-container');
+      const emptyState = document.getElementById('empty-convites-state');
+      container.innerHTML = '';
+
+      if (convites.length === 0) {
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      convites.forEach(c => {
+        const card = document.createElement('div');
+        card.className = 'convite-card';
+        card.id = `card-${c.id}`;
+
+        // Formatação dos amigos convidados com negrito
+        const amigosFormatados = c.demaisConvidados.map(a => `<strong>${a}</strong>`).join(', ');
+
+        card.innerHTML = `
+          <p class="convite-main-text">
+            <strong>${c.quemConvidou}</strong> te chamou para <strong>${c.nomeSala}</strong>.
+          </p>
+          <p class="convite-sub-text">
+            ${amigosFormatados} também foram chamados!
+          </p>
+          <div class="convite-actions">
+            <button type="button" class="btn-recusar" onclick="recusarConvite('${c.id}')">Recusar</button>
+            <button type="button" class="btn-aceitar" onclick="aceitarConvite('${c.id}')">Aceitar</button>
+          </div>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    // Recusar convite: desaparece suavemente
+    function recusarConvite(id) {
+      const card = document.getElementById(`card-${id}`);
+      if (card) {
+        card.classList.add('fade-out');
+        setTimeout(() => {
+          convites = convites.filter(c => c.id !== id);
+          atualizarBadgeConvites();
+          renderizarConvites();
+        }, 250);
+      }
+    }
+
+    // Aceitar convite: muda para a tela de expectativas
+    function aceitarConvite(id) {
+      conviteSelecionado = convites.find(c => c.id === id);
+      if (!conviteSelecionado) return;
+
+      const salvo = JSON.parse(localStorage.getItem('eixo_usuario') || 'null');
+      const ra = (salvo && salvo.ra) ? salvo.ra : 'Samambaia';
+
+      document.getElementById('questionario-sala-nome').textContent = conviteSelecionado.nomeSala;
+      const diaEl = document.getElementById('questionario-dia-nome');
+      if (diaEl) diaEl.textContent = conviteSelecionado.nomeSala;
+
+      const qRa = document.getElementById('questionario-user-ra');
+      if (qRa) {
+        qRa.textContent = ra;
+      }
+
+      document.getElementById('chat-preferencias-input').value = '';
+      document.getElementById('feedback-sala-alert').className = 'feedback-alert';
+
+      document.getElementById('subview-lista-convites').classList.add('hidden');
+      document.getElementById('subview-questionario').classList.remove('hidden');
+    }
+
+    // Voltar da tela de perguntas para a lista de convites
+    function voltarParaListaConvites() {
+      pararGravacaoAudio();
+      document.getElementById('subview-questionario').classList.add('hidden');
+      document.getElementById('subview-lista-convites').classList.remove('hidden');
+    }
+
+    // Gravação por Áudio (Speech-to-Text integrado ao navegador com fallback)
+    function toggleMicrofone() {
+      if (isRecording) {
+        pararGravacaoAudio();
+      } else {
+        iniciarGravacaoAudio();
+      }
+    }
+
+    function iniciarGravacaoAudio() {
+      const micBtn = document.getElementById('btn-microfone');
+      const statusIndicator = document.getElementById('gravando-status');
+      const input = document.getElementById('chat-preferencias-input');
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+      if (SpeechRecognition) {
+        recognition = new SpeechRecognition();
+        recognition.lang = 'pt-BR';
+        recognition.continuous = false;
+        recognition.interimResults = true;
+
+        recognition.onstart = () => {
+          isRecording = true;
+          micBtn.classList.add('recording');
+          statusIndicator.classList.add('active');
+        };
+
+        recognition.onresult = (event) => {
+          let transcr = '';
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            transcr += event.results[i][0].transcript;
+          }
+          if (transcr) {
+            input.value = transcr;
+          }
+        };
+
+        recognition.onerror = () => {
+          pararGravacaoAudio();
+        };
+
+        recognition.onend = () => {
+          pararGravacaoAudio();
+        };
+
+        try {
+          recognition.start();
+        } catch (e) {
+          simularGravacaoAudio();
+        }
+      } else {
+        simularGravacaoAudio();
+      }
+    }
+
+    function simularGravacaoAudio() {
+      const micBtn = document.getElementById('btn-microfone');
+      const statusIndicator = document.getElementById('gravando-status');
+      const input = document.getElementById('chat-preferencias-input');
+
+      isRecording = true;
+      micBtn.classList.add('recording');
+      statusIndicator.classList.add('active');
+
+      setTimeout(() => {
+        if (isRecording) {
+          const falaExemplo = "Prefiro barzinho com música ao vivo, vibe animada, budget moderado e até 20km.";
+          input.value = falaExemplo;
+          pararGravacaoAudio();
+        }
+      }, 2500);
+    }
+
+    function pararGravacaoAudio() {
+      isRecording = false;
+      const micBtn = document.getElementById('btn-microfone');
+      const statusIndicator = document.getElementById('gravando-status');
+      if (micBtn) micBtn.classList.remove('recording');
+      if (statusIndicator) statusIndicator.classList.remove('active');
+      if (recognition) {
+        try { recognition.stop(); } catch(e) {}
+        recognition = null;
+      }
+    }
+
+    // Confirmar expectativas e ingressar na sala
+    function confirmarPreferencias() {
+      if (!conviteSelecionado) return;
+
+      const texto = document.getElementById('chat-preferencias-input').value.trim();
+      const feedback = document.getElementById('feedback-sala-alert');
+      const feedbackText = document.getElementById('feedback-sala-text');
+
+      feedbackText.textContent = `Suas preferências foram salvas! Você entrou na sala "${conviteSelecionado.nomeSala}".`;
+      feedback.className = 'feedback-alert success';
+
+      // Remove convite da lista pendente
+      const salaConfirmada = conviteSelecionado.nomeSala;
+      convites = convites.filter(c => c.id !== conviteSelecionado.id);
+      atualizarBadgeConvites();
+
+      setTimeout(() => {
+        voltarParaListaConvites();
+        renderizarConvites();
+        if (convites.length === 0) {
+          setTimeout(() => {
+            fecharTodasSidebars();
+          }, 1000);
+        }
+      }, 1400);
+    }
+
+    // ==============================================
+    // BANCO DE DADOS DE AMIGOS E DESTINATÁRIOS
+    // ==============================================
+    const usuariosBanco = [
+      { id: 1, nome: "Amanda Silva", ra: "Asa Sul" },
+      { id: 2, nome: "Ana Clara", ra: "Águas Claras" },
+      { id: 3, nome: "Arthur Ramos", ra: "Taguatinga" },
+      { id: 4, nome: "Beatriz Lima", ra: "Asa Norte" },
+      { id: 5, nome: "Caio Mendes", ra: "Sudoeste" },
+      { id: 6, nome: "Davi Oliveira", ra: "Samambaia" },
+      { id: 7, nome: "Davidi Santos", ra: "Ceilândia" },
+      { id: 8, nome: "Dudu Ferreira", ra: "Guará" },
+      { id: 9, nome: "Gabriel Costa", ra: "Asa Norte" },
+      { id: 10, nome: "Guilherme Souza", ra: "Lago Sul" },
+      { id: 11, nome: "Gustavo Rocha", ra: "Vicente Pires" },
+      { id: 12, nome: "Julia Martins", ra: "Noroeste" },
+      { id: 13, nome: "Larissa Dias", ra: "Asa Sul" },
+      { id: 14, nome: "Liz Carvalho", ra: "Águas Claras" },
+      { id: 15, nome: "Lucas Albuquerque", ra: "Samambaia" },
+      { id: 16, nome: "Marina Ribeiro", ra: "Taguatinga" },
+      { id: 17, nome: "Matheus Pires", ra: "Cruzeiro" },
+      { id: 18, nome: "Pedro Henrique", ra: "Asa Sul" },
+      { id: 19, nome: "Rafael Torres", ra: "Sobradinho" },
+      { id: 20, nome: "Sofia Vasconcelos", ra: "Asa Norte" },
+      { id: 21, nome: "Thiago Morais", ra: "Guará" },
+      { id: 22, nome: "Vinicius Nogueira", ra: "Águas Claras" }
+    ];
+
+    let membrosSelecionados = [];
+    let isRecordingCriar = false;
+    let recognitionCriar = null;
+
+    function focarBuscaMembros() {
+      const input = document.getElementById('input-busca-membros');
+      if (input) input.focus();
+    }
+
+    function filtrarAmigos(query) {
+      const dropdown = document.getElementById('autocomplete-membros');
+      const q = (query || '').trim().toLowerCase();
+
+      if (!q) {
+        dropdown.classList.add('hidden');
+        dropdown.innerHTML = '';
+        return;
+      }
+
+      const selecionadosIds = membrosSelecionados.map(m => m.id);
+      const filtrados = usuariosBanco.filter(u => 
+        !selecionadosIds.includes(u.id) && 
+        (u.nome.toLowerCase().startsWith(q) || u.nome.toLowerCase().includes(q))
+      );
+
+      if (filtrados.length === 0) {
+        dropdown.innerHTML = '<div style="padding: 10px 14px; font-size: 12px; color: #9CA3AF;">Nenhum amigo encontrado</div>';
+        dropdown.classList.remove('hidden');
+        return;
+      }
+
+      dropdown.innerHTML = '';
+      filtrados.forEach(u => {
+        const item = document.createElement('div');
+        item.className = 'autocomplete-item';
+
+        const regex = new RegExp(`(${q})`, 'gi');
+        const nomeDestacado = u.nome.replace(regex, '<strong>$1</strong>');
+        const inicial = u.nome.charAt(0).toUpperCase();
+
+        item.innerHTML = `
+          <div class="autocomplete-avatar">${inicial}</div>
+          <div class="autocomplete-info">
+            <span class="autocomplete-name">${nomeDestacado}</span>
+            <span class="autocomplete-ra">${u.ra}</span>
+          </div>
+        `;
+        item.onmousedown = (e) => {
+          e.preventDefault();
+          adicionarMembro(u);
+        };
+        dropdown.appendChild(item);
+      });
+
+      dropdown.classList.remove('hidden');
+    }
+
+    function adicionarMembro(usuario) {
+      if (membrosSelecionados.some(m => m.id === usuario.id)) return;
+      membrosSelecionados.push(usuario);
+      renderizarMembrosChips();
+      const input = document.getElementById('input-busca-membros');
+      input.value = '';
+      input.focus();
+      document.getElementById('autocomplete-membros').classList.add('hidden');
+    }
+
+    function removerMembro(id) {
+      membrosSelecionados = membrosSelecionados.filter(m => m.id !== id);
+      renderizarMembrosChips();
+      document.getElementById('input-busca-membros').focus();
+    }
+
+    function renderizarMembrosChips() {
+      const container = document.getElementById('chips-membros-selecionados');
+      container.innerHTML = '';
+      membrosSelecionados.forEach(m => {
+        const chip = document.createElement('div');
+        chip.className = 'membro-chip';
+        const inicial = m.nome.charAt(0).toUpperCase();
+        chip.innerHTML = `
+          <span class="membro-chip-avatar">${inicial}</span>
+          <span>${m.nome}</span>
+          <button type="button" class="membro-chip-remove" onclick="removerMembro(${m.id})" aria-label="Remover">✕</button>
+        `;
+        container.appendChild(chip);
+      });
+    }
+
+    function tratarTeclasMembros(e) {
+      const input = document.getElementById('input-busca-membros');
+      if (e.key === 'Backspace' && input.value === '' && membrosSelecionados.length > 0) {
+        removerMembro(membrosSelecionados[membrosSelecionados.length - 1].id);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        const primeiroItem = document.querySelector('.autocomplete-item');
+        if (primeiroItem) {
+          primeiroItem.dispatchEvent(new MouseEvent('mousedown'));
+        }
+      } else if (e.key === 'Escape') {
+        document.getElementById('autocomplete-membros').classList.add('hidden');
+      }
+    }
+
+    function atualizarNomeSalaEmCriacao() {
+      const val = document.getElementById('criar-nome-sala').value.trim();
+      const nomeExibicao = val || 'seu rolê';
+      document.getElementById('criar-sala-nome-preview').textContent = nomeExibicao;
+      document.getElementById('criar-sala-dia-preview').textContent = nomeExibicao;
+    }
+
+    // Gravação de áudio do Criador de Sala
+    function toggleMicrofoneCriar() {
+      if (isRecordingCriar) {
+        pararGravacaoAudioCriar();
+      } else {
+        iniciarGravacaoAudioCriar();
+      }
+    }
+
+    function iniciarGravacaoAudioCriar() {
+      const micBtn = document.getElementById('btn-microfone-criar');
+      const statusIndicator = document.getElementById('gravando-status-criar');
+      const input = document.getElementById('chat-criar-sala-input');
+
+      const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+      if (SpeechRecognition) {
+        recognitionCriar = new SpeechRecognition();
+        recognitionCriar.lang = 'pt-BR';
+        recognitionCriar.continuous = false;
+        recognitionCriar.interimResults = true;
+
+        recognitionCriar.onstart = () => {
+          isRecordingCriar = true;
+          micBtn.classList.add('recording');
+          statusIndicator.classList.add('active');
+        };
+
+        recognitionCriar.onresult = (event) => {
+          let transcr = '';
+          for (let i = event.resultIndex; i < event.results.length; ++i) {
+            transcr += event.results[i][0].transcript;
+          }
+          if (transcr) {
+            input.value = transcr;
+          }
+        };
+
+        recognitionCriar.onerror = () => {
+          pararGravacaoAudioCriar();
+        };
+
+        recognitionCriar.onend = () => {
+          pararGravacaoAudioCriar();
+        };
+
+        try {
+          recognitionCriar.start();
+        } catch (e) {
+          simularGravacaoAudioCriar();
+        }
+      } else {
+        simularGravacaoAudioCriar();
+      }
+    }
+
+    function simularGravacaoAudioCriar() {
+      const micBtn = document.getElementById('btn-microfone-criar');
+      const statusIndicator = document.getElementById('gravando-status-criar');
+      const input = document.getElementById('chat-criar-sala-input');
+
+      isRecordingCriar = true;
+      micBtn.classList.add('recording');
+      statusIndicator.classList.add('active');
+
+      setTimeout(() => {
+        if (isRecordingCriar) {
+          input.value = "Estou livre sexta à noite! Prefiro um boteco com cerveja gelada e petiscos, budget até 70 reais.";
+          pararGravacaoAudioCriar();
+        }
+      }, 2500);
+    }
+
+    function pararGravacaoAudioCriar() {
+      isRecordingCriar = false;
+      const micBtn = document.getElementById('btn-microfone-criar');
+      const statusIndicator = document.getElementById('gravando-status-criar');
+      if (micBtn) micBtn.classList.remove('recording');
+      if (statusIndicator) statusIndicator.classList.remove('active');
+      if (recognitionCriar) {
+        try { recognitionCriar.stop(); } catch(e) {}
+        recognitionCriar = null;
+      }
+    }
+
+    // ==============================================
+    // BANCO E GERENCIAMENTO DO HUB DE SALAS (3 ESTADOS)
+    // ==============================================
+    let salasUsuario = [
+      {
+        id: 'sala-1',
+        nome: 'Niver',
+        estado: 1, // Estado 1: Antes de todos os convidados terem aceitado ou declinado
+        membros: [
+          { nome: 'Amanda', pendente: false },
+          { nome: 'Davi', pendente: false },
+          { nome: 'Liz', pendente: true },
+          { nome: 'Letícia', pendente: true }
+        ],
+        nota: 'Aguardando respostas para o <strong>EIXO</strong> cruzar as preferências e gerar as recomendações.'
+      },
+      {
+        id: 'sala-2',
+        nome: 'Boteco de Sexta',
+        estado: 2, // Estado 2: Todos responderam, EIXO recomendou 3 locais, pronto para votar
+        membros: [
+          { nome: 'Amanda', pendente: false },
+          { nome: 'Davi', pendente: false },
+          { nome: 'Liz', pendente: false },
+          { nome: 'Letícia', pendente: false }
+        ],
+        iaDescricao: 'Todos já responderam! O <strong>EIXO</strong> analisou horários livres, preferências de boteco e limite de gasto por pessoa.',
+        detalhesIA: '3 botecos e pubs ideais selecionados'
+      },
+      {
+        id: 'sala-3',
+        nome: 'Churrasco da Turma',
+        estado: 3, // Estado 3: Rolê Decidido (Reminder com destino, pessoas, dia e horário)
+        destino: 'Parrilla Burger & Chopp',
+        endereco: 'CLS 408 Sul &bull; Asa Sul',
+        dataHora: 'Sábado, 21 de Nov &bull; 19:30',
+        pessoas: 'Amanda, Davi, Liz e Letícia'
+      }
+    ];
+
+    let exibindoVazioDemo = false;
+
+    function renderizarHubSalas() {
+      const containerSalas = document.getElementById('hub-salas-container');
+      const containerVazio = document.getElementById('hub-empty-state');
+      const grid = document.getElementById('hub-cards-grid');
+      const prevBtn = document.getElementById('hub-carousel-prev');
+      const nextBtn = document.getElementById('hub-carousel-next');
+
+      if (!containerSalas || !containerVazio || !grid) return;
+
+      const totalSalas = salasUsuario.length;
+
+      if (exibindoVazioDemo || totalSalas === 0) {
+        containerSalas.style.display = 'none';
+        containerVazio.style.display = 'flex';
+        return;
+      }
+
+      containerSalas.style.display = 'flex';
+      containerVazio.style.display = 'none';
+
+      // Setinhas aparecem apenas se houver mais de 3 salas, mas o espaço sempre fica lá
+      if (totalSalas > 3) {
+        if (prevBtn) prevBtn.classList.remove('hidden-space');
+        if (nextBtn) nextBtn.classList.remove('hidden-space');
+      } else {
+        if (prevBtn) prevBtn.classList.add('hidden-space');
+        if (nextBtn) nextBtn.classList.add('hidden-space');
+      }
+
+      grid.setAttribute('data-count', Math.min(totalSalas, 3));
+      grid.innerHTML = '';
+
+      salasUsuario.forEach(sala => {
+        const card = document.createElement('div');
+        card.className = 'hub-card';
+
+        if (sala.estado === 1) {
+          // ESTADO 1: ANTES DE TODOS TEREM ACEITADO OU DECLINADO (MINIMALISTA, SEM EMOJIS, SEM CHECK/AMPULHETA)
+          let membrosHtml = '';
+          sala.membros.forEach(m => {
+            if (m.pendente) {
+              membrosHtml += `
+                <li class="hub-membro-row">
+                  <span>${m.nome}</span>
+                  <span class="pendente-tag">(pendente)</span>
+                </li>
+              `;
+            } else {
+              membrosHtml += `
+                <li class="hub-membro-row">
+                  <span>${m.nome}</span>
+                </li>
+              `;
+            }
+          });
+
+          card.innerHTML = `
+            <div>
+              <div class="hub-card-header">
+                <h3 class="hub-card-name">${sala.nome}</h3>
+              </div>
+
+              <div class="hub-card-body">
+                <p class="membros-list-title">Membros Convidados:</p>
+                <ul class="hub-membros-list">
+                  ${membrosHtml}
+                </ul>
+              </div>
+            </div>
+
+            <div class="hub-status-note">
+              <span class="hub-note-badge">Convites pendentes</span>
+              <p>Aguardando respostas para o <strong>EIXO</strong> cruzar as preferências e gerar as recomendações.</p>
+            </div>
+          `;
+        } else if (sala.estado === 2) {
+          // ESTADO 2: RECOMENDAÇÕES PRONTAS COMO TÍTULO NO TRECHO, SEM BADGE NO TOPO DIREITO
+          const nomesMembros = sala.membros.map(m => m.nome).join(', ');
+
+          card.innerHTML = `
+            <div>
+              <div class="hub-card-header">
+                <h3 class="hub-card-name">${sala.nome}</h3>
+              </div>
+
+              <div class="hub-card-body">
+                <div class="hub-prontas-box">
+                  <h4 class="prontas-title">Recomendações Prontas</h4>
+                  <p class="prontas-text">Todos já responderam! O <strong>EIXO</strong> analisou horários livres, preferências de boteco e limite de gasto por pessoa.</p>
+                  <div class="prontas-tag">${sala.detalhesIA}</div>
+                </div>
+
+                <div class="hub-confirmados-row">
+                  <strong>Confirmados:</strong> ${nomesMembros}
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <button class="btn-hub-votar" onclick="iniciarVotacao('${sala.nome}')">
+                <span>VOTAR</span>
+                <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+                </svg>
+              </button>
+            </div>
+          `;
+        } else if (sala.estado === 3) {
+          // ESTADO 3: REMINDER DO ROLÊ (SEM VERDE, SEM "ROLÊ CONFIRMADO/DECIDIDO", COM BOTÃO DE ASSISTIR NO TIKTOK)
+          card.innerHTML = `
+            <div>
+              <div class="hub-card-header">
+                <h3 class="hub-card-name">${sala.nome}</h3>
+              </div>
+
+              <div class="hub-card-body">
+                <div class="hub-reminder-box">
+                  <div class="reminder-item">
+                    <span class="reminder-label">Destino do Grupo</span>
+                    <span class="reminder-destaque">${sala.destino}</span>
+                    <span class="reminder-sub">${sala.endereco}</span>
+                  </div>
+
+                  <div class="reminder-item">
+                    <span class="reminder-label">Data e Horário</span>
+                    <span class="reminder-info">${sala.dataHora}</span>
+                  </div>
+
+                  <div class="reminder-item">
+                    <span class="reminder-label">Galera Confirmada</span>
+                    <span class="reminder-info">${sala.pessoas}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <button class="btn-hub-tiktok" onclick="abrirTikTok('${sala.destino}')">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M8 5v14l11-7z"/>
+                </svg>
+                <span>Assistir Resumo no TikTok</span>
+              </button>
+            </div>
+          `;
+        }
+
+        grid.appendChild(card);
+      });
+    }
+
+    function scrollHubCarrossel(direction) {
+      const track = document.getElementById('hub-carousel-track');
+      if (track) {
+        track.scrollBy({ left: direction * 360, behavior: 'smooth' });
+      }
+    }
+
+    function abrirTikTok(destino) {
+      alert(`Vídeo do TikTok para "${destino}" em breve! O player integrado será conectado com a base de dados do EIXO.`);
+    }
+
+    function toggleDemoHubSalas() {
+      exibindoVazioDemo = !exibindoVazioDemo;
+      renderizarHubSalas();
+    }
+
+    function iniciarVotacao(nomeSala) {
+      window.location.href = 'tela3.html';
+    }
+
+    function confirmarCriacaoSala() {
+      const nomeSala = document.getElementById('criar-nome-sala').value.trim();
+      if (!nomeSala) {
+        alert('Por favor, informe o nome do rolê.');
+        document.getElementById('criar-nome-sala').focus();
+        return;
+      }
+      if (membrosSelecionados.length === 0) {
+        alert('Por favor, convide ao menos um amigo para a sala.');
+        document.getElementById('input-busca-membros').focus();
+        return;
+      }
+
+      const feedback = document.getElementById('feedback-criar-alert');
+      const feedbackText = document.getElementById('feedback-criar-text');
+      const nomes = membrosSelecionados.map(m => m.nome.split(' ')[0]).join(', ');
+
+      feedbackText.textContent = `Sala "${nomeSala}" criada com sucesso! Convites enviados para ${nomes}.`;
+      feedback.className = 'feedback-alert success';
+
+      // Cria a nova sala no Hub no Estado 1 (Convites Pendentes)
+      const novaSala = {
+        id: 'sala-' + Date.now(),
+        nome: nomeSala,
+        estado: 1,
+        membros: [
+          { nome: 'Você', pendente: false },
+          ...membrosSelecionados.map(m => ({ nome: m.nome.split(' ')[0], pendente: true }))
+        ],
+        nota: 'Aguardando respostas para o <strong>EIXO</strong> cruzar as preferências e gerar as recomendações.'
+      };
+
+      salasUsuario.unshift(novaSala);
+      exibindoVazioDemo = false;
+      renderizarHubSalas();
+
+      setTimeout(() => {
+        fecharTodasSidebars();
+      }, 1500);
+    }
+
+    function preencherExemploCriarSala() {
+      document.getElementById('criar-nome-sala').value = 'Boteco de Sexta';
+      atualizarNomeSalaEmCriacao();
+      adicionarMembro(usuariosBanco[5]); // Davi Oliveira
+      adicionarMembro(usuariosBanco[13]); // Liz Carvalho
+      document.getElementById('input-busca-membros').value = 'A';
+      filtrarAmigos('A');
+    }
+
+    // ==============================================
+    // CONTROLE DE ABERTURA E FECHAMENTO DAS SIDEBARS
+    // ==============================================
+    function fecharTodasSidebars() {
+      document.getElementById('sidebar-ra').classList.remove('open');
+      document.getElementById('sidebar-convites').classList.remove('open');
+      document.getElementById('sidebar-criar-sala').classList.remove('open');
+      document.getElementById('backdrop-overlay').classList.remove('active');
+      document.getElementById('sidebar-ra').setAttribute('aria-hidden', 'true');
+      document.getElementById('sidebar-convites').setAttribute('aria-hidden', 'true');
+      document.getElementById('sidebar-criar-sala').setAttribute('aria-hidden', 'true');
+      const auto = document.getElementById('autocomplete-membros');
+      if (auto) auto.classList.add('hidden');
+      pararGravacaoAudio();
+      pararGravacaoAudioCriar();
+    }
+
+    function abrirSidebarRA() {
+      fecharTodasSidebars();
+      carregarDadosUsuario();
+      document.getElementById('input-confirma-senha').value = '';
+      document.getElementById('feedback-alert').className = 'feedback-alert';
+
+      document.getElementById('sidebar-ra').classList.add('open');
+      document.getElementById('backdrop-overlay').classList.add('active');
+      document.getElementById('sidebar-ra').setAttribute('aria-hidden', 'false');
+    }
+
+    function abrirSidebarConvites() {
+      fecharTodasSidebars();
+      voltarParaListaConvites();
+      renderizarConvites();
+
+      document.getElementById('sidebar-convites').classList.add('open');
+      document.getElementById('backdrop-overlay').classList.add('active');
+      document.getElementById('sidebar-convites').setAttribute('aria-hidden', 'false');
+    }
+
+    function abrirSidebarCriarSala() {
+      fecharTodasSidebars();
+      carregarDadosUsuario();
+      document.getElementById('criar-nome-sala').value = '';
+      document.getElementById('chat-criar-sala-input').value = '';
+      document.getElementById('feedback-criar-alert').className = 'feedback-alert';
+      membrosSelecionados = [];
+      renderizarMembrosChips();
+      atualizarNomeSalaEmCriacao();
+
+      const salvo = JSON.parse(localStorage.getItem('eixo_usuario') || 'null');
+      const ra = (salvo && salvo.ra) ? salvo.ra : 'Samambaia';
+      const raEl = document.getElementById('criar-sala-ra-user');
+      if (raEl) raEl.textContent = ra;
+
+      document.getElementById('sidebar-criar-sala').classList.add('open');
+      document.getElementById('backdrop-overlay').classList.add('active');
+      document.getElementById('sidebar-criar-sala').setAttribute('aria-hidden', 'false');
+    }
+
+    // Atualizar RA
+    function atualizarRA(event) {
+      event.preventDefault();
+      const novaRA = document.getElementById('select-nova-ra').value;
+      const senhaDigitada = document.getElementById('input-confirma-senha').value;
+
+      if (!senhaDigitada) {
+        alert('Por favor, confirme sua senha.');
+        return;
+      }
+
+      let usuario = JSON.parse(localStorage.getItem('eixo_usuario') || '{}');
+      usuario.ra = novaRA;
+      localStorage.setItem('eixo_usuario', JSON.stringify(usuario));
+
+      const curPill = document.getElementById('current-ra-pill');
+      if (curPill) curPill.textContent = novaRA;
+      const mainRa = document.getElementById('main-ra-display');
+      if (mainRa) mainRa.textContent = novaRA;
+      const qRa = document.getElementById('questionario-user-ra');
+      if (qRa) {
+        qRa.textContent = novaRA;
+      }
+      const cRa = document.getElementById('criar-sala-ra-user');
+      if (cRa) {
+        cRa.textContent = novaRA;
+      }
+
+      const alertBox = document.getElementById('feedback-alert');
+      const alertText = document.getElementById('feedback-text');
+      alertText.textContent = `Região atualizada para ${novaRA}!`;
+      alertBox.className = 'feedback-alert success';
+
+      document.getElementById('input-confirma-senha').value = '';
+
+      setTimeout(() => {
+        fecharTodasSidebars();
+      }, 1200);
+    }
+
+    // Tecla ESC fecha sidebars
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        fecharTodasSidebars();
+      }
+    });
+
+    // Fecha dropdown se clicar fora
+    document.addEventListener('click', (e) => {
+      const wrapper = document.querySelector('.destinatarios-wrapper');
+      if (wrapper && !wrapper.contains(e.target)) {
+        const auto = document.getElementById('autocomplete-membros');
+        if (auto) auto.classList.add('hidden');
+      }
+    });
+
+    // Inicialização ao carregar a página
+    window.addEventListener('DOMContentLoaded', () => {
+      carregarDadosUsuario();
+      renderizarHubSalas();
+
+      if (window.location.hash === '#hub-vazio') {
+        exibindoVazioDemo = true;
+        renderizarHubSalas();
+      } else if (window.location.hash === '#hub-carrossel') {
+        salasUsuario.push({
+          id: 'sala-4',
+          nome: 'Café & Bate-Papo',
+          estado: 1,
+          membros: [
+            { nome: 'Ana Clara', pendente: false },
+            { nome: 'Caio', pendente: true }
+          ],
+          nota: 'Aguardando respostas para o <strong>EIXO</strong> cruzar as preferências e gerar as recomendações.'
+        });
+        renderizarHubSalas();
+      } else if (window.location.hash === '#sidebar') {
+        abrirSidebarRA();
+      } else if (window.location.hash === '#convites') {
+        abrirSidebarConvites();
+      } else if (window.location.hash === '#questionario') {
+        abrirSidebarConvites();
+        aceitarConvite('conv-2');
+      } else if (window.location.hash === '#questionario-long') {
+        abrirSidebarConvites();
+        aceitarConvite('conv-2');
+        const input = document.getElementById('chat-preferencias-input');
+        input.value = 'Prefiro um barzinho bem animado com música ao vivo, tipo pub ou boteco tradicional com chopp gelado e petiscos. A vibe tem que ser bem pra cima e animada pra galera bater papo e comemorar.\n\nSobre o budget, pode ser moderado, por volta de 80 reais por pessoa no máximo. Quanto à distância, topo ir até uns 25km a partir de Samambaia sem problemas, pegando o metrô ou carro!\n\nSe tiver estacionamento fácil por perto ou opção de transporte público ajuda bastante pra todo mundo do grupo conseguir chegar bem!';
+      } else if (window.location.hash === '#criar-sala') {
+        abrirSidebarCriarSala();
+      } else if (window.location.hash === '#criar-sala-exemplo') {
+        abrirSidebarCriarSala();
+        preencherExemploCriarSala();
+      } else if (window.location.hash === '#tooltip') {
+        const tip = document.querySelector('.tooltip');
+        if (tip) {
+          tip.style.opacity = '1';
+          tip.style.transform = 'translateY(0)';
+        }
+      }
+    });
+  </script>
+</body>
+</html>
