@@ -398,6 +398,7 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
 * **Status:** Concluída
 * **O que foi feito:**
   - Elaboração da documentação técnica arquitetural completa em `docs/arquitetura/multiagente.md` com especificações detalhadas do grafo no LangGraph;
+  - Criação de página web completa e responsiva em `docs/arquitetura/multiagente.html` para visualização e leitura direta da documentação com Mermaid.js e SVG integrado, vinculada ao mapa geral (`docs/arquitetura/index.html`);
   - Criação de diagrama estrutural em Mermaid evidenciando os nós cognitivos (LLM), nós determinísticos (código puro Python), canais de dados e o loop condicional de feedback;
   - Desenvolvimento de gerador vetorial automatizado em Python (`scripts/gerar_grafo_multiagente_svg.py`) e exportação de imagem vetorial de alta resolução em `docs/arquitetura/img/grafo_multiagente.svg`;
   - Atualização do menu de navegação e suporte a diagramas Mermaid no `mkdocs.yml`;
@@ -409,13 +410,15 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
   - *Observabilidade Ponta a Ponta:* Inclusão do painel de telemetria Langfuse Cloud v5.x com rastreamento por trace raiz e spans individuais por agente para monitoramento de latência (RNF-14) e fidelidade factual (RNF-03).
 * **Arquivos:**
   - `docs/arquitetura/multiagente.md`
+  - `docs/arquitetura/multiagente.html`
+  - `docs/arquitetura/index.html`
   - `docs/arquitetura/img/grafo_multiagente.svg`
   - `scripts/gerar_grafo_multiagente_svg.py`
   - `mkdocs.yml`
   - `tests/test_arquitetura_multiagente.py`
   - `docs/semanas/semana-04.md`
 * **Testes e Validação:**
-  - Execução de `pytest tests/test_arquitetura_multiagente.py` com 5 testes aprovados cobrindo integridade do SVG, nós, canais, requisitos, estrutura markdown e configuração do MkDocs.
+  - Execução de `pytest tests/test_arquitetura_multiagente.py` com 6 testes aprovados cobrindo integridade do SVG, nós, canais, requisitos, estrutura markdown, página HTML e configuração do MkDocs.
   - Execução da suíte completa de testes locais com 625 testes passando.
 
 ---

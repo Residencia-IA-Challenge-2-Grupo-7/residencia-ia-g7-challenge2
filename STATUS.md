@@ -3,17 +3,18 @@
 > Arquivo vivo. Toda sessão (humana ou de agente) lê no início e atualiza no fim.
 > Mantenha curto: o histórico fica em `docs/semanas/` e no `git log`.
 
-**Atualizado em:** 2026-11-17
+**Atualizado em:** 2026-11-19
 **Semana do roadmap:** 4 — Primeiro Protótipo Multiagente (LangGraph + Ferramentas Determinísticas)
 
 ## Agora
 
 - **Diagrama Visual da Arquitetura do Grafo Multiagente (Maria Carolina, 17/11), issue #75, na branch `docs/semana4-diagrama-arquitetura`:**
   - Criação da documentação formal em `docs/arquitetura/multiagente.md` com diagrama estrutural em Mermaid e detalhamento dos 5 agentes, canais e ciclos;
+  - Criação de página web completa em `docs/arquitetura/multiagente.html` com renderização Mermaid.js e SVG interativo, vinculada ao mapa geral (`docs/arquitetura/index.html`);
   - Geração e exportação do diagrama vetorial de alta resolução em `docs/arquitetura/img/grafo_multiagente.svg`, destacando visualmente nós com LLM (azul), nós em código determinístico (verde), híbrido (roxo), canais privados de dados (laranja), nó de convergência com loop condicional de feedback e observabilidade com Langfuse Cloud;
   - Script automatizado de geração vetorial em `scripts/gerar_grafo_multiagente_svg.py`;
   - Inclusão da nova documentação na navegação do `mkdocs.yml` com suporte a `mermaid` via superfences;
-  - Suíte de 5 testes unitários e de integridade em `tests/test_arquitetura_multiagente.py`; 625 testes passam no total (`pytest tests`).
+  - Suíte de 6 testes unitários e de integridade em `tests/test_arquitetura_multiagente.py`; 625 testes passam no total (`pytest tests`).
 - **Agente 4 (Comunicação): Prompt do Anfitrião e Formatação de Cartões em JSON (Maria Carolina, 17/11), issue #69, na branch `feat/semana4-agente-comunicacao`:** implementadas em [src/telas/](src/telas/rotas.py) (branch `feat/frontend-issue-42`): navegação unificada por 3 abas superiores interativas (`1. Criar Sala`, `2. Meus Dados`, `3. Painel e Votação`), alternância dinâmica com histórico e modo demonstração (`DEMO`) com lugares reais de Brasília do catálogo TikTok quando acessado em `/sala/demo`. Revisão da issue #42 / PR #79 totalmente atendida: modo dev oculto por padrão (ativo apenas com `?dev=1` ou `DEMO`), remoção de `onclick` inline (CSP compliance), tratamento de erros 404/5xx sem fallback cego para demo, datas dinâmicas de fim de semana e teste automatizado de RNF-02 cobrindo HTML estático. Suíte de testes de interface passa (`tests/test_interface_app.py`).
 - **Juiz do avaliador trocado (Cauan, 17/11):** `z-ai/glm-5.3-flash` no lugar do `xiaomi/mimo-v2.6-pro` ([ADR 0014](docs/decisoes/0014-juiz-glm-5.3-flash.md)). Nas mesmas 94 respostas da rodada 2 da semana 3: US$ 0,057 contra US$ 0,731, p90 de 10,1 s contra 18,8 s, concordância de 90 de 94 sobre haver contradição ([experimento](docs/experimentos/2026-11-17-juiz-glm.md)). O GLM é mais leniente no caso limite do golden_15. Os resultados da semana 3 continuam os do MiMo.
 - **Relatório da Semana 3 (Cauan, 13/11), issue #40, branch `feat/40-relatorio-semana3`:**

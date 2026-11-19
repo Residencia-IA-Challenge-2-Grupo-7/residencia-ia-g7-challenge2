@@ -1,0 +1,732 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Arquitetura do Grafo Multiagente · Orquestrador de Rolês</title>
+  <meta name="description" content="Documentação técnica oficial da arquitetura do grafo multiagente (LangGraph) do Orquestrador de Rolês - Grupo 7 (Residência em IA Eldorado & UnB).">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap">
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+  <script>
+    if (typeof mermaid !== 'undefined') {
+      mermaid.initialize({
+        startOnLoad: true,
+        theme: 'dark',
+        themeVariables: {
+          darkMode: true,
+          background: '#0f172a',
+          primaryColor: '#0284c7',
+          primaryTextColor: '#f8fafc',
+          primaryBorderColor: '#38bdf8',
+          lineColor: '#94a3b8',
+          secondaryColor: '#16a34a',
+          tertiaryColor: '#9333ea'
+        }
+      });
+    }
+  </script>
+  <style>
+    :root {
+      --bg: #0b1120;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent-blue: #38bdf8;
+      --accent-green: #4ade80;
+      --accent-purple: #c084fc;
+      --accent-amber: #fbbf24;
+      --accent-orange: #fb923c;
+      --accent-red: #f43f5e;
+      --font: 'Inter', system-ui, -apple-system, sans-serif;
+      --mono: 'JetBrains Mono', ui-monospace, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.6;
+      padding-bottom: 80px;
+    }
+
+    /* Barra Superior */
+    header.topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(15, 23, 42, 0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--card-border);
+      padding: 12px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: inherit;
+    }
+    .badge-pill {
+      background: linear-gradient(135deg, #0284c7, #6366f1);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 999px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .topbar-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .topbar-nav {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .btn-secondary {
+      background: #1e293b;
+      color: #cbd5e1;
+      border: 1px solid #475569;
+    }
+    .btn-secondary:hover {
+      background: #334155;
+      color: #fff;
+    }
+    .btn-primary {
+      background: #0284c7;
+      color: #fff;
+      border: 1px solid #38bdf8;
+    }
+    .btn-primary:hover {
+      background: #0369a1;
+    }
+
+    /* Container Principal */
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 32px 20px;
+    }
+
+    /* Hero / Cabeçalho */
+    .hero {
+      background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 36px 32px;
+      margin-bottom: 36px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+    .hero-tagline {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--accent-blue);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+    .hero h1 {
+      font-size: 32px;
+      font-weight: 800;
+      line-height: 1.2;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+    .hero p {
+      font-size: 16px;
+      color: var(--text-muted);
+      max-width: 900px;
+      margin-bottom: 20px;
+    }
+    .badges-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid transparent;
+    }
+    .badge-blue { background: rgba(2, 132, 199, 0.2); color: #7dd3fc; border-color: #0284c7; }
+    .badge-green { background: rgba(22, 163, 74, 0.2); color: #86efac; border-color: #16a34a; }
+    .badge-purple { background: rgba(147, 51, 234, 0.2); color: #d8b4fe; border-color: #9333ea; }
+    .badge-amber { background: rgba(217, 119, 6, 0.2); color: #fde68a; border-color: #d97706; }
+
+    /* Seções */
+    section {
+      margin-bottom: 48px;
+    }
+    h2.section-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 10px;
+    }
+
+    /* Visualizador do SVG */
+    .viewer-card {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+      margin-bottom: 30px;
+      text-align: center;
+    }
+    .viewer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #1e293b;
+      text-align: left;
+    }
+    .viewer-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .svg-container {
+      width: 100%;
+      overflow: auto;
+      border-radius: 8px;
+      background: #0b1120;
+      border: 1px solid #1e293b;
+      max-height: 850px;
+    }
+    .svg-container img {
+      width: 100%;
+      height: auto;
+      min-width: 950px;
+      display: block;
+    }
+
+    /* Mermaid Card */
+    .mermaid-card {
+      background: #0f172a;
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 36px;
+    }
+
+    /* Grid de Agentes */
+    .agents-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 20px;
+      margin-bottom: 32px;
+    }
+    .agent-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 22px;
+      position: relative;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .agent-card:hover {
+      transform: translateY(-2px);
+      border-color: #475569;
+    }
+    .agent-card.blue { border-top: 4px solid var(--accent-blue); }
+    .agent-card.green { border-top: 4px solid var(--accent-green); }
+    .agent-card.purple { border-top: 4px solid var(--accent-purple); }
+    .agent-card.amber { border-top: 4px solid var(--accent-amber); }
+
+    .agent-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    .agent-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: #fff;
+    }
+    .agent-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    .agent-body {
+      font-size: 13.5px;
+      color: #cbd5e1;
+    }
+    .agent-body ul {
+      margin-left: 18px;
+      margin-top: 8px;
+    }
+    .agent-body li {
+      margin-bottom: 6px;
+    }
+
+    /* Canais de Dados (RNF-02) */
+    .channels-container {
+      background: #0f172a;
+      border: 1px dashed var(--accent-orange);
+      border-radius: 14px;
+      padding: 24px;
+      margin-bottom: 32px;
+    }
+    .channels-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+    .channel-box {
+      background: #1e293b;
+      border-radius: 8px;
+      padding: 16px;
+      border-left: 3px solid;
+    }
+    .ch-1 { border-color: #fca5a5; }
+    .ch-2 { border-color: #fdba74; }
+    .ch-3 { border-color: #93c5fd; }
+    .ch-4 { border-color: #86efac; }
+    .channel-title {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .channel-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Bloco de Código / Estado */
+    pre.code-block {
+      background: #050811;
+      border: 1px solid #1e293b;
+      border-radius: 10px;
+      padding: 18px;
+      overflow-x: auto;
+      font-family: var(--mono);
+      font-size: 13px;
+      color: #e2e8f0;
+      line-height: 1.5;
+      margin-bottom: 24px;
+    }
+
+    /* Tabela de Requisitos */
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 13.5px;
+    }
+    th, td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    th {
+      background: #0f172a;
+      color: #94a3b8;
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 11.5px;
+      letter-spacing: 0.05em;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* Rodapé */
+    footer {
+      border-top: 1px solid var(--card-border);
+      padding: 30px 20px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Barra de Navegação Superior -->
+  <header class="topbar">
+    <a href="index.html" class="brand">
+      <span class="badge-pill">Semana 4</span>
+      <span class="topbar-title">Orquestrador de Rolês · Arquitetura</span>
+    </a>
+    <nav class="topbar-nav">
+      <a href="index.html" class="btn btn-secondary">← Mapa Geral</a>
+      <a href="img/grafo_multiagente.svg" download class="btn btn-secondary">Baixar SVG</a>
+      <a href="multiagente.md" class="btn btn-primary">Ver Markdown</a>
+    </nav>
+  </header>
+
+  <div class="container">
+
+    <!-- Cabeçalho Principal (Hero) -->
+    <header class="hero">
+      <div class="hero-tagline">Residência em IA · Instituto Eldorado &amp; UnB · Grupo 7</div>
+      <h1>Arquitetura do Grafo Multiagente (LangGraph)</h1>
+      <p>
+        Orquestração cognitiva e determinística para planejamento colaborativo de rolês no Distrito Federal, combinando modelos generativos via OpenRouter, matriz logística das 35 RAs com a <strong>Regra da Menor Miséria</strong> e estrito sigilo de dados individuais.
+      </p>
+      <div class="badges-row">
+        <span class="badge badge-blue">🤖 LangGraph StateGraph</span>
+        <span class="badge badge-green">⚙️ RNF-04: Cálculos Determinísticos</span>
+        <span class="badge badge-purple">🔒 RNF-02: Sigilo dos 4 Canais</span>
+        <span class="badge badge-amber">🛡️ RNF-03: Zero Alucinação (2FA)</span>
+        <span class="badge badge-blue">📊 Langfuse Cloud v5.x</span>
+      </div>
+    </header>
+
+    <!-- Visualizador Interativo do Diagrama Vetorial -->
+    <section>
+      <div class="viewer-card">
+        <div class="viewer-header">
+          <div>
+            <div class="viewer-title">Diagrama Oficial da Arquitetura do Grafo</div>
+            <div style="font-size:12px; color:#64748b; margin-top:2px;">Renderização vetorial direta em alta resolução (SVG nativo)</div>
+          </div>
+          <div>
+            <a href="img/grafo_multiagente.svg" target="_blank" class="btn btn-secondary">Abrir SVG em Tela Cheia ↗</a>
+          </div>
+        </div>
+        <div class="svg-container">
+          <img src="img/grafo_multiagente.svg" alt="Diagrama da Arquitetura do Grafo Multiagente">
+        </div>
+      </div>
+    </section>
+
+    <!-- Diagrama em Mermaid -->
+    <section>
+      <h2 class="section-title">Fluxo Direcionado e Condicional (Mermaid)</h2>
+      <div class="mermaid-card">
+        <div class="mermaid">
+flowchart TD
+    classDef llm fill:#0284c7,stroke:#38bdf8,stroke-width:2px,color:#ffffff;
+    classDef code fill:#16a34a,stroke:#4ade80,stroke-width:2px,color:#ffffff;
+    classDef hybrid fill:#9333ea,stroke:#c084fc,stroke-width:2px,color:#ffffff;
+    classDef decision fill:#d97706,stroke:#fbbf24,stroke-width:2px,color:#ffffff;
+    classDef data fill:#4338ca,stroke:#818cf8,stroke-width:2px,color:#ffffff;
+
+    IN["Perfis Privados (4 Campos Secretos)<br/>• Teto Financeiro · Restrições<br/>• RA de Origem · Vibes Coletivas"]:::data --> AG0["0. AGENTE PESSOAL<br/>(Código Puro — RNF-04)<br/>• Anonimização e Eliminação de PII<br/>• Segregação Estrita em 4 Canais"]:::code
+
+    subgraph CANAIS ["Segregação de Dados em 4 Canais (RNF-02)"]
+        C1["Canal 1: Orçamento Sigiloso"]:::data
+        C2["Canal 2: Restrições Duras"]:::data
+        C3["Canal 3: Origens & Janelas"]:::data
+        C4["Canal 4: Vibes do Grupo"]:::data
+    end
+
+    AG0 --> C1
+    AG0 --> C2
+    AG0 --> C3
+    AG0 --> C4
+
+    C4 -- "Vibes e Preferências Coletivas" --> AG1["1. AGENTE DE PESQUISA<br/>(LLM: DeepSeek V4.1 Flash)<br/>• Persona: Curador da Cena do DF<br/>• Tool RAG: 93 Locais 2FA TikTok<br/>• Recupera 8 a 10 Candidatos"]:::llm
+
+    AG1 -- "candidatos_pesquisa" --> AG2["2. AGENTE DE LOGÍSTICA & JUSTIÇA<br/>(Código Puro — RNF-04, ADR 0013)<br/>• Estimativa Multimodal 35 RAs (<= 75 min)<br/>• Regra da 'Menor Miséria'<br/>• Score: 45% Vibe + 35% Justiça + 20% Horário"]:::code
+    C3 -. "RAs e Horários" .-> AG2
+
+    AG2 -- "candidatos_avaliados" --> AG3["3. AGENTE DE VALIDAÇÃO (1ª Passagem)<br/>(Híbrido: Código + Juiz LLM)<br/>• Vetos em Código: Orçamento, Horário, Eventos<br/>• Juiz LLM: GLM-5.3-Flash / MiMo-V2.6<br/>• Auditoria Factual vs 93 Lugares"]:::hybrid
+    C1 -. "Teto Individual Secreto" .-> AG3
+    C2 -. "Restrições Duras" .-> AG3
+
+    AG3 --> COND{"Avaliador de Convergência<br/>Aprovados >= 3?"}:::decision
+
+    COND -- "NÃO (e iteração < 2)<br/>[Ciclo Condicional]" -->|Feedback: Contagem de Vetos| AG1
+    COND -- "SIM (ou limite de 2 voltas)" --> AG4["4. AGENTE DE COMUNICAÇÃO<br/>(LLM: Anfitrião de Brasília)<br/>• Tom Candango e Caloroso<br/>• Formatação JSON dos 3 a 4 Cartões<br/>• Preenchimento Determinístico de Preços"]:::llm
+
+    AG4 -- "cartões gerados" --> END_VAL["3. VALIDAÇÃO (2ª Passagem)<br/>• Juiz LLM: Auditoria Anti-PII<br/>• Injeção de Links Oficiais TikTok"]:::hybrid
+    END_VAL --> PUB["Aba Pública da Sala<br/>Cards da Votação Democrática (RF-06)"]:::data
+        </div>
+      </div>
+    </section>
+
+    <!-- Segregação em 4 Canais -->
+    <section>
+      <h2 class="section-title">Segregação em 4 Canais Privados (RNF-02 &amp; RF-17)</h2>
+      <div class="channels-container">
+        <p style="font-size:14px; color:#cbd5e1;">
+          Para garantir conformidade inegociável com a LGPD e evitar constrangimento financeiro entre os participantes, os dados informados na <strong>Tela 2</strong> nunca trafegam em conjunto nem são expostos em texto generativo aberto.
+        </p>
+        <div class="channels-grid">
+          <div class="channel-box ch-1">
+            <div class="channel-title" style="color:#fca5a5;">Canal 1: Orçamento Sigiloso</div>
+            <div class="channel-desc">Teto em R$ por pessoa. Roteado estritamente para a checagem aritmética de veto <code>cabe_para_cada_um</code> na Validação. Jamais visto por outros agentes.</div>
+          </div>
+          <div class="channel-box ch-2">
+            <div class="channel-title" style="color:#fdba74;">Canal 2: Restrições Duras</div>
+            <div class="channel-desc">Restrições alimentares (ex.: vegano/vegetariano) e acessibilidade física. Encaminhado à Validação para veto obrigatório de locais incompatíveis.</div>
+          </div>
+          <div class="channel-box ch-3">
+            <div class="channel-title" style="color:#93c5fd;">Canal 3: Origens e Janelas</div>
+            <div class="channel-desc">Regiões Administrativas de saída e janelas comuns de horário. Encaminhado unicamente à matriz determinística da Logística.</div>
+          </div>
+          <div class="channel-box ch-4">
+            <div class="channel-title" style="color:#86efac;">Canal 4: Vibes Coletivas</div>
+            <div class="channel-desc">Agregação anônima de categorias (bar, café, ar livre). Único canal disponibilizado ao Agente de Pesquisa para levantar candidatos.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Especificação dos 5 Agentes -->
+    <section>
+      <h2 class="section-title">Especificação Detalhada dos 5 Agentes</h2>
+      <div class="agents-grid">
+        
+        <!-- Agente 0 -->
+        <article class="agent-card green">
+          <div class="agent-header">
+            <div>
+              <div class="agent-name">0. Agente Pessoal</div>
+              <div class="agent-sub">Sanitização e Segregação · <code>src/interpretador/campos.py</code></div>
+            </div>
+            <span class="badge badge-green">⚙️ Python Puro (RNF-04)</span>
+          </div>
+          <div class="agent-body">
+            <ul>
+              <li>Extrai dados dos 4 campos de texto secretos preenchidos sem comandos de voz (ADR 0009).</li>
+              <li>Elimina 100% de PII (nomes, telefones, identificadores).</li>
+              <li>Normaliza as 35 RAs oficiais do DF por regras léxicas.</li>
+              <li>Segrega os dados nos 4 Canais Privados de forma estanque.</li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- Agente 1 -->
+        <article class="agent-card blue">
+          <div class="agent-header">
+            <div>
+              <div class="agent-name">1. Agente de Pesquisa</div>
+              <div class="agent-sub">Curador da Cena do DF · <code>DeepSeek V4.1 Flash</code></div>
+            </div>
+            <span class="badge badge-blue">🤖 LLM + Tool RAG</span>
+          </div>
+          <div class="agent-body">
+            <ul>
+              <li>Consulta exclusivamente a base oficial de <strong>93 lugares aprovados em 2 fatores</strong> (ADR 0008).</li>
+              <li>Recupera de 8 a 10 candidatos sustentados por trechos literais e IDs de fonte confiáveis.</li>
+              <li>Jamais conhece ou pergunta orçamentos individuais (RNF-02).</li>
+              <li>No loop condicional, recebe feedback contendo apenas a contagem estatística dos vetos.</li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- Agente 2 -->
+        <article class="agent-card green">
+          <div class="agent-header">
+            <div>
+              <div class="agent-name">2. Agente de Logística &amp; Justiça</div>
+              <div class="agent-sub">Equidade Espacial · <code>src/logistica/transporte_df.py</code></div>
+            </div>
+            <span class="badge badge-green">⚙️ Python Puro (RNF-04)</span>
+          </div>
+          <div class="agent-body">
+            <ul>
+              <li>Calcula matriz multimodal de tempo e custo de ida e volta para as 35 RAs do DF (teto de 75 min).</li>
+              <li>Aplica a <strong>Regra da Menor Miséria</strong> (ADR 0013): protege quem mora na periferia em vez de tirar a média ingênua.</li>
+              <li>Calcula o Score do Rolê: <code>45% Vibe + 35% Justiça + 20% Horário</code>.</li>
+              <li>Redige pareceres objetivos de rota sem uso de LLM.</li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- Agente 3 -->
+        <article class="agent-card purple">
+          <div class="agent-header">
+            <div>
+              <div class="agent-name">3. Agente de Validação</div>
+              <div class="agent-sub">Vetos Duros &amp; Juiz Factual · <code>GLM-5.3-Flash</code></div>
+            </div>
+            <span class="badge badge-purple">🛡️ Híbrido: Código + Juiz</span>
+          </div>
+          <div class="agent-body">
+            <ul>
+              <li><strong>Vetos em Código (RNF-04):</strong> Orçamento sigiloso (<code>Gasto + Transporte &le; Teto</code>), horários de funcionamento, datas de eventos e restrições.</li>
+              <li><strong>Juiz LLM (ADR 0014):</strong> Audita fidelidade factual dos candidatos levantados pelo Agente 1 contra a base curada (1ª passagem).</li>
+              <li><strong>Avaliador de Convergência:</strong> Se restarem menos de 3 locais, retroalimenta a Pesquisa (máximo de 2 iterações).</li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- Agente 4 -->
+        <article class="agent-card blue">
+          <div class="agent-header">
+            <div>
+              <div class="agent-name">4. Agente de Comunicação</div>
+              <div class="agent-sub">Anfitrião de Brasília · <code>src/agentes/comunicacao.py</code></div>
+            </div>
+            <span class="badge badge-blue">🤖 LLM + Schema JSON</span>
+          </div>
+          <div class="agent-body">
+            <ul>
+              <li>Redige convites envolventes em tom candango e acolhedor (<code>titulo</code>, <code>resumo_acesso</code>, <code>por_que_combina</code>).</li>
+              <li>Zero citação de orçamentos, limitações ou restrições de participantes (RNF-02).</li>
+              <li><strong>Preenchimento Determinístico:</strong> Preços médios, tempos e links oficiais do TikTok são preenchidos por código.</li>
+              <li>Passa pela 2ª passagem do Juiz LLM antes de ir para a votação pública da sala (RF-06).</li>
+            </ul>
+          </div>
+        </article>
+
+      </div>
+    </section>
+
+    <!-- Estado Compartilhado (MultiAgentState) -->
+    <section>
+      <h2 class="section-title">Contrato de Estado Compartilhado (MultiAgentState)</h2>
+      <pre class="code-block"><code>from typing import Annotated, TypedDict
+from operator import add
+
+class MultiAgentState(TypedDict):
+    sala_id: str
+    
+    # 1. Canais Privados (Isolados e Segregados - RNF-02)
+    membros_privados: list[dict]        # Orçamentos, origens e restrições individuais
+    
+    # 2. Canal Coletivo Anonimizado
+    perfil_grupo_anonimizado: dict      # Vibes agregadas, janela comum de horários
+    
+    # 3. Estados Intermediários do Pipeline
+    candidatos_pesquisa: list[dict]     # 8 a 10 locais levantados pelo Agente 1
+    candidatos_avaliados: list[dict]    # Locais ranqueados e pontuados pelo Agente 2
+    candidatos_validados: list[dict]    # Locais aprovados nos vetos do Agente 3
+    motivos_vetos: dict[str, int]       # Contagem estatística de reprovações para feedback
+    
+    # 4. Saída Consolidada
+    resultado_cartoes: list[dict]       # 3 a 4 cartões validados prontos para votação (RF-06)
+    
+    # 5. Controle de Execução e Observabilidade
+    iteracao_pesquisa: int              # Contador de loops (0, 1 ou 2 voltas)
+    historico_mensagens: Annotated[list[str], add]  # Log cumulativo de auditoria
+    trace_id_langfuse: str              # Identificador unificado de telemetria
+    trace_url: str                      # Link direto para visualização no Langfuse Cloud</code></pre>
+    </section>
+
+    <!-- Tabela de Requisitos e ADRs -->
+    <section>
+      <h2 class="section-title">Mapeamento de Requisitos e Decisões de Arquitetura</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Identificador</th>
+              <th>Descrição do Requisito / Decisão</th>
+              <th>Garantia no Grafo Multiagente</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>RNF-02</strong></td>
+              <td>Sigilo Estrito do Perfil Individual</td>
+              <td>Segregação estrita dos 4 Canais no Agente 0; auditoria do Juiz LLM em 2ª passagem.</td>
+            </tr>
+            <tr>
+              <td><strong>RNF-03</strong></td>
+              <td>Zero Alucinação / Grounding Factual</td>
+              <td>Agente 1 restrito aos 93 locais curados (2FA TikTok); Agente 3 audita evidências contra a base.</td>
+            </tr>
+            <tr>
+              <td><strong>RNF-04</strong></td>
+              <td>Cálculos Fora de Modelos de Linguagem</td>
+              <td>Agente 0 (regras), Agente 2 (transporte e Menor Miséria) e Agente 3 (vetos duros) rodam em Python puro.</td>
+            </tr>
+            <tr>
+              <td><strong>RNF-12</strong></td>
+              <td>Arquitetura Modular e Provedores Trocáveis</td>
+              <td>LangGraph desacoplado; roteamento via OpenRouter permitindo alternar DeepSeek, GLM e MiMo.</td>
+            </tr>
+            <tr>
+              <td><strong>RNF-14</strong></td>
+              <td>SLA de Latência (&le; 5 segundos)</td>
+              <td>Paralelização de chamadas assíncronas, limitação do loop a 2 voltas e spans no Langfuse Cloud.</td>
+            </tr>
+            <tr>
+              <td><strong>RF-06</strong></td>
+              <td>Apresentação Clara e Votação Democrática</td>
+              <td>Agente 4 gera 3 a 4 cartões objetivos em JSON com múltipla escolha na interface pública.</td>
+            </tr>
+            <tr>
+              <td><strong>RF-17</strong></td>
+              <td>Orçamento Sigiloso</td>
+              <td>Veto determinístico <code>cabe_para_cada_um</code> sem expor quem estourou o limite financeiro.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR 0008</strong></td>
+              <td>Base 2FA dos 93 Lugares TikTok</td>
+              <td>Catálogo auditado com vídeos reais de Brasília e links diretos nos cartões.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR 0009</strong></td>
+              <td>4 Campos de Texto Secretos (Sem Voz)</td>
+              <td>Entrada estruturada por texto na Tela 2 sem custo ou falha de transcrição de áudio.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR 0013</strong></td>
+              <td>Regra da Menor Miséria no Deslocamento</td>
+              <td>Agente 2 penaliza assimetrias extremas de tempo no DF, protegendo participantes da periferia.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR 0014</strong></td>
+              <td>Juiz LLM GLM-5.3-Flash / MiMo-V2.6</td>
+              <td>Agente 3 avalia com temperatura zero, sem retenção de dados e menor custo de inferência.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Rodapé -->
+  <footer>
+    <p>Orquestrador de Rolês · Challenge 2 · Residência em Inteligência Artificial (Instituto Eldorado &amp; UnB)</p>
+    <p style="margin-top:4px; font-size:12px; color:#64748b;">Semana 4 — Primeiro Protótipo Funcional Multiagente (LangGraph + Ferramentas Determinísticas)</p>
+  </footer>
+
+</body>
+</html>

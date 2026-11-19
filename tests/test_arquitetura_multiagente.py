@@ -123,3 +123,44 @@ def test_mkdocs_contem_referencia_multiagente():
                 if cf.get("name") == "mermaid":
                     superfences_found = True
     assert superfences_found, "custom_fences com mermaid não encontrada em pymdownx.superfences"
+
+def test_documento_multiagente_html_existe_e_e_valido():
+    html_path = Path("docs/arquitetura/multiagente.html")
+    assert html_path.exists(), f"Arquivo não encontrado: {html_path}"
+    
+    html = html_path.read_text(encoding="utf-8")
+    assert len(html) > 5000, "Arquivo HTML está vazio ou incompleto"
+    
+    # Estrutura HTML básica
+    assert "<!doctype html>" in html.lower()
+    assert "<html" in html.lower()
+    assert "<body" in html.lower()
+    assert "</html>" in html.lower()
+
+    # Referência à imagem SVG e Mermaid
+    assert "img/grafo_multiagente.svg" in html
+    assert "mermaid" in html.lower()
+
+    # Presença dos 5 agentes
+    assert "0. Agente Pessoal" in html
+    assert "1. Agente de Pesquisa" in html
+    assert "2. Agente de Logística" in html
+    assert "3. Agente de Validação" in html
+    assert "4. Agente de Comunicação" in html
+
+    # Canais de dados e requisitos
+    assert "Canal 1: Orçamento Sigiloso" in html
+    assert "Canal 2: Restrições Duras" in html
+    assert "Canal 3: Origens e Janelas" in html
+    assert "Canal 4: Vibes Coletivas" in html
+    assert "RNF-02" in html
+    assert "RNF-03" in html
+    assert "RNF-04" in html
+    assert "Langfuse" in html
+    assert "Menor Miséria" in html
+
+    # Mapa principal aponta para multiagente.html
+    index_path = Path("docs/arquitetura/index.html")
+    assert index_path.exists()
+    assert "multiagente.html" in index_path.read_text(encoding="utf-8")
+
