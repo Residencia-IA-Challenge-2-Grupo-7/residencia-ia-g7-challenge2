@@ -348,25 +348,25 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
   - *Aderência sem busca vetorial (RNF-04):* os pesos da Tela 3 (tipo 0,45, vibe 0,25, restrição 0,15, busca 0,15) sem o termo da busca, redistribuídos na mesma proporção (÷ 0,85). A busca usa embeddings e não roda offline; a ordem relativa de tipo, vibe e restrição continua a mesma.
   - *`agora` obrigatório:* dá o ano das datas dos vídeos (`ano_do_lugar`); sem ele a função dependeria do relógio e deixaria de ser determinística.
   - *Escala do score:* `pontuacao` de 0 a 1, como `Sugestao.pontuacao`; o parecer mostra ×100 ("score 81").
-  - *Parecer sem identificar ninguém:* cita o meio do pior trajeto pelo rótulo genérico ("ônibus/metrô", "Uber/99"), nunca o marcador nem a RA; trajetos acima de 75 min só em contagem. Primeiro e último colocados vêm com os tempos, os do meio só com o score, para o texto não crescer com 8 a 10 candidatos.
+  - *Parecer sem identificar ninguém:* cita o meio do pior trajeto pelo rótulo genérico ("ônibus/metrô", "Uber/99") só quando pelo menos 2 presentes usariam esse meio naquele lugar (`MINIMO_PARA_CITAR_MEIO`); com um só, "de carro" apontaria quem mora longe, e o texto fica só "pior trajeto 50 min". Nunca cita o marcador nem a RA; trajetos acima de 75 min só em contagem. Achado da revisão do PR com o `cenario_controle_viavel` da #66, em que só o m3 vai de carro ou de app. Primeiro e último colocados vêm com os tempos, os do meio só com o score, para o texto não crescer com 8 a 10 candidatos.
   - *Vai de Graça:* o deslocamento usa o início do trecho aberto da janela; num domingo ou feriado, ônibus e metrô custam zero.
 * **Arquivos:**
   - `src/agentes/logistica.py` (novo)
   - `src/logistica/transporte_df.py` (`escolher_meio`, `TEMPO_ACEITAVEL_MIN`)
   - `src/salas/sugestoes.py` (passa a usar `escolher_meio`)
-  - `tests/test_agente_logistica.py` (novo, 19 testes)
+  - `tests/test_agente_logistica.py` (novo, 21 testes)
   - `tests/test_transporte_df.py` (6 testes de `escolher_meio`)
   - `docs/semanas/semana-04.md` (esta seção) e `STATUS.md`
 * **Testes e Validação:**
-  - `pytest -v tests/test_agente_logistica.py`: 19 aprovados. Cenários periféricos com lugares sintéticos no ponto de cada RA:
+  - `pytest -v tests/test_agente_logistica.py`: 21 aprovados (2 deles para o meio do pior trajeto: não aparece com uma pessoa só nesse meio, aparece com duas). Cenários periféricos com lugares sintéticos no ponto de cada RA:
     - Ceilândia + Samambaia + Plano Piloto: Taguatinga (meio do caminho) vence o Plano, com pior trajeto menor e nota maior;
     - Ceilândia + Sobradinho (pontas opostas): pior trajeto acima de 75 min, avaliado sem veto, nota abaixo de 60% da de um grupo que mora perto e maior que zero;
     - Ceilândia com "metrô ou Uber": vai de Uber/99 até o Plano (~120 min de ônibus/metrô contra ~68 de app) e de ônibus/metrô até Taguatinga (~40 min);
     - domingo: ônibus e metrô a R$ 0,00 para todos.
   - Também cobertos: pesos 45/35/20 recalculados à mão, lugar pedido pelo grupo subindo no ranking, lugar fechado com certeza 0 (perde exatamente 0,20), primeira janela em que o lugar abre, saída igual ao contrato `CandidatoAvaliado` e vazia em `dados_privados_no_estado`, nenhuma RA de origem nem teto na saída ou no parecer, mesma saída em qualquer ordem de entrada, id fora da base, sem janela e lugar sem coordenada (nota 30, estimativa provisória).
   - `pytest -v tests/test_transporte_df.py`: 6 testes novos de `escolher_meio` (mais barato a tempo, mais rápido quando nada cabe, limite de 75 min inclusivo, desempate pelo tempo, opções sem estimativa). Os testes existentes de `sugestoes` passam sem alteração, o que prova a refatoração.
-  - `make test-local`: 670 aprovados, 1 pulado (`test_ambiente_container_ok`, só roda no Docker), sobre a `main` sem a branch da #66.
-  - Pendente para depois do merge da #66: rodar o agente sobre `data/cenarios_teste_multiagente.json` (`src/agentes/cenarios.py`) e conferir os vetos esperados de deslocamento contra o `pior_trajeto_min` calculado aqui.
+  - `make test-local`: 766 aprovados, 1 pulado (`test_ambiente_container_ok`, só roda no Docker), já com a `main` do #82 mesclada (os 97 testes de `tests/test_cenarios_multiagente.py` incluídos).
+  - Na revisão do PR, os dois cenários da #66 passaram pelo agente (perfis de `interpretar_campos`, janelas de `cruzar`); daí veio o ajuste do meio do pior trajeto. Pendente: transformar essa rodada num teste automatizado sobre `data/cenarios_teste_multiagente.json` (`src/agentes/cenarios.py`).
 
 ---
 

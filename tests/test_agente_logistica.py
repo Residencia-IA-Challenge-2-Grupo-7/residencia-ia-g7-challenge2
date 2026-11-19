@@ -204,3 +204,30 @@ def test_parecer_e_deterministico_e_trata_lista_vazia_e_sem_coordenada():
     sem_gps = {**TAGUATINGA, "id": "sem_gps", "lat": None, "lng": None}
     texto = gerar_parecer(_rodar(PERIFERIA, [sem_gps]))
     assert "trajeto não calculado; estimativa provisória" in texto
+
+
+def _parecer_do_lugar_em_ceilandia(membros):
+    lugar = _lugar("ceil", "Ceilândia")
+    janela = JanelaComum(SABADO.inicio, SABADO.fim, frozenset(membros), len(membros))
+    analises = {}
+    saida = _rodar(membros, [lugar], janelas=[janela], analises=analises)
+    pior = max(analises["ceil"].values(), key=lambda d: d["minutos"])
+    return gerar_parecer(saida, analises), saida[0], pior
+
+
+def test_parecer_nao_cita_o_meio_quando_so_uma_pessoa_o_usa():
+    """Só m3 vai de carro e tem o pior trajeto: "de carro" apontaria quem mora longe (RNF-02)."""
+    membros = {"m1": _perfil("Ceilândia"), "m2": _perfil("Samambaia"), "m3": _perfil("Plano Piloto", ("carro",))}
+    texto, cand, pior = _parecer_do_lugar_em_ceilandia(membros)
+    assert pior["modo"] == "carro"                      # o pior trajeto é mesmo o de quem vai de carro
+    assert "de carro" not in texto
+    assert f"pior trajeto {cand['pior_trajeto_min']} min; média {cand['media_trajeto_min']} min" in texto
+
+
+def test_parecer_cita_o_meio_quando_duas_pessoas_o_usam():
+    """Espelho do teste anterior: com dois de carro, o meio não aponta ninguém e aparece."""
+    membros = {"m1": _perfil("Ceilândia"), "m2": _perfil("Samambaia"),
+               "m3": _perfil("Plano Piloto", ("carro",)), "m4": _perfil("Plano Piloto", ("carro",))}
+    texto, cand, pior = _parecer_do_lugar_em_ceilandia(membros)
+    assert pior["modo"] == "carro"
+    assert f"pior trajeto {cand['pior_trajeto_min']} min de carro;" in texto

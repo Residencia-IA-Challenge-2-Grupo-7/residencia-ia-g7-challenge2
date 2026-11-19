@@ -131,12 +131,24 @@ def executar_agente_logistica(candidatos: list[dict], origens_membros: Mapping[s
 
 # ------------------------------------------------------------------ parecer (texto por regra, sem LLM)
 
+MINIMO_PARA_CITAR_MEIO = 2
+"""O meio do pior trajeto só aparece no parecer se pelo menos esse número de presentes o usaria naquele lugar.
+Com um só, o meio aponta a pessoa ("de carro", e só o m3 vai de carro) e diz quem mora longe (RNF-02)."""
+
+
 def _modo_do_pior(desl_por: Mapping[str, dict | None] | None) -> str | None:
-    """Rótulo do meio do pior trajeto ("ônibus/metrô"), sem dizer de quem é. Empate: o primeiro marcador."""
+    """Rótulo do meio do pior trajeto ("ônibus/metrô"), ou None se ele identificaria alguém.
+
+    Conta quantos presentes usariam o mesmo meio naquele lugar; abaixo de MINIMO_PARA_CITAR_MEIO, não cita.
+    Empate no pior tempo: o primeiro marcador.
+    """
     conhecidos = [d for d in (desl_por or {}).values() if d]
     if not conhecidos:
         return None
-    return ROTULOS_TRANSPORTE.get(max(conhecidos, key=lambda d: d["minutos"]).get("modo"))
+    modo = max(conhecidos, key=lambda d: d["minutos"]).get("modo")
+    if sum(1 for d in conhecidos if d.get("modo") == modo) < MINIMO_PARA_CITAR_MEIO:
+        return None
+    return ROTULOS_TRANSPORTE.get(modo)
 
 
 def _resumo(c: dict, modo: str | None, completo: bool) -> str:
@@ -159,7 +171,8 @@ def gerar_parecer(avaliados: list[dict], analises: Mapping[str, Mapping] | None 
     (score 74). 1 lugar com trajeto acima de 75 min para alguém do grupo."
 
     O primeiro e o último vêm com os tempos; os do meio, só com o score. Com `analises` (o cofre), diz o meio do
-    pior trajeto. Nunca diz de onde alguém sai, quem tem o pior trajeto nem quanto alguém gasta (RNF-02).
+    pior trajeto quando pelo menos MINIMO_PARA_CITAR_MEIO presentes o usariam; com menos, o meio apontaria a
+    pessoa e fica de fora. Nunca diz de onde alguém sai, quem tem o pior trajeto nem quanto alguém gasta (RNF-02).
     """
     if not avaliados:
         return "Ranking Logístico: nenhum candidato para avaliar."
