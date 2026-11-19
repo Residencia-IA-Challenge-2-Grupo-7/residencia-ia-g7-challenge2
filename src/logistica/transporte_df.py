@@ -14,7 +14,8 @@ Peças, na ordem em que uma depende da outra:
    caminho por rua e o tempo de ida em cada meio de transporte.
 5. `estimar_custo_ida_volta`: quanto a pessoa gasta para ir e voltar.
 6. `estimar_deslocamento`: o encaixe com as salas (src/salas/integracoes.py),
-   que junta distância, tempo e custo de uma pessoa num dicionário só.
+   que junta distância, tempo e custo de uma pessoa num dicionário só; e
+   `escolher_meio`, que entre os meios de uma pessoa fica com o que ela usaria.
 7. Menor Miséria (RNF-13): `calcular_score_justica_espacial`, pela distância
    de cada membro até o lugar, e `nota_menor_miseria`, pelo tempo de cada um
    (o encaixe com as salas). As duas vão de 0 a 100 e nunca dizem quem é o
@@ -270,6 +271,30 @@ def estimar_deslocamento(ra_origem: str, lat: float, lng: float, modo: str,
     except (ValueError, TypeError):
         return None
     return {"km": round(km, 1), "minutos": round(minutos), "custo_ida_volta": custo}
+
+
+TEMPO_ACEITAVEL_MIN = 75
+"""Teto de uma viagem de ida que ainda conta como aceitável (Tela 3 e Agente 2 da semana 4)."""
+
+
+def escolher_meio(opcoes: list[dict | None]) -> dict | None:
+    """Entre os deslocamentos de uma pessoa (um por meio que ela disse que usa), o que ela de fato usaria.
+
+    O mais barato que chega em até TEMPO_ACEITAVEL_MIN, e no empate de preço o mais rápido. Se nenhum chega a
+    tempo, o mais rápido, e no empate o mais barato. Assim quem disse "metrô ou Uber" não paga Uber à toa, mas
+    também não é mandado a duas horas de ônibus quando o Uber chega em 40 min.
+
+    Cada opção tem pelo menos 'minutos' e 'custo_ida_volta' (o formato de `estimar_deslocamento`). None, um meio
+    que não deu para estimar, é ignorado; sem nenhuma opção válida, devolve None. No empate completo fica a
+    primeira da lista, então a ordem dos meios decide e o resultado é sempre o mesmo (RNF-04).
+    """
+    validas = [d for d in opcoes if d]
+    if not validas:
+        return None
+    viaveis = [d for d in validas if d["minutos"] <= TEMPO_ACEITAVEL_MIN]
+    if viaveis:
+        return min(viaveis, key=lambda d: (d["custo_ida_volta"], d["minutos"]))
+    return min(validas, key=lambda d: (d["minutos"], d["custo_ida_volta"]))
 
 
 # ---------------------------------------------------------------- Menor Miséria (RNF-13)
