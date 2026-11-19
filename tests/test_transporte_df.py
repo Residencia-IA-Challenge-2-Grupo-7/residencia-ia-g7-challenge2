@@ -22,10 +22,12 @@ from src.logistica.transporte_df import (
     MODOS,
     RAIO_TERRA_KM,
     TARIFA_PUBLICO,
+    TEMPO_ACEITAVEL_MIN,
     VELOCIDADE_KMH,
     calcular_distancia_km,
     calcular_score_justica_espacial,
     distancia_por_rua_km,
+    escolher_meio,
     estimar_custo_ida_volta,
     estimar_deslocamento,
     estimar_tempo_ida_min,
@@ -549,3 +551,58 @@ def test_grupo_vazio_ou_ra_desconhecida_levanta_erro():
         calcular_score_justica_espacial([], PLANO)
     with pytest.raises(ValueError):
         calcular_score_justica_espacial(["Goiânia"], PLANO)
+
+
+# ------------------------------------------------------------------- escolha do meio de transporte
+
+def _opcao(modo, minutos, custo):
+    return {"modo": modo, "minutos": minutos, "custo_ida_volta": Decimal(custo)}
+
+
+def test_escolhe_o_mais_barato_que_chega_a_tempo():
+    """Quem disse "metrô ou Uber" vai de metrô quando o metrô chega em até 75 min."""
+    metro, uber = _opcao("publico", 60, "11.00"), _opcao("app", 25, "48.20")
+    assert escolher_meio([uber, metro]) is metro
+
+
+def test_sem_meio_a_tempo_fica_com_o_mais_rapido():
+    """Ninguém é mandado a duas horas de ônibus para economizar: acima de 75 min, vale o tempo."""
+    onibus, uber = _opcao("publico", 120, "11.00"), _opcao("app", 80, "90.00")
+    assert escolher_meio([onibus, uber]) is uber
+
+
+def test_limite_de_75_min_e_inclusivo():
+    no_limite, rapido = _opcao("publico", TEMPO_ACEITAVEL_MIN, "11.00"), _opcao("app", 30, "40.00")
+    assert escolher_meio([rapido, no_limite]) is no_limite
+
+
+def test_empate_de_preco_desempata_pelo_tempo():
+    """Carona e a pé custam zero: fica o que chega antes."""
+    a_pe, carona = _opcao("a_pe", 70, "0"), _opcao("carona", 20, "0")
+    assert escolher_meio([a_pe, carona]) is carona
+
+
+def test_ignora_meio_sem_estimativa_e_devolve_none_sem_opcao():
+    metro = _opcao("publico", 40, "11.00")
+    assert escolher_meio([None, metro]) is metro
+    assert escolher_meio([None, None]) is None
+    assert escolher_meio([]) is None
+
+
+def test_escolha_real_entre_metro_e_app_saindo_de_ceilandia():
+    """Com os números de estimar_deslocamento: Ceilândia -> Plano Piloto leva ~120 min de ônibus/metrô e ~68 de
+    app, então vai de app; Ceilândia -> Taguatinga leva ~40 de ônibus/metrô, que cabe e é mais barato."""
+    def escolha(destino):
+        lat, lng = ponto_da_ra(destino)
+        opcoes = [dict(estimar_deslocamento("Ceilândia", lat, lng, m), modo=m) for m in ("publico", "app")]
+        return escolher_meio(opcoes)["modo"]
+
+    assert escolha("Plano Piloto") == "app"
+    assert escolha("Taguatinga") == "publico"
+
+
+def test_sugestoes_reexporta_o_tempo_aceitavel():
+    """A constante mudou de módulo na #67, mas quem a importava de src.salas.sugestoes continua funcionando."""
+    from src.salas import sugestoes
+
+    assert sugestoes.TEMPO_ACEITAVEL_MIN is TEMPO_ACEITAVEL_MIN
