@@ -300,11 +300,28 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
 
 ### 8.3. Issue #66 — Dataset de Teste com Cenário dos 4 Amigos no DF (Golden de Rolê)
 * **Responsável:** Samara Letícia (`@samarawwleticia`)
-* **Status:** A iniciar
+* **Status:** Concluída
 * **O que foi feito:**
+  - Criação de `data/cenarios_teste_multiagente.json` com o cenário `cenario_padrao_4_amigos` (pessoas fictícias, marcadores `m1` a `m4`): Ceilândia (teto R$ 40, metrô, vegetariana), Águas Claras (R$ 70, ônibus/metrô, ar livre), Asa Norte/Plano Piloto (R$ 120, carro/Uber, gastronomia) e Sobradinho (R$ 50, transporte público, tolerância de 60 min).
+  - Para cada amigo, os 4 campos de texto da Tela 2 como seriam digitados (`campos_tela2`) e o que o Agente 0 deve entender deles (`interpretacao_esperada`: RA oficial, macrorregião, teto, janelas, tipos, vibes, restrições e transporte).
+  - Bloco `resultados_esperados`: janela comum (sábado 21/11, 15h–18h, os 4 presentes), teto do grupo (R$ 40), restrição dura do grupo (vegetariano), **veredito `sem_lugar_viavel`**, 5 locais plausíveis da base 2FA com os vetos esperados por membro e 2 lugares que nunca devem ser sugeridos.
+  - Suíte `tests/test_cenarios_multiagente.py` com 40 testes de esquema, vocabulário, coerência com o interpretador e recálculo dos vetos contra a base.
 * **Decisões Técnicas e Arquitetura:**
+  - *Entrada e gabarito no mesmo registro:* o texto cru alimenta o Agente 0 e a demonstração CLI (#74); a interpretação esperada é o gabarito. O teste roda `interpretar_campos()` sobre cada texto e exige a saída exata, então qualquer mudança de comportamento do interpretador aparece aqui.
+  - *Data de referência fixa (`agora_referencia` = 17/11/2026 12h):* "sábado das 14h às 22h" só vira data relativa a um "agora". Sem ela, o teste quebraria sozinho depois do sábado (pendência `janela_passada`).
+  - *Cenário de estresse (decisão do grupo):* rodado contra os 93 lugares, o cenário pedido na issue **não tem lugar viável**. Só o deslocamento já veta a base inteira: Ceilândia e Sobradinho ficam em pontas opostas do DF e o melhor "pior trajeto" possível é de 105 min (Cabiburger, Sudoeste). Na janela comum, deslocamento veta 93 lugares, restrição 90, orçamento 69, horário 35 e 14 estão encerrados; só 3 lugares da base comprovam opção vegetariana. Em vez de afrouxar o cenário, o gabarito registra o veredito e o comportamento esperado: vetar tudo, devolver à Pesquisa só a contagem dos vetos (até 2 voltas) e avisar que há menos de 3 opções, sem inventar cartão (RNF-03).
+  - *Regra dos vetos "nem na melhor hipótese":* `deslocamento` usa o meio mais rápido da pessoa e `orcamento` o mais barato (consumo médio + ida e volta), então todo veto anotado é certo. Os motivos são os de `MotivoVeto` (`src/agentes/contratos.py`).
+  - *Oráculo independente:* o teste recalcula os vetos com regra própria e usa do repositório só as medidas (`estimar_deslocamento` e `ler_funcionamento`), não a decisão dos agentes; assim o gabarito pode pegar erro neles em vez de repeti-los.
+  - *Lugares citados por `id` da base 2FA:* o teste confere id, nome e RA contra `data/banco_aprovado_2fa.json` (RNF-03, RNF-04).
+  - *Achados para outras issues:* (1) a Hamburgueria Espacial está como Taguatinga, mas endereço e coordenada são de Sobradinho (curadoria da base); (2) o gerador atual de cartões (`src/salas/sugestoes.py`) não descarta trajetos acima de 75 min: para este grupo sugere o Cachorrão da 5 (Santa Maria) com mais de 3 horas para quem sai de Sobradinho, contra a Menor Miséria. Os dois estão em `nunca_sugerir` e devem orientar a Logística (#67) e a Validação (#68).
 * **Arquivos:**
+  - `data/cenarios_teste_multiagente.json`
+  - `tests/test_cenarios_multiagente.py`
+  - `docs/semanas/semana-04.md` (esta seção)
 * **Testes e Validação:**
+  - `pytest -v tests/test_cenarios_multiagente.py`: 40 testes aprovados (estrutura, 35 RAs oficiais, vocabulário do interpretador, contraste dos perfis, `interpretar_campos()` reproduzindo o gabarito, janela comum via `cruzar()`, teto via `teto_seguro_grupo()`, vetos de cada lugar citado e veredito sobre os 93 lugares).
+  - Teste de mutação manual: retirar um veto anotado ou mudar um teto no JSON faz os testes correspondentes falharem; trocar a tolerância de `m4` de 60 para 75 min não muda nenhum veto (o veredito não depende dessa escolha).
+  - `make test-local`: 685 aprovados, 1 pulado (`test_ambiente_container_ok`, só roda no Docker).
 
 ---
 
