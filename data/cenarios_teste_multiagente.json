@@ -13,7 +13,6 @@
           "marcador": "m1",
           "nome_ficticio": "Bia",
           "papel_no_cenario": "Periferia oeste, menor orçamento do grupo e restrição alimentar dura.",
-          "tolerancia_deslocamento_max_min": 75,
           "campos_tela2": {
             "origem": "Ceilândia Centro, perto da estação do metrô",
             "horarios": "sábado das 14h às 22h",
@@ -37,7 +36,6 @@
           "marcador": "m2",
           "nome_ficticio": "Rafa",
           "papel_no_cenario": "Meio do caminho entre o oeste e o Plano Piloto; quer rolê ao ar livre.",
-          "tolerancia_deslocamento_max_min": 75,
           "campos_tela2": {
             "origem": "Águas Claras, perto da estação Concessionárias",
             "horarios": "sábado à tarde ou domingo de manhã",
@@ -62,7 +60,6 @@
           "marcador": "m3",
           "nome_ficticio": "Léo",
           "papel_no_cenario": "Origem central (Asa Norte, RA Plano Piloto), maior orçamento e vibe gastronômica.",
-          "tolerancia_deslocamento_max_min": 75,
           "campos_tela2": {
             "origem": "Asa Norte, SQN 210",
             "horarios": "sexta à noite ou sábado das 15h às 23h",
@@ -86,8 +83,7 @@
         {
           "marcador": "m4",
           "nome_ficticio": "Nina",
-          "papel_no_cenario": "Periferia norte, sem metrô; aceita deslocamento moderado (até 60 min).",
-          "tolerancia_deslocamento_max_min": 60,
+          "papel_no_cenario": "Periferia norte, sem metrô; pede \"nada muito longe\" só no texto, porque a Logística aplica o mesmo teto de 75 min a todos.",
           "campos_tela2": {
             "origem": "Sobradinho",
             "horarios": "sábado depois das 13h",
@@ -119,7 +115,7 @@
         "veredito": "sem_lugar_viavel",
         "lugares_viaveis_esperados": [],
         "comportamento_esperado": "Nenhum dos 93 lugares passa em todos os filtros duros na janela comum. A Validação deve vetar todos os candidatos, devolver à Pesquisa só a contagem dos vetos (até 2 voltas) e terminar avisando que há menos de 3 opções, sem inventar cartão nem anunciar opção vegetariana que a base não comprova.",
-        "regra_dos_vetos": "Um veto vale quando nem na melhor hipótese a pessoa é atendida: 'deslocamento' se o meio mais rápido dela passa da tolerância; 'orcamento' se o consumo médio mais o meio mais barato dela passa do teto; 'restricao' se o texto do lugar não comprova a restrição; 'horario' ou 'encerrado' pela situação do lugar na janela comum.",
+        "regra_dos_vetos": "Um veto vale quando nem na melhor hipótese a pessoa é atendida: 'deslocamento' se o meio mais rápido dela passa do teto de 75 min da Logística, o mesmo para todos; 'orcamento' se o consumo médio mais o meio mais barato dela passa do teto; 'restricao' se o texto do lugar não comprova a restrição; 'horario' ou 'encerrado' pela situação do lugar na janela comum.",
         "locais_plausiveis": [
           {
             "id": "tiktok_7600072525304958226",

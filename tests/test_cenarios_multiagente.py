@@ -34,7 +34,7 @@ from src.logistica.transporte_df import estimar_deslocamento
 from src.salas.horario_lugar import ano_do_lugar, ler_funcionamento
 from src.salas.integracoes import ra_do_lugar
 from src.salas.janelas import cruzar
-from src.salas.sugestoes import TERMOS_RESTRICAO
+from src.salas.sugestoes import TEMPO_ACEITAVEL_MIN, TERMOS_RESTRICAO
 
 RAIZ = Path(__file__).resolve().parent.parent
 DATASET = json.loads(
@@ -60,7 +60,6 @@ CAMPOS_AMIGO = (
     "marcador",
     "nome_ficticio",
     "papel_no_cenario",
-    "tolerancia_deslocamento_max_min",
     "campos_tela2",
     "interpretacao_esperada",
 )
@@ -75,8 +74,9 @@ CAMPOS_INTERPRETACAO = (
     "restricoes",
     "transporte",
 )
-# Teto de deslocamento usado pelo Agente 2 (docs/semanas/semana-04.md, seção 3)
-TETO_DESLOCAMENTO_MIN = 75
+# Teto de deslocamento da Logística, o mesmo para todos (docs/semanas/semana-04.md, seção 3).
+# Vem do código das salas para o gabarito seguir a mesma regra que os agentes vão aplicar.
+TETO_DESLOCAMENTO_MIN = TEMPO_ACEITAVEL_MIN
 
 CENARIOS = DATASET["cenarios"]
 CENARIO_PADRAO = next(c for c in CENARIOS if c["id"] == ID_CENARIO_PADRAO)
@@ -151,13 +151,11 @@ def test_ra_e_macrorregiao_sao_oficiais(par):
 
 
 @pytest.mark.parametrize("par", TODOS_AMIGOS, ids=_id_amigo)
-def test_teto_e_tolerancia_dentro_dos_limites(par):
-    """Teto positivo até o limite da Tela 2; tolerância de deslocamento até o teto da Logística."""
+def test_teto_dentro_do_limite_da_tela_2(par):
+    """Teto positivo e até o limite que a Tela 2 aceita."""
     _, amigo = par
     teto = Decimal(str(amigo["interpretacao_esperada"]["teto_rs"]))
     assert Decimal("0") < teto <= TETO_MAXIMO
-    tolerancia = amigo["tolerancia_deslocamento_max_min"]
-    assert isinstance(tolerancia, int) and 0 < tolerancia <= TETO_DESLOCAMENTO_MIN
 
 
 @pytest.mark.parametrize("par", TODOS_AMIGOS, ids=_id_amigo)
@@ -205,7 +203,8 @@ def test_cenario_padrao_bate_com_a_issue_66():
     m2, m3 = CENARIO_PADRAO["amigos"][1], CENARIO_PADRAO["amigos"][2]
     assert "Ao Ar Livre / Parque" in m2["interpretacao_esperada"]["tipos"]
     assert "Restaurante / Gastronomia" in m3["interpretacao_esperada"]["tipos"]
-    assert CENARIO_PADRAO["amigos"][3]["tolerancia_deslocamento_max_min"] < TETO_DESLOCAMENTO_MIN
+    # A "tolerância moderada" do m4 fica só no texto: o sistema não lê minutos da Tela 2
+    assert "muito longe" in CENARIO_PADRAO["amigos"][3]["campos_tela2"]["preferencias"]
 
 
 # ------------------------------------------------------------------ coerência com o Agente 0
@@ -285,7 +284,7 @@ def _vetos(lugar, amigos=CENARIO_PADRAO["amigos"], inicio=INICIO, fim=FIM, motiv
                         for modo in esperado["transporte"]]
             trajetos = [t for t in trajetos if t]
         # sem trajeto estimável, a pessoa não tem como chegar nem como saber quanto gasta
-        if not trajetos or min(t["minutos"] for t in trajetos) > amigo["tolerancia_deslocamento_max_min"]:
+        if not trajetos or min(t["minutos"] for t in trajetos) > TETO_DESLOCAMENTO_MIN:
             vetos.setdefault("deslocamento", []).append(marcador)
         if not trajetos or consumo + min(t["custo_ida_volta"] for t in trajetos) > Decimal(str(esperado["teto_rs"])):
             vetos.setdefault("orcamento", []).append(marcador)
