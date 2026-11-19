@@ -3,15 +3,26 @@
 Grupos fictícios saindo da periferia do DF (Ceilândia, Samambaia, Sobradinho) e do Plano Piloto. Os lugares são
 sintéticos, um no ponto de referência de cada RA, para o teste medir só a regra da Logística: trajeto pelo meio que
 a pessoa usaria, Menor Miséria pelo pior trajeto e pontuação 45/35/20.
+
+No fim, os dois cenários da #66 (data/cenarios_teste_multiagente.json) passam pelo agente com a base real de 93
+lugares: perfis de interpretar_campos, janelas de cruzar, vetos de deslocamento conferidos contra o gabarito e o
+parecer sem pista de quem tem o pior trajeto (RNF-02).
 """
+from collections import Counter
 from datetime import datetime
 from decimal import Decimal
+from functools import lru_cache
 
+import pytest
+
+from src.agentes.cenarios import CAMPOS_TELA2, carregar_cenario, carregar_cenarios
+from src.agentes.contratos import Cofre, Membro
 from src.agentes.estado import CandidatoAvaliado, dados_privados_no_estado
 from src.agentes.logistica import PESOS_ADERENCIA, executar_agente_logistica, gerar_parecer
-from src.interpretador.campos import PerfilInterpretado, Preferencias
-from src.logistica.transporte_df import ponto_da_ra
-from src.salas.janelas import JanelaComum
+from src.interpretador.campos import ROTULOS_TRANSPORTE, PerfilInterpretado, Preferencias, interpretar_campos
+from src.logistica.transporte_df import TEMPO_ACEITAVEL_MIN, ponto_da_ra
+from src.salas.integracoes import carregar_lugares
+from src.salas.janelas import JanelaComum, cruzar
 
 AGORA = datetime(2026, 11, 17, 12)
 SABADO = JanelaComum(datetime(2026, 11, 21, 15), datetime(2026, 11, 21, 18), frozenset({"m1", "m2", "m3"}), 3)
@@ -231,3 +242,104 @@ def test_parecer_cita_o_meio_quando_duas_pessoas_o_usam():
     texto, cand, pior = _parecer_do_lugar_em_ceilandia(membros)
     assert pior["modo"] == "carro"
     assert f"pior trajeto {cand['pior_trajeto_min']} min de carro;" in texto
+
+
+# ------------------------------------------------------------------ cenários da #66 com a base real
+
+CENARIOS = carregar_cenarios()
+LUGARES_DO_GABARITO = [(c["id"], lugar) for c in CENARIOS
+                       for lugar in c["resultados_esperados"]["locais_plausiveis"]
+                       + c["resultados_esperados"]["nunca_sugerir"]]
+
+
+@lru_cache(maxsize=None)
+def _rodar_cenario(cenario_id):
+    """Os 4 campos de cada amigo -> interpretar_campos -> cruzar -> Agente 2 sobre os 93 lugares (uma vez só)."""
+    cenario = carregar_cenario(cenario_id)
+    agora = datetime.fromisoformat(cenario["agora_referencia"])
+    perfis = {a["marcador"]: interpretar_campos(*(a["campos_tela2"][k] for k in CAMPOS_TELA2), agora=agora)
+              for a in cenario["amigos"]}
+    janelas = cruzar({m: p.janelas for m, p in perfis.items()}, agora)
+    lugares = {l["id"]: l for l in carregar_lugares()}
+    analises = {}
+    saida = executar_agente_logistica([{"id": i, "motivo": "", "trecho": ""} for i in lugares], perfis,
+                                      lugares=lugares, janelas=janelas, agora=agora, analises=analises)
+    return cenario, perfis, janelas, lugares, saida, analises
+
+
+def _modos(desl_por):
+    return Counter(d["modo"] for d in desl_por.values() if d)
+
+
+def _pior(desl_por):
+    conhecidos = [d for d in desl_por.values() if d]
+    return max(conhecidos, key=lambda d: d["minutos"]) if conhecidos else None
+
+
+@pytest.mark.parametrize("cenario_id", [c["id"] for c in CENARIOS])
+def test_cenario_avalia_a_base_inteira_no_contrato_e_em_ordem(cenario_id):
+    _, _, _, lugares, saida, analises = _rodar_cenario(cenario_id)
+    assert len(saida) == len(lugares) == len(analises)
+    for c in saida:
+        CandidatoAvaliado.model_validate(c)
+    pontos = [c["pontuacao"] for c in saida]
+    assert pontos == sorted(pontos, reverse=True)
+
+
+@pytest.mark.parametrize("cenario_id,lugar", LUGARES_DO_GABARITO,
+                         ids=[f"{cid}:{lugar['nome']}" for cid, lugar in LUGARES_DO_GABARITO])
+def test_vetos_de_deslocamento_do_gabarito_batem_com_os_trajetos(cenario_id, lugar):
+    """O gabarito veta por deslocamento quem passa de 75 min pelo meio mais rápido. O agente escolhe o mais barato
+    que chega em até 75 min, senão o mais rápido: o trajeto dele passa de 75 min exatamente para os vetados."""
+    *_, saida, analises = _rodar_cenario(cenario_id)
+    desl_por = analises[lugar["id"]]
+    esperados = set(lugar["vetos_por_membro"].get("deslocamento", [])) & set(desl_por)
+    acima = {m for m, d in desl_por.items() if d and d["minutos"] > TEMPO_ACEITAVEL_MIN}
+    assert acima == esperados
+    cand = next(c for c in saida if c["id"] == lugar["id"])
+    assert (cand["pior_trajeto_min"] > TEMPO_ACEITAVEL_MIN) == bool(esperados)
+
+
+@pytest.mark.parametrize("cenario_id", [c["id"] for c in CENARIOS])
+def test_parecer_nunca_cita_o_meio_de_uma_pessoa_so(cenario_id):
+    """Em todos os 93 lugares: se o parecer diz o meio do pior trajeto, pelo menos 2 presentes usam esse meio."""
+    *_, saida, analises = _rodar_cenario(cenario_id)
+    for c in saida:
+        texto = gerar_parecer([c], analises)
+        modos = _modos(analises[c["id"]])
+        for modo, rotulo in ROTULOS_TRANSPORTE.items():
+            if f" min de {rotulo};" in texto:
+                assert modos[modo] >= 2, f"{c['nome']}: '{rotulo}' aponta uma pessoa só"
+
+
+def test_cenario_de_controle_tem_os_dois_casos_do_meio_no_parecer():
+    """Garante que o teste anterior não passa por falta de caso: no controle, o m3 é o único de carro ou app e tem
+    o pior trajeto em algum lugar (o meio some), e em outro o pior é de ônibus/metrô, que 3 usam (o meio aparece)."""
+    *_, saida, analises = _rodar_cenario("cenario_controle_viavel")
+    some, aparece = [], []
+    for c in saida:
+        pior = _pior(analises[c["id"]])
+        if pior is None:
+            continue
+        unico = _modos(analises[c["id"]])[pior["modo"]] == 1
+        (some if unico else aparece).append((c, ROTULOS_TRANSPORTE[pior["modo"]]))
+    assert some and aparece
+    for c, rotulo in some:
+        assert f" min de {rotulo};" not in gerar_parecer([c], analises)
+    for c, rotulo in aparece:
+        assert f" min de {rotulo};" in gerar_parecer([c], analises)
+
+
+@pytest.mark.parametrize("cenario_id", [c["id"] for c in CENARIOS])
+def test_saida_e_parecer_dos_cenarios_passam_na_varredura_do_cofre(cenario_id):
+    """Com o cofre de verdade (nomes fictícios dos amigos), nem a saída nem o parecer têm chave privada, nome ou
+    id de usuário de alguém (a varredura do #64)."""
+    cenario, perfis, janelas, lugares, saida, analises = _rodar_cenario(cenario_id)
+    agora = datetime.fromisoformat(cenario["agora_referencia"])
+    membros = {a["marcador"]: Membro(id=a["marcador"], usuario=f"usuario-{a['marcador']}", nome=a["nome_ficticio"],
+                                     perfil=perfis[a["marcador"]]) for a in cenario["amigos"]}
+    cofre = Cofre(membros=membros, janelas=janelas, agora=agora, lugares=lugares, store=None)
+    estado = {"candidatos_avaliados": saida,
+              "mensagens": [{"de": "logistica", "para": "validacao", "texto": gerar_parecer(saida, analises),
+                             "em": agora.isoformat()}]}
+    assert dados_privados_no_estado(estado, cofre) == []
