@@ -23,9 +23,11 @@ import re
 from datetime import datetime
 from decimal import Decimal
 from pathlib import Path
+from typing import get_args
 
 import pytest
 
+from src.agentes.contratos import MotivoVeto
 from src.financas.orcamento import teto_seguro_grupo
 from src.interpretador.campos import (RESTRICOES, TETO_MAXIMO, TIPOS, TRANSPORTES, VIBES,
                                       interpretar_campos)
@@ -250,9 +252,12 @@ CAMPOS_RESULTADOS = (
     "locais_plausiveis",
     "nunca_sugerir",
 )
-CAMPOS_LUGAR_CITADO = ("id", "nome", "vetos_esperados")
-# Mesmos rótulos de MotivoVeto (src/agentes/contratos.py)
-MOTIVOS_VETO = {"horario", "orcamento", "restricao", "encerrado", "deslocamento"}
+CAMPOS_LUGAR_CITADO = ("id", "nome", "vetos_do_lugar", "vetos_por_membro")
+# Os rótulos são os de MotivoVeto (src/agentes/contratos.py), divididos pelo que cada um barra:
+# a situação do lugar vale para todos; os demais barram membros específicos.
+MOTIVOS_VETO = frozenset(get_args(MotivoVeto))
+MOTIVOS_DO_LUGAR = frozenset({"horario", "encerrado"})
+MOTIVOS_POR_MEMBRO = MOTIVOS_VETO - MOTIVOS_DO_LUGAR
 VEREDITOS = {"com_lugar_viavel", "sem_lugar_viavel"}
 # Onde o texto de um lugar pode comprovar uma restrição (o mesmo que a busca lê)
 CAMPOS_TEXTO_LUGAR = ("nome", "tipo_de_role", "resumo_sensorial", "legenda_original", "transcricao_audio_whisper")
@@ -264,15 +269,16 @@ LUGARES_CITADOS = ESPERADO["locais_plausiveis"] + ESPERADO["nunca_sugerir"]
 
 
 def _vetos(lugar, amigos=CENARIO_PADRAO["amigos"], inicio=INICIO, fim=FIM, motivos=MOTIVOS_VETO):
-    """{motivo: marcadores barrados} de um lugar na janela, pela regra de `regra_dos_vetos`."""
-    vetos = {}
+    """(vetos do lugar, {motivo: marcadores barrados}) na janela, pela regra de `regra_dos_vetos`."""
+    do_lugar = []
     funcionamento = ler_funcionamento(lugar.get("horario_funcionamento"), ano_do_lugar(lugar, inicio.year))
     situacao, _ = funcionamento.situacao(inicio, fim)
     if situacao == "fechado":
-        vetos["horario"] = []
+        do_lugar.append("horario")
     if situacao == "encerrado":
-        vetos["encerrado"] = []
+        do_lugar.append("encerrado")
 
+    por_membro = {}
     consumo = Decimal(str(lugar.get("custo_medio_rs") or 0))
     texto = canon(" ".join(str(lugar.get(campo) or "") for campo in CAMPOS_TEXTO_LUGAR))
     for amigo in amigos:
@@ -285,13 +291,24 @@ def _vetos(lugar, amigos=CENARIO_PADRAO["amigos"], inicio=INICIO, fim=FIM, motiv
             trajetos = [t for t in trajetos if t]
         # sem trajeto estimável, a pessoa não tem como chegar nem como saber quanto gasta
         if not trajetos or min(t["minutos"] for t in trajetos) > TETO_DESLOCAMENTO_MIN:
-            vetos.setdefault("deslocamento", []).append(marcador)
+            por_membro.setdefault("deslocamento", []).append(marcador)
         if not trajetos or consumo + min(t["custo_ida_volta"] for t in trajetos) > Decimal(str(esperado["teto_rs"])):
-            vetos.setdefault("orcamento", []).append(marcador)
+            por_membro.setdefault("orcamento", []).append(marcador)
         for restricao in esperado["restricoes"]:
             if not re.search(TERMOS_RESTRICAO[restricao], texto):
-                vetos.setdefault("restricao", []).append(marcador)
-    return {motivo: barrados for motivo, barrados in vetos.items() if motivo in motivos}
+                por_membro.setdefault("restricao", []).append(marcador)
+    return ([m for m in do_lugar if m in motivos],
+            {m: barrados for m, barrados in por_membro.items() if m in motivos})
+
+
+def _viavel(lugar, **kwargs):
+    do_lugar, por_membro = _vetos(lugar, **kwargs)
+    return not do_lugar and not por_membro
+
+
+def _motivos(citado):
+    """O que a Validação deve dizer de um lugar: só o conjunto de motivos, sem quem foi barrado."""
+    return set(citado["vetos_do_lugar"]) | set(citado["vetos_por_membro"])
 
 
 def _perfis():
@@ -350,25 +367,43 @@ def test_lugares_citados_existem_na_base_sem_repetir():
 
 
 @pytest.mark.parametrize("citado", LUGARES_CITADOS, ids=lambda c: c["nome"])
-def test_vetos_esperados_batem_com_o_calculo(citado):
-    """Os vetos anotados de cada lugar são os que a regra recalcula, com motivos e marcadores válidos."""
-    anotados = citado["vetos_esperados"]
+def test_vetos_do_lugar_e_por_membro_ficam_cada_um_no_seu_campo(citado):
+    """Horário e encerrado só em vetos_do_lugar; os outros só em vetos_por_membro, sempre com alguém barrado."""
     marcadores = {amigo["marcador"] for amigo in CENARIO_PADRAO["amigos"]}
-    assert anotados, "um lugar citado num cenário sem lugar viável precisa de pelo menos um veto"
-    assert set(anotados) <= MOTIVOS_VETO
-    assert all(set(barrados) <= marcadores for barrados in anotados.values())
-    assert _vetos(BASE_2FA[citado["id"]]) == anotados
+    assert set(citado["vetos_do_lugar"]) <= MOTIVOS_DO_LUGAR
+    assert set(citado["vetos_por_membro"]) <= MOTIVOS_POR_MEMBRO
+    for motivo, barrados in citado["vetos_por_membro"].items():
+        assert barrados, f"{motivo} sem ninguém barrado: tire o motivo em vez de deixar a lista vazia"
+        assert set(barrados) <= marcadores
+    assert _motivos(citado), "um lugar citado num cenário sem lugar viável precisa de pelo menos um veto"
+
+
+@pytest.mark.parametrize("citado", LUGARES_CITADOS, ids=lambda c: c["nome"])
+def test_vetos_esperados_batem_com_o_calculo(citado):
+    """Os vetos anotados de cada lugar são os que a regra recalcula."""
+    do_lugar, por_membro = _vetos(BASE_2FA[citado["id"]])
+    assert do_lugar == citado["vetos_do_lugar"]
+    assert por_membro == citado["vetos_por_membro"]
+
+
+def test_comparacao_com_a_validacao_e_so_pelos_motivos_do_lugar():
+    """A projeção para a Validação ({id: motivos}) usa só rótulos de MotivoVeto e não carrega marcadores."""
+    projecao = {citado["id"]: _motivos(citado) for citado in LUGARES_CITADOS}
+    marcadores = {amigo["marcador"] for amigo in CENARIO_PADRAO["amigos"]}
+    for motivos in projecao.values():
+        assert motivos <= MOTIVOS_VETO
+        assert not motivos & marcadores
 
 
 def test_plausiveis_cobrem_os_tipos_de_veto_mais_comuns():
     """Os quase-lá mostram vetos diferentes, para testar cada filtro da Validação."""
-    motivos = {m for lugar in ESPERADO["locais_plausiveis"] for m in lugar["vetos_esperados"]}
+    motivos = set().union(*(_motivos(lugar) for lugar in ESPERADO["locais_plausiveis"]))
     assert {"deslocamento", "orcamento", "restricao", "horario"} <= motivos
 
 
 def test_nenhum_lugar_da_base_passa_em_todos_os_filtros():
     """Veredito: na janela comum, todo lugar da base leva pelo menos um veto."""
-    viaveis = [registro["nome"] for registro in BASE_2FA.values() if not _vetos(registro)]
+    viaveis = [registro["nome"] for registro in BASE_2FA.values() if _viavel(registro)]
     assert viaveis == ESPERADO["lugares_viaveis_esperados"] == [], (
         f"a base passou a ter lugar viável para o cenário: {viaveis}. Atualize o gabarito."
     )
@@ -377,5 +412,5 @@ def test_nenhum_lugar_da_base_passa_em_todos_os_filtros():
 def test_so_o_deslocamento_ja_deixa_o_cenario_sem_resposta():
     """Mesmo sem olhar restrição, orçamento e horário, nenhum lugar fica a até a tolerância de todos."""
     alcancaveis = [registro["nome"] for registro in BASE_2FA.values()
-                   if not _vetos(registro, motivos={"deslocamento"})]
+                   if _viavel(registro, motivos={"deslocamento"})]
     assert alcancaveis == []

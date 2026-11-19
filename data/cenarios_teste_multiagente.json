@@ -115,42 +115,47 @@
         "veredito": "sem_lugar_viavel",
         "lugares_viaveis_esperados": [],
         "comportamento_esperado": "Nenhum dos 93 lugares passa em todos os filtros duros na janela comum. A Validação deve vetar todos os candidatos, devolver à Pesquisa só a contagem dos vetos (até 2 voltas) e terminar avisando que há menos de 3 opções, sem inventar cartão nem anunciar opção vegetariana que a base não comprova.",
-        "regra_dos_vetos": "Um veto vale quando nem na melhor hipótese a pessoa é atendida: 'deslocamento' se o meio mais rápido dela passa do teto de 75 min da Logística, o mesmo para todos; 'orcamento' se o consumo médio mais o meio mais barato dela passa do teto; 'restricao' se o texto do lugar não comprova a restrição; 'horario' ou 'encerrado' pela situação do lugar na janela comum.",
+        "regra_dos_vetos": "Um veto vale quando nem na melhor hipótese a pessoa é atendida: 'deslocamento' se o meio mais rápido dela passa do teto de 75 min da Logística, o mesmo para todos; 'orcamento' se o consumo médio mais o meio mais barato dela passa do teto; 'restricao' se o texto do lugar não comprova a restrição; 'horario' ou 'encerrado' pela situação do lugar na janela comum. Horário e encerrado valem para o lugar (vetos_do_lugar); os outros três dizem quem é barrado (vetos_por_membro). A saída da Validação é comparada só pelo conjunto de motivos de cada lugar, porque ela não diz quem foi barrado (RNF-02); os marcadores servem só aos testes internos da Logística e da Validação.",
         "locais_plausiveis": [
           {
             "id": "tiktok_7600072525304958226",
             "nome": "Fábrica de Bolos Valzira",
             "ra": "Águas Claras",
             "por_que_e_plausivel": "Fica no meio do caminho e cabe no bolso de todos, até no teto de R$ 40.",
-            "vetos_esperados": {"deslocamento": ["m4"], "restricao": ["m1"]}
+            "vetos_do_lugar": [],
+            "vetos_por_membro": {"deslocamento": ["m4"], "restricao": ["m1"]}
           },
           {
             "id": "tiktok_7670567910359829768",
             "nome": "Saguari Gastro House",
             "ra": "Samambaia",
             "por_que_e_plausivel": "Aberto no sábado à tarde, barato e na periferia oeste; o gerador atual das salas o sugere.",
-            "vetos_esperados": {"deslocamento": ["m4"], "restricao": ["m1"]}
+            "vetos_do_lugar": [],
+            "vetos_por_membro": {"deslocamento": ["m4"], "restricao": ["m1"]}
           },
           {
             "id": "tiktok_7699233720657530119",
             "nome": "Lefit Gelatos e Doces Saudáveis",
             "ra": "Plano Piloto",
             "por_que_e_plausivel": "Aberto na janela e cabe em todos os tetos, mas fica no centro, longe das duas periferias.",
-            "vetos_esperados": {"deslocamento": ["m1", "m4"], "restricao": ["m1"]}
+            "vetos_do_lugar": [],
+            "vetos_por_membro": {"deslocamento": ["m1", "m4"], "restricao": ["m1"]}
           },
           {
             "id": "tiktok_7612334793040186632",
             "nome": "Restaurante Dona Cleide",
             "ra": "Águas Claras",
             "por_que_e_plausivel": "Aberto, no meio do caminho e com a gastronomia que o m3 pediu, mas caro para os tetos menores.",
-            "vetos_esperados": {"deslocamento": ["m4"], "orcamento": ["m1", "m4"], "restricao": ["m1"]}
+            "vetos_do_lugar": [],
+            "vetos_por_membro": {"deslocamento": ["m4"], "orcamento": ["m1", "m4"], "restricao": ["m1"]}
           },
           {
             "id": "tiktok_7612337171973950728",
             "nome": "Pizzaria Natureto",
             "ra": "Águas Claras",
             "por_que_e_plausivel": "Um dos 3 lugares da base que comprovam opção vegetariana, mas o vídeo só cita um domingo de março.",
-            "vetos_esperados": {"horario": [], "deslocamento": ["m4"], "orcamento": ["m1"]}
+            "vetos_do_lugar": ["horario"],
+            "vetos_por_membro": {"deslocamento": ["m4"], "orcamento": ["m1"]}
           }
         ],
         "nunca_sugerir": [
@@ -158,13 +163,15 @@
             "id": "tiktok_7610152754647944455",
             "nome": "Hamburgueria Espacial",
             "motivo": "A RA do registro diz Taguatinga, mas o endereço e a coordenada são de Sobradinho: por erro de dado, pareceria perfeito para o m4.",
-            "vetos_esperados": {"deslocamento": ["m1", "m2"], "restricao": ["m1"]}
+            "vetos_do_lugar": [],
+            "vetos_por_membro": {"deslocamento": ["m1", "m2"], "restricao": ["m1"]}
           },
           {
             "id": "tiktok_7676588020346309896",
             "nome": "Cachorrão da 5",
             "motivo": "O gerador atual das salas o sugere (sábado, 18h às 22h), mas ninguém do grupo chega a Santa Maria em até 75 min.",
-            "vetos_esperados": {"horario": [], "deslocamento": ["m1", "m2", "m3", "m4"], "restricao": ["m1"]}
+            "vetos_do_lugar": ["horario"],
+            "vetos_por_membro": {"deslocamento": ["m1", "m2", "m3", "m4"], "restricao": ["m1"]}
           }
         ]
       }
