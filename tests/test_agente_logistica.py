@@ -8,7 +8,7 @@ from datetime import datetime
 from decimal import Decimal
 
 from src.agentes.estado import CandidatoAvaliado, dados_privados_no_estado
-from src.agentes.logistica import PESOS_ADERENCIA, executar_agente_logistica
+from src.agentes.logistica import PESOS_ADERENCIA, executar_agente_logistica, gerar_parecer
 from src.interpretador.campos import PerfilInterpretado, Preferencias
 from src.logistica.transporte_df import ponto_da_ra
 from src.salas.janelas import JanelaComum
@@ -158,3 +158,49 @@ def test_sem_analises_nada_e_gravado_e_lugar_sem_coordenada_e_provisorio():
     (c,) = _rodar(PERIFERIA, [sem_gps])
     assert c["pior_trajeto_min"] is None and c["estimativa_provisoria"] is True
     assert c["nota_justica"] == 30.0
+
+
+# ------------------------------------------------------------------ parecer textual
+
+def test_parecer_traz_score_pior_trajeto_com_o_meio_e_media():
+    analises = {}
+    saida = _rodar(PERIFERIA, [PLANO, TAGUATINGA], analises=analises)
+    tagua = saida[0]
+    texto = gerar_parecer(saida, analises)
+    assert texto.startswith("Ranking Logístico: Lugar Taguatinga (score ")
+    assert (f"pior trajeto {tagua['pior_trajeto_min']} min de ônibus/metrô; "
+            f"média {tagua['media_trajeto_min']} min") in texto
+
+
+def test_parecer_mostra_tempos_so_do_primeiro_e_do_ultimo():
+    meio = _lugar("meio", "Águas Claras")
+    saida = _rodar(PERIFERIA, [PLANO, TAGUATINGA, meio])
+    texto = gerar_parecer(saida)
+    assert texto.count("pior trajeto") == 2
+    assert f"{saida[1]['nome']} (score {round(saida[1]['pontuacao'] * 100)})" in texto
+
+
+def test_parecer_sem_analises_nao_cita_o_meio():
+    saida = _rodar(PERIFERIA, [TAGUATINGA])
+    texto = gerar_parecer(saida)
+    assert "ônibus/metrô" not in texto and "min;" in texto
+
+
+def test_parecer_avisa_trajeto_acima_de_75_min_sem_dizer_de_quem():
+    membros = {"m1": _perfil("Ceilândia"), "m2": _perfil("Sobradinho")}
+    janela = JanelaComum(SABADO.inicio, SABADO.fim, frozenset({"m1", "m2"}), 2)
+    analises = {}
+    saida = _rodar(membros, [PLANO], janelas=[janela], analises=analises)
+    texto = gerar_parecer(saida, analises)
+    assert texto.endswith("1 lugar com trajeto acima de 75 min para alguém do grupo.")
+    for segredo in ("Ceilândia", "Sobradinho", "m1", "m2", "80", "R$"):
+        assert segredo not in texto
+
+
+def test_parecer_e_deterministico_e_trata_lista_vazia_e_sem_coordenada():
+    saida = _rodar(PERIFERIA, [PLANO, TAGUATINGA])
+    assert gerar_parecer(saida) == gerar_parecer(list(saida))
+    assert gerar_parecer([]) == "Ranking Logístico: nenhum candidato para avaliar."
+    sem_gps = {**TAGUATINGA, "id": "sem_gps", "lat": None, "lng": None}
+    texto = gerar_parecer(_rodar(PERIFERIA, [sem_gps]))
+    assert "trajeto não calculado; estimativa provisória" in texto

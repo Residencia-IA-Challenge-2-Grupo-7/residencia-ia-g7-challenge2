@@ -13,7 +13,7 @@ Para cada candidato da Pesquisa:
 4. **Pontuação:** 45% aderência ao que o grupo pediu, 35% justiça, 20% certeza do horário, de 0 a 1.
 
 A saída pública é uma lista de `CandidatoAvaliado` (só agregados: pior trajeto, média, diferença), do melhor
-para o pior.
+para o pior. `gerar_parecer` resume essa lista num texto feito por regra, para a mensagem do agente no grafo.
 """
 from __future__ import annotations
 
@@ -22,9 +22,9 @@ from collections.abc import Mapping
 from datetime import datetime
 
 from src.agentes.estado import CandidatoAvaliado
-from src.interpretador.campos import PerfilInterpretado
+from src.interpretador.campos import ROTULOS_TRANSPORTE, PerfilInterpretado
 from src.interpretador.numeros import canon
-from src.logistica.transporte_df import escolher_meio, nota_menor_miseria
+from src.logistica.transporte_df import TEMPO_ACEITAVEL_MIN, escolher_meio, nota_menor_miseria
 from src.salas import integracoes as integ
 from src.salas.horario_lugar import ano_do_lugar, ler_funcionamento
 from src.salas.janelas import JanelaComum
@@ -127,3 +127,48 @@ def executar_agente_logistica(candidatos: list[dict], origens_membros: Mapping[s
         ))
     avaliados.sort(key=lambda c: (-c.pontuacao, -c.nota_justica, c.id))
     return [c.model_dump() for c in avaliados]
+
+
+# ------------------------------------------------------------------ parecer (texto por regra, sem LLM)
+
+def _modo_do_pior(desl_por: Mapping[str, dict | None] | None) -> str | None:
+    """Rótulo do meio do pior trajeto ("ônibus/metrô"), sem dizer de quem é. Empate: o primeiro marcador."""
+    conhecidos = [d for d in (desl_por or {}).values() if d]
+    if not conhecidos:
+        return None
+    return ROTULOS_TRANSPORTE.get(max(conhecidos, key=lambda d: d["minutos"]).get("modo"))
+
+
+def _resumo(c: dict, modo: str | None, completo: bool) -> str:
+    score = f"score {round(c['pontuacao'] * 100)}"
+    if not completo:
+        return f"{c['nome']} ({score})"
+    if c["pior_trajeto_min"] is None:
+        trajeto = "trajeto não calculado"
+    else:
+        de = f" de {modo}" if modo else ""
+        trajeto = f"pior trajeto {c['pior_trajeto_min']} min{de}; média {c['media_trajeto_min']} min"
+    prov = "; estimativa provisória" if c["estimativa_provisoria"] else ""
+    return f"{c['nome']} ({score}; {trajeto}{prov})"
+
+
+def gerar_parecer(avaliados: list[dict], analises: Mapping[str, Mapping] | None = None) -> str:
+    """Parecer da Logística a partir da saída de `executar_agente_logistica`, sempre o mesmo para a mesma entrada.
+
+    Ex.: "Ranking Logístico: Lugar A (score 81; pior trajeto 38 min de ônibus/metrô; média 27 min), Lugar C
+    (score 74). 1 lugar com trajeto acima de 75 min para alguém do grupo."
+
+    O primeiro e o último vêm com os tempos; os do meio, só com o score. Com `analises` (o cofre), diz o meio do
+    pior trajeto. Nunca diz de onde alguém sai, quem tem o pior trajeto nem quanto alguém gasta (RNF-02).
+    """
+    if not avaliados:
+        return "Ranking Logístico: nenhum candidato para avaliar."
+    ultimo = len(avaliados) - 1
+    partes = [_resumo(c, _modo_do_pior((analises or {}).get(c["id"])), i in (0, ultimo))
+              for i, c in enumerate(avaliados)]
+    texto = "Ranking Logístico: " + ", ".join(partes) + "."
+    longe = sum(1 for c in avaliados if (c["pior_trajeto_min"] or 0) > TEMPO_ACEITAVEL_MIN)
+    if longe:
+        texto += (f" {longe} lugar{'es' if longe > 1 else ''} com trajeto acima de {TEMPO_ACEITAVEL_MIN} min"
+                  " para alguém do grupo.")
+    return texto
