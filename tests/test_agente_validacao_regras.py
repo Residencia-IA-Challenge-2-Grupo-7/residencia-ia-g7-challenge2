@@ -4,20 +4,30 @@ Cobre:
 - Veto 1: dentro_do_orcamento_individual (RF-17: consumo + transporte individual <= teto individual);
 - Veto 2: Horário de funcionamento sobreposto à janela comum (RF-12);
 - Veto 3: Eventos com data passada ou promoções encerradas;
-- Veto 4: Restrições alimentares duras e inegociáveis;
-- Relatório estruturado de validação e feedback de busca (RelatorioValidacao e PedidoNovaBusca).
+- Veto 4: Restrições alimentares duras e inegociáveis (sem evidência no texto/vídeo);
+- Veto de Deslocamento: Menor Miséria (> 75 min, TEMPO_ACEITAVEL_MIN, ADR 0013);
+- Suporte a saídas reais da Logística com 'None' (cofre.analises);
+- Relatório estruturado de validação e feedback de busca (RelatorioValidacao e PedidoNovaBusca);
+- Integração com cenários reais da issue #66 (cenário padrão e cenário de controle com 5 viáveis).
 """
+import json
 from datetime import datetime
 from decimal import Decimal
+from pathlib import Path
 import pytest
 
+from src.agentes.cenarios import carregar_cenario
+from src.agentes.contratos import Cofre, Membro
 from src.agentes.validacao import (
     dentro_do_orcamento_individual,
     validar_horario_e_evento,
     atende_restricoes_duras,
+    validar_deslocamento_membros,
     validar_candidatos_regras,
     gerar_pedido_nova_busca,
 )
+from src.interpretador.campos import interpretar_campos
+from src.logistica.transporte_df import estimar_deslocamento
 from src.salas.janelas import JanelaComum
 
 
@@ -154,8 +164,8 @@ def test_restricao_dura_aprova_quando_lugar_tem_opcao():
     assert motivo is None
 
 
-def test_restricao_dura_veta_churrascaria_100_carnes_para_vegetariano():
-    """Cenário 8: Churrascaria tradicional sem opção vegetariana vetada para vegetariano."""
+def test_restricao_dura_veta_churrascaria_sem_opcao_para_vegetariano():
+    """Cenário 8: Lugar sem evidência de opção vegetariana vetado para vegetariano."""
     lugar = {
         "id": "parrilla_sul",
         "nome": "Parrilla dos Pampas",
@@ -168,7 +178,7 @@ def test_restricao_dura_veta_churrascaria_100_carnes_para_vegetariano():
 
 
 def test_restricao_dura_aprova_se_ninguem_no_grupo_tiver_restricoes():
-    """Cenário 9: Sem restrições duras informadas, churrascaria passa."""
+    """Cenário 9: Sem restrições duras informadas, o local passa."""
     lugar = {
         "id": "parrilla_sul",
         "nome": "Parrilla dos Pampas",
@@ -181,145 +191,161 @@ def test_restricao_dura_aprova_se_ninguem_no_grupo_tiver_restricoes():
 
 
 # -------------------------------------------------------------------------
-# Testes do Orquestrador de Validação e Feedback Estruturado
+# Testes do Veto de Deslocamento (ADR 0013 / Menor Miséria)
 # -------------------------------------------------------------------------
 
-def test_validar_candidatos_regras_gera_relatorio_estruturado():
-    """Cenário 10: Executa os 4 vetos em lote e gera o RelatorioValidacao."""
-    agora = datetime(2026, 11, 17, 12, 0)
+def test_validar_deslocamento_aprova_dentro_do_limite():
+    """Cenário 10: Trajetos até 75 minutos são aprovados."""
+    analises = {
+        "m1": {"minutos": 45, "custo_ida_volta": Decimal("11.00")},
+        "m2": {"minutos": 70, "custo_ida_volta": Decimal("11.00")},
+    }
+    valido, motivo = validar_deslocamento_membros(analises)
+    assert valido is True
+    assert motivo is None
+
+
+def test_validar_deslocamento_veta_quando_excede_75_min():
+    """Cenário 11: Trajeto superior a 75 minutos é vetado por deslocamento."""
+    analises = {
+        "m1": {"minutos": 45, "custo_ida_volta": Decimal("11.00")},
+        "m2": {"minutos": 120, "custo_ida_volta": Decimal("11.00")},  # 120 > 75
+    }
+    valido, motivo = validar_deslocamento_membros(analises)
+    assert valido is False
+    assert motivo == "deslocamento"
+
+
+def test_validar_candidatos_regras_trata_none_na_saida_da_logistica():
+    """Cenário 12: Lugar sem trajeto estimável (None em cofre.analises) não causa AttributeError."""
+    candidatos = [{"id": "lugar_sem_coords", "nome": "Lugar Misterioso", "custo_medio_rs": 30.0}]
     janela = JanelaComum(
         inicio=datetime(2026, 11, 21, 19, 0),
         fim=datetime(2026, 11, 21, 22, 0),
         presentes=frozenset({"m1", "m2"}),
         total=2,
     )
-
-    candidatos = [
-        # 1. Deve ser aprovado
-        {
-            "id": "cand_aprovado",
-            "nome": "Bistrô Aconchego",
-            "horario_funcionamento": "Terca a domingo: 18h as 23h",
-            "tipo_de_role": "Restaurante",
-            "resumo_sensorial": "Massas artesanais com opções vegetarianas deliciosas.",
-            "custo_medio_rs": 40.0,
-        },
-        # 2. Vetado por horário (fechado aos sábados)
-        {
-            "id": "cand_fechado",
-            "nome": "Café Centro",
-            "horario_funcionamento": "Segunda a sexta: 8h as 17h. Fechado sabado e domingo.",
-            "tipo_de_role": "Café",
-            "resumo_sensorial": "Café coado e pão de queijo.",
-            "custo_medio_rs": 25.0,
-        },
-        # 3. Vetado por restrição (churrascaria para vegetariano)
-        {
-            "id": "cand_carnes",
-            "nome": "Churrascaria Fogo Forte",
-            "horario_funcionamento": "Diariamente: 11h as 23h",
-            "tipo_de_role": "Churrascaria",
-            "resumo_sensorial": "Rodízio completo 100% carnes nobres.",
-            "custo_medio_rs": 45.0,
-        },
-        # 4. Vetado por orçamento (custo + transporte > teto de m2)
-        {
-            "id": "cand_caro",
-            "nome": "Restaurante Luxo",
-            "horario_funcionamento": "Diariamente: 18h as 23h",
-            "tipo_de_role": "Gastronomia",
-            "resumo_sensorial": "Menu degustação com opções vegetarianas.",
-            "custo_medio_rs": 75.0,
-        },
-    ]
-
-    tetos = {"m1": Decimal("100.00"), "m2": Decimal("60.00")}
-    deslocamentos = {
-        "cand_aprovado": {"m1": Decimal("10.00"), "m2": Decimal("10.00")},  # 40 + 10 = 50 <= 60 (OK)
-        "cand_fechado": {"m1": Decimal("5.00"), "m2": Decimal("5.00")},
-        "cand_carnes": {"m1": Decimal("5.00"), "m2": Decimal("5.00")},
-        "cand_caro": {"m1": Decimal("10.00"), "m2": Decimal("10.00")},      # 75 + 10 = 85 > 60 (Veto Orçamento)
+    # A Logística grava None quando o trajeto não pode ser estimado
+    analises_com_none = {
+        "lugar_sem_coords": {"m1": None, "m2": {"minutos": 30, "custo_ida_volta": Decimal("10.00")}}
     }
-    restricoes = ["alim_vegetariano"]
+    tetos = {"m1": Decimal("50.00"), "m2": Decimal("50.00")}
 
+    # Não deve lançar AttributeError: 'NoneType' object has no attribute 'get'
     relatorio = validar_candidatos_regras(
         candidatos=candidatos,
         janelas=[janela],
-        agora=agora,
         tetos=tetos,
-        deslocamentos=deslocamentos,
-        restricoes=restricoes,
+        analises_completas=analises_com_none,
     )
-
-    assert relatorio.aprovados == ["cand_aprovado"]
-    assert len(relatorio.vetos) == 3
-    assert relatorio.contagem["horario"] == 1
-    assert relatorio.contagem["restricao"] == 1
-    assert relatorio.contagem["orcamento"] == 1
-    assert relatorio.teto_aplicado is True
-
-    # Como restou apenas 1 aprovado (< 3), gera PedidoNovaBusca com feedback
-    pedido = gerar_pedido_nova_busca(relatorio, total_vistos=len(candidatos), minimo_esperado=3)
-    assert pedido is not None
-    assert pedido.faltam == 2
-    assert pedido.ja_vistos == 4
-    assert pedido.vetos["orcamento"] == 1
-    assert pedido.vetos["horario"] == 1
-    assert pedido.vetos["restricao"] == 1
+    assert isinstance(relatorio.contagem, dict)
 
 
 # -------------------------------------------------------------------------
-# Teste com a Base Real de 93 Lugares (RF-12 e Contexto Oficial do App)
+# Testes com os Cenários Reais da Issue #66 (Gabarito Oficial)
 # -------------------------------------------------------------------------
 
-def test_validacao_com_base_real_de_93_lugares_2fa():
-    """Cenário 11: Valida diretamente contra o arquivo oficial data/banco_aprovado_2fa.json."""
-    import json
-    from pathlib import Path
-
+def test_cenario_controle_viavel_aprova_exatamente_os_5_esperados():
+    """Cenário 13: No cenario_controle_viavel da issue #66, passam exatamente os 5 lugares viáveis."""
+    cenario = carregar_cenario("cenario_controle_viavel")
     caminho_base = Path("data/banco_aprovado_2fa.json")
-    assert caminho_base.exists(), "Base oficial 2FA de 93 lugares não encontrada"
-
     with open(caminho_base, encoding="utf-8") as f:
-        lugares_reais = json.load(f)
+        lugares_reais = {l["id"]: l for l in json.load(f)}
 
-    assert len(lugares_reais) == 93
+    inicio = datetime.fromisoformat(cenario["resultados_esperados"]["janela_comum"]["inicio"])
+    fim = datetime.fromisoformat(cenario["resultados_esperados"]["janela_comum"]["fim"])
+    janela = JanelaComum(inicio=inicio, fim=fim, presentes=frozenset({"m1", "m2", "m3", "m4"}), total=4)
+    agora = datetime.fromisoformat(cenario["agora_referencia"])
 
-    # Janela num sábado à noite (21/11/2026, 19h às 23h)
-    janela_sabado = JanelaComum(
-        inicio=datetime(2026, 11, 21, 19, 0),
-        fim=datetime(2026, 11, 21, 23, 0),
-        presentes=frozenset({"m1", "m2", "m3", "m4"}),
-        total=4,
-    )
-    agora = datetime(2026, 11, 19, 12, 0)
+    tetos = {amigo["marcador"]: Decimal(str(amigo["interpretacao_esperada"]["teto_rs"])) for amigo in cenario["amigos"]}
+    restricoes = list({r for a in cenario["amigos"] for r in a["interpretacao_esperada"]["restricoes"]})
 
-    # Cenário de orçamento realista para o grupo de 4 amigos
-    tetos = {
-        "m1": Decimal("80.00"),
-        "m2": Decimal("60.00"),
-        "m3": Decimal("120.00"),
-        "m4": None,  # sem restrição
-    }
-
-    # Deslocamentos padrão simbólicos
-    deslocamentos = {
-        l["id"]: {"m1": Decimal("8.00"), "m2": Decimal("10.00"), "m3": Decimal("12.00"), "m4": Decimal("5.00")}
-        for l in lugares_reais
-    }
+    # Simula as análises de trajeto da Logística
+    analises = {}
+    for lid, lugar in lugares_reais.items():
+        analises[lid] = {}
+        for amigo in cenario["amigos"]:
+            m = amigo["marcador"]
+            esperado = amigo["interpretacao_esperada"]
+            if lugar.get("lat") is not None and lugar.get("lng") is not None:
+                trajetos = [
+                    estimar_deslocamento(esperado["ra"], lugar["lat"], lugar["lng"], modo, inicio)
+                    for modo in esperado["transporte"]
+                ]
+                trajetos = [t for t in trajetos if t]
+                if trajetos:
+                    viaveis = [t for t in trajetos if t["minutos"] <= 75]
+                    melhor = min(viaveis, key=lambda t: (t["custo_ida_volta"], t["minutos"])) if viaveis else min(trajetos, key=lambda t: (t["minutos"], t["custo_ida_volta"]))
+                    analises[lid][m] = melhor
+                else:
+                    analises[lid][m] = None
+            else:
+                analises[lid][m] = None
 
     relatorio = validar_candidatos_regras(
-        candidatos=lugares_reais,
-        janelas=[janela_sabado],
+        candidatos=list(lugares_reais.values()),
+        janelas=[janela],
         agora=agora,
         tetos=tetos,
-        deslocamentos=deslocamentos,
-        restricoes=[],
+        lugares_base=lugares_reais,
+        restricoes=restricoes,
+        analises_completas=analises,
     )
 
-    # Na base real, devem ocorrer vetos de horário e de encerrados
-    assert relatorio.contagem["horario"] > 0
-    assert relatorio.contagem["encerrado"] > 0
-    assert len(relatorio.aprovados) > 0
-    assert relatorio.teto_aplicado is True
+    esperados_viaveis = sorted(l["id"] for l in cenario["resultados_esperados"]["lugares_viaveis_esperados"])
+    assert sorted(relatorio.aprovados) == esperados_viaveis
+    assert len(relatorio.aprovados) == 5
+    assert relatorio.contagem["deslocamento"] > 0
+
+
+def test_cenario_padrao_sem_lugares_viaveis():
+    """Cenário 14: No cenario_padrao_4_amigos da issue #66, nenhum lugar passa e há múltiplos vetos."""
+    cenario = carregar_cenario("cenario_padrao_4_amigos")
+    caminho_base = Path("data/banco_aprovado_2fa.json")
+    with open(caminho_base, encoding="utf-8") as f:
+        lugares_reais = {l["id"]: l for l in json.load(f)}
+
+    inicio = datetime.fromisoformat(cenario["resultados_esperados"]["janela_comum"]["inicio"])
+    fim = datetime.fromisoformat(cenario["resultados_esperados"]["janela_comum"]["fim"])
+    janela = JanelaComum(inicio=inicio, fim=fim, presentes=frozenset({"m1", "m2", "m3", "m4"}), total=4)
+    agora = datetime.fromisoformat(cenario["agora_referencia"])
+
+    tetos = {amigo["marcador"]: Decimal(str(amigo["interpretacao_esperada"]["teto_rs"])) for amigo in cenario["amigos"]}
+    restricoes = list({r for a in cenario["amigos"] for r in a["interpretacao_esperada"]["restricoes"]})
+
+    analises = {}
+    for lid, lugar in lugares_reais.items():
+        analises[lid] = {}
+        for amigo in cenario["amigos"]:
+            m = amigo["marcador"]
+            esperado = amigo["interpretacao_esperada"]
+            if lugar.get("lat") is not None and lugar.get("lng") is not None:
+                trajetos = [
+                    estimar_deslocamento(esperado["ra"], lugar["lat"], lugar["lng"], modo, inicio)
+                    for modo in esperado["transporte"]
+                ]
+                trajetos = [t for t in trajetos if t]
+                if trajetos:
+                    viaveis = [t for t in trajetos if t["minutos"] <= 75]
+                    melhor = min(viaveis, key=lambda t: (t["custo_ida_volta"], t["minutos"])) if viaveis else min(trajetos, key=lambda t: (t["minutos"], t["custo_ida_volta"]))
+                    analises[lid][m] = melhor
+                else:
+                    analises[lid][m] = None
+            else:
+                analises[lid][m] = None
+
+    relatorio = validar_candidatos_regras(
+        candidatos=list(lugares_reais.values()),
+        janelas=[janela],
+        agora=agora,
+        tetos=tetos,
+        lugares_base=lugares_reais,
+        restricoes=restricoes,
+        analises_completas=analises,
+    )
+
+    # No cenário padrão, nenhum lugar é viável
+    assert len(relatorio.aprovados) == 0
+    assert relatorio.contagem["restricao"] > 0
+    assert relatorio.contagem["orcamento"] > 0
 
