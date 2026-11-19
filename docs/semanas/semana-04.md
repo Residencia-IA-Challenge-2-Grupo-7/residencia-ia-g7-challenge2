@@ -365,7 +365,7 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
     - domingo: ônibus e metrô a R$ 0,00 para todos.
   - Também cobertos: pesos 45/35/20 recalculados à mão, lugar pedido pelo grupo subindo no ranking, lugar fechado com certeza 0 (perde exatamente 0,20), primeira janela em que o lugar abre, saída igual ao contrato `CandidatoAvaliado` e vazia em `dados_privados_no_estado`, nenhuma RA de origem nem teto na saída ou no parecer, mesma saída em qualquer ordem de entrada, id fora da base, sem janela e lugar sem coordenada (nota 30, estimativa provisória).
   - `pytest -v tests/test_transporte_df.py`: 6 testes novos de `escolher_meio` (mais barato a tempo, mais rápido quando nada cabe, limite de 75 min inclusivo, desempate pelo tempo, opções sem estimativa). Os testes existentes de `sugestoes` passam sem alteração, o que prova a refatoração.
-  - `make test-local`: 766 aprovados, 1 pulado (`test_ambiente_container_ok`, só roda no Docker), já com a `main` do #82 mesclada (os 97 testes de `tests/test_cenarios_multiagente.py` incluídos).
+  - `make test-local`: 770 aprovados, 1 pulado (`test_ambiente_container_ok`, só roda no Docker), já com a `main` do #82 mesclada (os 97 testes de `tests/test_cenarios_multiagente.py` incluídos).
   - Na revisão do PR, os dois cenários da #66 passaram pelo agente (perfis de `interpretar_campos`, janelas de `cruzar`); daí veio o ajuste do meio do pior trajeto. Pendente: transformar essa rodada num teste automatizado sobre `data/cenarios_teste_multiagente.json` (`src/agentes/cenarios.py`).
 
 ---
