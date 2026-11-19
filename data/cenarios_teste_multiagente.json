@@ -175,6 +175,169 @@
           }
         ]
       }
+    },
+    {
+      "id": "cenario_controle_viavel",
+      "descricao": "Cenário de controle com solução: o mesmo grupo do cenário padrão com só duas mudanças, a menor que a regra dos vetos aceita. O m1 deixa de pedir opção vegetariana e o m4 sai de Taguatinga em vez de Sobradinho. Cobre o caminho feliz (Validação aprovando, Comunicação, montagem dos cartões), que o cenário padrão não alcança. Mudar só uma das duas coisas, ou subir o teto do m1 para R$ 80, ainda deixa 0 lugares viáveis.",
+      "agora_referencia": "2026-11-17T12:00:00",
+      "amigos": [
+        {
+          "marcador": "m1",
+          "nome_ficticio": "Bia",
+          "papel_no_cenario": "Igual ao cenário padrão, sem a restrição vegetariana.",
+          "campos_tela2": {
+            "origem": "Ceilândia Centro, perto da estação do metrô",
+            "horarios": "sábado das 14h às 22h",
+            "teto": "40",
+            "preferencias": "Quero um rolê baratinho, vou de metrô"
+          },
+          "interpretacao_esperada": {
+            "ra": "Ceilândia",
+            "macrorregiao": "oeste",
+            "teto_rs": 40.00,
+            "janelas": [
+              {"inicio": "2026-11-21T14:00:00", "fim": "2026-11-21T22:00:00"}
+            ],
+            "tipos": [],
+            "vibes": ["Baratinho"],
+            "restricoes": [],
+            "transporte": ["publico"]
+          }
+        },
+        {
+          "marcador": "m2",
+          "nome_ficticio": "Rafa",
+          "papel_no_cenario": "Igual ao cenário padrão.",
+          "campos_tela2": {
+            "origem": "Águas Claras, perto da estação Concessionárias",
+            "horarios": "sábado à tarde ou domingo de manhã",
+            "teto": "70",
+            "preferencias": "Quero um rolê ao ar livre, tipo parque, vou de ônibus ou metrô"
+          },
+          "interpretacao_esperada": {
+            "ra": "Águas Claras",
+            "macrorregiao": "oeste_proximo",
+            "teto_rs": 70.00,
+            "janelas": [
+              {"inicio": "2026-11-21T13:00:00", "fim": "2026-11-21T18:00:00"},
+              {"inicio": "2026-11-22T08:00:00", "fim": "2026-11-22T12:00:00"}
+            ],
+            "tipos": ["Ao Ar Livre / Parque"],
+            "vibes": [],
+            "restricoes": [],
+            "transporte": ["publico"]
+          }
+        },
+        {
+          "marcador": "m3",
+          "nome_ficticio": "Léo",
+          "papel_no_cenario": "Igual ao cenário padrão.",
+          "campos_tela2": {
+            "origem": "Asa Norte, SQN 210",
+            "horarios": "sexta à noite ou sábado das 15h às 23h",
+            "teto": "120",
+            "preferencias": "Quero comer bem num restaurante caprichado, vou de carro ou Uber"
+          },
+          "interpretacao_esperada": {
+            "ra": "Plano Piloto",
+            "macrorregiao": "centro",
+            "teto_rs": 120.00,
+            "janelas": [
+              {"inicio": "2026-11-20T19:00:00", "fim": "2026-11-21T00:00:00"},
+              {"inicio": "2026-11-21T15:00:00", "fim": "2026-11-21T23:00:00"}
+            ],
+            "tipos": ["Restaurante / Gastronomia"],
+            "vibes": [],
+            "restricoes": [],
+            "transporte": ["app", "carro"]
+          }
+        },
+        {
+          "marcador": "m4",
+          "nome_ficticio": "Nina",
+          "papel_no_cenario": "Igual ao cenário padrão, mas saindo de Taguatinga, perto da maior parte dos lugares baratos da base.",
+          "campos_tela2": {
+            "origem": "Taguatinga Centro",
+            "horarios": "sábado depois das 13h",
+            "teto": "R$ 50",
+            "preferencias": "Topo um rolê calmo para conversar, vou de transporte público, mas nada muito longe"
+          },
+          "interpretacao_esperada": {
+            "ra": "Taguatinga",
+            "macrorregiao": "oeste_proximo",
+            "teto_rs": 50.00,
+            "janelas": [
+              {"inicio": "2026-11-21T13:00:00", "fim": "2026-11-22T00:00:00"}
+            ],
+            "tipos": [],
+            "vibes": ["Calmo / Bom para Conversar"],
+            "restricoes": [],
+            "transporte": ["publico"]
+          }
+        }
+      ],
+      "resultados_esperados": {
+        "janela_comum": {
+          "inicio": "2026-11-21T15:00:00",
+          "fim": "2026-11-21T18:00:00",
+          "presentes": ["m1", "m2", "m3", "m4"]
+        },
+        "teto_grupo_rs": 40.00,
+        "restricoes_duras_do_grupo": [],
+        "veredito": "com_lugar_viavel",
+        "lugares_viaveis_esperados": [
+          {"id": "tiktok_7600072525304958226", "nome": "Fábrica de Bolos Valzira", "ra": "Águas Claras"},
+          {"id": "tiktok_7600074100853280007", "nome": "Denise Suítez", "ra": "Vicente Pires"},
+          {"id": "tiktok_7626406492161330440", "nome": "Debeche Açaí", "ra": "Vicente Pires"},
+          {"id": "tiktok_7626407354786925831", "nome": "Golden Black", "ra": "Águas Claras",
+           "observacao": "O R$ 1,99 é preço de promoção citado no vídeo, não gasto por pessoa (Raio-X da base 2FA). Passa pela regra, mas a curadoria deve revisar antes da demonstração."},
+          {"id": "tiktok_7670567910359829768", "nome": "Saguari Gastro House", "ra": "Samambaia"}
+        ],
+        "comportamento_esperado": "Os 5 lugares viáveis passam em todos os filtros duros na janela comum; a Validação deve aprovar só lugares dessa lista e a Comunicação montar de 3 a 4 cartões com eles, sem citar origem, teto ou restrição de ninguém. Só o Saguari tem horário confirmado para sábado à tarde; os outros 4 dizem 'Consultar no local' (horário incerto, que pesa menos na pontuação).",
+        "regra_dos_vetos": "A mesma do cenário padrão: um veto vale quando nem na melhor hipótese a pessoa é atendida ('deslocamento' acima de 75 min pelo meio mais rápido; 'orcamento' com o meio mais barato; 'restricao' sem comprovação no texto; 'horario' ou 'encerrado' pela situação do lugar). A Validação é comparada só pelo conjunto de motivos de cada lugar (RNF-02).",
+        "locais_plausiveis": [
+          {
+            "id": "tiktok_7670312480345787655",
+            "nome": "Matsukato Isakaya",
+            "ra": "Águas Claras",
+            "por_que_e_plausivel": "Barato e no meio do caminho, mas R$ 30 mais a passagem passam do teto de R$ 40 do m1 por R$ 1.",
+            "vetos_do_lugar": [],
+            "vetos_por_membro": {"orcamento": ["m1"]}
+          },
+          {
+            "id": "tiktok_7612334793040186632",
+            "nome": "Restaurante Dona Cleide",
+            "ra": "Águas Claras",
+            "por_que_e_plausivel": "Aberto e no meio do caminho, mas caro para os tetos de R$ 40 e R$ 50.",
+            "vetos_do_lugar": [],
+            "vetos_por_membro": {"orcamento": ["m1", "m4"]}
+          },
+          {
+            "id": "tiktok_7699233720657530119",
+            "nome": "Lefit Gelatos e Doces Saudáveis",
+            "ra": "Plano Piloto",
+            "por_que_e_plausivel": "Aberto e cabe em todos os tetos, mas no centro fica longe de quem sai de Ceilândia e de Taguatinga.",
+            "vetos_do_lugar": [],
+            "vetos_por_membro": {"deslocamento": ["m1", "m4"]}
+          }
+        ],
+        "nunca_sugerir": [
+          {
+            "id": "tiktok_7610152754647944455",
+            "nome": "Hamburgueria Espacial",
+            "motivo": "Aqui a armadilha se inverte: a RA do registro (Taguatinga) é a mesma do m4, mas o endereço e a coordenada são de Sobradinho. Quem comparar só a RA vai achar que é perto.",
+            "vetos_do_lugar": [],
+            "vetos_por_membro": {"deslocamento": ["m1", "m2", "m4"]}
+          },
+          {
+            "id": "tiktok_7676588020346309896",
+            "nome": "Cachorrão da 5",
+            "motivo": "Continua fechado na janela comum e longe de todos.",
+            "vetos_do_lugar": ["horario"],
+            "vetos_por_membro": {"deslocamento": ["m1", "m2", "m3", "m4"]}
+          }
+        ]
+      }
     }
   ]
 }

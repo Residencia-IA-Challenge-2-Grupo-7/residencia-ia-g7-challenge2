@@ -9,8 +9,9 @@ que o gabarito de cada amigo é o que o Agente 0 realmente entende dos 4 campos:
   tags de tipo, vibe, restrição e transporte iguais às do interpretador;
 - contraste: origens periféricas e central, tetos distintos, restrição alimentar;
 - coerência: interpretar_campos() aplicado ao texto devolve o gabarito;
-- resultados esperados: janela comum, teto do grupo e o veredito "sem lugar viável",
-  com os vetos de cada lugar citado recalculados contra a base 2FA (RNF-03).
+- resultados esperados de cada cenário: janela comum, teto do grupo, veredito e os vetos
+  de cada lugar citado, recalculados contra a base 2FA (RNF-03). O cenário padrão não tem
+  lugar viável; o de controle tem, para cobrir o caminho feliz.
 
 Os vetos são recalculados aqui com uma regra própria e simples (a de
 `regra_dos_vetos` no JSON), usando só as medidas do repositório: tempo e custo de
@@ -57,6 +58,7 @@ BASE_2FA = {
 }
 
 ID_CENARIO_PADRAO = "cenario_padrao_4_amigos"
+ID_CENARIO_CONTROLE = "cenario_controle_viavel"
 CAMPOS_CENARIO = ("id", "descricao", "agora_referencia", "amigos")
 CAMPOS_AMIGO = (
     "marcador",
@@ -82,6 +84,7 @@ TETO_DESLOCAMENTO_MIN = TEMPO_ACEITAVEL_MIN
 
 CENARIOS = DATASET["cenarios"]
 CENARIO_PADRAO = next(c for c in CENARIOS if c["id"] == ID_CENARIO_PADRAO)
+CENARIO_CONTROLE = next(c for c in CENARIOS if c["id"] == ID_CENARIO_CONTROLE)
 TODOS_AMIGOS = [(c["id"], amigo) for c in CENARIOS for amigo in c["amigos"]]
 
 
@@ -253,6 +256,7 @@ CAMPOS_RESULTADOS = (
     "nunca_sugerir",
 )
 CAMPOS_LUGAR_CITADO = ("id", "nome", "vetos_do_lugar", "vetos_por_membro")
+CAMPOS_LUGAR_VIAVEL = ("id", "nome", "ra")
 # Os rótulos são os de MotivoVeto (src/agentes/contratos.py), divididos pelo que cada um barra:
 # a situação do lugar vale para todos; os demais barram membros específicos.
 MOTIVOS_VETO = frozenset(get_args(MotivoVeto))
@@ -262,14 +266,33 @@ VEREDITOS = {"com_lugar_viavel", "sem_lugar_viavel"}
 # Onde o texto de um lugar pode comprovar uma restrição (o mesmo que a busca lê)
 CAMPOS_TEXTO_LUGAR = ("nome", "tipo_de_role", "resumo_sensorial", "legenda_original", "transcricao_audio_whisper")
 
-ESPERADO = CENARIO_PADRAO["resultados_esperados"]
-JANELA = ESPERADO["janela_comum"]
-INICIO, FIM = datetime.fromisoformat(JANELA["inicio"]), datetime.fromisoformat(JANELA["fim"])
-LUGARES_CITADOS = ESPERADO["locais_plausiveis"] + ESPERADO["nunca_sugerir"]
+
+def _janela(cenario):
+    janela = cenario["resultados_esperados"]["janela_comum"]
+    return datetime.fromisoformat(janela["inicio"]), datetime.fromisoformat(janela["fim"])
 
 
-def _vetos(lugar, amigos=CENARIO_PADRAO["amigos"], inicio=INICIO, fim=FIM, motivos=MOTIVOS_VETO):
-    """(vetos do lugar, {motivo: marcadores barrados}) na janela, pela regra de `regra_dos_vetos`."""
+def _citados(cenario):
+    esperado = cenario["resultados_esperados"]
+    return esperado["locais_plausiveis"] + esperado["nunca_sugerir"]
+
+
+def _marcadores(cenario):
+    return {amigo["marcador"] for amigo in cenario["amigos"]}
+
+
+CITADOS = [(c["id"], citado) for c in CENARIOS for citado in _citados(c)]
+POR_ID = {c["id"]: c for c in CENARIOS}
+
+
+def _id_citado(par):
+    cenario_id, citado = par
+    return f"{cenario_id}:{citado['nome']}"
+
+
+def _vetos(lugar, cenario=CENARIO_PADRAO, motivos=MOTIVOS_VETO):
+    """(vetos do lugar, {motivo: marcadores barrados}) na janela comum, pela regra de `regra_dos_vetos`."""
+    inicio, fim = _janela(cenario)
     do_lugar = []
     funcionamento = ler_funcionamento(lugar.get("horario_funcionamento"), ano_do_lugar(lugar, inicio.year))
     situacao, _ = funcionamento.situacao(inicio, fim)
@@ -281,7 +304,7 @@ def _vetos(lugar, amigos=CENARIO_PADRAO["amigos"], inicio=INICIO, fim=FIM, motiv
     por_membro = {}
     consumo = Decimal(str(lugar.get("custo_medio_rs") or 0))
     texto = canon(" ".join(str(lugar.get(campo) or "") for campo in CAMPOS_TEXTO_LUGAR))
-    for amigo in amigos:
+    for amigo in cenario["amigos"]:
         esperado = amigo["interpretacao_esperada"]
         marcador = amigo["marcador"]
         trajetos = []
@@ -301,8 +324,8 @@ def _vetos(lugar, amigos=CENARIO_PADRAO["amigos"], inicio=INICIO, fim=FIM, motiv
             {m: barrados for m, barrados in por_membro.items() if m in motivos})
 
 
-def _viavel(lugar, **kwargs):
-    do_lugar, por_membro = _vetos(lugar, **kwargs)
+def _viavel(lugar, cenario=CENARIO_PADRAO, motivos=MOTIVOS_VETO):
+    do_lugar, por_membro = _vetos(lugar, cenario, motivos)
     return not do_lugar and not por_membro
 
 
@@ -311,119 +334,168 @@ def _motivos(citado):
     return set(citado["vetos_do_lugar"]) | set(citado["vetos_por_membro"])
 
 
-def _perfis():
-    agora = datetime.fromisoformat(CENARIO_PADRAO["agora_referencia"])
+def _perfis(cenario):
+    agora = datetime.fromisoformat(cenario["agora_referencia"])
     return {
         amigo["marcador"]: interpretar_campos(
             *(amigo["campos_tela2"][campo] for campo in CAMPOS_TELA2), agora=agora
         )
-        for amigo in CENARIO_PADRAO["amigos"]
+        for amigo in cenario["amigos"]
     }
 
 
-def test_resultados_esperados_tem_os_campos_e_o_veredito_coerente():
-    """O bloco de resultados tem todos os campos; 'sem lugar viável' vem com a lista de viáveis vazia."""
-    assert not [campo for campo in CAMPOS_RESULTADOS if campo not in ESPERADO]
-    assert ESPERADO["veredito"] in VEREDITOS
-    assert _texto_preenchido(ESPERADO["comportamento_esperado"])
-    assert _texto_preenchido(ESPERADO["regra_dos_vetos"])
-    assert (ESPERADO["veredito"] == "sem_lugar_viavel") == (ESPERADO["lugares_viaveis_esperados"] == [])
+@pytest.mark.parametrize("cenario", CENARIOS, ids=lambda c: c["id"])
+def test_resultados_esperados_tem_os_campos_e_o_veredito_coerente(cenario):
+    """Todo cenário tem o bloco de resultados; o veredito bate com a lista de viáveis estar vazia ou não."""
+    esperado = cenario["resultados_esperados"]
+    assert not [campo for campo in CAMPOS_RESULTADOS if campo not in esperado]
+    assert esperado["veredito"] in VEREDITOS
+    assert _texto_preenchido(esperado["comportamento_esperado"])
+    assert _texto_preenchido(esperado["regra_dos_vetos"])
+    assert (esperado["veredito"] == "sem_lugar_viavel") == (esperado["lugares_viaveis_esperados"] == [])
 
 
-def test_janela_comum_e_a_que_o_cruzamento_de_horarios_acha():
-    """A primeira janela de cruzar() é a do gabarito, com os 4 amigos presentes."""
-    agora = datetime.fromisoformat(CENARIO_PADRAO["agora_referencia"])
-    janelas = cruzar({marcador: perfil.janelas for marcador, perfil in _perfis().items()}, agora)
+def test_dataset_tem_um_cenario_sem_e_um_com_lugar_viavel():
+    """O padrão é o teste de estresse; o de controle cobre o caminho feliz até os cartões."""
+    assert CENARIO_PADRAO["resultados_esperados"]["veredito"] == "sem_lugar_viavel"
+    assert CENARIO_CONTROLE["resultados_esperados"]["veredito"] == "com_lugar_viavel"
+
+
+@pytest.mark.parametrize("cenario", CENARIOS, ids=lambda c: c["id"])
+def test_janela_comum_e_a_que_o_cruzamento_de_horarios_acha(cenario):
+    """A primeira janela de cruzar() é a do gabarito, com os presentes anotados."""
+    agora = datetime.fromisoformat(cenario["agora_referencia"])
+    janelas = cruzar({marcador: perfil.janelas for marcador, perfil in _perfis(cenario).items()}, agora)
     assert janelas, "o cenário precisa ter ao menos uma janela comum"
     primeira = janelas[0]
-    assert (primeira.inicio, primeira.fim) == (INICIO, FIM)
-    assert sorted(primeira.presentes) == JANELA["presentes"] == ["m1", "m2", "m3", "m4"]
+    assert (primeira.inicio, primeira.fim) == _janela(cenario)
+    assert sorted(primeira.presentes) == cenario["resultados_esperados"]["janela_comum"]["presentes"]
 
 
-def test_teto_do_grupo_e_o_menor_teto_e_bate_com_as_financas():
+@pytest.mark.parametrize("cenario", CENARIOS, ids=lambda c: c["id"])
+def test_teto_do_grupo_e_o_menor_teto_e_bate_com_as_financas(cenario):
     """O teto seguro do grupo é o menor teto individual, como calcula src/financas."""
-    tetos = [Decimal(str(a["interpretacao_esperada"]["teto_rs"])) for a in CENARIO_PADRAO["amigos"]]
-    assert Decimal(str(ESPERADO["teto_grupo_rs"])) == min(tetos) == teto_seguro_grupo(tetos)
+    tetos = [Decimal(str(a["interpretacao_esperada"]["teto_rs"])) for a in cenario["amigos"]]
+    teto = Decimal(str(cenario["resultados_esperados"]["teto_grupo_rs"]))
+    assert teto == min(tetos) == teto_seguro_grupo(tetos)
 
 
-def test_restricoes_duras_do_grupo_sao_a_uniao_das_individuais():
-    """O grupo herda a restrição de qualquer membro (vegetariano do m1)."""
-    unidas = sorted({r for a in CENARIO_PADRAO["amigos"] for r in a["interpretacao_esperada"]["restricoes"]})
-    assert ESPERADO["restricoes_duras_do_grupo"] == unidas
+@pytest.mark.parametrize("cenario", CENARIOS, ids=lambda c: c["id"])
+def test_restricoes_duras_do_grupo_sao_a_uniao_das_individuais(cenario):
+    """O grupo herda a restrição de qualquer membro."""
+    unidas = sorted({r for a in cenario["amigos"] for r in a["interpretacao_esperada"]["restricoes"]})
+    assert cenario["resultados_esperados"]["restricoes_duras_do_grupo"] == unidas
 
 
-def test_lugares_citados_existem_na_base_sem_repetir():
-    """Todo lugar citado é um registro real da base 2FA, com o mesmo nome e a mesma RA (RNF-03)."""
-    ids = [lugar["id"] for lugar in LUGARES_CITADOS]
+@pytest.mark.parametrize("cenario", CENARIOS, ids=lambda c: c["id"])
+def test_lugares_citados_existem_na_base_sem_repetir(cenario):
+    """Todo lugar citado ou viável é um registro real da base 2FA, com o mesmo nome e a mesma RA (RNF-03)."""
+    esperado = cenario["resultados_esperados"]
+    citados = _citados(cenario)
+    ids = [lugar["id"] for lugar in citados]
     assert len(ids) == len(set(ids))
-    for citado in LUGARES_CITADOS:
+    for citado in citados:
         assert not [c for c in CAMPOS_LUGAR_CITADO if c not in citado], citado.get("id")
-        registro = BASE_2FA.get(citado["id"])
-        assert registro is not None, f"{citado['id']} não está na base 2FA"
-        assert citado["nome"] == registro["nome"]
-        if "ra" in citado:
-            assert citado["ra"] == ra_do_lugar(registro)
-    assert len(ESPERADO["locais_plausiveis"]) >= 3, "a issue pede locais plausíveis da base"
+    for viavel in esperado["lugares_viaveis_esperados"]:
+        assert not [c for c in CAMPOS_LUGAR_VIAVEL if c not in viavel], viavel.get("id")
+        assert viavel["id"] not in ids, f"{viavel['nome']} não pode ser viável e vetado ao mesmo tempo"
+    for lugar in citados + esperado["lugares_viaveis_esperados"]:
+        registro = BASE_2FA.get(lugar["id"])
+        assert registro is not None, f"{lugar['id']} não está na base 2FA"
+        assert lugar["nome"] == registro["nome"]
+        if "ra" in lugar:
+            assert lugar["ra"] == ra_do_lugar(registro)
 
 
-@pytest.mark.parametrize("citado", LUGARES_CITADOS, ids=lambda c: c["nome"])
-def test_vetos_do_lugar_e_por_membro_ficam_cada_um_no_seu_campo(citado):
+def test_cenario_padrao_tem_ao_menos_3_locais_plausiveis():
+    """A issue pede locais plausíveis da base para o cenário dos 4 amigos."""
+    assert len(CENARIO_PADRAO["resultados_esperados"]["locais_plausiveis"]) >= 3
+
+
+@pytest.mark.parametrize("par", CITADOS, ids=_id_citado)
+def test_vetos_do_lugar_e_por_membro_ficam_cada_um_no_seu_campo(par):
     """Horário e encerrado só em vetos_do_lugar; os outros só em vetos_por_membro, sempre com alguém barrado."""
-    marcadores = {amigo["marcador"] for amigo in CENARIO_PADRAO["amigos"]}
+    cenario_id, citado = par
     assert set(citado["vetos_do_lugar"]) <= MOTIVOS_DO_LUGAR
     assert set(citado["vetos_por_membro"]) <= MOTIVOS_POR_MEMBRO
     for motivo, barrados in citado["vetos_por_membro"].items():
         assert barrados, f"{motivo} sem ninguém barrado: tire o motivo em vez de deixar a lista vazia"
-        assert set(barrados) <= marcadores
-    assert _motivos(citado), "um lugar citado num cenário sem lugar viável precisa de pelo menos um veto"
+        assert set(barrados) <= _marcadores(POR_ID[cenario_id])
+    assert _motivos(citado), "um lugar citado como vetado precisa de pelo menos um veto"
 
 
-@pytest.mark.parametrize("citado", LUGARES_CITADOS, ids=lambda c: c["nome"])
-def test_vetos_esperados_batem_com_o_calculo(citado):
-    """Os vetos anotados de cada lugar são os que a regra recalcula."""
-    do_lugar, por_membro = _vetos(BASE_2FA[citado["id"]])
+@pytest.mark.parametrize("par", CITADOS, ids=_id_citado)
+def test_vetos_esperados_batem_com_o_calculo(par):
+    """Os vetos anotados de cada lugar são os que a regra recalcula no cenário dele."""
+    cenario_id, citado = par
+    do_lugar, por_membro = _vetos(BASE_2FA[citado["id"]], POR_ID[cenario_id])
     assert do_lugar == citado["vetos_do_lugar"]
     assert por_membro == citado["vetos_por_membro"]
 
 
-def test_comparacao_com_a_validacao_e_so_pelos_motivos_do_lugar():
+@pytest.mark.parametrize("cenario", CENARIOS, ids=lambda c: c["id"])
+def test_comparacao_com_a_validacao_e_so_pelos_motivos_do_lugar(cenario):
     """A projeção para a Validação ({id: motivos}) usa só rótulos de MotivoVeto e não carrega marcadores."""
-    projecao = {citado["id"]: _motivos(citado) for citado in LUGARES_CITADOS}
-    marcadores = {amigo["marcador"] for amigo in CENARIO_PADRAO["amigos"]}
+    projecao = {citado["id"]: _motivos(citado) for citado in _citados(cenario)}
     for motivos in projecao.values():
         assert motivos <= MOTIVOS_VETO
-        assert not motivos & marcadores
+        assert not motivos & _marcadores(cenario)
 
 
 def test_plausiveis_cobrem_os_tipos_de_veto_mais_comuns():
-    """Os quase-lá mostram vetos diferentes, para testar cada filtro da Validação."""
-    motivos = set().union(*(_motivos(lugar) for lugar in ESPERADO["locais_plausiveis"]))
+    """Os quase-lá do cenário padrão mostram vetos diferentes, para testar cada filtro da Validação."""
+    plausiveis = CENARIO_PADRAO["resultados_esperados"]["locais_plausiveis"]
+    motivos = set().union(*(_motivos(lugar) for lugar in plausiveis))
     assert {"deslocamento", "orcamento", "restricao", "horario"} <= motivos
 
 
-def test_nenhum_lugar_da_base_passa_em_todos_os_filtros():
-    """Veredito: na janela comum, todo lugar da base leva pelo menos um veto."""
-    viaveis = [registro["nome"] for registro in BASE_2FA.values() if _viavel(registro)]
-    assert viaveis == ESPERADO["lugares_viaveis_esperados"] == [], (
-        f"a base passou a ter lugar viável para o cenário: {viaveis}. Atualize o gabarito."
+@pytest.mark.parametrize("cenario", CENARIOS, ids=lambda c: c["id"])
+def test_viaveis_esperados_sao_exatamente_os_que_passam_em_todos_os_filtros(cenario):
+    """Veredito: na janela comum, passam em todos os filtros exatamente os lugares listados como viáveis."""
+    calculados = sorted(r["id"] for r in BASE_2FA.values() if _viavel(r, cenario))
+    anotados = sorted(lugar["id"] for lugar in cenario["resultados_esperados"]["lugares_viaveis_esperados"])
+    nomes = {r["id"]: r["nome"] for r in BASE_2FA.values()}
+    assert calculados == anotados, (
+        f"viáveis calculados: {[nomes[i] for i in calculados]}; anotados: {[nomes[i] for i in anotados]}. "
+        "A base ou o estimador mudou: atualize o gabarito."
     )
 
 
-# O veredito se apoia no que não depende da calibração do estimador de deslocamento (#67):
-# o texto da base (quem comprova opção vegetariana) e o dinheiro. Com o estimador atual o
-# deslocamento também veta tudo, mas isso pode mudar sem mudar o veredito.
+def test_cenario_de_controle_tem_lugares_para_3_a_4_cartoes():
+    """Com pelo menos 3 viáveis, a Comunicação consegue montar os 3 a 4 cartões da Tela 3."""
+    assert len(CENARIO_CONTROLE["resultados_esperados"]["lugares_viaveis_esperados"]) >= 3
+
+
+def test_cenario_de_controle_muda_so_a_restricao_do_m1_e_a_origem_do_m4():
+    """O controle é o padrão com a menor mudança que deixa lugar viável; o resto é idêntico."""
+    assert CENARIO_CONTROLE["agora_referencia"] == CENARIO_PADRAO["agora_referencia"]
+    diferencas = {
+        (padrao["marcador"], campo)
+        for padrao, controle in zip(CENARIO_PADRAO["amigos"], CENARIO_CONTROLE["amigos"], strict=True)
+        for campo in CAMPOS_TELA2
+        if padrao["campos_tela2"][campo] != controle["campos_tela2"][campo]
+    }
+    assert diferencas == {("m1", "preferencias"), ("m4", "origem")}
+    assert CENARIO_PADRAO["amigos"][0]["interpretacao_esperada"]["restricoes"] == ["alim_vegetariano"]
+    assert CENARIO_CONTROLE["amigos"][0]["interpretacao_esperada"]["restricoes"] == []
+    assert CENARIO_CONTROLE["amigos"][3]["interpretacao_esperada"]["ra"] == "Taguatinga"
+
+
+# O veredito do cenário padrão se apoia no que não depende da calibração do estimador de
+# deslocamento (#67): o texto da base (quem comprova opção vegetariana) e o dinheiro. Com o
+# estimador atual o deslocamento também veta tudo, mas isso pode mudar sem mudar o veredito.
 LUGARES_COM_OPCAO_VEGETARIANA = ["Pizzaria Natureto", "Yaki Nikuya", "The Plenty"]
 
 
 def test_so_3_lugares_da_base_comprovam_opcao_vegetariana():
     """Pela restrição sozinha, sobram só os 3 lugares cujo texto cita opção vegetariana ou vegana."""
     sem_veto_de_restricao = [registro["nome"] for registro in BASE_2FA.values()
-                             if _viavel(registro, motivos={"restricao"})]
+                             if _viavel(registro, CENARIO_PADRAO, motivos={"restricao"})]
     assert sorted(sem_veto_de_restricao) == sorted(LUGARES_COM_OPCAO_VEGETARIANA)
 
 
 def test_restricao_e_orcamento_sozinhos_ja_deixam_o_cenario_sem_resposta():
     """Sem olhar deslocamento nem horário, nenhum dos 3 vegetarianos cabe no teto de R$ 40 do m1."""
     viaveis = [registro["nome"] for registro in BASE_2FA.values()
-               if _viavel(registro, motivos={"restricao", "orcamento"})]
+               if _viavel(registro, CENARIO_PADRAO, motivos={"restricao", "orcamento"})]
     assert viaveis == []
