@@ -27,7 +27,7 @@ test:
 
 # Executa testes direto na máquina local (detecta venv automaticamente)
 test-local:
-	PYTHONPATH=. $(VENV_PYTEST) -v tests
+	ORQ_SEM_TORCH=1 PYTHONPATH=. $(VENV_PYTEST) -v tests
 
 # Sobe os containers (Postgres com pgvector e App)
 up:
