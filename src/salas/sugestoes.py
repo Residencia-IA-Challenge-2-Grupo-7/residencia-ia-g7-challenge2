@@ -21,6 +21,7 @@ from decimal import Decimal
 
 from src.interpretador.campos import PerfilInterpretado
 from src.interpretador.numeros import canon
+from src.logistica.transporte_df import escolher_meio
 from src.salas import integracoes as integ
 from src.salas.horario_lugar import ano_do_lugar, ler_funcionamento
 from src.salas.janelas import JanelaComum, texto_intervalo
@@ -38,7 +39,6 @@ NOME_RESTRICAO = {"alim_vegetariano": "opção vegetariana", "alim_vegano": "op�
                   "alim_sem_gluten": "opção sem glúten", "alim_sem_lactose": "opção sem lactose",
                   "acess_entrada_sem_degrau": "acessibilidade"}
 LETRAS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-TEMPO_ACEITAVEL_MIN = 75
 
 
 @dataclass
@@ -50,16 +50,10 @@ class ResultadoSugestoes:
 
 
 def _deslocamento(perfil: PerfilInterpretado, lugar: dict, quando: datetime | None = None) -> dict | None:
-    """Entre os meios que a pessoa disse que usa, o mais barato que chega em até 75 min; se nenhum chegar, o mais
-    rápido. Sem meio informado, ônibus/metrô. Assim quem disse "metrô ou Uber" não paga Uber à toa (Menor Miséria)."""
+    """Entre os meios que a pessoa disse que usa, o que ela usaria (`escolher_meio`: o mais barato que chega em até
+    75 min, senão o mais rápido). Sem meio informado, ônibus/metrô."""
     modos = perfil.preferencias.transporte or ["publico"]
-    opcoes = [d for d in (integ.deslocamento(perfil.ra, lugar, m, quando) for m in modos) if d]
-    if not opcoes:
-        return None
-    viaveis = [d for d in opcoes if d["minutos"] <= TEMPO_ACEITAVEL_MIN]
-    if viaveis:
-        return min(viaveis, key=lambda d: (d["custo_ida_volta"], d["minutos"]))
-    return min(opcoes, key=lambda d: (d["minutos"], d["custo_ida_volta"]))
+    return escolher_meio([integ.deslocamento(perfil.ra, lugar, m, quando) for m in modos])
 
 
 def _texto_lugar(lugar: dict) -> str:
