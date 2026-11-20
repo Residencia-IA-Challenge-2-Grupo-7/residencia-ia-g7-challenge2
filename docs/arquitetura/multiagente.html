@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Arquitetura do Grafo Multiagente · Orquestrador de Rolês</title>
-  <meta name="description" content="Documentação técnica oficial da arquitetura do grafo multiagente (LangGraph) do Orquestrador de Rolês - Grupo 7 (Residência em IA Eldorado & UnB).">
+  <meta name="description" content="Documentação técnica oficial da arquitetura do grafo multiagente (LangGraph) implementado em src/agentes/grafo.py - Grupo 7 (Residência em IA Eldorado & UnB).">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap">
@@ -115,14 +115,6 @@
       background: #334155;
       color: #fff;
     }
-    .btn-primary {
-      background: #0284c7;
-      color: #fff;
-      border: 1px solid #38bdf8;
-    }
-    .btn-primary:hover {
-      background: #0369a1;
-    }
 
     /* Container Principal */
     .container {
@@ -158,7 +150,7 @@
     .hero p {
       font-size: 16px;
       color: var(--text-muted);
-      max-width: 900px;
+      max-width: 920px;
       margin-bottom: 20px;
     }
     .badges-row {
@@ -229,7 +221,7 @@
       border-radius: 8px;
       background: #0b1120;
       border: 1px solid #1e293b;
-      max-height: 850px;
+      max-height: 920px;
     }
     .svg-container img {
       width: 100%;
@@ -321,8 +313,8 @@
     }
     .ch-1 { border-color: #fca5a5; }
     .ch-2 { border-color: #fdba74; }
-    .ch-3 { border-color: #93c5fd; }
-    .ch-4 { border-color: #86efac; }
+    .ch-3 { border-color: #86efac; }
+    .ch-4 { border-color: #93c5fd; }
     .channel-title {
       font-size: 13px;
       font-weight: 700;
@@ -395,12 +387,11 @@
   <header class="topbar">
     <a href="index.html" class="brand">
       <span class="badge-pill">Semana 4</span>
-      <span class="topbar-title">Orquestrador de Rolês · Arquitetura</span>
+      <span class="topbar-title">Orquestrador de Rolês · Arquitetura Multiagente</span>
     </a>
     <nav class="topbar-nav">
       <a href="index.html" class="btn btn-secondary">← Mapa Geral</a>
       <a href="img/grafo_multiagente.svg" download class="btn btn-secondary">Baixar SVG</a>
-      <a href="multiagente.md" class="btn btn-primary">Ver Markdown</a>
     </nav>
   </header>
 
@@ -411,14 +402,14 @@
       <div class="hero-tagline">Residência em IA · Instituto Eldorado &amp; UnB · Grupo 7</div>
       <h1>Arquitetura do Grafo Multiagente (LangGraph)</h1>
       <p>
-        Orquestração cognitiva e determinística para planejamento colaborativo de rolês no Distrito Federal, combinando modelos generativos via OpenRouter, matriz logística das 35 RAs com a <strong>Regra da Menor Miséria</strong> e estrito sigilo de dados individuais.
+        Grafo implementado em <code>src/agentes/grafo.py</code> sobre LangGraph (ADR 0015 e 0016): um Agente Pessoal por membro em paralelo (<code>Send</code>), <strong>Cofre do Servidor</strong> isolado do <code>MultiAgentState</code> (RNF-02), matriz logística das 35 RAs com a <strong>Regra da Menor Miséria</strong> (ADR 0013) e Juiz LLM em 2 passagens (ADR 0014).
       </p>
       <div class="badges-row">
-        <span class="badge badge-blue">🤖 LangGraph StateGraph</span>
+        <span class="badge badge-blue">🤖 LangGraph StateGraph + Send</span>
         <span class="badge badge-green">⚙️ RNF-04: Cálculos Determinísticos</span>
-        <span class="badge badge-purple">🔒 RNF-02: Sigilo dos 4 Canais</span>
-        <span class="badge badge-amber">🛡️ RNF-03: Zero Alucinação (2FA)</span>
-        <span class="badge badge-blue">📊 Langfuse Cloud v5.x</span>
+        <span class="badge badge-purple">🔒 RNF-02: Cofre Fora do Estado</span>
+        <span class="badge badge-amber">🛡️ RNF-03: Base 2FA + Juiz 2 Passagens</span>
+        <span class="badge badge-blue">📊 Langfuse Cloud v5.x (RNF-14 &le; 60 s)</span>
       </div>
     </header>
 
@@ -427,8 +418,8 @@
       <div class="viewer-card">
         <div class="viewer-header">
           <div>
-            <div class="viewer-title">Diagrama Oficial da Arquitetura do Grafo</div>
-            <div style="font-size:12px; color:#64748b; margin-top:2px;">Renderização vetorial direta em alta resolução (SVG nativo)</div>
+            <div class="viewer-title">Diagrama Oficial do Grafo Compilado</div>
+            <div style="font-size:12px; color:#64748b; margin-top:2px;">Desenhado a partir das arestas reais de <code>src/agentes/grafo.py</code> (SVG vetorial nativo)</div>
           </div>
           <div>
             <a href="img/grafo_multiagente.svg" target="_blank" class="btn btn-secondary">Abrir SVG em Tela Cheia ↗</a>
@@ -442,98 +433,111 @@
 
     <!-- Diagrama em Mermaid -->
     <section>
-      <h2 class="section-title">Fluxo Direcionado e Condicional (Mermaid)</h2>
+      <h2 class="section-title">Fluxo Compilado e Arestas Condicionais (Mermaid)</h2>
       <div class="mermaid-card">
         <div class="mermaid">
 flowchart TD
     classDef llm fill:#0284c7,stroke:#38bdf8,stroke-width:2px,color:#ffffff;
     classDef code fill:#16a34a,stroke:#4ade80,stroke-width:2px,color:#ffffff;
     classDef hybrid fill:#9333ea,stroke:#c084fc,stroke-width:2px,color:#ffffff;
-    classDef decision fill:#d97706,stroke:#fbbf24,stroke-width:2px,color:#ffffff;
     classDef data fill:#4338ca,stroke:#818cf8,stroke-width:2px,color:#ffffff;
+    classDef cofre fill:#7c2d12,stroke:#fb923c,stroke-width:2px,stroke-dasharray: 5 3,color:#ffedd5;
 
-    IN["Perfis Privados (4 Campos Secretos)<br/>• Teto Financeiro · Restrições<br/>• RA de Origem · Vibes Coletivas"]:::data --> AG0["0. AGENTE PESSOAL<br/>(Código Puro — RNF-04)<br/>• Anonimização e Eliminação de PII<br/>• Segregação Estrita em 4 Canais"]:::code
+    START(["__start__ · Sala com N membros confirmados"]):::data
+    START -. "Send('no_pessoal', membro) ×N em paralelo" .-> PESSOAL
 
-    subgraph CANAIS ["Segregação de Dados em 4 Canais (RNF-02)"]
-        C1["Canal 1: Orçamento Sigiloso"]:::data
-        C2["Canal 2: Restrições Duras"]:::data
-        C3["Canal 3: Origens & Janelas"]:::data
-        C4["Canal 4: Vibes do Grupo"]:::data
+    PESSOAL["0. AGENTE PESSOAL ×N · no_pessoal<br/>(Código Puro — RNF-04 · span: agente_pessoal)<br/>• Interpreta 4 campos por regras + log pessoal<br/>• Canais 1, 2 e 4 no Cofre; Canal 3 no estado"]:::code
+
+    subgraph COFRE ["Cofre do Servidor (Fora do MultiAgentState — RNF-02)"]
+        C1["Canal 1: Orçamento (teto individual)"]:::cofre
+        C2["Canal 2: Restrições duras"]:::cofre
+        C4["Canal 4: Logística (origem e janelas)"]:::cofre
     end
 
-    AG0 --> C1
-    AG0 --> C2
-    AG0 --> C3
-    AG0 --> C4
+    C3["Canal 3: Preferências (o único público)<br/>membros_anonimos (m1..mN)"]:::data
 
-    C4 -- "Vibes e Preferências Coletivas" --> AG1["1. AGENTE DE PESQUISA<br/>(LLM: DeepSeek V4.1 Flash)<br/>• Persona: Curador da Cena do DF<br/>• Tool RAG: 93 Locais 2FA TikTok<br/>• Recupera 8 a 10 Candidatos"]:::llm
+    PESSOAL -. "canais 1, 2 e 4" .-> COFRE
+    PESSOAL -- "Canal 3" --> C3
+    C3 --> CONSOLIDAR["ORQUESTRADOR · no_consolidar_grupo<br/>(Código Puro · span: consolidar_grupo)<br/>• Junta perfis em preferencias_grupo"]:::code
 
-    AG1 -- "candidatos_pesquisa" --> AG2["2. AGENTE DE LOGÍSTICA & JUSTIÇA<br/>(Código Puro — RNF-04, ADR 0013)<br/>• Estimativa Multimodal 35 RAs (<= 75 min)<br/>• Regra da 'Menor Miséria'<br/>• Score: 45% Vibe + 35% Justiça + 20% Horário"]:::code
-    C3 -. "RAs e Horários" .-> AG2
+    CONSOLIDAR -. "há janela comum" .-> PESQUISA
+    CONSOLIDAR -. "sem janela comum" .-> FINALIZAR
 
-    AG2 -- "candidatos_avaliados" --> AG3["3. AGENTE DE VALIDAÇÃO (1ª Passagem)<br/>(Híbrido: Código + Juiz LLM)<br/>• Vetos em Código: Orçamento, Horário, Eventos<br/>• Juiz LLM: GLM-5.3-Flash / MiMo-V2.6<br/>• Auditoria Factual vs 93 Lugares"]:::hybrid
-    C1 -. "Teto Individual Secreto" .-> AG3
-    C2 -. "Restrições Duras" .-> AG3
+    PESQUISA["1. AGENTE DE PESQUISA · no_pesquisa<br/>(LLM: DeepSeek V4.1 Flash · span: pesquisa)<br/>• LLM escreve consultas; código executa buscar_lugares_rag<br/>• 93 locais 2FA TikTok · 8 a 10 candidatos"]:::llm
 
-    AG3 --> COND{"Avaliador de Convergência<br/>Aprovados >= 3?"}:::decision
+    PESQUISA -- "candidatos_pesquisa" --> LOGISTICA["2. AGENTE DE LOGÍSTICA · no_logistica<br/>(Código Puro — RNF-04, ADR 0013 · span: logistica)<br/>• 35 RAs (<= 75 min) · Menor Miséria<br/>• 45% Aderência + 35% Justiça + 20% Horário"]:::code
+    C4 -. "origem e janelas" .-> LOGISTICA
 
-    COND -- "NÃO (e iteração < 2)<br/>[Ciclo Condicional]" -->|Feedback: Contagem de Vetos| AG1
-    COND -- "SIM (ou limite de 2 voltas)" --> AG4["4. AGENTE DE COMUNICAÇÃO<br/>(LLM: Anfitrião de Brasília)<br/>• Tom Candango e Caloroso<br/>• Formatação JSON dos 3 a 4 Cartões<br/>• Preenchimento Determinístico de Preços"]:::llm
+    LOGISTICA -- "candidatos_avaliados" --> VALIDACAO["3. AGENTE DE VALIDAÇÃO · no_validacao<br/>(Código + Juiz 1ª passagem opcional · span: validacao)<br/>• Vetos: horário, orçamento, restrição, encerrado, > 75 min<br/>• Juiz 1ª passagem (#72, GLM-5.3-Flash)"]:::hybrid
+    C1 -. "teto" .-> VALIDACAO
+    C2 -. "restrições" .-> VALIDACAO
 
-    AG4 -- "cartões gerados" --> END_VAL["3. VALIDAÇÃO (2ª Passagem)<br/>• Juiz LLM: Auditoria Anti-PII<br/>• Injeção de Links Oficiais TikTok"]:::hybrid
-    END_VAL --> PUB["Aba Pública da Sala<br/>Cards da Votação Democrática (RF-06)"]:::data
+    VALIDACAO -. "validados < 3 e voltas < 2<br/>PedidoNovaBusca (só contagens)" .-> PESQUISA
+    VALIDACAO -. "nenhum validado" .-> FINALIZAR
+    VALIDACAO -. ">= 1 validado" .-> COMUNICACAO
+
+    COMUNICACAO["4. AGENTE DE COMUNICAÇÃO · no_comunicacao<br/>(LLM: Anfitrião de Brasília · span: comunicacao)<br/>• Escreve só titulo, resumo_acesso e por_que_combina<br/>• Na reescrita, só os reprovados mudam"]:::llm
+
+    COMUNICACAO -- "cartoes + fatos" --> VAL_TEXTOS["3. VALIDAÇÃO DOS TEXTOS · no_validacao_textos<br/>(Código + Juiz 2ª passagem · span: validacao_textos)<br/>• verificar_cartoes (código) + Juiz 2ª passagem (#72)"]:::hybrid
+
+    VAL_TEXTOS -. "reprovado e reescritas < 1" .-> COMUNICACAO
+    VAL_TEXTOS -. "aprovados ou reserva" .-> FINALIZAR
+
+    FINALIZAR["ORQUESTRADOR · no_finalizar<br/>(Código Puro — RNF-04 · span: finalizar)<br/>• Preenche preços, tempos, tiktok_url e fonte 2FA<br/>• Sem cartões: avisa o grupo"]:::code
+
+    FINALIZAR --> END_NODE(["__end__ · Tela 3: resultado_final_cartoes"]):::data
         </div>
       </div>
     </section>
 
-    <!-- Segregação em 4 Canais -->
+    <!-- Segregação em 4 Canais e Cofre -->
     <section>
-      <h2 class="section-title">Segregação em 4 Canais Privados (RNF-02 &amp; RF-17)</h2>
+      <h2 class="section-title">Cofre do Servidor e Segregação nos 4 Canais (RNF-02 &amp; RF-17)</h2>
       <div class="channels-container">
         <p style="font-size:14px; color:#cbd5e1;">
-          Para garantir conformidade inegociável com a LGPD e evitar constrangimento financeiro entre os participantes, os dados informados na <strong>Tela 2</strong> nunca trafegam em conjunto nem são expostos em texto generativo aberto.
+          Conforme implementado em <code>src/agentes/pessoal.py</code> e <code>src/agentes/estado.py</code>, tetos individuais, origens e restrições por pessoa <strong>nunca entram no estado do grafo</strong>: ficam presos no <code>Cofre</code> do servidor (ADR 0015 e 0016), e <code>serializar_estado</code> recusa com <code>VazamentoNoEstado</code> qualquer estado que contenha chave do cofre ou nome de membro.
         </p>
         <div class="channels-grid">
           <div class="channel-box ch-1">
-            <div class="channel-title" style="color:#fca5a5;">Canal 1: Orçamento Sigiloso</div>
-            <div class="channel-desc">Teto em R$ por pessoa. Roteado estritamente para a checagem aritmética de veto <code>cabe_para_cada_um</code> na Validação. Jamais visto por outros agentes.</div>
+            <div class="channel-title" style="color:#fca5a5;">Canal 1: Orçamento Sigiloso (Cofre)</div>
+            <div class="channel-desc">Teto individual em R$ (<code>Decimal</code>). Fica no <code>Cofre</code> e é lido só pelos vetos financeiros em código (<code>cabe_para_cada_um</code>) em <code>no_validacao</code>.</div>
           </div>
           <div class="channel-box ch-2">
-            <div class="channel-title" style="color:#fdba74;">Canal 2: Restrições Duras</div>
-            <div class="channel-desc">Restrições alimentares (ex.: vegano/vegetariano) e acessibilidade física. Encaminhado à Validação para veto obrigatório de locais incompatíveis.</div>
+            <div class="channel-title" style="color:#fdba74;">Canal 2: Restrições Duras (Cofre)</div>
+            <div class="channel-desc">Restrições alimentares e de acessibilidade. Fica por membro no <code>Cofre</code> para veto em <code>no_validacao</code> e chega ao grupo apenas somado, sem dizer de quem é.</div>
           </div>
           <div class="channel-box ch-3">
-            <div class="channel-title" style="color:#93c5fd;">Canal 3: Origens e Janelas</div>
-            <div class="channel-desc">Regiões Administrativas de saída e janelas comuns de horário. Encaminhado unicamente à matriz determinística da Logística.</div>
+            <div class="channel-title" style="color:#86efac;">Canal 3: Preferências (Único Público)</div>
+            <div class="channel-desc">Tipos, vibes, o que evitar, transporte e pedido sanitizado (<code>PerfilAnonimoMembro</code>). É o <strong>único canal público</strong> que entra no estado e segue para a Pesquisa.</div>
           </div>
           <div class="channel-box ch-4">
-            <div class="channel-title" style="color:#86efac;">Canal 4: Vibes Coletivas</div>
-            <div class="channel-desc">Agregação anônima de categorias (bar, café, ar livre). Único canal disponibilizado ao Agente de Pesquisa para levantar candidatos.</div>
+            <div class="channel-title" style="color:#93c5fd;">Canal 4: Logística — Origem e Janelas (Cofre)</div>
+            <div class="channel-desc">RA de origem, janelas de horário e transporte (<code>CanalLogistica</code>). Fica no <code>Cofre</code> e é lido somente por <code>no_logistica</code> e pelo cruzamento de janelas.</div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Especificação dos 5 Agentes -->
+    <!-- Especificação dos Agentes e Nós -->
     <section>
-      <h2 class="section-title">Especificação Detalhada dos 5 Agentes</h2>
+      <h2 class="section-title">Especificação Detalhada dos Agentes e Nós do Grafo</h2>
       <div class="agents-grid">
         
         <!-- Agente 0 -->
         <article class="agent-card green">
           <div class="agent-header">
             <div>
-              <div class="agent-name">0. Agente Pessoal</div>
-              <div class="agent-sub">Sanitização e Segregação · <code>src/interpretador/campos.py</code></div>
+              <div class="agent-name">0. Agente Pessoal (×N) e Consolidação</div>
+              <div class="agent-sub"><code>no_pessoal</code> + <code>no_consolidar_grupo</code> · <code>src/agentes/pessoal.py</code></div>
             </div>
             <span class="badge badge-green">⚙️ Python Puro (RNF-04)</span>
           </div>
           <div class="agent-body">
             <ul>
-              <li>Extrai dados dos 4 campos de texto secretos preenchidos sem comandos de voz (ADR 0009).</li>
-              <li>Elimina 100% de PII (nomes, telefones, identificadores).</li>
-              <li>Normaliza as 35 RAs oficiais do DF por regras léxicas.</li>
-              <li>Segrega os dados nos 4 Canais Privados de forma estanque.</li>
+              <li>O grafo abre um <code>no_pessoal</code> por membro em paralelo via <code>Send</code>.</li>
+              <li>Interpreta os 4 campos da Tela 2 por regras (<code>src/interpretador/campos.py</code>, ADR 0009) e junta o log pessoal do <code>store</code>.</li>
+              <li>Grava os canais 1, 2 e 4 no <code>Cofre</code> e devolve só o Canal 3 em <code>membros_anonimos</code>.</li>
+              <li><code>no_consolidar_grupo</code> junta os perfis em <code>preferencias_grupo</code>; se ninguém tiver janela comum, vai direto para <code>no_finalizar</code>.</li>
             </ul>
           </div>
         </article>
@@ -543,16 +547,16 @@ flowchart TD
           <div class="agent-header">
             <div>
               <div class="agent-name">1. Agente de Pesquisa</div>
-              <div class="agent-sub">Curador da Cena do DF · <code>DeepSeek V4.1 Flash</code></div>
+              <div class="agent-sub"><code>no_pesquisa</code> · <code>DeepSeek V4.1 Flash</code> · <code>src/agentes/pesquisa.py</code></div>
             </div>
-            <span class="badge badge-blue">🤖 LLM + Tool RAG</span>
+            <span class="badge badge-blue">🤖 LLM + Busca RAG</span>
           </div>
           <div class="agent-body">
             <ul>
+              <li>Sem <em>tool calling</em> nativo (#70): o LLM escreve até 3 consultas em JSON Schema estrito e o código executa <code>buscar_lugares_rag</code>.</li>
               <li>Consulta exclusivamente a base oficial de <strong>93 lugares aprovados em 2 fatores</strong> (ADR 0008).</li>
-              <li>Recupera de 8 a 10 candidatos sustentados por trechos literais e IDs de fonte confiáveis.</li>
-              <li>Jamais conhece ou pergunta orçamentos individuais (RNF-02).</li>
-              <li>No loop condicional, recebe feedback contendo apenas a contagem estatística dos vetos.</li>
+              <li>Escolhe de 8 a 10 candidatos com <code>trecho_citado</code> conferido literalmente no documento.</li>
+              <li>Nas voltas de convergência, recebe apenas contagens em <code>PedidoNovaBusca</code>, mantendo os já aprovados.</li>
             </ul>
           </div>
         </article>
@@ -562,34 +566,34 @@ flowchart TD
           <div class="agent-header">
             <div>
               <div class="agent-name">2. Agente de Logística &amp; Justiça</div>
-              <div class="agent-sub">Equidade Espacial · <code>src/logistica/transporte_df.py</code></div>
+              <div class="agent-sub"><code>no_logistica</code> · <code>src/agentes/logistica.py</code></div>
             </div>
             <span class="badge badge-green">⚙️ Python Puro (RNF-04)</span>
           </div>
           <div class="agent-body">
             <ul>
-              <li>Calcula matriz multimodal de tempo e custo de ida e volta para as 35 RAs do DF (teto de 75 min).</li>
-              <li>Aplica a <strong>Regra da Menor Miséria</strong> (ADR 0013): protege quem mora na periferia em vez de tirar a média ingênua.</li>
-              <li>Calcula o Score do Rolê: <code>45% Vibe + 35% Justiça + 20% Horário</code>.</li>
-              <li>Redige pareceres objetivos de rota sem uso de LLM.</li>
+              <li>Lê o Canal 4 no <code>Cofre</code> e escolhe para cada membro o meio mais barato que chega em até 75 min nas 35 RAs.</li>
+              <li>Aplica a <strong>Regra da Menor Miséria</strong> (ADR 0013) e pontua: <code>45% Aderência + 35% Justiça + 20% Horário</code>.</li>
+              <li>Guarda o trajeto por pessoa em <code>Cofre.analises</code>; para o estado (<code>candidatos_avaliados</code>) vão só agregados.</li>
+              <li><code>gerar_parecer</code> redige o parecer por regras, sem marcador nem RA de origem.</li>
             </ul>
           </div>
         </article>
 
-        <!-- Agente 3 -->
+        <!-- Agente 3 (1ª passagem) -->
         <article class="agent-card purple">
           <div class="agent-header">
             <div>
               <div class="agent-name">3. Agente de Validação</div>
-              <div class="agent-sub">Vetos Duros &amp; Juiz Factual · <code>GLM-5.3-Flash</code></div>
+              <div class="agent-sub"><code>no_validacao</code> · <code>src/agentes/validacao.py</code> + <code>juiz.py</code></div>
             </div>
-            <span class="badge badge-purple">🛡️ Híbrido: Código + Juiz</span>
+            <span class="badge badge-purple">🛡️ Código + Juiz 1ª Pass.</span>
           </div>
           <div class="agent-body">
             <ul>
-              <li><strong>Vetos em Código (RNF-04):</strong> Orçamento sigiloso (<code>Gasto + Transporte &le; Teto</code>), horários de funcionamento, datas de eventos e restrições.</li>
-              <li><strong>Juiz LLM (ADR 0014):</strong> Audita fidelidade factual dos candidatos levantados pelo Agente 1 contra a base curada (1ª passagem).</li>
-              <li><strong>Avaliador de Convergência:</strong> Se restarem menos de 3 locais, retroalimenta a Pesquisa (máximo de 2 iterações).</li>
+              <li><strong>Vetos em código (RNF-04):</strong> horário, orçamento (<code>cabe_para_cada_um</code>), restrição, encerrado e deslocamento &gt; 75 min.</li>
+              <li><strong>Juiz 1ª passagem (#72, opcional, GLM-5.3-Flash):</strong> derruba candidato cujo motivo da Pesquisa contradiz o documento.</li>
+              <li><strong><code>avaliar_convergencia</code>:</strong> volta para a Pesquisa se <code>validados &lt; 3</code> e <code>voltas &lt; 2</code>; vai para <code>no_finalizar</code> se nenhum lugar passou; ou segue para a Comunicação.</li>
             </ul>
           </div>
         </article>
@@ -599,16 +603,33 @@ flowchart TD
           <div class="agent-header">
             <div>
               <div class="agent-name">4. Agente de Comunicação</div>
-              <div class="agent-sub">Anfitrião de Brasília · <code>src/agentes/comunicacao.py</code></div>
+              <div class="agent-sub"><code>no_comunicacao</code> · <code>src/agentes/comunicacao.py</code></div>
             </div>
             <span class="badge badge-blue">🤖 LLM + Schema JSON</span>
           </div>
           <div class="agent-body">
             <ul>
-              <li>Redige convites envolventes em tom candango e acolhedor (<code>titulo</code>, <code>resumo_acesso</code>, <code>por_que_combina</code>).</li>
-              <li>Zero citação de orçamentos, limitações ou restrições de participantes (RNF-02).</li>
-              <li><strong>Preenchimento Determinístico:</strong> Preços médios, tempos e links oficiais do TikTok são preenchidos por código.</li>
-              <li>Passa pela 2ª passagem do Juiz LLM antes de ir para a votação pública da sala (RF-06).</li>
+              <li>Persona "Anfitrião de Brasília" gerando estritamente <code>titulo</code>, <code>resumo_acesso</code> e <code>por_que_combina</code>.</li>
+              <li>Recebe apenas os fatos montados por código (<code>montar_fatos</code>), sem dados do cofre (RNF-02).</li>
+              <li>Na reescrita (quando <code>no_validacao_textos</code> reprova algum cartão), reescreve apenas os cartões reprovados.</li>
+            </ul>
+          </div>
+        </article>
+
+        <!-- Validação de Textos e Finalização -->
+        <article class="agent-card purple">
+          <div class="agent-header">
+            <div>
+              <div class="agent-name">Validação dos Textos &amp; Finalização</div>
+              <div class="agent-sub"><code>no_validacao_textos</code> + <code>no_finalizar</code> · <code>src/agentes/grafo.py</code></div>
+            </div>
+            <span class="badge badge-purple">🛡️ Varredura + Juiz 2ª Pass.</span>
+          </div>
+          <div class="agent-body">
+            <ul>
+              <li><code>no_validacao_textos</code> roda a varredura em código (<code>verificar_cartoes</code>) junto com a <strong>2ª passagem do Juiz LLM</strong> (#72).</li>
+              <li>Devolve cartão reprovado para a Comunicação reescrever no máximo <strong>1 vez</strong> (<code>MAX_REESCRITAS = 1</code>).</li>
+              <li><code>no_finalizar</code> (código puro) preenche preços, gastos, tempos, <code>tiktok_url</code> e fonte 2FA, aplica <code>texto_reserva</code> se necessário e entrega <code>resultado_final_cartoes</code>.</li>
             </ul>
           </div>
         </article>
@@ -618,33 +639,37 @@ flowchart TD
 
     <!-- Estado Compartilhado (MultiAgentState) -->
     <section>
-      <h2 class="section-title">Contrato de Estado Compartilhado (MultiAgentState)</h2>
-      <pre class="code-block"><code>from typing import Annotated, TypedDict
-from operator import add
-
-class MultiAgentState(TypedDict):
-    sala_id: str
-    
-    # 1. Canais Privados (Isolados e Segregados - RNF-02)
-    membros_privados: list[dict]        # Orçamentos, origens e restrições individuais
-    
-    # 2. Canal Coletivo Anonimizado
-    perfil_grupo_anonimizado: dict      # Vibes agregadas, janela comum de horários
-    
-    # 3. Estados Intermediários do Pipeline
-    candidatos_pesquisa: list[dict]     # 8 a 10 locais levantados pelo Agente 1
-    candidatos_avaliados: list[dict]    # Locais ranqueados e pontuados pelo Agente 2
-    candidatos_validados: list[dict]    # Locais aprovados nos vetos do Agente 3
-    motivos_vetos: dict[str, int]       # Contagem estatística de reprovações para feedback
-    
-    # 4. Saída Consolidada
-    resultado_cartoes: list[dict]       # 3 a 4 cartões validados prontos para votação (RF-06)
-    
-    # 5. Controle de Execução e Observabilidade
-    iteracao_pesquisa: int              # Contador de loops (0, 1 ou 2 voltas)
-    historico_mensagens: Annotated[list[str], add]  # Log cumulativo de auditoria
-    trace_id_langfuse: str              # Identificador unificado de telemetria
-    trace_url: str                      # Link direto para visualização no Langfuse Cloud</code></pre>
+      <h2 class="section-title">Contrato de Estado Compartilhado (<code>MultiAgentState</code> em <code>src/agentes/estado.py</code>)</h2>
+      <pre class="code-block"><code>class MultiAgentState(TypedDict, total=False):
+    # entrada
+    sala_id: str                                               # código da sala (não identifica ninguém)
+    trace_url: str | None                                      # link do trace no Langfuse, anexado por executar()
+    membros: list[str]                                         # marcadores m1..mN; o Send abre um Agente Pessoal por um
+    # Agente 0 (Pessoal) -> grupo
+    membros_anonimos: Annotated[list[dict], operator.add]      # PerfilAnonimoMembro (Canal 3), um por membro, em paralelo
+    preferencias_grupo: dict                                   # PreferenciasGrupo: tipos e vibes agregados, restrições
+    # Agente 1 (Pesquisa)
+    candidatos_pesquisa: list[dict]                            # Candidato: id, motivo e trecho literal conferido
+    documentos: dict[str, dict]                                # documentos da base que a Pesquisa leu, por id
+    vistos: list[str]                                          # ids já devolvidos pela Pesquisa (não repetir)
+    pedido_nova_busca: dict | None                             # PedidoNovaBusca: só contagens, nunca texto livre
+    iteracao_pesquisa: int                                     # voltas Validação -> Pesquisa (máximo 2)
+    # Agente 2 (Logística)
+    candidatos_avaliados: list[dict]                           # CandidatoAvaliado: agregados de deslocamento e nota
+    # Agente 3 (Validação)
+    julgados: list[str]                                        # ids que já passaram pelo juiz do parecer
+    relatorio_validacao: dict                                  # RelatorioValidacao: aprovados, vetos e contagem
+    candidatos_validados: list[dict]                           # CandidatoAvaliado dos aprovados, na ordem do ranking
+    # Agente 4 (Comunicação) e Validação dos textos
+    fatos: list[dict]                                          # o que a Comunicação pode afirmar de cada cartão
+    cartoes: list[dict]                                        # CartaoTexto escritos pela Comunicação
+    cartoes_por_llm: bool
+    reprovados: dict[str, list[str]]                           # cartão -> motivos (só enumerações)
+    reescritas: int                                            # voltas Validação -> Comunicação (máximo 1)
+    # saída
+    resultado_final_cartoes: list[dict]                        # cartões públicos para a votação (Tela 3)
+    mensagens: Annotated[list[dict], operator.add]             # Mensagem: a conversa entre os agentes
+    historico_erros: Annotated[list[str], operator.add]        # vetos, reprovações e falhas, em ordem</code></pre>
     </section>
 
     <!-- Tabela de Requisitos e ADRs -->
@@ -663,57 +688,62 @@ class MultiAgentState(TypedDict):
             <tr>
               <td><strong>RNF-02</strong></td>
               <td>Sigilo Estrito do Perfil Individual</td>
-              <td>Segregação estrita dos 4 Canais no Agente 0; auditoria do Juiz LLM em 2ª passagem.</td>
+              <td><code>Cofre</code> fora do <code>MultiAgentState</code>; <code>serializar_estado</code> bloqueia chaves privadas e nomes; varredura em código + Juiz 2ª passagem em <code>no_validacao_textos</code>.</td>
             </tr>
             <tr>
               <td><strong>RNF-03</strong></td>
               <td>Zero Alucinação / Grounding Factual</td>
-              <td>Agente 1 restrito aos 93 locais curados (2FA TikTok); Agente 3 audita evidências contra a base.</td>
+              <td>Pesquisa restrita aos 93 locais curados (2FA TikTok) com conferência literal de <code>trecho_citado</code>; Juiz LLM em 2 passagens.</td>
             </tr>
             <tr>
               <td><strong>RNF-04</strong></td>
               <td>Cálculos Fora de Modelos de Linguagem</td>
-              <td>Agente 0 (regras), Agente 2 (transporte e Menor Miséria) e Agente 3 (vetos duros) rodam em Python puro.</td>
+              <td><code>no_pessoal</code>, <code>no_consolidar_grupo</code>, <code>no_logistica</code>, vetos de <code>no_validacao</code>, varredura de <code>no_validacao_textos</code> e <code>no_finalizar</code> rodam em Python puro.</td>
             </tr>
             <tr>
               <td><strong>RNF-12</strong></td>
               <td>Arquitetura Modular e Provedores Trocáveis</td>
-              <td>LangGraph desacoplado; roteamento via OpenRouter permitindo alternar DeepSeek, GLM e MiMo.</td>
+              <td>LangGraph desacoplado sobre <code>src/salas</code>; roteamento via OpenRouter alternando DeepSeek V4.1 Flash e GLM-5.3-Flash com fallback offline.</td>
             </tr>
             <tr>
               <td><strong>RNF-14</strong></td>
-              <td>SLA de Latência (&le; 5 segundos)</td>
-              <td>Paralelização de chamadas assíncronas, limitação do loop a 2 voltas e spans no Langfuse Cloud.</td>
+              <td>SLA de Latência (&le; 5 s conversa / &le; 60 s planos)</td>
+              <td>Agentes pessoais em paralelo (<code>Send</code>), limite de 2 voltas na Pesquisa e 1 reescrita na Comunicação (24,6 s no demo com LLM da #74). Spans: <code>agente_pessoal</code>, <code>consolidar_grupo</code>, <code>pesquisa</code>, <code>logistica</code>, <code>validacao</code>, <code>comunicacao</code>, <code>validacao_textos</code> e <code>finalizar</code>.</td>
             </tr>
             <tr>
               <td><strong>RF-06</strong></td>
               <td>Apresentação Clara e Votação Democrática</td>
-              <td>Agente 4 gera 3 a 4 cartões objetivos em JSON com múltipla escolha na interface pública.</td>
+              <td><code>no_comunicacao</code> gera os textos e <code>no_finalizar</code> preenche preços, tempos, <code>tiktok_url</code> e fonte 2FA para a Tela 3.</td>
             </tr>
             <tr>
               <td><strong>RF-17</strong></td>
               <td>Orçamento Sigiloso</td>
-              <td>Veto determinístico <code>cabe_para_cada_um</code> sem expor quem estourou o limite financeiro.</td>
+              <td>Veto determinístico <code>cabe_para_cada_um</code> lendo o <code>Cofre</code> em <code>no_validacao</code> sem expor quem estourou o limite financeiro.</td>
             </tr>
             <tr>
               <td><strong>ADR 0008</strong></td>
               <td>Base 2FA dos 93 Lugares TikTok</td>
-              <td>Catálogo auditado com vídeos reais de Brasília e links diretos nos cartões.</td>
+              <td>Catálogo auditado com vídeos reais de Brasília e injeção determinística de <code>tiktok_url</code> em <code>no_finalizar</code>.</td>
             </tr>
             <tr>
               <td><strong>ADR 0009</strong></td>
               <td>4 Campos de Texto Secretos (Sem Voz)</td>
-              <td>Entrada estruturada por texto na Tela 2 sem custo ou falha de transcrição de áudio.</td>
+              <td>Entrada estruturada por texto na Tela 2 interpretada por regras em <code>no_pessoal</code>.</td>
             </tr>
             <tr>
               <td><strong>ADR 0013</strong></td>
               <td>Regra da Menor Miséria no Deslocamento</td>
-              <td>Agente 2 penaliza assimetrias extremas de tempo no DF, protegendo participantes da periferia.</td>
+              <td><code>no_logistica</code> penaliza assimetrias de tempo no DF; <code>no_validacao</code> veta trajetos acima de 75 min.</td>
             </tr>
             <tr>
               <td><strong>ADR 0014</strong></td>
-              <td>Juiz LLM GLM-5.3-Flash / MiMo-V2.6</td>
-              <td>Agente 3 avalia com temperatura zero, sem retenção de dados e menor custo de inferência.</td>
+              <td>Juiz LLM GLM-5.3-Flash em 2 Passagens</td>
+              <td>1ª passagem opcional sobre motivos da Pesquisa em <code>no_validacao</code> e 2ª passagem sobre cartões em <code>no_validacao_textos</code>.</td>
+            </tr>
+            <tr>
+              <td><strong>ADR 0015 / 0016</strong></td>
+              <td>Orquestração LangGraph e Cofre do Servidor</td>
+              <td><code>StateGraph</code> com fan-out via <code>Send</code> e separação estrita entre <code>MultiAgentState</code> público e <code>Cofre</code> privado.</td>
             </tr>
           </tbody>
         </table>

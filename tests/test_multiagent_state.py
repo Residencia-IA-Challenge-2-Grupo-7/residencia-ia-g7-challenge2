@@ -2,7 +2,7 @@
 
 Conferem os campos que a issue pede, os reducers, a ida e volta em JSON e que a serialização recusa dado do cofre
 (nome, id de usuário, teto, origem) em qualquer nível (RNF-02). O estado de exemplo tem a forma do que o grafo produz
-numa sala de 4 pessoas; o teste de que o grafo de fato o preenche está em test_agentes.py.
+numa sala de 4 pessoas; o teste de que o grafo de fato o preenche está em test_grafo_multiagente.py.
 """
 from __future__ import annotations
 
