@@ -34,7 +34,7 @@ from langgraph.graph import END, START, StateGraph
 from langgraph.store.memory import InMemoryStore
 from langgraph.types import Send
 
-from src.agentes import comunicacao, logistica, pesquisa, pessoal, validacao
+from src.agentes import comunicacao, juiz, logistica, pesquisa, pessoal, validacao
 from src.agentes.contratos import Cofre, Membro
 from src.agentes.estado import MultiAgentState, PedidoNovaBusca
 from src.agentes.llm import ClienteLLM, versao_prompt
@@ -125,7 +125,10 @@ def cofre_da_sala(sala: Sala, lugares, agora: datetime, store=None, usuarios: di
 
 # ------------------------------------------------------------------ o grafo
 
-def construir_grafo(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica", checkpointer=None):
+def construir_grafo(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica", juiz_parecer: bool = False,
+                    checkpointer=None):
+    """`juiz_parecer`: liga a 1ª passagem do juiz (#72) sobre os motivos da Pesquisa; a 2ª, sobre os cartões,
+    roda sempre (sem LLM, cai nas regras do próprio juiz)."""
     lugares = list(cofre.lugares.values())
 
     def distribuir(estado: MultiAgentState):
@@ -207,9 +210,20 @@ def construir_grafo(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica",
 
     @_observado("validacao", "guardrail")
     def no_validacao(estado: MultiAgentState):
-        ranking = estado["candidatos_avaliados"]
+        # 1ª passagem do juiz (#72, opcional): derruba só o candidato cujo motivo contradiz o documento
+        julgados = set(estado.get("julgados", []))
+        novos = [c for c in estado["candidatos_pesquisa"] if c["id"] not in julgados]
+        derrubados: set[str] = set()
+        vereditos: dict = {}
+        if juiz_parecer and novos:
+            julgamento, _ = juiz.julgar_parecer_pesquisa(novos, llm=cliente, base_completa=cofre.lugares,
+                                                         devolver_status=True)
+            derrubados = set(juiz.filtrar_candidatos_aprovados_pelo_juiz(novos, julgamento)[1])
+            vereditos = dict(Counter(a.veredito for a in julgamento.afirmacoes))
+        ranking = [r for r in estado["candidatos_avaliados"] if r["id"] not in derrubados]
         rel = validacao.validar_candidatos_regras(ranking, cofre=cofre)
         res = rel.model_dump()
+        res["derrubados_pelo_juiz"] = sorted(derrubados)
         voltas = estado.get("iteracao_pesquisa", 0)
         validados = validacao.selecionar_cartoes(ranking, res["aprovados"])
         parciais = sum(1 for r in validados if not _todos(r["quantos_podem"]))
@@ -220,7 +234,8 @@ def construir_grafo(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica",
             pedido = PedidoNovaBusca(faltam=validacao.MINIMO_CARTOES - len(validados), vetos=res["contagem"],
                                      ja_vistos=len(estado.get("vistos", []))).model_dump()
             texto = (f"Só {len(validados)} {'lugar passou' if len(validados) == 1 else 'lugares passaram'} "
-                     f"(vetos: {vetos}). Pesquisa, preciso de mais {pedido['faltam']} candidatos.")
+                     f"(vetos: {vetos}{'; ' + str(len(derrubados)) + ' derrubados pelo juiz' if derrubados else ''}). "
+                     f"Pesquisa, preciso de mais {pedido['faltam']} candidatos.")
             para = "Pesquisa"
         elif destino == "no_finalizar":
             texto = (f"Nenhum lugar passou em horário, deslocamento, orçamento e restrições depois de {voltas} "
@@ -234,10 +249,13 @@ def construir_grafo(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica",
                      + " Comunicação, pode escrever.")
             para = "Comunicação"
         _registrar({"ranking": [r["id"] for r in ranking]}, {k: res[k] for k in ("aprovados", "contagem")},
-                   volta=voltas)
-        erros = [f"validacao (volta {voltas}): {v['id']} vetado por {v['motivo']}" for v in res["vetos"]]
+                   juiz=vereditos, volta=voltas)
+        erros = [f"validacao (volta {voltas}): {v['id']} vetado por {v['motivo']}" for v in res["vetos"]] + \
+            [f"validacao (volta {voltas}): {i} derrubado pelo juiz do parecer" for i in sorted(derrubados)]
         return {"relatorio_validacao": res, "pedido_nova_busca": pedido, "candidatos_validados": validados,
-                "historico_erros": erros, "mensagens": [_msg("Validação", para, texto)]}
+                "julgados": sorted(julgados | {c["id"] for c in novos}), "historico_erros": erros,
+                "candidatos_pesquisa": [c for c in estado["candidatos_pesquisa"] if c["id"] not in derrubados],
+                "mensagens": [_msg("Validação", para, texto, vereditos_juiz=vereditos or None)]}
 
     @_observado("comunicacao")
     def no_comunicacao(estado: MultiAgentState):
@@ -263,24 +281,33 @@ def construir_grafo(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica",
 
     @_observado("validacao_textos", "guardrail")
     def no_validacao_textos(estado: MultiAgentState):
-        r = validacao.verificar_cartoes(estado["cartoes"], estado["fatos"], cofre)
-        reprovados = r["reprovados"]
+        # Varredura em código (nomes e RAs do cofre, que o juiz não vê) + 2ª passagem do juiz (#72)
+        reprovados = {k: list(v) for k, v in validacao.verificar_cartoes(estado["cartoes"], estado["fatos"],
+                                                                          cofre)["reprovados"].items()}
+        julgamento, usou_juiz = juiz.julgar_cartoes_comunicacao(estado["cartoes"], estado["fatos"], llm=cliente,
+                                                                 base_completa=cofre.lugares, devolver_status=True)
+        for letra, motivos in juiz.avaliar_reprovacoes_cartoes(julgamento).items():
+            reprovados.setdefault(letra, []).extend(m for m in motivos if m not in reprovados[letra])
+        vereditos = dict(Counter(a.veredito for a in julgamento.afirmacoes))
+        exposicoes = [e.model_dump() for e in julgamento.exposicoes]
         reescritas = estado.get("reescritas", 0)
         if reprovados and reescritas < MAX_REESCRITAS:
             texto = "Cartões reprovados: " + "; ".join(f"{k} ({', '.join(v)})" for k, v in reprovados.items()) + \
                 ". Comunicação, reescreva."
             para, reescritas = "Comunicação", reescritas + 1
         else:
-            texto = (f"{len(estado['cartoes'])} cartões aprovados na varredura: sem número, nome ou origem de "
-                     "ninguém." if not reprovados
+            texto = (f"{len(estado['cartoes'])} cartões aprovados: a varredura não achou número, nome nem origem "
+                     f"de ninguém, e o juiz {'(LLM)' if usou_juiz else '(regras)'} não achou contradição nem "
+                     "exposição." if not reprovados
                      else "Ainda reprovados depois da reescrita: " + ", ".join(reprovados) + "; uso o texto de reserva.")
             para = "Orquestrador"
-        _registrar({"cartoes": len(estado["cartoes"])}, {"reprovados": reprovados},
-                   reescrita=estado.get("reescritas", 0))
+        _registrar({"cartoes": len(estado["cartoes"])}, {"reprovados": reprovados}, juiz=vereditos,
+                   juiz_llm=usou_juiz, exposicoes=len(exposicoes), reescrita=estado.get("reescritas", 0))
         erros = [f"validacao_textos (reescrita {estado.get('reescritas', 0)}): cartão {k} reprovado por "
                  f"{', '.join(v)}" for k, v in reprovados.items()]
         return {"reprovados": reprovados, "reescritas": reescritas, "historico_erros": erros,
-                "mensagens": [_msg("Validação", para, texto)]}
+                "mensagens": [_msg("Validação", para, texto, vereditos_juiz=vereditos or None,
+                                   exposicoes=exposicoes or None)]}
 
     def depois_dos_textos(estado: MultiAgentState):
         return "no_comunicacao" if estado["mensagens"][-1]["para"] == "Comunicação" else "no_finalizar"
@@ -362,11 +389,11 @@ def construir_grafo(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica",
     return g.compile(checkpointer=checkpointer if checkpointer is not None else InMemorySaver())
 
 
-def executar(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica",
+def executar(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica", juiz_parecer: bool = False,
              ao_atualizar: Callable[[str, dict], None] | None = None, thread_id: str = "sala") -> dict:
     """Roda o grafo e devolve o estado final. `ao_atualizar(nó, atualização)` recebe o progresso de cada agente
     (RNF-14: mostrar o progresso), como o `stream_mode="updates"` do LangGraph entrega."""
-    grafo = construir_grafo(cofre, cliente, busca=busca)
+    grafo = construir_grafo(cofre, cliente, busca=busca, juiz_parecer=juiz_parecer)
     config = {"configurable": {"thread_id": thread_id}, "recursion_limit": 40}
 
     @_observado("sala_multiagente", "chain")
@@ -424,7 +451,7 @@ def cofre_dos_dados(dados_sala: dict, *, lugares: list[dict] | None = None, stor
 
 
 def executar_fluxo_multiagente(dados_sala: dict, *, cliente: ClienteLLM | None = None, busca: str = "lexica",
-                               lugares: list[dict] | None = None, store=None,
+                               juiz_parecer: bool = False, lugares: list[dict] | None = None, store=None,
                                ao_atualizar: Callable[[str, dict], None] | None = None) -> dict:
     """O fluxo completo dos 5 agentes para uma sala descrita num dicionário (issue #71); ver `cofre_dos_dados`.
 
@@ -433,7 +460,7 @@ def executar_fluxo_multiagente(dados_sala: dict, *, cliente: ClienteLLM | None =
     `historico_erros`, as voltas da Validação para a Pesquisa em `iteracao_pesquisa` e o link do trace no
     Langfuse em `trace_url`. Sem `cliente`, usa a OpenRouter do .env; sem chave, tudo sai por regras."""
     cofre = cofre_dos_dados(dados_sala, lugares=lugares, store=store)
-    return executar(cofre, cliente or ClienteLLM(), busca=busca, ao_atualizar=ao_atualizar,
+    return executar(cofre, cliente or ClienteLLM(), busca=busca, juiz_parecer=juiz_parecer, ao_atualizar=ao_atualizar,
                     thread_id=cofre.sala_id)
 
 def _url_do_trace() -> str | None:

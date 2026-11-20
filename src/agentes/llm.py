@@ -37,6 +37,7 @@ class Chamada:
     latencia_s: float
     tokens: int
     custo_usd: float
+    falhou: str = ""   # tentativa que não deu resposta (HTTP, tempo esgotado, JSON inválido): conta o tempo gasto
 
 
 @dataclass
@@ -82,6 +83,7 @@ class ClienteLLM:
                 dt = time.perf_counter() - t0
                 if r.status_code >= 400:
                     erros.append(f"HTTP {r.status_code}")
+                    self.chamadas.append(Chamada(agente, modelo, round(dt, 2), 0, 0.0, falhou=erros[-1]))
                     if r.status_code in (400, 401, 402, 403, 404):
                         break
                     continue
@@ -95,6 +97,8 @@ class ClienteLLM:
                 return saida
             except (requests.RequestException, ValueError, KeyError, IndexError, TypeError) as e:
                 erros.append(type(e).__name__)
+                self.chamadas.append(Chamada(agente, modelo, round(time.perf_counter() - t0, 2), 0, 0.0,
+                                             falhou=erros[-1]))
         raise ErroLLM("; ".join(erros[-2:]))
 
 
