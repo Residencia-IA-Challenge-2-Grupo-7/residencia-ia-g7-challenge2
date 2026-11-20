@@ -549,11 +549,41 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
 
 ### 8.10. Issue #73 — Instrumentação de Telemetria e Tracing do Grafo Multiagente no Langfuse Cloud
 * **Responsável:** Maria Eduarda (`@eduarda-ogomes`)
-* **Status:** Bloqueada
+* **Status:** Concluída (PR pronto com testes)
 * **O que foi feito:**
+  - Implementação do módulo central de telemetria e tracing multiagente em `src/telemetria/langfuse_agentes.py` integrado nativamente com LangGraph e Langfuse Cloud v5.x (RNF-10, RNF-14).
+  - Criação da classe `LangfuseAgentesCallbackHandler` derivada da infraestrutura de callbacks do LangChain/LangGraph, com interceptores ativos de sanitização e mascaramento de PII em `on_chain_start`, `on_chain_end`, `on_tool_start` e `on_tool_end`.
+  - Mapeamento canônico dos spans para todos os nós do fluxo multiagente (`SPANS_AGENTES`):
+    - `agente_0_pessoal` (nós paralelos dos agentes pessoais)
+    - `agente_orquestrador_consolidar` (consolidação de preferências do grupo)
+    - `agente_1_pesquisa` e `agente_1_pesquisa_buscar` (planejamento, consultas RAG e seleção curada)
+    - `agente_2_logistica` (avaliação de justiça espacial e Menor Miséria)
+    - `agente_3_validacao` e `agente_3_validacao_vetos` (4 vetos determinísticos em código)
+    - `agente_4_comunicacao` (redação amigável do Anfitrião em schema fechado)
+    - `agente_3_validacao_textos` (auditoria factual e varredura de PII)
+    - `agente_orquestrador_finalizar` (consolidação final dos cartões públicos)
+    - `agente_juiz_pesquisa` e `agente_juiz_comunicacao` (auditorias em 2 passagens)
+    - `grafo_sala_multiagente` (span raiz que engloba a execução do grafo)
+  - Função `mascarar_pii`: algoritmo recursivo e determinístico que expurga valores monetários em R$, telefones, e-mails, CPFs, origens explícitas ("saindo de...", "quem vem de...") e nomes de participantes fornecidos, substituindo por marcadores seguros (`[VALOR_REMOVIDO]`, `[ORIGEM_REMOVIDA]`, `[NOME_REMOVIDO]`, etc.) antes de qualquer envio ao Langfuse (RNF-02).
+  - Integração aos nós do grafo em `src/agentes/grafo.py`: instrumentação com `@_observado` (`observar_agente`), atualização seletiva de spans via `_registrar` (`registrar_span_agente`) sem capturar estado bruto de nós (`capture_input=False`, `capture_output=False`), e registro explícito de metadados de execução: contagem de loops (`iteracao_pesquisa`), contagem de vetos (`quantidade_vetos` e `motivos_vetos`), status de convergência (`convergido`) e destino do fluxo.
+  - Captura e retorno do link oficial do trace: geração da URL pública canônica no Langfuse Cloud (`obter_trace_url`) sob o projeto oficial `cmw59be2y01d8ad0jqbgsjut6`, retornando tanto em `trace_url` quanto em `langfuse_trace_url` no dicionário final do estado e serialização em `EstadoSerializado` (`src/agentes/estado.py`).
+  - Resiliência operacional e fallback offline: execução segura sem dependência externa obrigatória; caso as chaves do Langfuse não estejam presentes ou a rede esteja indisponível, nenhuma exceção é propagada e o fluxo multiagente conclui normalmente.
 * **Decisões Técnicas e Arquitetura:**
+  - *RNF-10 (Observabilidade Estruturada):* Visibilidade total de spans, latência por agente, iterações do laço e auditorias no dashboard do Langfuse Cloud v5.x.
+  - *RNF-02 (Anti-PII no Tracing):* O estado bruto do LangGraph contém dados anônimos, mas a telemetria aplica uma camada defensiva adicional de sanitização recursiva (`mascarar_pii`) sobre todas as entradas, saídas e metadados, impedindo que pistas de membros cheguem aos servidores de observabilidade.
+  - *RNF-14 (Medição de SLAs de Latência):* Spans canônicos permitem aferir o tempo p50, p90 e p99 de cada agente isolado no Langfuse, facilitando a identificação de gargalos de desempenho.
+  - *Padronização de Links de Trace:* Compatibilidade dupla (`trace_url` e `langfuse_trace_url`) no `MultiAgentState` e no `EstadoSerializado`.
 * **Arquivos:**
+  - `src/telemetria/__init__.py`
+  - `src/telemetria/langfuse_agentes.py`
+  - `src/agentes/grafo.py`
+  - `src/agentes/estado.py`
+  - `tests/test_telemetria_agentes.py`
+  - `docs/semanas/semana-04.md`
 * **Testes e Validação:**
+  - 16 testes automatizados em `tests/test_telemetria_agentes.py` (100% de aprovação em 0.8s) cobrindo mascaramento recursivo, mapeamento canônico de spans, geração de trace URLs com host padrão e personalizado, decoradores, callbacks LangGraph/LangChain, resiliência offline e retorno de `trace_url`/`langfuse_trace_url` na execução do grafo.
+  - Suíte completa de 281 testes dos agentes da Semana 4 aprovada em 4.9s.
+  - Suíte geral de 896 testes do projeto aprovada com 100% de sucesso.
 
 ---
 

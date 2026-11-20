@@ -43,6 +43,7 @@ class MultiAgentState(TypedDict, total=False):
     # entrada
     sala_id: str                                               # código da sala (não identifica ninguém)
     trace_url: str | None                                      # link do trace no Langfuse, anexado por executar()
+    langfuse_trace_url: str | None                             # alias canônico do trace no Langfuse (Issue #73)
     membros: list[str]                                         # marcadores m1..mN; o Send abre um Agente Pessoal por um
     # Agente 0 (Pessoal) -> grupo
     membros_anonimos: Annotated[list[dict], operator.add]      # PerfilAnonimoMembro, um por membro, em paralelo
@@ -147,6 +148,7 @@ class EstadoSerializado(_Fechado):
     """Espelho validado de `MultiAgentState`, para gravar e ler o estado em JSON."""
     sala_id: str | None = None
     trace_url: str | None = None
+    langfuse_trace_url: str | None = None
     membros: list[str] | None = None
     membros_anonimos: list[PerfilAnonimoMembro] | None = None
     preferencias_grupo: PreferenciasGrupo | None = None

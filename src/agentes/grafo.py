@@ -86,24 +86,19 @@ def _msg(de: str, para: str, texto: str, **extra) -> dict:
     return {"de": de, "para": para, "texto": texto, "em": time.strftime("%H:%M:%S"), **extra}
 
 
-def _registrar(entrada=None, saida=None, **metadados) -> None:
-    """Entrada e saída do span atual no Langfuse, escolhidas à mão. Sem chaves, não faz nada."""
-    try:
-        from opentelemetry import trace
-        if not trace.get_current_span().is_recording():
-            return
-        from langfuse import get_client
-        get_client().update_current_span(input=entrada, output=saida, metadata=metadados or None)
-    except Exception:
-        pass
+from src.telemetria.langfuse_agentes import (
+    SPANS_AGENTES,
+    criar_callback_handler_agentes,
+    mascarar_pii,
+    obter_trace_url,
+    observar_agente as _observado,
+    registrar_span_agente,
+)
 
 
-def _observado(nome: str, tipo: str = "agent"):
-    try:
-        from langfuse import observe
-        return observe(name=nome, as_type=tipo, capture_input=False, capture_output=False)
-    except Exception:  # sem Langfuse instalado
-        return lambda f: f
+def _registrar(entrada=None, saida=None, nome_agente: str = "", **metadados) -> None:
+    """Entrada e saída do span atual no Langfuse, com mascaramento estrito de PII (RNF-02, RNF-10)."""
+    registrar_span_agente(nome_agente, entrada=entrada, saida=saida, **metadados)
 
 
 # ------------------------------------------------------------------ cofre a partir de uma sala real
@@ -234,7 +229,9 @@ def construir_grafo(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica",
                      + " Comunicação, pode escrever.")
             para = "Comunicação"
         _registrar({"ranking": [r["id"] for r in ranking]}, {k: res[k] for k in ("aprovados", "contagem")},
-                   volta=voltas)
+                   nome_agente="agente_3_validacao", volta=voltas, iteracao_pesquisa=voltas,
+                   quantidade_vetos=len(res["vetos"]), motivos_vetos=res["contagem"],
+                   convergido=(destino != "no_pesquisa"), destino=destino)
         erros = [f"validacao (volta {voltas}): {v['id']} vetado por {v['motivo']}" for v in res["vetos"]]
         return {"relatorio_validacao": res, "pedido_nova_busca": pedido, "candidatos_validados": validados,
                 "historico_erros": erros, "mensagens": [_msg("Validação", para, texto)]}
@@ -252,8 +249,8 @@ def construir_grafo(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica",
         if correcoes and estado.get("cartoes"):  # na reescrita, só os reprovados mudam
             novos = {c["id"]: c for c in cartoes}
             cartoes = [novos[c["id"]] if c["id"] in correcoes else c for c in estado["cartoes"]]
-        _registrar({"fatos": fatos, "correcoes": correcoes}, cartoes, usou_llm=r["usou_llm"],
-                   prompt=versao_prompt("comunicacao"))
+        _registrar({"fatos": fatos, "correcoes": correcoes}, cartoes, nome_agente="agente_4_comunicacao",
+                   usou_llm=r["usou_llm"], prompt=versao_prompt("comunicacao"))
         texto = f"{'Reescrevi' if correcoes else 'Escrevi'} {len(cartoes)} cartões: " + \
             "; ".join(f"{c['id']}) {c['titulo']}" for c in cartoes) + "."
         # Na reescrita, os cartões que não foram reprovados continuam com o texto de antes (#71, revisão do #80)
@@ -276,7 +273,9 @@ def construir_grafo(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica",
                      else "Ainda reprovados depois da reescrita: " + ", ".join(reprovados) + "; uso o texto de reserva.")
             para = "Orquestrador"
         _registrar({"cartoes": len(estado["cartoes"])}, {"reprovados": reprovados},
-                   reescrita=estado.get("reescritas", 0))
+                   nome_agente="agente_3_validacao_textos", reescrita=estado.get("reescritas", 0),
+                   reprovados_qtd=len(reprovados),
+                   convergido=(not bool(reprovados) or reescritas >= MAX_REESCRITAS))
         erros = [f"validacao_textos (reescrita {estado.get('reescritas', 0)}): cartão {k} reprovado por "
                  f"{', '.join(v)}" for k, v in reprovados.items()]
         return {"reprovados": reprovados, "reescritas": reescritas, "historico_erros": erros,
@@ -341,7 +340,9 @@ def construir_grafo(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica",
             fecho = f"Só {len(finais)} cartões prontos para a votação (menos de 3 opções viáveis na base)."
         else:
             fecho = f"{len(finais)} cartões prontos para a votação."
-        _registrar({"aprovados": escolhidos}, [{k: c[k] for k in ("id", "nome", "titulo")} for c in finais])
+        _registrar({"aprovados": escolhidos}, [{k: c[k] for k in ("id", "nome", "titulo")} for c in finais],
+                   nome_agente="agente_orquestrador_finalizar", iteracao_pesquisa=estado.get("iteracao_pesquisa", 0),
+                   reescritas=estado.get("reescritas", 0), convergido=True)
         return {"resultado_final_cartoes": finais, "mensagens": [_msg("Orquestrador", "Tela 3", fecho)]}
 
     g = StateGraph(MultiAgentState)
@@ -367,19 +368,25 @@ def executar(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica",
     """Roda o grafo e devolve o estado final. `ao_atualizar(nó, atualização)` recebe o progresso de cada agente
     (RNF-14: mostrar o progresso), como o `stream_mode="updates"` do LangGraph entrega."""
     grafo = construir_grafo(cofre, cliente, busca=busca)
+    handler = criar_callback_handler_agentes(cofre.nomes())
     config = {"configurable": {"thread_id": thread_id}, "recursion_limit": 40}
+    if handler is not None:
+        config["callbacks"] = [handler]
 
     @_observado("sala_multiagente", "chain")
     def rodar():
-        _registrar({"membros": len(cofre.membros), "busca": busca}, None)
+        _registrar({"membros": len(cofre.membros), "busca": busca}, None, nome_agente="grafo_sala_multiagente")
         inicial = {"sala_id": cofre.sala_id, "membros": list(cofre.membros)}
         for parte in grafo.stream(inicial, config, stream_mode="updates"):
             for no, atualizacao in parte.items():
                 if ao_atualizar and atualizacao:
                     ao_atualizar(no, atualizacao)
         final = dict(grafo.get_state(config).values)
-        _registrar(None, {"cartoes": [c["nome"] for c in final.get("resultado_final_cartoes", [])]})
-        final["trace_url"] = _url_do_trace()
+        _registrar(None, {"cartoes": [c["nome"] for c in final.get("resultado_final_cartoes", [])]},
+                   nome_agente="grafo_sala_multiagente")
+        trace_url = _url_do_trace(getattr(handler, "ultimo_trace_id", None) if handler else None)
+        final["trace_url"] = trace_url
+        final["langfuse_trace_url"] = trace_url
         return final
 
     return rodar()
@@ -436,14 +443,7 @@ def executar_fluxo_multiagente(dados_sala: dict, *, cliente: ClienteLLM | None =
     return executar(cofre, cliente or ClienteLLM(), busca=busca, ao_atualizar=ao_atualizar,
                     thread_id=cofre.sala_id)
 
-def _url_do_trace() -> str | None:
-    """Link do trace atual no Langfuse, ou None sem chaves."""
-    try:
-        from opentelemetry import trace
-        if not trace.get_current_span().is_recording():
-            return None
-        from langfuse import get_client
-        c = get_client()
-        return c.get_trace_url(trace_id=c.get_current_trace_id())
-    except Exception:
-        return None
+def _url_do_trace(trace_id: str | None = None) -> str | None:
+    """Link do trace atual no Langfuse Cloud, ou None sem chaves."""
+    return obter_trace_url(trace_id)
+
