@@ -576,21 +576,22 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
   - **Os dois cenários da #66, e não uma sala própria:** o demo compara o resultado com um gabarito independente. O padrão mostra o ciclo condicional e o aviso sem cartão; o de controle mostra o caminho feliz.
   - **A memória não muda os vetos:** os comentários do ato 1 viram preferência (lugar sem barulho) ou são uma instrução injetada que o agente ignora. Assim o gabarito da #66 continua valendo depois da memória.
   - **Proposta contraditória não é gravada:** na primeira rodada, o LLM do pós-rolê leu "a música alta atrapalhou" como `barulho:evita` e "prefiro lugar mais tranquilo" como `barulho:gosta`, e o log gravava o último. Agora, se a mesma proposta trouxer "gosta" e "evita" para o mesmo aspecto, nada é gravado sobre ele (`pessoal.depois_do_role`).
-* **Arquivos:** `scripts/demo_multiagente.py`, `Makefile` (`demo-agentes`), `src/agentes/grafo.py` (juiz da #72), `src/agentes/pessoal.py`, `tests/test_demo_multiagente.py`, `tests/test_grafo_multiagente.py`, `tests/test_agente_pessoal.py`, `docs/entregas/semana-04/DEMO_MULTIAGENTE_LOG.txt`, `docs/entregas/semana-04/grafo_agentes.mmd`.
+* **Arquivos:** `scripts/demo_multiagente.py`, `Makefile` (`demo-agentes`), `src/agentes/grafo.py` (juiz da #72), `src/agentes/pessoal.py`, `src/agentes/llm.py` (tentativas sem resposta), `tests/test_demo_multiagente.py`, `tests/test_grafo_multiagente.py`, `tests/test_agente_pessoal.py`, `docs/entregas/semana-04/DEMO_MULTIAGENTE_LOG.txt`, `docs/entregas/semana-04/grafo_agentes.mmd`.
 * **Testes e Validação:**
   - `pytest tests/test_demo_multiagente.py`: roda o demo sem LLM e confere os 5 atos nos dois cenários, o veredito do padrão, os cartões do controle dentro dos viáveis e a varredura sem nome de membro.
-  - `pytest tests/test_grafo_multiagente.py`: 33 testes, entre eles o juiz usando o GLM e os agentes o DeepSeek, nenhum nome, teto ou origem nas mensagens enviadas aos LLMs (inclusive ao juiz) e a reescrita quando o juiz acha uma exposição que a varredura não pega.
-  - Suíte inteira, sem o `test_pipeline_haystack.py`: 883 aprovados.
-  - Demo com LLM, em 20/11 (o log está em `DEMO_MULTIAGENTE_LOG.txt`):
+  - `pytest tests/test_grafo_multiagente.py`: 34 testes, entre eles o juiz usando o GLM e os agentes o DeepSeek, nenhum nome, teto ou origem nas mensagens enviadas aos LLMs (inclusive ao juiz) e a reescrita quando o juiz acha uma exposição que a varredura não pega.
+  - Suíte inteira, sem o `test_pipeline_haystack.py`: 884 aprovados.
+  - Demo com LLM e Langfuse, em 20/11 (o log está em `DEMO_MULTIAGENTE_LOG.txt`):
 
-    | Sala | Tempo | Chamadas | Tokens | Custo | Voltas | Cartões |
-    |---|---|---|---|---|---|---|
-    | ROLE-PADR (sem lugar viável) | 15,4 s | 6 | 21.001 | US$ 0,0028 | 2 | 0, com o aviso ao grupo |
-    | ROLE-CTRL (5 viáveis) | 20,6 s | 6 | 23.154 | US$ 0,0037 | 1 | 3, os 3 entre os viáveis |
+    | Sala | Tempo | Chamadas | Tokens | Custo | Voltas | Cartões | Trace |
+    |---|---|---|---|---|---|---|---|
+    | ROLE-PADR (sem lugar viável) | 15,1 s | 6 | 19.545 | US$ 0,0026 | 2 | 0, com o aviso ao grupo | [39bfd356](https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/39bfd356e4ef94d7e760d91be8baacb8) |
+    | ROLE-CTRL (5 viáveis) | 24,6 s | 6 | 21.660 | US$ 0,0035 | 1 | 3, os 3 entre os viáveis | [d8628952](https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/d862895248205cffc031c42bef3d4376) |
 
-    - Os dois cenários ficam dentro dos 60 s do RNF-14. No controle, o juiz dos cartões é a chamada mais lenta (7,3 s) e a mais cara (US$ 0,0012).
+    - Cada trace tem um span por etapa do grafo (`agente_pessoal` ×4, `consolidar_grupo`, `pesquisa`, `logistica`, `validacao` por volta, `comunicacao`, `validacao_textos`, `finalizar`), conferido pela API do Langfuse.
+    - No controle, o juiz dos cartões é a chamada mais lenta (12,9 s) e a mais cara (US$ 0,0012).
+    - **RNF-14 em risco:** numa rodada anterior, o controle levou 73,9 s, acima dos 60 s. A 1ª chamada ao juiz estourou o limite de 40 s do cliente, e a 2ª respondeu em 20 s. Essa tentativa sem resposta não aparecia no custo nem no tempo por agente; agora o cliente registra cada tentativa (`Chamada.falhou`), e o demo mostra quantas houve.
     - O fluxo atual das salas, sem agentes, sugere o Cachorrão da 5, que está no `nunca_sugerir` da #66, nos dois cenários (pior trajeto de 218 min no padrão). O fluxo com agentes não sugere.
-  - **Limitação:** a máquina em que o demo rodou não tem as chaves do Langfuse no `.env`, então o log não traz link de trace. O trace depende da #73.
 
 ---
 

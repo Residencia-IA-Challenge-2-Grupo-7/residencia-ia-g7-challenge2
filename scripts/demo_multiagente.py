@@ -205,24 +205,29 @@ def ato_resultado(out: Saida, final: dict, tempos: dict, cofre, cliente: Cliente
         f"{[t for t in textos if t] or 'nenhum'}")
 
     out("\nCusto e latência por agente:")
-    por_agente: dict[str, list] = defaultdict(lambda: [0, 0.0, 0.0, 0])
+    por_agente: dict[str, list] = defaultdict(lambda: [0, 0.0, 0.0, 0, []])
     for ch in cliente.chamadas:
         a = por_agente[ch.agente]
         a[0] += 1
         a[1] += ch.latencia_s
         a[2] += ch.custo_usd
         a[3] += ch.tokens
-    for agente, (n, lat, custo, tokens) in por_agente.items():
-        out(f"  {agente:22s} {n} chamada(s)  {lat:6.1f} s  {tokens:7d} tokens  US$ {custo:.5f}")
+        if ch.falhou:
+            a[4].append(f"{ch.falhou} em {ch.latencia_s:.0f} s")
+    for agente, (n, lat, custo, tokens, falhas) in por_agente.items():
+        out(f"  {agente:22s} {n} chamada(s)  {lat:6.1f} s  {tokens:7d} tokens  US$ {custo:.5f}"
+            + (f"  ·  tentativas sem resposta: {', '.join(falhas)}" if falhas else ""))
     custo = sum(c.custo_usd for c in cliente.chamadas)
-    out(f"  Total: {len(cliente.chamadas)} chamadas de LLM, US$ {custo:.4f} (R$ {custo * DOLAR:.4f}), "
-        f"{tempos['total']:.1f} s do início aos cartões (RNF-14: até 60 s).")
+    falhas = sum(1 for c in cliente.chamadas if c.falhou)
+    out(f"  Total: {len(cliente.chamadas)} chamadas de LLM ({falhas} sem resposta), US$ {custo:.4f} "
+        f"(R$ {custo * DOLAR:.4f}), {tempos['total']:.1f} s do início aos cartões (RNF-14: até 60 s).")
     out("\nTempo por etapa do grafo (soma das passagens):")
     for etapa, s in tempos.items():
         if etapa != "total":
             out(f"  {etapa:22s} {s:6.1f} s")
     out(f"\nTrace no Langfuse: {final.get('trace_url') or 'não enviado (sem chaves do Langfuse no .env desta máquina)'}")
     return {"cenario": cenario["codigo_sala"], "segundos": tempos["total"], "chamadas": len(cliente.chamadas),
+            "sem_resposta": falhas,
             "tokens": sum(c.tokens for c in cliente.chamadas), "custo_usd": custo,
             "voltas": final.get("iteracao_pesquisa", 0), "reescritas": final.get("reescritas", 0),
             "vetos": vetos, "cartoes": [c["nome"] for c in cartoes],
@@ -241,10 +246,10 @@ def contar_vetos(final: dict) -> dict:
 def resumo(out: Saida, linhas: list[dict]) -> None:
     out.titulo("RESUMO DOS CENÁRIOS (para o relatório da semana 4)")
     out(f"  {'sala':10s} {'tempo':>7s} {'chamadas':>8s} {'tokens':>7s} {'custo US$':>9s} {'voltas':>6s} "
-        f"{'reescr.':>7s}  cartões (viáveis do gabarito)")
+        f"{'reescr.':>7s} {'falhas':>6s}  cartões (viáveis do gabarito)")
     for r in linhas:
         out(f"  {r['cenario']:10s} {r['segundos']:6.1f}s {r['chamadas']:8d} {r['tokens']:7d} {r['custo_usd']:9.4f} "
-            f"{r['voltas']:6d} {r['reescritas']:7d}  {len(r['cartoes'])} ({r['viaveis_nos_cartoes']})")
+            f"{r['voltas']:6d} {r['reescritas']:7d} {r['sem_resposta']:6d}  {len(r['cartoes'])} ({r['viaveis_nos_cartoes']})")
     for r in linhas:
         out(f"  {r['cenario']}: vetos {r['vetos'] or 'nenhum'}; com agentes: {', '.join(r['cartoes']) or 'nenhum'}; "
             f"sem agentes: {', '.join(r['sem_agentes']) or 'nenhum'}; trace: {r['trace_url'] or 'sem Langfuse'}")

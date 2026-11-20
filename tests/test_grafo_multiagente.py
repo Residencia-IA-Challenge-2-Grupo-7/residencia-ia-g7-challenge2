@@ -437,3 +437,23 @@ def test_varredura_ignora_nome_de_lugar_igual_ao_de_membro():
     cofre.perfis_efetivos = {m: mb.perfil for m, mb in cofre.membros.items()}
     assert varrer_cartao("Chico Padeiro: pão quentinho.", cofre, "Águas Claras") == []
     assert varrer_cartao("O Chico vai adorar.", cofre, "Águas Claras") == ["nome_de_membro"]
+
+
+def test_tentativa_sem_resposta_fica_registrada_com_o_tempo_gasto():
+    """Visto no demo da #74: o juiz estourou o tempo na 1ª tentativa e respondeu na 2ª; sem registrar a falha, o
+    demo mostrava 20 s de juiz num nó que levou 58 s."""
+    import requests
+
+    class Sessao:
+        def __init__(self):
+            self.n = 0
+
+        def post(self, url, json=None, timeout=None, headers=None):  # noqa: A002
+            self.n += 1
+            if self.n == 1:
+                raise requests.Timeout("tempo esgotado")
+            return _Resposta({"ok": True}, json["model"])
+
+    cliente = ClienteLLM(sessao=Sessao(), chave="teste")
+    assert cliente.json("juiz_comunicacao", "sistema", "usuario", {"type": "object"}, modelo=MODELO_JUIZ) == {"ok": True}
+    assert [c.falhou for c in cliente.chamadas] == ["Timeout", ""]
