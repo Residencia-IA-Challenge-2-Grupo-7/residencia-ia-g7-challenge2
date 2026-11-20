@@ -1,3 +1,9 @@
+---
+hide:
+  - navigation
+  - toc
+---
+
 # Orquestrador de Rolês
 
 > **Assistente Inteligente para Encontros no Distrito Federal**  

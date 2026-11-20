@@ -1,83 +1,54 @@
+---
+hide:
+  - toc
+---
+
 # Arquitetura do Grafo Multiagente (LangGraph)
 
-> **Challenge 2 — Residência em IA (Instituto Eldorado & UnB)**  
 > **Semana 4:** Primeiro Protótipo Funcional Multiagente  
-> **Tema:** Orquestrador de Rolês no Distrito Federal  
+> **Tema:** Orquestrador de Rolês no Distrito Federal
 
 ---
 
 ## 1. Visão Geral da Arquitetura
 
-O sistema multiagente do **Orquestrador de Rolês** é estruturado como um grafo de estados direcionado e cíclico (`StateGraph`), implementado em [`src/agentes/grafo.py`](../../src/agentes/grafo.py) sobre a biblioteca **LangGraph** ([ADR 0015](../decisoes/0015-orquestracao-com-langgraph.md), [ADR 0016](../decisoes/0016-estrutura-dos-agentes.md)). A arquitetura segue dois princípios:
+O sistema multiagente do **Orquestrador de Rolês** roda sobre a biblioteca **LangGraph** ([ADR 0015](../decisoes/0015-orquestracao-com-langgraph.md), [ADR 0016](../decisoes/0016-estrutura-dos-agentes.md)). Ele opera sob dois princípios:
 
-1. **Divisão entre cognição e determinismo (RNF-04):** Modelos de linguagem atuam onde seleção semântica, julgamento de apoio textual ou redação em linguagem natural são necessários (Pesquisa, Comunicação e Juiz de Validação). Todos os cálculos aritméticos, matrizes de deslocamento das 35 RAs, cruzamento de janelas, Regra da Menor Miséria e vetos duros rodam em código Python puro.
-2. **Separação estrita entre estado público e cofre do servidor (RNF-02):** O estado compartilhado do grafo (`MultiAgentState`, em [`src/agentes/estado.py`](../../src/agentes/estado.py)) contém apenas marcadores anônimos (`m1..mN`), perfis sem dados sensíveis, candidatos da base e textos. Os 4 campos brutos de cada membro (nomes, tetos individuais, origens e restrições por pessoa) ficam no **`Cofre` do servidor** ([`src/agentes/contratos.py`](../../src/agentes/contratos.py)), fora do estado do grafo, preso à construção do grafo e lido unicamente pelos nós em código.
+1. **Separação entre IA e Código Determinístico (RNF-04):** A LLM atua apenas na interpretação semântica e na escrita de textos (Pesquisa, Comunicação e Juiz). Todos os cálculos de dinheiro, rotas de ônibus/metrô/Uber, regras de horários e vetos rodam em código Python puro sem alucinação.
+2. **Cofre de Dados Privados (RNF-02):** Nomes, orçamentos, origens e restrições de cada pessoa ficam guardados com segurança no **Cofre do servidor**, fora do estado público do grafo. A IA nunca vê quem tem menos dinheiro ou quem mora longe.
 
-![Diagrama Visual da Arquitetura do Grafo Multiagente](img/grafo_multiagente.svg)
+<div style="text-align: center; margin: 1.5rem 0;">
+  <a href="../img/grafo_multiagente.svg" target="_blank" style="display: inline-block; padding: 12px 24px; background: #6366f1; color: #ffffff; border-radius: 8px; font-weight: 700; text-decoration: none; font-size: 0.95rem; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);">🔍 Abrir Diagrama Técnico Detalhado em Alta Resolução (SVG)</a>
+</div>
 
 ---
 
-## 2. Diagrama Estrutural em Mermaid
+## 2. Fluxo Simplificado dos Agentes
 
-O diagrama abaixo reproduz exatamente os nós e as arestas compiladas pelo LangGraph (`construir_grafo` em [`src/agentes/grafo.py`](../../src/agentes/grafo.py), correspondente a `docs/entregas/semana-04/grafo_agentes.mmd`):
+O diagrama abaixo mostra de forma direta como os agentes conversam entre si do início ao fim da orquestração:
 
 ```mermaid
 flowchart TD
-    classDef llm fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
-    classDef code fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#15803d;
-    classDef hybrid fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#7e22ce;
-    classDef decision fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#b45309;
-    classDef data fill:#ede9fe,stroke:#6366f1,stroke-width:2px,color:#4338ca;
-    classDef cofre fill:#fff7ed,stroke:#ea580c,stroke-width:2px,stroke-dasharray: 5 3,color:#9a3412;
-    classDef trace fill:#f1f5f9,stroke:#64748b,stroke-width:1.5px,color:#334155;
-
-    START(["__start__ · Sala com N membros confirmados"]):::data
-    START -. "Send('no_pessoal', membro) ×N em paralelo" .-> PESSOAL
-
-    PESSOAL["0. AGENTE PESSOAL ×N · no_pessoal<br/>(Código Puro — RNF-04 · span: agente_pessoal)<br/>• Interpreta os 4 campos por regras + log pessoal<br/>• Separa 4 canais: 1, 2 e 4 no Cofre; Canal 3 no estado"]:::code
-
-    subgraph COFRE ["Cofre do Servidor (Fora do MultiAgentState — RNF-02, ADR 0015/0016)"]
-        C1["Canal 1: Orçamento (teto individual) — Privado"]:::cofre
-        C2["Canal 2: Restrições duras — Privado"]:::cofre
-        C4["Canal 4: Logística (origem, janelas e transporte) — Privado"]:::cofre
-    end
-
-    C3["Canal 3: Preferências (tipos, vibes, evitar, pedido sanitizado)<br/>Único canal público no estado (membros_anonimos)"]:::data
-
-    PESSOAL -. "grava canais 1, 2 e 4" .-> COFRE
-    PESSOAL -- "devolve Canal 3" --> C3
-    C3 --> CONSOLIDAR["ORQUESTRADOR · no_consolidar_grupo<br/>(Código Puro · span: consolidar_grupo)<br/>• Agrega tipos ('x de y'), vibes e restrições sem autor<br/>• Cruza janelas comuns no Cofre"]:::code
-
-    CONSOLIDAR -. "depois_de_consolidar:<br/>há janela comum (≥ 2 pessoas)" .-> PESQUISA
-    CONSOLIDAR -. "sem janela comum:<br/>direto para o fim" .-> FINALIZAR
-
-    PESQUISA["1. AGENTE DE PESQUISA · no_pesquisa<br/>(LLM: DeepSeek V4.1 Flash · span: pesquisa)<br/>• LLM escreve até 3 consultas; código executa buscar_lugares_rag<br/>• Base oficial de 93 lugares 2FA TikTok (ADR 0008)<br/>• 8 a 10 candidatos com trecho_citado conferido"]:::llm
-
-    PESQUISA -- "candidatos_pesquisa" --> LOGISTICA["2. AGENTE DE LOGÍSTICA E JUSTIÇA · no_logistica<br/>(Código Puro — RNF-04, ADR 0013 · span: logistica)<br/>• Meio mais barato em até 75 min nas 35 RAs<br/>• Regra da Menor Miséria (nota pelo pior trajeto)<br/>• Score: 45% Aderência + 35% Justiça + 20% Horário"]:::code
-    C4 -. "lê origem e janelas" .-> LOGISTICA
-
-    LOGISTICA -- "candidatos_avaliados (só agregados)" --> VALIDACAO["3. AGENTE DE VALIDAÇÃO · no_validacao<br/>(Híbrido: Código + Juiz LLM 1ª passagem opcional · span: validacao)<br/>• Vetos em código: horário, orçamento, restrição, encerrado, deslocamento > 75 min<br/>• Juiz 1ª passagem (#72, opcional, GLM-5.3-Flash): derruba motivo que contradiz documento"]:::hybrid
-    C1 -. "teto individual" .-> VALIDACAO
-    C2 -. "restrições duras" .-> VALIDACAO
-
-    VALIDACAO -. "avaliar_convergencia:<br/>validados < 3 e voltas < 2<br/>PedidoNovaBusca (só contagens)" .-> PESQUISA
-    VALIDACAO -. "nenhum validado após as buscas:<br/>direto para o fim" .-> FINALIZAR
-    VALIDACAO -. "≥ 1 candidato validado" .-> COMUNICACAO
-
-    COMUNICACAO["4. AGENTE DE COMUNICAÇÃO · no_comunicacao<br/>(LLM: DeepSeek V4.1 Flash · span: comunicacao)<br/>• Persona: Anfitrião de Brasília (JSON Schema estrito)<br/>• Escreve só titulo, resumo_acesso e por_que_combina<br/>• Na reescrita, só os cartões reprovados mudam"]:::llm
-
-    COMUNICACAO -- "cartoes + fatos" --> VAL_TEXTOS["3. VALIDAÇÃO DOS TEXTOS · no_validacao_textos<br/>(Híbrido: Código + Juiz LLM 2ª passagem · span: validacao_textos)<br/>• Varredura em código (verificar_cartoes): número, nome ou RA do Cofre<br/>• Juiz 2ª passagem (#72, GLM-5.3-Flash): contradição factual e vazamento de PII"]:::hybrid
-
-    VAL_TEXTOS -. "depois_dos_textos:<br/>reprovado e reescritas < 1 (máx. 1 reescrita)" .-> COMUNICACAO
-    VAL_TEXTOS -. "aprovados, ou texto de reserva após 1 reescrita" .-> FINALIZAR
-
-    FINALIZAR["ORQUESTRADOR · no_finalizar<br/>(Código Puro — RNF-04 · span: finalizar)<br/>• Preenche por código: preços, gastos, tempos, horário, tiktok_url e fonte 2FA<br/>• Cartão ainda reprovado recebe texto_reserva por regras<br/>• Sem cartões: emite aviso ao grupo para flexibilizar critérios"]:::code
-
-    FINALIZAR --> END_NODE(["__end__ · Tela 3: resultado_final_cartoes ou aviso ao grupo"]):::data
-
-    subgraph TELEMETRIA ["Observabilidade e Auditoria (Langfuse Cloud v5.x)"]
-        TRACE["Spans: agente_pessoal · consolidar_grupo · pesquisa · logistica · validacao · comunicacao · validacao_textos · finalizar"]:::trace
-    end
+    IN(["🏁 Início: Sala com os amigos"]) --> P["0. Agente Pessoal<br/>(Lê preferências de cada amigo)"]
+    P -->|"Guarda no Cofre Secreto"| COF[("🔒 Cofre Seguro<br/>Tetos e Origens Privadas")]
+    P -->|"Preferências Anônimas"| G["Consolidação do Grupo<br/>(Cruza horários e estilos)"]
+    
+    G -->|"Com horário comum"| PQ["1. Agente de Pesquisa<br/>(Busca na base de 93 locais reais do DF)"]
+    G -->|"Sem horário comum"| F["Finalização<br/>(Avisa o grupo)"]
+    
+    PQ -->|"Candidatos da base"| L["2. Logística & Justiça<br/>(Calcula Menor Miséria e rotas)"]
+    L -->|"Ranking logístico"| V["3. Validação em Código<br/>(Aplica vetos de horário e orçamento)"]
+    
+    V --> C1{"Mínimo de 3<br/>lugares viáveis?"}
+    C1 -->|"Não (até 2 voltas)"| PQ
+    C1 -->|"Sim"| CM["4. Comunicação<br/>(Redige os cartões amigáveis)"]
+    C1 -->|"0 viáveis"| F
+    
+    CM --> VT["Validação de Textos & Juiz LLM<br/>(Garante que nenhum dado pessoal vazou)"]
+    VT -->|"Reprovado (máx 1x)"| CM
+    VT -->|"Aprovado"| F
+    
+    F --> OUT(["🎉 Tela 3: Cartões Prontos para Votação"])
 ```
 
 ### Arestas do Grafo Compilado (`grafo_agentes.mmd`)
