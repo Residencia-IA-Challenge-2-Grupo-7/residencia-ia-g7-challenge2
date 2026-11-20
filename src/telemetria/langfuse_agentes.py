@@ -1,18 +1,22 @@
 """Instrumentação de Telemetria e Tracing do Grafo Multiagente no Langfuse Cloud (Issue #73, RNF-10, RNF-14).
 
 Responsabilidades:
-1. CallbackHandler integrado com LangGraph / LangChain com proteção ativa contra vazamento de PII (RNF-02, RNF-10).
-2. Spans nomeados padronizados para cada nó do grafo (agente_0_pessoal, agente_1_pesquisa, agente_2_logistica,
-   agente_3_validacao, agente_4_comunicacao, agente_juiz_pesquisa, agente_juiz_comunicacao).
-3. Registro estruturado de metadados de execução: iterações do loop condicional (iteracao_pesquisa),
-   quantidade de vetos por motivo (motivos_vetos), status de convergência, tempos de resposta e contagem de aprovados.
-4. Captura e retorno do link oficial do trace (trace_url e langfuse_trace_url) no Langfuse Cloud.
-5. Mascaramento estrito de PII (valores monetários em R$, números de telefone, e-mails, CPFs e nomes de membros).
+1. Spans explícitos padronizados para cada nó do grafo multiagente (`@observar_agente` e `registrar_span_agente`)
+   em conformidade estrita com o ADR 0015 (evitando explosão de observações e mantendo entradas/saídas enxutas).
+2. Nomes canônicos padronizados para cada nó do grafo (agente_0_pessoal, agente_1_pesquisa, agente_2_logistica,
+   agente_3_validacao, agente_4_comunicacao, agente_3_validacao_textos, agente_orquestrador_consolidar,
+   agente_orquestrador_finalizar, grafo_sala_multiagente).
+3. Registro estruturado de metadados: iterações do loop condicional (iteracao_pesquisa), quantidade e motivos de
+   vetos (quantidade_vetos, motivos_vetos), status de convergência, auditorias do juiz (juiz, juiz_llm, exposicoes)
+   e métricas de chamadas de LLM (tokens, custo_usd, latencia_llm_s, chamadas_llm, tentativas_sem_resposta).
+4. Captura e retorno do link oficial do trace (`trace_url`) no Langfuse Cloud dinamicamente via SDK.
+5. Mascaramento preventivo de PII privada (telefones, e-mails, CPFs, origens individuais e nomes de membros).
+   A proteção de tetos e orçamentos individuais é garantida primariamente pelo isolamento no cofre (RNF-02),
+   preservando valores e faixas de preço públicos dos estabelecimentos para conferência do juiz.
 6. Resiliência e fallback offline caso o Langfuse Cloud esteja desconectado ou credenciais ausentes.
 """
 from __future__ import annotations
 
-import copy
 import logging
 import os
 import re
@@ -51,18 +55,15 @@ SPANS_AGENTES: Mapping[str, str] = {
     "no_finalizar": "agente_orquestrador_finalizar",
     "finalizar": "agente_orquestrador_finalizar",
     "agente_orquestrador_finalizar": "agente_orquestrador_finalizar",
-    "juiz_pesquisa": "agente_juiz_pesquisa",
-    "agente_juiz_pesquisa": "agente_juiz_pesquisa",
-    "juiz_comunicacao": "agente_juiz_comunicacao",
-    "agente_juiz_comunicacao": "agente_juiz_comunicacao",
     "sala_multiagente": "grafo_sala_multiagente",
     "grafo_sala_multiagente": "grafo_sala_multiagente",
 }
 
-# Regexes de detecção e mascaramento de PII (RNF-02, RNF-10)
-RE_VALOR_REAIS = re.compile(r"(?:r\$\s*\d+(?:[.,]\d+)?|\b\d+\s*reais\b)", re.IGNORECASE)
+# Regexes de detecção e mascaramento de PII privada (RNF-02, RNF-10)
+# NOTA: Valores públicos de cardápio e preços dos lugares NÃO são mascarados para permitir auditoria factual pelo juiz.
+# O teto de gastos individual dos participantes fica isolado com segurança no cofre (fora do estado).
 RE_EMAIL = re.compile(r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}\b")
-RE_TELEFONE = re.compile(r"\b(?:\+?55\s?)?(?:\(?\d{2}\)?\s?)?(?:9?\d{4}[-\s]?\d{4})\b")
+RE_TELEFONE = re.compile(r"(?<!\w)(?:\+?55\s?)?(?:\(?\d{2}\)?\s?)?(?:9?\d{4}[-\s]?\d{4})\b")
 RE_CPF = re.compile(r"\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b")
 RE_ORIGEM_EXPLICITA = re.compile(
     r"\b(?:quem\s+vem\s+de|quem\s+sai\s+de|saindo\s+de|vindo\s+de|mora\s+em|pra\s+quem\s+sai\s+de|"
@@ -72,15 +73,15 @@ RE_ORIGEM_EXPLICITA = re.compile(
 
 
 def mascarar_pii(dados: Any, nomes_proibidos: Iterable[str] | None = None) -> Any:
-    """Varre recursivamente estruturas de dados e mascara qualquer PII detectada (RNF-02, RNF-10).
+    """Varre recursivamente estruturas de dados e mascara PII privada (RNF-02, RNF-10).
     
     Substitui:
-    - Valores monetários em R$ -> [VALOR_REMOVIDO]
     - E-mails -> [EMAIL_REMOVIDO]
     - Telefones -> [TELEFONE_REMOVIDO]
     - CPFs -> [CPF_REMOVIDO]
     - Menções explícitas de origem individual -> [ORIGEM_REMOVIDA]
     - Nomes de participantes fornecidos -> [NOME_REMOVIDO]
+    - Chaves estritamente privadas (teto, origem...) -> [DADO_PRIVADO_REMOVIDO]
     """
     if dados is None:
         return None
@@ -90,7 +91,6 @@ def mascarar_pii(dados: Any, nomes_proibidos: Iterable[str] | None = None) -> An
         t = RE_EMAIL.sub("[EMAIL_REMOVIDO]", t)
         t = RE_CPF.sub("[CPF_REMOVIDO]", t)
         t = RE_TELEFONE.sub("[TELEFONE_REMOVIDO]", t)
-        t = RE_VALOR_REAIS.sub("[VALOR_REMOVIDO]", t)
         t = RE_ORIGEM_EXPLICITA.sub("[ORIGEM_REMOVIDA]", t)
 
         if nomes_proibidos:
@@ -161,7 +161,7 @@ def registrar_span_agente(
     Registra:
     - Nome canônico do agente (ex: agente_1_pesquisa);
     - Entrada e saída selecionadas à mão e sanitizadas;
-    - Metadados de iteração, vetos e convergência.
+    - Metadados de iteração, vetos, convergência, tokens, custo e latência.
     """
     try:
         from opentelemetry import trace
@@ -202,147 +202,3 @@ def observar_agente(nome: str, tipo: str = "agent"):
     except Exception:
         # Fallback sem Langfuse instalado
         return lambda f: f
-
-
-# -----------------------------------------------------------------------------
-# CallbackHandler nativo para LangGraph / LangChain com proteção anti-PII
-# -----------------------------------------------------------------------------
-
-try:
-    from langfuse.langchain import CallbackHandler as _BaseCallbackHandler
-except Exception:
-    try:
-        from langchain_core.callbacks import BaseCallbackHandler as _BaseCallbackHandler
-    except Exception:
-        class _BaseCallbackHandler:  # type: ignore[no-redef]
-            def __init__(self, *args, **kwargs):
-                pass
-
-
-class LangfuseAgentesCallbackHandler(_BaseCallbackHandler):
-    """CallbackHandler integrado nativamente com LangGraph e LangChain (Issue #73).
-    
-    Garante que todos os nós e ferramentas invocadas pelo LangGraph sejam rastreados
-    com proteção ativa e mascaramento obrigatório de dados pessoais e orçamentos (RNF-02, RNF-10).
-    """
-
-    def __init__(
-        self,
-        *,
-        public_key: Optional[str] = None,
-        nomes_proibidos: Optional[Iterable[str]] = None,
-        trace_name: str = "grafo_sala_multiagente",
-        **kwargs: Any,
-    ):
-        self.nomes_proibidos = list(nomes_proibidos or [])
-        self.trace_name = trace_name
-
-        try:
-            super().__init__(public_key=public_key, **kwargs)
-        except Exception:
-            pass
-
-    def on_chain_start(
-        self,
-        serialized: Dict[str, Any],
-        inputs: Dict[str, Any],
-        *,
-        run_id: Any,
-        parent_run_id: Any = None,
-        tags: Optional[List[str]] = None,
-        metadata: Optional[Dict[str, Any]] = None,
-        **kwargs: Any,
-    ) -> Any:
-        inputs_seguros = mascarar_pii(inputs, self.nomes_proibidos)
-        meta_segura = mascarar_pii(metadata, self.nomes_proibidos)
-        try:
-            return super().on_chain_start(
-                serialized,
-                inputs_seguros,
-                run_id=run_id,
-                parent_run_id=parent_run_id,
-                tags=tags,
-                metadata=meta_segura,
-                **kwargs,
-            )
-        except Exception:
-            pass
-
-    def on_chain_end(
-        self,
-        outputs: Dict[str, Any],
-        *,
-        run_id: Any,
-        parent_run_id: Any = None,
-        **kwargs: Any,
-    ) -> Any:
-        outputs_seguros = mascarar_pii(outputs, self.nomes_proibidos)
-        try:
-            return super().on_chain_end(
-                outputs_seguros,
-                run_id=run_id,
-                parent_run_id=parent_run_id,
-                **kwargs,
-            )
-        except Exception:
-            pass
-
-    def on_tool_start(
-        self,
-        serialized: Dict[str, Any],
-        input_str: str,
-        *,
-        run_id: Any,
-        parent_run_id: Any = None,
-        tags: Optional[List[str]] = None,
-        metadata: Optional[Dict[str, Any]] = None,
-        **kwargs: Any,
-    ) -> Any:
-        input_seguro = mascarar_pii(input_str, self.nomes_proibidos)
-        meta_segura = mascarar_pii(metadata, self.nomes_proibidos)
-        try:
-            return super().on_tool_start(
-                serialized,
-                input_seguro,
-                run_id=run_id,
-                parent_run_id=parent_run_id,
-                tags=tags,
-                metadata=meta_segura,
-                **kwargs,
-            )
-        except Exception:
-            pass
-
-    def on_tool_end(
-        self,
-        output: str,
-        *,
-        run_id: Any,
-        parent_run_id: Any = None,
-        **kwargs: Any,
-    ) -> Any:
-        output_seguro = mascarar_pii(output, self.nomes_proibidos)
-        try:
-            return super().on_tool_end(
-                output_seguro,
-                run_id=run_id,
-                parent_run_id=parent_run_id,
-                **kwargs,
-            )
-        except Exception:
-            pass
-
-
-def criar_callback_handler_agentes(
-    nomes_proibidos: Optional[Iterable[str]] = None,
-) -> Optional[LangfuseAgentesCallbackHandler]:
-    """Fábrica de CallbackHandler para instrumentar o LangGraph com o Langfuse."""
-    pk = os.environ.get("LANGFUSE_PUBLIC_KEY")
-    sk = os.environ.get("LANGFUSE_SECRET_KEY")
-    if not pk or not sk:
-        return None
-    try:
-        return LangfuseAgentesCallbackHandler(nomes_proibidos=nomes_proibidos)
-    except Exception as e:
-        logger.debug("Não foi possível inicializar LangfuseAgentesCallbackHandler: %s", e)
-        return None

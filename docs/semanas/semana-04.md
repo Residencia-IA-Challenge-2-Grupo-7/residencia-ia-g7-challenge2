@@ -562,21 +562,21 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
 * **Responsável:** Maria Eduarda (`@eduarda-ogomes`)
 * **Status:** Concluída, em revisão
 * **O que foi feito:**
-  - **Aderência Estrita ao ADR 0015 (Spans Explícitos vs. CallbackHandler Automático):** Conforme deliberado no ADR 0015, a instrumentação do grafo multiagente adota spans explícitos (`@_observado` e `_registrar`) nos nós e arestas condicionalmente relevantes. O uso do `CallbackHandler` padrão do LangGraph/LangChain foi descartado por inflar em 52× o payload enviado ao Langfuse (634 KB contra ~12 KB por execução) e expor o estado serializado bruto desnecessariamente.
+  - **Aderência Estrita ao ADR 0015 (Spans Explícitos vs. CallbackHandler Automático):** Conforme deliberado no ADR 0015, a instrumentação do grafo multiagente adota spans explícitos (`@_observado` e `_registrar`) nos nós e arestas condicionalmente relevantes. O uso do `CallbackHandler` padrão do LangGraph/LangChain foi descartado por inflar em 52× o volume enviado ao Langfuse (634 mil caracteres contra ~12 mil caracteres de entrada e saída por execução) e expor o estado serializado bruto desnecessariamente.
   - **Spans Canônicos Padronizados:** Registro de spans nomeados para cada nó do grafo no Langfuse Cloud (`src/telemetria/langfuse_agentes.py`):
     - `agente_0_pessoal` (spans paralelos por membro via `Send`)
     - `agente_orquestrador_consolidar` (consolidação de preferências e janelas)
     - `agente_1_pesquisa` (planejamento e seleção de candidatos na base)
     - `agente_2_logistica` (avaliação de deslocamento e cálculo de justiça)
-    - `agente_3_validacao` (checagem de regras de negócio, orçamento e vetos)
+    - `agente_3_validacao` (checagem de regras de negócio, orçamento e vetos; metadados do juiz da #72 quando ativo)
     - `agente_4_comunicacao` (geração dos cartões com LLM ou fallback)
     - `agente_3_validacao_textos` (auditoria do juiz e varredura determinística contra PII)
     - `agente_orquestrador_finalizar` (consolidação final dos cartões públicos)
-    - `agente_juiz_pesquisa` e `agente_juiz_comunicacao` (auditorias em 2 passagens)
     - `grafo_sala_multiagente` (span raiz que engloba a execução do grafo)
-  - **Métricas de Tokens, Custo e Latência por Agente:** Coleta e agregação a partir de `ClienteLLM.chamadas` (`tokens`, `custo_usd`, `latencia_llm_s`, `chamadas_llm`, `tentativas_sem_resposta` e `modelos`), registrando os custos reais e volumetria de cada nó no Langfuse sem depender de generations opacas do LangChain.
+    *(Nota: as duas passagens do juiz da #72 rodam internamente nos nós de Validação, gravando seus vereditos e contagens de exposição como metadados estruturados, como `juiz.confere`, `juiz_llm` e `exposicoes`, sem criar nós redundantes).*
+  - **Métricas de Tokens, Custo e Latência por Agente:** Coleta e agregação a partir de `ClienteLLM.chamadas` (`tokens`, `custo_usd`, `latencia_llm_s`, `chamadas_llm`, `tentativas_sem_resposta` e `modelos`), registrando os custos reais e volumetria de cada nó no Langfuse sem depender de generations opacas do LangChain. O total da rodada fica consolidado no span raiz `grafo_sala_multiagente`.
   - **Metadados Estruturados de Convergência:** Registro nos spans de cada volta de pesquisa (`iteracao_pesquisa`), contagem e motivos de vetos (`quantidade_vetos` e `motivos_vetos`), status de convergência (`convergido`) e resultados das auditorias do juiz (`juiz`, `juiz_llm`, `exposicoes`).
-  - **Sanitização Ativa de PII (`mascarar_pii`):** Algoritmo recursivo que expurga valores monetários em R$, telefones, e-mails, CPFs, origens explícitas e nomes de participantes fornecidos (`[VALOR_REMOVIDO]`, `[ORIGEM_REMOVIDA]`, `[NOME_REMOVIDO]`), blindando o tracing contra vazamento de dados privados (RNF-02).
+  - **Sanitização Ativa de PII (`mascarar_pii`):** Algoritmo recursivo que expurga dados sensíveis por chaves privadas (`teto`, `origem`, `usuario`...) e por padrões (telefones, e-mails, CPFs e menções explícitas a origens ou participantes), preservando preços públicos dos estabelecimentos para conferência do juiz e assegurando que o teto individual fique isolado no cofre (RNF-02).
   - **Captura Dinâmica do Trace Link (`obter_trace_url`):** Priorização do método dinâmico `get_client().get_trace_url()` do SDK do Langfuse (que detecta automaticamente o ID do projeto a partir das credenciais ativas), utilizando o fallback estruturado apenas quando o SDK estiver indisponível.
   - **Campo Unificado de Rastreio (`trace_url`):** Manutenção do campo canônico e consistente `trace_url` no `MultiAgentState` e no `EstadoSerializado` (`src/agentes/estado.py`), eliminando redundâncias.
   - **Harmonização com o PR #88:** Integração dos parâmetros `juiz_parecer` em `construir_grafo`, `executar` e `executar_fluxo_multiagente`, garantindo merge limpo e sem conflitos com a demonstração da Semana 4.
@@ -592,7 +592,7 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
   - `tests/test_telemetria_agentes.py`
   - `docs/semanas/semana-04.md`
 * **Testes e Validação:**
-  - 18 testes automatizados em `tests/test_telemetria_agentes.py` (100% de aprovação) cobrindo mascaramento recursivo, mapeamento canônico de spans, geração de trace URLs dinâmicas e de fallback, decoradores, registro de métricas de tokens/custo/latência, resiliência offline e retorno do `trace_url` na execução do grafo.
+  - 16 testes automatizados em `tests/test_telemetria_agentes.py` (100% de aprovação) cobrindo mascaramento de PII privada com preservação de preços públicos, mapeamento canônico de spans, geração de trace URLs dinâmicas e de fallback, decoradores, registro de métricas de tokens/custo/latência, resiliência offline e retorno do `trace_url` na execução do grafo.
   - Suíte completa de 281 testes dos agentes da Semana 4 aprovada.
   - Suíte geral de 896 testes do projeto aprovada com 100% de sucesso.
 
