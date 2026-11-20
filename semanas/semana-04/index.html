@@ -6,7 +6,7 @@
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width,initial-scale=1">
       
-        <meta name="description" content="Documentação Oficial de Engenharia, DevOps e Arquitetura do Grupo 7 (Residência em IA Eldorado/UnB)">
+        <meta name="description" content="Documentação do Grupo 7 • Residência em IA (Eldorado / UnB)">
       
       
         <meta name="author" content="Grupo 7">
@@ -15,6 +15,10 @@
         <link rel="canonical" href="https://residencia-ia-challenge-2-grupo-7.github.io/residencia-ia-g7-challenge2/semanas/semana-04/">
       
       
+        <link rel="prev" href="../semana-03/">
+      
+      
+        <link rel="next" href="../../dados/esquema-base/">
       
       
         
@@ -25,7 +29,7 @@
     
     
       
-        <title>Semana 4 — Primeiro Protótipo Multiagente (LangGraph + Ferramentas Determinísticas) - Orquestrador de Rolês — Docs</title>
+        <title>Semana 04 — Protótipo Multiagente - Orquestrador de Rolês</title>
       
     
     
@@ -46,10 +50,12 @@
         
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
-        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CJetBrains+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"JetBrains Mono"}</style>
       
     
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
     
     <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
@@ -67,7 +73,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo">
+    <body dir="ltr" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -90,9 +96,9 @@
 
   
 
-<header class="md-header md-header--shadow" data-md-component="header">
+<header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
-    <a href="../.." title="Orquestrador de Rolês — Docs" class="md-header__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+    <a href="../.." title="Orquestrador de Rolês" class="md-header__button md-logo" aria-label="Orquestrador de Rolês" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -106,13 +112,13 @@
       <div class="md-header__ellipsis">
         <div class="md-header__topic">
           <span class="md-ellipsis">
-            Orquestrador de Rolês — Docs
+            Orquestrador de Rolês
           </span>
         </div>
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Semana 4 — Primeiro Protótipo Multiagente (LangGraph + Ferramentas Determinísticas)
+              Semana 04 — Protótipo Multiagente
             
           </span>
         </div>
@@ -125,20 +131,20 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_0">
     
-      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
       </label>
     
   
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_1">
     
-      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
       </label>
     
   
@@ -175,6 +181,8 @@
         </button>
       </nav>
       
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
     </form>
     <div class="md-search__output">
       <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
@@ -205,13 +213,122 @@
     
   </nav>
   
+    
+      
+<nav class="md-tabs" aria-label="Abas" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  Início
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../arquitetura/multiagente/" class="md-tabs__link">
+          
+  
+  
+  Arquitetura
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+    
+  
+  
+    
+    
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../semana-01/" class="md-tabs__link">
+          
+  
+  
+  Semanas
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../dados/esquema-base/" class="md-tabs__link">
+          
+  
+  
+  Dados & Curadoria
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../guia-contribuicao/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Guia de Contribuição
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+    
+  
 </header>
     
     <div class="md-container" data-md-component="container">
       
       
-        
-          
         
       
       <main class="md-main" data-md-component="main">
@@ -225,16 +342,18 @@
                     
 
 
+  
 
-<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navegação" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Orquestrador de Rolês — Docs" class="md-nav__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+    <a href="../.." title="Orquestrador de Rolês" class="md-nav__button md-logo" aria-label="Orquestrador de Rolês" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
 
     </a>
-    Orquestrador de Rolês — Docs
+    Orquestrador de Rolês
   </label>
   
     <div class="md-nav__source">
@@ -284,60 +403,29 @@
   
   
   
-    <li class="md-nav__item">
-      <a href="../../guia-contribuicao/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
     
-  
-    Guia de Contribuição
-  
-
     
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
+    
     
       
       
-  
-  
-  
-  
     
     
-    
-    
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-      
-    
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
-      
-        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
-        
-          
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
             
   
   
   <span class="md-ellipsis">
     
   
-    Arquitetura & Decisões
+    Arquitetura
   
 
     
@@ -348,12 +436,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_3">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Arquitetura & Decisões
+    Arquitetura
   
 
           </label>
@@ -373,7 +461,35 @@
   <span class="md-ellipsis">
     
   
-    Arquitetura Multiagente
+    Como Funciona o Grafo
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../produto/requisitos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Requisitos do Sistema
   
 
     
@@ -402,34 +518,6 @@
     
   
     Visão do Produto
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../produto/requisitos/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Requisitos
   
 
     
@@ -482,8 +570,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -492,25 +582,24 @@
         
         
       
+      
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
-        
-          
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   
   <span class="md-ellipsis">
     
   
-    Dados & RAG
+    Semanas
   
 
     
@@ -521,157 +610,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             
   
-    Dados & RAG
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../dados/esquema-base/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Esquema da Base
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../dados/guia-curadoria/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Guia de Curadoria
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="../../dados/golden-dataset-semana3/" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Golden Dataset (Semana 3)
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-  
-  
-    
-    
-    
-    
-      
-        
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
-      
-        
-        
-          
-        
-        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
-        
-          
-          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Semanas & Entregas
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    Semanas & Entregas
+    Semanas
   
 
           </label>
@@ -691,7 +635,7 @@
   <span class="md-ellipsis">
     
   
-    Semana 01
+    Semana 01 — Descoberta
   
 
     
@@ -719,7 +663,7 @@
   <span class="md-ellipsis">
     
   
-    Semana 02
+    Semana 02 — Base 2FA & RAG
   
 
     
@@ -740,14 +684,656 @@
   
   
     <li class="md-nav__item">
-      <a href="../../entregas/semana-02/RELATORIO_TECNICO_RAG_SEMANA_02/" class="md-nav__link">
+      <a href="../semana-03/" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Relatório Semana 2
+    Semana 03 — Comparativo A/B
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 04 — Protótipo Multiagente
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 04 — Protótipo Multiagente
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-contexto-desafio-e-principios-arquiteturais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Contexto, Desafio e Princípios Arquiteturais
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Contexto, Desafio e Princípios Arquiteturais">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-big-idea-essential-question" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1. Big Idea &amp; Essential Question
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-principios-nao-negociaveis-de-design-manual-dos-agentes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2. Princípios Não Negociáveis de Design (Manual dos Agentes)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-escopo-negativo-o-que-o-sistema-nao-faz" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3. Escopo Negativo (O que o sistema NÃO faz)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-arquitetura-do-grafo-multiagente-langgraph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Arquitetura do Grafo Multiagente (LangGraph)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-os-5-agentes-como-implementados" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Os 5 Agentes como Implementados
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Os 5 Agentes como Implementados">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#0-agente-pessoal-srcagentespessoalpy-issue-65" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔒 0. Agente Pessoal (src/agentes/pessoal.py, issue #65)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1-pesquisa-srcagentespesquisapy-issue-70" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔎 1. Pesquisa (src/agentes/pesquisa.py, issue #70)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-logistica-e-justica-srcagenteslogisticapy-issue-67" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🚌 2. Logística e Justiça (src/agentes/logistica.py, issue #67)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-validacao-srcagentesvalidacaopy-e-srcagentesjuizpy-issues-68-e-72" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🛡️ 3. Validação (src/agentes/validacao.py e src/agentes/juiz.py, issues #68 e #72)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-comunicacao-srcagentescomunicacaopy-issue-69" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        💬 4. Comunicação (src/agentes/comunicacao.py, issue #69)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-estado-do-grafo-multiagentstate-e-cofre" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Estado do Grafo (MultiAgentState) e Cofre
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-mapeamento-oficial-das-13-issues-no-github" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Mapeamento Oficial das 13 Issues no GitHub
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-distribuicao-de-carga-horaria-12h-por-integrante" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Distribuição de Carga Horária (~12h por Integrante)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-instrucoes-operacionais-e-comandos-do-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Instruções Operacionais e Comandos do Time
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Instruções Operacionais e Comandos do Time">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-fluxo-git-e-convencao-de-branches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1. Fluxo Git e Convenção de Branches
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-execucao-de-testes-automatizados-locais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2. Execução de Testes Automatizados Locais
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-demonstracao-oficial-do-multiagente-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3. Demonstração Oficial do Multiagente (CLI)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74-submissao-no-microsoft-teams" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4. Submissão no Microsoft Teams
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#75-criterio-de-aceitacao-obrigatorio-registro-de-entregas-e-decisoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.5. Critério de Aceitação Obrigatório: Registro de Entregas e Decisões
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-registro-de-execucao-e-decisoes-tecnicas-por-issue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Registro de Execução e Decisões Técnicas por Issue
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Registro de Execução e Decisões Técnicas por Issue">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-issue-64-modelagem-do-estado-compartilhado-multiagentstate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1. Issue #64 — Modelagem do Estado Compartilhado (MultiAgentState)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-issue-65-agente-0-pessoal-sanitizacao-de-pii-e-segregacao-dos-4-canais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2. Issue #65 — Agente 0 (Pessoal): Sanitização de PII e Segregação dos 4 Canais
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-issue-66-dataset-de-teste-com-cenario-dos-4-amigos-no-df-golden-de-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3. Issue #66 — Dataset de Teste com Cenário dos 4 Amigos no DF (Golden de Rolê)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#84-issue-67-agente-2-logistica-justica-deslocamento-e-regra-da-menor-miseria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.4. Issue #67 — Agente 2 (Logística &amp; Justiça): Deslocamento e Regra da Menor Miséria
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#85-issue-68-agente-3-validacao-filtros-deterministicos-de-horario-orcamento-e-restricoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.5. Issue #68 — Agente 3 (Validação): Filtros Determinísticos de Horário, Orçamento e Restrições
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#86-issue-69-agente-4-comunicacao-prompt-do-anfitriao-e-formatacao-de-cartoes-em-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.6. Issue #69 — Agente 4 (Comunicação): Prompt do Anfitrião e Formatação de Cartões em JSON
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#87-issue-70-agente-1-pesquisa-prompt-do-curador-tool-rag-dos-93-lugares-do-tiktok" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.7. Issue #70 — Agente 1 (Pesquisa): Prompt do Curador + Tool RAG dos 93 Lugares do TikTok
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#88-issue-71-orquestrador-do-grafo-no-langgraph-com-ciclo-condicional-pesquisa-validacao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.8. Issue #71 — Orquestrador do Grafo no LangGraph com Ciclo Condicional Pesquisa-Validação
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#89-issue-72-juiz-llm-em-2-passagens-para-validacao-factual-e-prevencao-de-vazamento-adr-0014" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.9. Issue #72 — Juiz LLM em 2 Passagens para Validação Factual e Prevenção de Vazamento (ADR 0014)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#810-issue-73-instrumentacao-de-telemetria-e-tracing-do-grafo-multiagente-no-langfuse-cloud" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.10. Issue #73 — Instrumentação de Telemetria e Tracing do Grafo Multiagente no Langfuse Cloud
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#811-issue-74-script-executavel-de-demonstracao-cli-do-fluxo-multiagente-demo_multiagentepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.11. Issue #74 — Script Executável de Demonstração CLI do Fluxo Multiagente (demo_multiagente.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#812-issue-75-diagrama-visual-da-arquitetura-do-grafo-multiagente-mermaid-svg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.12. Issue #75 — Diagrama Visual da Arquitetura do Grafo Multiagente (Mermaid &amp; SVG)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#813-issue-76-relatorio-tecnico-da-semana-4-para-o-teams-e-submissao-oficial" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.13. Issue #76 — Relatório Técnico da Semana 4 para o Teams e Submissão Oficial
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-registro-do-dia" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Registro do dia
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Registro do dia">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1711-cauan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17/11 (Cauan)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dados & Curadoria
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Dados & Curadoria
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dados/esquema-base/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Base de Lugares (93 Locais)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dados/guia-curadoria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Como Curamos os Dados
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dados/golden-dataset-semana3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cenários de Teste
   
 
     
@@ -764,6 +1350,33 @@
           </ul>
         </nav>
       
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guia-contribuicao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Contribuição
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1406,37 +2019,37 @@
 <hr />
 <h2 id="4-estado-do-grafo-multiagentstate-e-cofre">4. Estado do Grafo (<code>MultiAgentState</code>) e Cofre<a class="headerlink" href="#4-estado-do-grafo-multiagentstate-e-cofre" title="Permanent link">&para;</a></h2>
 <p>O estado do grafo (<code>src/agentes/estado.py</code>, issue #64) só tem dados públicos. <code>serializar_estado</code> recusa o estado que tiver nome, usuário, teto ou origem de alguém. Os campos, por agente:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">MultiAgentState</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="c1"># entrada</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">sala_id</span><span class="p">:</span> <span class="nb">str</span>                                           <span class="c1"># código da sala (não identifica ninguém)</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">trace_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>                                  <span class="c1"># link do trace no Langfuse</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">membros</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>                                     <span class="c1"># marcadores m1..mN; o Send abre um Agente Pessoal por um</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="c1"># Agente 0 (Pessoal) -&gt; grupo</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">membros_anonimos</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">operator</span><span class="o">.</span><span class="n">add</span><span class="p">]</span>  <span class="c1"># canal 3 de cada membro, em paralelo</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">preferencias_grupo</span><span class="p">:</span> <span class="nb">dict</span>                               <span class="c1"># tipos e vibes agregados, restrições sem dizer de quem</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="c1"># Agente 1 (Pesquisa)</span>
-<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">candidatos_pesquisa</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>                        <span class="c1"># id, motivo e trecho literal conferido</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">documentos</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span>                            <span class="c1"># documentos da base que a Pesquisa leu</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">vistos</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>                                      <span class="c1"># ids já devolvidos (não repetir)</span>
-<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="n">pedido_nova_busca</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span>                         <span class="c1"># PedidoNovaBusca: só contagens</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="n">iteracao_pesquisa</span><span class="p">:</span> <span class="nb">int</span>                                 <span class="c1"># voltas Validação -&gt; Pesquisa (máximo 2)</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="c1"># Agente 2 (Logística)</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="n">candidatos_avaliados</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>                       <span class="c1"># agregados de deslocamento e nota</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="c1"># Agente 3 (Validação)</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="n">julgados</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>                                    <span class="c1"># ids que já passaram pelo juiz do parecer</span>
-<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="n">relatorio_validacao</span><span class="p">:</span> <span class="nb">dict</span>                              <span class="c1"># aprovados, vetos (id e motivo) e contagem</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="n">candidatos_validados</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>                       <span class="c1"># os escolhidos para os cartões</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="c1"># Agente 4 (Comunicação) e validação dos textos</span>
-<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    <span class="n">fatos</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>                                      <span class="c1"># o que a Comunicação pode afirmar de cada cartão</span>
-<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    <span class="n">cartoes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>                                    <span class="c1"># textos escritos pela Comunicação</span>
-<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>    <span class="n">cartoes_por_llm</span><span class="p">:</span> <span class="nb">bool</span>
-<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    <span class="n">reprovados</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>                       <span class="c1"># cartão -&gt; motivos (só enumerações)</span>
-<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>    <span class="n">reescritas</span><span class="p">:</span> <span class="nb">int</span>                                        <span class="c1"># voltas Validação -&gt; Comunicação (máximo 1)</span>
-<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>    <span class="c1"># saída</span>
-<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>    <span class="n">resultado_final_cartoes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>                    <span class="c1"># cartões públicos para a votação (Tela 3)</span>
-<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>    <span class="n">mensagens</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">operator</span><span class="o">.</span><span class="n">add</span><span class="p">]</span>         <span class="c1"># a conversa entre os agentes</span>
-<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>    <span class="n">historico_erros</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">operator</span><span class="o">.</span><span class="n">add</span><span class="p">]</span>    <span class="c1"># vetos, reprovações e falhas, em ordem</span>
-</code></pre></div>
+<div class="language-python highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">MultiAgentState</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="c1"># entrada</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">sala_id</span><span class="p">:</span> <span class="nb">str</span>                                           <span class="c1"># código da sala (não identifica ninguém)</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">trace_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>                                  <span class="c1"># link do trace no Langfuse</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">membros</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>                                     <span class="c1"># marcadores m1..mN; o Send abre um Agente Pessoal por um</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="c1"># Agente 0 (Pessoal) -&gt; grupo</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">membros_anonimos</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">operator</span><span class="o">.</span><span class="n">add</span><span class="p">]</span>  <span class="c1"># canal 3 de cada membro, em paralelo</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">preferencias_grupo</span><span class="p">:</span> <span class="nb">dict</span>                               <span class="c1"># tipos e vibes agregados, restrições sem dizer de quem</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="c1"># Agente 1 (Pesquisa)</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">candidatos_pesquisa</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>                        <span class="c1"># id, motivo e trecho literal conferido</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">documentos</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span>                            <span class="c1"># documentos da base que a Pesquisa leu</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">vistos</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>                                      <span class="c1"># ids já devolvidos (não repetir)</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="n">pedido_nova_busca</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span>                         <span class="c1"># PedidoNovaBusca: só contagens</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="n">iteracao_pesquisa</span><span class="p">:</span> <span class="nb">int</span>                                 <span class="c1"># voltas Validação -&gt; Pesquisa (máximo 2)</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="c1"># Agente 2 (Logística)</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="n">candidatos_avaliados</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>                       <span class="c1"># agregados de deslocamento e nota</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="c1"># Agente 3 (Validação)</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="n">julgados</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>                                    <span class="c1"># ids que já passaram pelo juiz do parecer</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="n">relatorio_validacao</span><span class="p">:</span> <span class="nb">dict</span>                              <span class="c1"># aprovados, vetos (id e motivo) e contagem</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="n">candidatos_validados</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>                       <span class="c1"># os escolhidos para os cartões</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="c1"># Agente 4 (Comunicação) e validação dos textos</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    <span class="n">fatos</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>                                      <span class="c1"># o que a Comunicação pode afirmar de cada cartão</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    <span class="n">cartoes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>                                    <span class="c1"># textos escritos pela Comunicação</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>    <span class="n">cartoes_por_llm</span><span class="p">:</span> <span class="nb">bool</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    <span class="n">reprovados</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>                       <span class="c1"># cartão -&gt; motivos (só enumerações)</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>    <span class="n">reescritas</span><span class="p">:</span> <span class="nb">int</span>                                        <span class="c1"># voltas Validação -&gt; Comunicação (máximo 1)</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>    <span class="c1"># saída</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>    <span class="n">resultado_final_cartoes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>                    <span class="c1"># cartões públicos para a votação (Tela 3)</span>
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>    <span class="n">mensagens</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">operator</span><span class="o">.</span><span class="n">add</span><span class="p">]</span>         <span class="c1"># a conversa entre os agentes</span>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>    <span class="n">historico_erros</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">operator</span><span class="o">.</span><span class="n">add</span><span class="p">]</span>    <span class="c1"># vetos, reprovações e falhas, em ordem</span>
+</span></code></pre></div>
 <p><strong>O cofre</strong> (<code>Cofre</code>, em <code>src/agentes/contratos.py</code>) fica fora do estado, no servidor, e só os nós de código o leem. Ele guarda:
 - os membros, com nome e os 4 campos;
 - os perfis efetivos (campos mais log pessoal);
@@ -1630,24 +2243,24 @@ Os módulos dos agentes (<strong>#65</strong>, <strong>#67</strong>, <strong>#68
 <h2 id="7-instrucoes-operacionais-e-comandos-do-time">7. Instruções Operacionais e Comandos do Time<a class="headerlink" href="#7-instrucoes-operacionais-e-comandos-do-time" title="Permanent link">&para;</a></h2>
 <h3 id="71-fluxo-git-e-convencao-de-branches">7.1. Fluxo Git e Convenção de Branches<a class="headerlink" href="#71-fluxo-git-e-convencao-de-branches" title="Permanent link">&para;</a></h3>
 <p>Todo desenvolvimento ocorre em branches isoladas partindo da <code>main</code> atualizada:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>git<span class="w"> </span>checkout<span class="w"> </span>main
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>git<span class="w"> </span>pull<span class="w"> </span>origin<span class="w"> </span>main
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>feat/semana4-&lt;nome-da-tarefa&gt;
-</code></pre></div></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>git<span class="w"> </span>checkout<span class="w"> </span>main
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>git<span class="w"> </span>pull<span class="w"> </span>origin<span class="w"> </span>main
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>feat/semana4-&lt;nome-da-tarefa&gt;
+</span></code></pre></div></p>
 <h3 id="72-execucao-de-testes-automatizados-locais">7.2. Execução de Testes Automatizados Locais<a class="headerlink" href="#72-execucao-de-testes-automatizados-locais" title="Permanent link">&para;</a></h3>
 <p>Nenhum Pull Request pode ser aberto sem os testes passando localmente:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Executa testes unitários rápidos</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>pytest<span class="w"> </span>-v<span class="w"> </span>tests/test_&lt;sua_tarefa&gt;.py
-<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Executa toda a suíte oficial do repositório</span>
-<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>make<span class="w"> </span>test-local
-</code></pre></div></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Executa testes unitários rápidos</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>pytest<span class="w"> </span>-v<span class="w"> </span>tests/test_&lt;sua_tarefa&gt;.py
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Executa toda a suíte oficial do repositório</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>make<span class="w"> </span>test-local
+</span></code></pre></div></p>
 <h3 id="73-demonstracao-oficial-do-multiagente-cli">7.3. Demonstração Oficial do Multiagente (CLI)<a class="headerlink" href="#73-demonstracao-oficial-do-multiagente-cli" title="Permanent link">&para;</a></h3>
 <p>Para validar o fluxo completo e obter a URL do trace no Langfuse:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python<span class="w"> </span>scripts/demo_multiagente.py
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="c1"># ou pelo Makefile</span>
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>make<span class="w"> </span>demo-agentes
-</code></pre></div></p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python<span class="w"> </span>scripts/demo_multiagente.py
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="c1"># ou pelo Makefile</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>make<span class="w"> </span>demo-agentes
+</span></code></pre></div></p>
 <h3 id="74-submissao-no-microsoft-teams">7.4. Submissão no Microsoft Teams<a class="headerlink" href="#74-submissao-no-microsoft-teams" title="Permanent link">&para;</a></h3>
 <p>O envio formal do entregável deve ser postado impreterivelmente até <strong>Quinta-feira, 19/11/2026, às 18:00 (BRT)</strong> no canal <code>4_Second Challenge</code> contendo:
 1. Link do Pull Request / Repositório na branch <code>main</code>;
@@ -2155,8 +2768,16 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
             </div>
           
           
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
 <script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
         </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Voltar para o topo
+</button>
         
       </main>
       
@@ -2187,7 +2808,7 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
     
       
       
-      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "content.code.copy"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.tabs", "navigation.tabs.sticky", "navigation.top", "navigation.tracking", "search.suggest", "search.highlight", "content.code.copy", "content.tabs.link", "toc.follow"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
     
     
       <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
