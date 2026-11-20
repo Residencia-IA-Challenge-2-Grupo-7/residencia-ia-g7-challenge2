@@ -208,7 +208,7 @@ Todas as tarefas foram cadastradas no GitHub no padrão unificado `[Semana 4] [�
 | **#72** | `[Semana 4] [LLMOPS] Juiz LLM em 2 Passagens para Validação Factual e Prevenção de Vazamento (ADR 0014)` | `@eduarda-ogomes` | `LLMOPS` | Qui (19/11) | Qui 14:00 | `status:liberada` | Desenvolvimento em paralelo; integração com #68 |
 | **#73** | `[Semana 4] [LLMOPS] Instrumentação de Telemetria e Tracing do Grafo Multiagente no Langfuse Cloud` | `@eduarda-ogomes` | `LLMOPS` | Qui (19/11) | Qui 16:00 | `status:bloqueada` | Bloqueada por #71 (Grafo Compilado) |
 | **#74** | `[Semana 4] [BACKEND] Script Executável de Demonstração CLI do Fluxo Multiagente (demo_multiagente.py)` | `@cadasiso` | `BACKEND` | Qui (19/11) | Qui 17:00 | `status:bloqueada` | Bloqueada por #71, #73 |
-| **#75** | `[Semana 4] [DOCS] Diagrama Visual da Arquitetura do Grafo Multiagente (Mermaid & SVG)` | `@mcznh` | `DOCS` | Ter (17/11) | Qui 15:00 | `status:liberada` | Início imediato (baseado no manual e doc) |
+| **#75** | `[Semana 4] [DOCS] Diagrama Visual da Arquitetura do Grafo Multiagente (Mermaid & SVG)` | `@mcznh` | `DOCS` | Ter (17/11) | Qui 15:00 | `status:concluida` | Concluída com docs, SVG e testes locais |
 | **#76** | `[Semana 4] [DOCS] Relatório Técnico da Semana 4 para o Teams e Submissão Oficial` | `@mitii05` | `DOCS` | Qui (19/11) | **Qui 18:00** | `status:bloqueada` | Bloqueada por #74, #75 (Submissão Final) |
 
 ---
@@ -608,11 +608,28 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
 
 ### 8.12. Issue #75 — Diagrama Visual da Arquitetura do Grafo Multiagente (Mermaid & SVG)
 * **Responsável:** Maria Carolina (`@mcznh`)
-* **Status:** Bloqueada
+* **Status:** Concluída (revisão do PR #85 atendida)
 * **O que foi feito:**
+  - Elaboração da documentação técnica arquitetural completa em `docs/arquitetura/multiagente.md` alinhada ao grafo real implementado em `src/agentes/grafo.py` e ao estado em `src/agentes/estado.py`;
+  - Criação de página web completa e responsiva em `docs/arquitetura/multiagente.html` com Mermaid.js e SVG integrado (sem botão no `index.html`, preservando o mapa público como arquivo único conforme `docs/arquitetura/AGENTS.md`);
+  - Diagrama estrutural em Mermaid e diagrama vetorial em alta resolução (`docs/arquitetura/img/grafo_multiagente.svg`, gerado por `scripts/gerar_grafo_multiagente_svg.py`) refletindo todas as arestas do grafo compilado (`grafo_agentes.mmd`): fan-out de `no_pessoal` ×N via `Send` + `no_consolidar_grupo`, saídas diretas para `no_finalizar` (sem janela comum ou sem lugar viável após as buscas), laço `avaliar_convergencia` (até 2 voltas com `PedidoNovaBusca`), `no_validacao_textos` com reescrita seletiva de no máximo 1 volta, Juiz LLM em 2 passagens (#72) e preenchimento determinístico de números e `tiktok_url` em `no_finalizar`;
+  - Atualização do menu de navegação e suporte a diagramas Mermaid no `mkdocs.yml`;
+  - Criação de suíte de testes automatizados em `tests/test_arquitetura_multiagente.py`.
 * **Decisões Técnicas e Arquitetura:**
+  - *RNF-04 (Cálculos Fora do LLM):* Diferenciação visual e estrutural estrita entre nós com LLM (`no_pesquisa`, `no_comunicacao` e Juiz LLM) e nós em código puro Python (`no_pessoal`, `no_consolidar_grupo`, `no_logistica` com Menor Miséria, vetos duros de `no_validacao`, varredura de `no_validacao_textos` e `no_finalizar`).
+  - *RNF-02 e RF-17 (Cofre do Servidor e 4 Canais):* Representação explícita do `Cofre` fora do `MultiAgentState` (ADR 0015 e 0016) e dos 4 canais na ordem de `src/agentes/pessoal.py` (Canais 1, 2 e 4 retidos no Cofre; Canal 3 como único público no estado).
+  - *Observabilidade e SLA (RNF-14):* Documentação dos nomes reais dos spans no Langfuse (`agente_pessoal`, `consolidar_grupo`, `pesquisa`, `logistica`, `validacao`, `comunicacao`, `validacao_textos` e `finalizar`) e do limite do RNF-14 ($\le 5\text{ s}$ na conversa e $\le 60\text{ s}$ para gerar os planos).
 * **Arquivos:**
+  - `docs/arquitetura/multiagente.md`
+  - `docs/arquitetura/multiagente.html`
+  - `docs/arquitetura/img/grafo_multiagente.svg`
+  - `scripts/gerar_grafo_multiagente_svg.py`
+  - `mkdocs.yml`
+  - `tests/test_arquitetura_multiagente.py`
+  - `docs/semanas/semana-04.md`
 * **Testes e Validação:**
+  - Execução de `pytest tests/test_arquitetura_multiagente.py` com 6 testes aprovados cobrindo integridade do SVG, nós reais do grafo, canais, contrato `MultiAgentState`, página HTML e configuração do MkDocs.
+  - Execução da suíte completa de testes locais com 890 testes passando.
 
 ---
 
