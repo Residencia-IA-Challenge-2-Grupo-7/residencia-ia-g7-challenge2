@@ -349,3 +349,24 @@ def test_cenario_padrao_sem_lugares_viaveis():
     assert relatorio.contagem["restricao"] > 0
     assert relatorio.contagem["orcamento"] > 0
 
+
+
+# ------------------------------------------------------------------ ajustes da issue #71
+
+def test_lugar_sem_nenhum_trajeto_estimado_e_vetado_por_deslocamento():
+    """Sem coordenadas, a Logística grava None para todos: não dá para saber se alguém chega, então não aprova."""
+    assert validar_deslocamento_membros({"m1": None, "m3": None}) == (False, "deslocamento")
+    assert validar_deslocamento_membros({"m1": None, "m2": {"minutos": 30}}) == (True, None)
+
+
+def test_orcamento_so_conta_quem_esta_na_janela_do_lugar():
+    """Na janela parcial (m2 fora), o teto do m2 não veta o lugar; o dos presentes continua valendo."""
+    lugar = {"id": "x", "nome": "Lugar", "custo_medio_rs": 50, "horario_funcionamento": "Todos os dias: 10h às 23h",
+             "tipo_de_role": "Restaurante / Gastronomia"}
+    analises = {"x": {"m1": {"minutos": 20, "custo_ida_volta": Decimal("0")},
+                      "m3": {"minutos": 20, "custo_ida_volta": Decimal("0")}}}
+    janela = JanelaComum(datetime(2026, 11, 21, 18), datetime(2026, 11, 21, 22), frozenset({"m1", "m3"}), 3)
+    comum = dict(candidatos=[lugar], janelas=[janela], agora=datetime(2026, 11, 17, 12), lugares_base={"x": lugar},
+                 analises_completas=analises, restricoes=[])
+    assert validar_candidatos_regras(tetos={"m1": Decimal("80"), "m2": Decimal("30"), "m3": None}, **comum).aprovados == ["x"]
+    assert validar_candidatos_regras(tetos={"m1": Decimal("40"), "m2": Decimal("30"), "m3": None}, **comum).aprovados == []

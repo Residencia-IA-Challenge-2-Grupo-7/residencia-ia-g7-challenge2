@@ -23,3 +23,4 @@ uvicorn>=0.28.0
 yt-dlp>=2025.1.1
 curl_cffi>=0.7.0
 haystack-ai==3.5.0  # pipeline RAG demonstrador (src/rag/pipeline_haystack.py)
+langgraph>=1.2,<2  # orquestração dos agentes da semana 4 (ADR 0015)

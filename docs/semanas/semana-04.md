@@ -52,7 +52,7 @@ flowchart TD
 
     AG1 --> AG2["2. AGENTE DE LOGÍSTICA & JUSTIÇA<br/>(Código Puro — RNF-04, ADR 0013)<br/>• Estimativa Multimodal 35 RAs (<= 75 min)<br/>• Cálculo da 'Menor Miséria'<br/>• Score: 45% Vibe + 35% Justiça + 20% Horário"]:::code
 
-    AG2 --> AG3["3. AGENTE DE VALIDAÇÃO<br/>(Híbrido: Código + Juiz LLM)<br/>• Vetos Duros em Python (Teto, Horário, Restrições)<br/>• Juiz LLM: MiMo-V2.6-Pro (ADR 0014)<br/>• Auditoria de Fatos vs Documentos"]:::code
+    AG2 --> AG3["3. AGENTE DE VALIDAÇÃO<br/>(Híbrido: Código + Juiz LLM)<br/>• Vetos Duros em Python (Teto, Horário, Restrições)<br/>• Juiz LLM: GLM 5.3 Flash (ADR 0014)<br/>• Auditoria de Fatos vs Documentos"]:::code
 
     AG3 --> COND{"Avaliador de Convergência<br/>Aprovados >= 3?"}:::decision
 
@@ -115,7 +115,7 @@ flowchart TD
 ---
 
 ### 🛡️ 3. Agente de Validação e Consistência (Validation Agent)
-* **Natureza Técnica:** Arquitetura híbrida combinando filtros determinísticos em Python puro com **LLM-as-a-Judge** (**MiMo-V2.6-Pro**, `xiaomi/mimo-v2.6-pro` via OpenRouter, ADR 0014).
+* **Natureza Técnica:** Arquitetura híbrida combinando filtros determinísticos em Python puro com **LLM-as-a-Judge** (**GLM 5.3 Flash**, `z-ai/glm-5.3-flash` via OpenRouter, ADR 0014; trocado do MiMo-V2.6-Pro no PR #78).
 * **Persona & System Prompt do Juiz:**
   > *"Você é um auditor factual. Compare cada afirmação do texto com os documentos da base e diga se confere, se contradiz ou se não está na base. Aponte também qualquer trecho que permita deduzir o orçamento, a origem ou as restrições de uma pessoa específica."*
 * **Responsabilidade Principal:**
@@ -280,21 +280,43 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
 
 ### 8.1. Issue #64 — Modelagem do Estado Compartilhado (`MultiAgentState`)
 * **Responsável:** Cauan Soares (`@cadasiso`)
-* **Status:** Em andamento / Concluída
+* **Status:** Concluída (PR [#77](https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2/pull/77), mesclado em 17/11)
 * **O que foi feito:**
+  - `MultiAgentState` (TypedDict) com os campos da issue (`sala_id`, `membros_anonimos`, `preferencias_grupo`, `candidatos_pesquisa`, `candidatos_avaliados`, `candidatos_validados`, `resultado_final_cartoes`, `iteracao_pesquisa`, `historico_erros`), mais `trace_url` e os campos auxiliares do grafo (documentos lidos, ids já vistos, pedido de nova busca, cartões, reprovações e mensagens entre agentes).
+  - Reducers `operator.add` em `membros_anonimos` (um perfil por Agente Pessoal, em paralelo), `mensagens` e `historico_erros`.
+  - `serializar_estado` e `desserializar_estado`, que validam o estado com um espelho Pydantic (`EstadoSerializado`) com `extra="forbid"`.
 * **Decisões Técnicas e Arquitetura:**
-* **Arquivos:**
+  - **Os dados privados de cada membro não entram no estado.** Os 4 campos, o teto, a origem e o nome ficam num *cofre* (`contratos.py`) que só os nós de código leem. Assim nada disso vai para o checkpoint do LangGraph, para o Langfuse ou para um LLM (RNF-02). A issue sugeria separar canais privados e públicos dentro do estado; tirar os privados do estado é mais seguro.
+  - **A serialização recusa vazamento** (`VazamentoNoEstado`) em dois casos:
+    - chave do cofre (`teto`, `origem`, `usuario`, `por_participante`…) em qualquer nível;
+    - id de usuário, nome ou parte de nome composto de algum membro em qualquer texto, sem diferenciar maiúsculas nem acentos.
+  - **Na revisão da Maria Eduarda**, a varredura de nomes passou a tirar os nomes dos lugares da base e a ignorar partículas. Sem isso, o lugar "Maria Fumaça" e a palavra "dos" dariam falso positivo.
+* **Arquivos:** `src/agentes/estado.py`, `src/agentes/contratos.py`, `src/agentes/__init__.py`, `tests/test_multiagent_state.py`, `AGENTS.md` (convenção de commits).
 * **Testes e Validação:**
+  - `pytest -v tests/test_multiagent_state.py`: 22 testes sem rede (campos, reducers, ida e volta em JSON, chave privada, nome em minúsculas, nome composto, "Maria Fumaça", partículas, campo desconhecido).
+  - `docker compose up -d`: 616 testes passaram no container; CI verde no PR.
 
 ---
 
 ### 8.2. Issue #65 — Agente 0 (Pessoal): Sanitização de PII e Segregação dos 4 Canais
 * **Responsável:** Cauan Soares (`@cadasiso`)
-* **Status:** A iniciar
-* **O que foi feito:**
+* **Status:** Concluída, em revisão (PR [#80](https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2/pull/80), junto com a #70)
+* **O que foi feito:** `executar_agente_pessoal(campos_usuario)` interpreta os 4 campos por regras (`src/interpretador/campos.py`). Devolve `PerfilMembroAnonimizado`, identificado só pelo marcador da sala (m1, m2…), com 4 canais:
+  1. orçamento: teto individual, para os vetos financeiros da Validação;
+  2. restrições duras: para os vetos da Validação;
+  3. preferências anônimas: para o perfil do grupo e a Pesquisa. É o único canal público;
+  4. origem, janelas e transporte: para a Logística e o cruzamento de janelas.
+
+  O agente também lê o log pessoal antes do rolê. Depois do rolê, um LLM transforma o comentário da pessoa numa proposta de memória.
 * **Decisões Técnicas e Arquitetura:**
-* **Arquivos:**
-* **Testes e Validação:**
+  - **Proteção contra vazamento em log:** os canais 1, 2 e 4 ficam fora do `repr`, então um `print` do objeto não mostra teto nem origem.
+  - **Pedido sanitizado:** o pedido do campo 4 que vai ao grupo sai sem nomes da sala, regiões e números.
+  - **Entrada fechada:** campos fora do contrato e marcador que não seja da sala (m1, m2…) são erro.
+  - **Log pessoal:** guarda só listas fechadas com data, nunca texto livre, o que evita envenenar a memória. Um item vale por 180 dias, e o que a pessoa escreve nos campos vence o log.
+  - **Pós-rolê:** o LLM só propõe o que guardar. O código descarta trecho que não está no comentário, e nada é gravado sem a confirmação da pessoa.
+  - **Cliente LLM:** `src/agentes/llm.py` é o cliente da OpenRouter dos agentes, com JSON Schema estrito, a mesma chave do projeto e o roteamento sem retenção. Com ele, `langgraph` entrou no `requirements.txt` (ADR 0015).
+* **Arquivos:** `src/agentes/pessoal.py`, `src/agentes/llm.py`, `src/agentes/prompts/pessoal_pos_role.md`, `requirements.txt`, `tests/test_agente_pessoal.py`.
+* **Testes e Validação:** `pytest -v tests/test_agente_pessoal.py`, com 15 testes sem rede: os 4 canais, o canal público sem nome, origem, valor nem id, o `repr`, campos fora do contrato, o log pessoal com validade e o pós-rolê com trecho inventado.
 
 ---
 
@@ -429,21 +451,73 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
 
 ### 8.7. Issue #70 — Agente 1 (Pesquisa): Prompt do Curador + Tool RAG dos 93 Lugares do TikTok
 * **Responsável:** Cauan Soares (`@cadasiso`)
-* **Status:** A iniciar
+* **Status:** Concluída, em revisão (PR [#80](https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2/pull/80))
 * **O que foi feito:**
+  - `buscar_lugares_rag(query, categorias)` é a ferramenta determinística, sobre a base oficial de 93 lugares (ADR 0008), com a busca léxica ou vetorial do RAG (ADR 0012).
+  - `executar_agente_pesquisa(perfil_grupo, feedback_validacao=None)` devolve de 8 a 10 candidatos com `fonte_id`, `nome`, `tipo`, `motivo` e `trecho_citado`. O LLM é o DeepSeek V4.1 Flash pela OpenRouter.
 * **Decisões Técnicas e Arquitetura:**
-* **Arquivos:**
+  - **Sem *tool calling* nativo:** o LLM escreve até 3 consultas numa resposta só, com JSON Schema estrito, e o código executa a ferramenta. É uma chamada de LLM a menos por rodada (RNF-14), e o modelo não decide quantas vezes buscar.
+  - **Zero alucinação (RNF-03):** o código descarta candidato com id que a busca não trouxe, repetido ou com `trecho_citado` que não está no documento.
+  - **A ferramenta não entrega ao LLM preço, horário nem endereço.** Esses dados vão por código para a Logística e a Validação.
+  - **Entrada validada:** o perfil passa pelo esquema `PreferenciasGrupo`, e o retorno da Validação pelo `PedidoNovaBusca`, que só tem contagens de veto. Chave a mais, como um teto ou um texto livre, é erro antes de chegar ao LLM (RNF-02).
+  - **Reserva por regras:** sem chave ou com o LLM fora do ar, a Pesquisa funciona por regras, e os vetos de orçamento e de horário ampliam a busca.
+* **Arquivos:** `src/agentes/pesquisa.py`, `src/agentes/ferramentas.py`, `src/agentes/prompts/pesquisa.md`, `tests/test_agente_pesquisa.py`.
 * **Testes e Validação:**
+  - `pytest -v tests/test_agente_pesquisa.py`: 14 testes sem rede, com um LLM falso que inventa trecho, cita id que não existe e repete candidato.
+  - `docker compose up -d`: 645 testes passaram no container.
 
 ---
 
 ### 8.8. Issue #71 — Orquestrador do Grafo no LangGraph com Ciclo Condicional Pesquisa-Validação
 * **Responsável:** Cauan Soares (`@cadasiso`)
-* **Status:** Bloqueada
+* **Status:** Concluída, em revisão (no PR [#80](https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2/pull/80), junto com as #65 e #70)
 * **O que foi feito:**
+  - `src/agentes/grafo.py` monta o `StateGraph` com os nós `no_pessoal` (um por membro, em paralelo com `Send`), `no_consolidar_grupo`, `no_pesquisa`, `no_logistica`, `no_validacao`, `no_comunicacao`, `no_validacao_textos` e `no_finalizar`, e exporta `executar_fluxo_multiagente(dados_sala)`.
+  - O grafo chama as implementações das issues de cada agente:
+    - Logística (#67): `executar_agente_logistica` e `gerar_parecer`;
+    - Validação (#68): `validar_candidatos_regras`.
+  - A aresta condicional `avaliar_convergencia` tem três saídas:
+    - volta para a Pesquisa enquanto houver menos de 3 lugares validados e menos de 2 voltas;
+    - segue para a Comunicação quando há pelo menos um validado;
+    - vai direto para o fim quando nada passou.
+  - `validacao.selecionar_cartoes` escolhe os cartões na ordem do ranking da Logística: até 4, no máximo 2 por RA e sem nome repetido (a base tem o mesmo lugar em mais de um vídeo).
+  - A varredura de vazamento dos cartões (`varrer_cartao`, `verificar_cartoes`), em código, foi para o fim de `validacao.py`, sem mudar as funções da #68. Ela procura número, nome ou parte de nome composto de membro (sem contar nomes de lugares da base) e a RA de onde alguém sai (sem contar formas que são palavras comuns, como "plano" e "gama").
+  - **O juiz LLM ficou de fora:** é a entrega da #72 (PR #86, `src/agentes/juiz.py`). Uma versão provisória dele estava neste PR e foi tirada na revisão; o grafo passa a chamar o `juiz.py` quando o #86 entrar.
+  - As funções da Comunicação que o grafo usa (`montar_fatos`, `escrever`, `texto_reserva`) foram para o fim de `comunicacao.py`, ao lado do `executar_agente_comunicacao` da #69.
 * **Decisões Técnicas e Arquitetura:**
-* **Arquivos:**
+  - **Sem aprovado, sem Comunicação:** com 0 lugares depois das 2 voltas, o grafo não chama o LLM para escrever cartão nenhum. As mensagens dizem que nada passou e que o grupo precisa flexibilizar algum critério. Antes, a Validação dizia "Autorizado para a síntese" e a varredura dizia "Cartões aprovados" mesmo com 0 cartões.
+  - **Menos de 3 opções é dito ao grupo:** o fim avisa "Só N cartões prontos (menos de 3 opções viáveis na base)", em vez de completar com lugar vetado (RNF-03).
+  - **Janela parcial:** a Logística e a Validação avaliam cada lugar na primeira janela comum em que ele abre, que pode não ter todos. O cartão mostra a contagem ("3 de 4 podem"), e a Validação avisa quantos cartões estão nessa situação.
+  - **Dois ajustes na Validação, apontados na revisão do PR #84:**
+    - o orçamento só conta os presentes da janela em que o lugar foi avaliado;
+    - lugar sem nenhum trajeto estimado é vetado por deslocamento, em vez de passar com R$ 0 de transporte.
+  - **Comunicação:** o grafo ainda usa o esquema `SaidaComunicacao` para poder pedir a reescrita de um cartão só. Juntar com `executar_agente_comunicacao` (#69) fica para depois da entrega de 19/11.
+  - **Revisão do PR #80 (Maria Eduarda), atendida em 19/11:**
+    - na reescrita, só os cartões reprovados vão para o LLM; a resposta parcial é aceita, e os outros cartões ficam como estavam (antes, a resposta parcial caía na reserva por regras e marcava todos como "reserva_por_regras");
+    - `texto_por` foi declarado no `CartaoSugestaoValidado`, e o cartão final do grafo valida nesse esquema;
+    - a varredura passou a pegar parte de nome composto ("Maria" de "Maria Eduarda") e RA no fim da frase ("…de Ceilândia."), e deixou de reprovar "um ótimo plano" e nome de lugar igual ao de membro;
+    - a Pesquisa só marca `usou_llm` quando a seleção final veio do LLM (o planejamento vai em `planejou_com_llm`);
+    - o juiz LLM provisório e os prompts `juiz_parecer.md` e `juiz_cartoes.md` saíram (ficam na #72).
+* **Arquivos:** `src/agentes/grafo.py`, `src/agentes/validacao.py` (fim do arquivo e os dois ajustes), `src/agentes/comunicacao.py` (fim do arquivo e o campo `texto_por` do `CartaoSugestaoValidado`), `src/agentes/pesquisa.py` (`usou_llm`), `src/agentes/README.md`, `tests/test_grafo_multiagente.py`, `tests/test_agente_validacao_regras.py`.
 * **Testes e Validação:**
+  - `pytest tests/test_grafo_multiagente.py`: 32 testes sem rede, com um LLM falso que grava cada corpo enviado à OpenRouter. Eles cobrem:
+    - o grafo e as três saídas da aresta;
+    - o limite de 2 voltas;
+    - a reescrita de um cartão que expõe a origem;
+    - o LLM fora do ar;
+    - que nenhum nome, teto ou origem vai para o LLM;
+    - os dois cenários da #66;
+    - a seleção dos cartões;
+    - a reescrita parcial, o cartão final no esquema da Comunicação e a varredura de nomes e RAs (revisão do #80).
+  - Cenários da #66 pelo grafo inteiro, sem LLM:
+    - o padrão termina sem cartões depois de 2 voltas e sem passar pela Comunicação;
+    - o de controle termina com 1 cartão, que está entre os 5 viáveis do gabarito, e avisa que há menos de 3 opções.
+  - Suíte inteira (`python -m pytest tests`, sem o `test_pipeline_haystack.py`, que pede o Haystack): 862 aprovados.
+* **Limitação medida (pendência):** sem LLM, a Pesquisa vê 24 dos 93 lugares em 3 rodadas e acha só 1 dos 5 viáveis do cenário de controle.
+  - Causa: a nota da busca léxica satura (0,97 a 0,98 nos 12 primeiros), então a ordem é quase arbitrária.
+  - Fator a mais: 3 dos 5 viáveis são cafeterias, e o grupo pediu restaurante e lugar ao ar livre.
+  - Tentei duas mudanças: priorizar as consultas pelo motivo de veto mais frequente, com uma consulta nas RAs centrais do DF quando o deslocamento veta, e intercalar os resultados das consultas. Nenhuma das duas mudou o resultado, e ambas foram revertidas.
+  - Correção provável: a busca vetorial (ADR 0012) ou outra nota na ferramenta, medida nos dois cenários.
 
 ---
 
@@ -495,3 +569,34 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
 * **Arquivos:**
 * **Testes e Validação:**
 
+---
+
+## 9. Registro do dia
+
+### 17/11 (Cauan)
+
+- **Juiz do avaliador:** passou do MiMo-V2.6-Pro para o GLM 5.3 Flash, por custo ([ADR 0014](../decisoes/0014-juiz-glm-5.3-flash.md), PR #78 mesclado). Nas mesmas 94 respostas da rodada 2 da semana 3:
+  - custo de US$ 0,057 contra US$ 0,731;
+  - p90 de 10,1 s contra 18,8 s;
+  - concordância de 90 em 94 sobre haver contradição.
+
+  Parte do custo do MiMo vinha do roteamento: o `sort: latency` mandou 63 das 94 chamadas ao provedor 10 vezes mais caro.
+- **Plano dos agentes:** avaliado e reestruturado em [PLANO_AGENTES.md](../entregas/semana-04/PLANO_AGENTES.md): Logística sem LLM, Validação com vetos em código, Comunicação sem dado pessoal e um Agente Pessoal por membro com log de preferências. LangGraph decidido ([ADR 0015](../decisoes/0015-orquestracao-com-langgraph.md)).
+  - Ferramentas e observabilidade: [FERRAMENTAS_E_OBSERVABILIDADE.md](../entregas/semana-04/FERRAMENTAS_E_OBSERVABILIDADE.md).
+  - Prompts: [PROMPTS_AGENTES.md](../entregas/semana-04/PROMPTS_AGENTES.md).
+  - Estrutura em proposta: [ADR 0016](../decisoes/0016-estrutura-dos-agentes.md).
+- **Demonstração com LLMs** numa sala de 4 pessoas ([log](../entregas/semana-04/DEMO_MULTIAGENTE_LOG.txt)): 8 chamadas, US$ 0,0036 e 38,9 s até os cartões, dentro dos 60 s do RNF-14.
+  - A memória do Agente Pessoal virou restrição vegetariana e preferência por lugar calmo, e uma instrução injetada num comentário foi ignorada.
+  - A varredura não achou vazamento.
+- **Encontrado no caminho:**
+  - A "Hamburgueria Espacial Taguatinga" está com as coordenadas em Sobradinho.
+  - O GLM 5.3 Flash não aceita desligar o raciocínio.
+  - Um exemplo do prompt da Comunicação fez o modelo inventar "dá para chegar de metrô".
+  - O primeiro build do Docker levou cerca de 15 min, por causa do espelho do Debian; o ffmpeg ainda está no Dockerfile.
+- **Reviews:**
+  - #77: a revisão da Maria Eduarda foi atendida (varredura de nomes, `trace_url`, commits e template).
+  - #79 (Telas 1 a 3): mudanças pedidas à Maria Carolina (conflito no `STATUS.md`, descrição vazia, barra "Modo Dev" em produção, ida para a DEMO em qualquer erro da API).
+- **Pendências:**
+  - **#71 (grafo):** segue bloqueada. Há um rascunho local com a aresta `avaliar_convergencia` e `executar_fluxo_multiagente`, mas ele precisa usar as implementações das #67, #68 e #69 quando entrarem. A Maria Carolina já tem a #69 numa branch. *(Atualização de 19/11: concluída; ver Seção 8.8.)*
+  - **#73:** pede o `CallbackHandler` do Langfuse, o que contradiz o ADR 0015.
+  - **#74:** depende do cenário da #66.

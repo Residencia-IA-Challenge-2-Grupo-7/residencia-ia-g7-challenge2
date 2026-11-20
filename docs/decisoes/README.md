@@ -22,6 +22,8 @@ Não apague nem reescreva uma decisão antiga: se ela mudar, crie uma nova e mar
 | [0012](0012-busca-vetorial-pela-openrouter.md) | Busca vetorial do Modo B com o gemini-embedding-001 pela OpenRouter | proposta |
 | [0013](0013-deslocamento-e-menor-miseria.md) | Deslocamento no DF (Haversine × fator de rota) e nota de justiça da Menor Miséria | proposta |
 | [0014](0014-juiz-glm-5.3-flash.md) | Juiz do avaliador: GLM 5.3 Flash no lugar do MiMo-V2.6-Pro | aceita |
+| [0015](0015-orquestracao-com-langgraph.md) | Orquestração dos agentes com LangGraph | aceita |
+| [0016](0016-estrutura-dos-agentes.md) | Estrutura dos agentes: Pessoal, Pesquisa, Logística, Validação e Comunicação | proposta |
 
 
 A pasta [revisoes/](revisoes/) guarda as críticas feitas por outros agentes ou pessoas a um ADR (`NNNN-critica.md`), as respostas do autor e o prompt usado para pedir a crítica.
