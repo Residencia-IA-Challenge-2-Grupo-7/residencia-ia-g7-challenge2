@@ -1,0 +1,1563 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentação Oficial de Engenharia, DevOps e Arquitetura do Grupo 7 (Residência em IA Eldorado/UnB)">
+      
+      
+        <meta name="author" content="Grupo 7">
+      
+      
+        <link rel="canonical" href="https://residencia-ia-challenge-2-grupo-7.github.io/residencia-ia-g7-challenge2/arquitetura/multiagente/">
+      
+      
+        <link rel="prev" href="../../guia-contribuicao/">
+      
+      
+        <link rel="next" href="../../produto/visao/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
+    
+    
+      
+        <title>Arquitetura Multiagente - Orquestrador de Rolês — Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#arquitetura-do-grafo-multiagente-langgraph" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Orquestrador de Rolês — Docs" class="md-header__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Orquestrador de Rolês — Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Arquitetura Multiagente
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Orquestrador de Rolês — Docs" class="md-nav__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Orquestrador de Rolês — Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guia-contribuicao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Contribuição
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arquitetura & Decisões
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Arquitetura & Decisões
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arquitetura Multiagente
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arquitetura Multiagente
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-visao-geral-da-arquitetura" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Visão Geral da Arquitetura
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-diagrama-estrutural-em-mermaid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Diagrama Estrutural em Mermaid
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Diagrama Estrutural em Mermaid">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arestas-do-grafo-compilado-grafo_agentesmmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arestas do Grafo Compilado (grafo_agentes.mmd)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-especificacao-detalhada-dos-nos-e-agentes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Especificação Detalhada dos Nós e Agentes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Especificação Detalhada dos Nós e Agentes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-agente-0-agente-pessoal-no_pessoal-n-e-consolidacao-no_consolidar_grupo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1. Agente 0 — Agente Pessoal (no_pessoal ×N) e Consolidação (no_consolidar_grupo)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-segregacao-nos-4-canais-rnf-02-e-rf-17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2. Segregação nos 4 Canais (RNF-02 e RF-17)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-agente-1-agente-de-pesquisa-no_pesquisa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3. Agente 1 — Agente de Pesquisa (no_pesquisa)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-agente-2-agente-de-logistica-justica-no_logistica" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4. Agente 2 — Agente de Logística &amp; Justiça (no_logistica)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-agente-3-agente-de-validacao-no_validacao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5. Agente 3 — Agente de Validação (no_validacao)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#36-agente-4-agente-de-comunicacao-no_comunicacao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6. Agente 4 — Agente de Comunicação (no_comunicacao)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#37-validacao-dos-textos-no_validacao_textos-e-finalizacao-no_finalizar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.7. Validação dos Textos (no_validacao_textos) e Finalização (no_finalizar)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-estado-compartilhado-multiagentstate-e-cofre-do-servidor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Estado Compartilhado (MultiAgentState) e Cofre do Servidor
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-rastreabilidade-e-observabilidade-langfuse-cloud-v5x" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Rastreabilidade e Observabilidade (Langfuse Cloud v5.x)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-mapeamento-de-requisitos-e-decisoes-de-arquitetura" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Mapeamento de Requisitos e Decisões de Arquitetura
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../produto/visao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visão do Produto
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../produto/requisitos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Requisitos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../decisoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisões Técnicas (ADRs)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dados & RAG
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Dados & RAG
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dados/esquema-base/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Esquema da Base
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dados/guia-curadoria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Curadoria
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dados/golden-dataset-semana3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Golden Dataset (Semana 3)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semanas & Entregas
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Semanas & Entregas
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../semanas/semana-01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 01
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../semanas/semana-02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 02
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../entregas/semana-02/RELATORIO_TECNICO_RAG_SEMANA_02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Relatório Semana 2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-visao-geral-da-arquitetura" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Visão Geral da Arquitetura
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-diagrama-estrutural-em-mermaid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Diagrama Estrutural em Mermaid
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Diagrama Estrutural em Mermaid">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arestas-do-grafo-compilado-grafo_agentesmmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arestas do Grafo Compilado (grafo_agentes.mmd)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-especificacao-detalhada-dos-nos-e-agentes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Especificação Detalhada dos Nós e Agentes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Especificação Detalhada dos Nós e Agentes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-agente-0-agente-pessoal-no_pessoal-n-e-consolidacao-no_consolidar_grupo" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1. Agente 0 — Agente Pessoal (no_pessoal ×N) e Consolidação (no_consolidar_grupo)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-segregacao-nos-4-canais-rnf-02-e-rf-17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2. Segregação nos 4 Canais (RNF-02 e RF-17)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-agente-1-agente-de-pesquisa-no_pesquisa" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3. Agente 1 — Agente de Pesquisa (no_pesquisa)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-agente-2-agente-de-logistica-justica-no_logistica" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4. Agente 2 — Agente de Logística &amp; Justiça (no_logistica)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-agente-3-agente-de-validacao-no_validacao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5. Agente 3 — Agente de Validação (no_validacao)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#36-agente-4-agente-de-comunicacao-no_comunicacao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6. Agente 4 — Agente de Comunicação (no_comunicacao)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#37-validacao-dos-textos-no_validacao_textos-e-finalizacao-no_finalizar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.7. Validação dos Textos (no_validacao_textos) e Finalização (no_finalizar)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-estado-compartilhado-multiagentstate-e-cofre-do-servidor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Estado Compartilhado (MultiAgentState) e Cofre do Servidor
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-rastreabilidade-e-observabilidade-langfuse-cloud-v5x" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Rastreabilidade e Observabilidade (Langfuse Cloud v5.x)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-mapeamento-de-requisitos-e-decisoes-de-arquitetura" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Mapeamento de Requisitos e Decisões de Arquitetura
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="arquitetura-do-grafo-multiagente-langgraph">Arquitetura do Grafo Multiagente (LangGraph)<a class="headerlink" href="#arquitetura-do-grafo-multiagente-langgraph" title="Permanent link">&para;</a></h1>
+<blockquote>
+<p><strong>Challenge 2 — Residência em IA (Instituto Eldorado &amp; UnB)</strong><br />
+<strong>Semana 4:</strong> Primeiro Protótipo Funcional Multiagente<br />
+<strong>Tema:</strong> Orquestrador de Rolês no Distrito Federal  </p>
+</blockquote>
+<hr />
+<h2 id="1-visao-geral-da-arquitetura">1. Visão Geral da Arquitetura<a class="headerlink" href="#1-visao-geral-da-arquitetura" title="Permanent link">&para;</a></h2>
+<p>O sistema multiagente do <strong>Orquestrador de Rolês</strong> é estruturado como um grafo de estados direcionado e cíclico (<code>StateGraph</code>), implementado em <a href="../../src/agentes/grafo.py"><code>src/agentes/grafo.py</code></a> sobre a biblioteca <strong>LangGraph</strong> (<a href="../../decisoes/0015-orquestracao-com-langgraph/">ADR 0015</a>, <a href="../../decisoes/0016-estrutura-dos-agentes/">ADR 0016</a>). A arquitetura segue dois princípios:</p>
+<ol>
+<li><strong>Divisão entre cognição e determinismo (RNF-04):</strong> Modelos de linguagem atuam onde seleção semântica, julgamento de apoio textual ou redação em linguagem natural são necessários (Pesquisa, Comunicação e Juiz de Validação). Todos os cálculos aritméticos, matrizes de deslocamento das 35 RAs, cruzamento de janelas, Regra da Menor Miséria e vetos duros rodam em código Python puro.</li>
+<li><strong>Separação estrita entre estado público e cofre do servidor (RNF-02):</strong> O estado compartilhado do grafo (<code>MultiAgentState</code>, em <a href="../../src/agentes/estado.py"><code>src/agentes/estado.py</code></a>) contém apenas marcadores anônimos (<code>m1..mN</code>), perfis sem dados sensíveis, candidatos da base e textos. Os 4 campos brutos de cada membro (nomes, tetos individuais, origens e restrições por pessoa) ficam no <strong><code>Cofre</code> do servidor</strong> (<a href="../../src/agentes/contratos.py"><code>src/agentes/contratos.py</code></a>), fora do estado do grafo, preso à construção do grafo e lido unicamente pelos nós em código.</li>
+</ol>
+<p><img alt="Diagrama Visual da Arquitetura do Grafo Multiagente" src="../img/grafo_multiagente.svg" /></p>
+<hr />
+<h2 id="2-diagrama-estrutural-em-mermaid">2. Diagrama Estrutural em Mermaid<a class="headerlink" href="#2-diagrama-estrutural-em-mermaid" title="Permanent link">&para;</a></h2>
+<p>O diagrama abaixo reproduz exatamente os nós e as arestas compiladas pelo LangGraph (<code>construir_grafo</code> em <a href="../../src/agentes/grafo.py"><code>src/agentes/grafo.py</code></a>, correspondente a <code>docs/entregas/semana-04/grafo_agentes.mmd</code>):</p>
+<pre class="mermaid"><code>flowchart TD
+    classDef llm fill:#e0f2fe,stroke:#0284c7,stroke-width:2px,color:#0369a1;
+    classDef code fill:#dcfce7,stroke:#16a34a,stroke-width:2px,color:#15803d;
+    classDef hybrid fill:#f3e8ff,stroke:#9333ea,stroke-width:2px,color:#7e22ce;
+    classDef decision fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#b45309;
+    classDef data fill:#ede9fe,stroke:#6366f1,stroke-width:2px,color:#4338ca;
+    classDef cofre fill:#fff7ed,stroke:#ea580c,stroke-width:2px,stroke-dasharray: 5 3,color:#9a3412;
+    classDef trace fill:#f1f5f9,stroke:#64748b,stroke-width:1.5px,color:#334155;
+
+    START(["__start__ · Sala com N membros confirmados"]):::data
+    START -. "Send('no_pessoal', membro) ×N em paralelo" .-&gt; PESSOAL
+
+    PESSOAL["0. AGENTE PESSOAL ×N · no_pessoal&lt;br/&gt;(Código Puro — RNF-04 · span: agente_pessoal)&lt;br/&gt;• Interpreta os 4 campos por regras + log pessoal&lt;br/&gt;• Separa 4 canais: 1, 2 e 4 no Cofre; Canal 3 no estado"]:::code
+
+    subgraph COFRE ["Cofre do Servidor (Fora do MultiAgentState — RNF-02, ADR 0015/0016)"]
+        C1["Canal 1: Orçamento (teto individual) — Privado"]:::cofre
+        C2["Canal 2: Restrições duras — Privado"]:::cofre
+        C4["Canal 4: Logística (origem, janelas e transporte) — Privado"]:::cofre
+    end
+
+    C3["Canal 3: Preferências (tipos, vibes, evitar, pedido sanitizado)&lt;br/&gt;Único canal público no estado (membros_anonimos)"]:::data
+
+    PESSOAL -. "grava canais 1, 2 e 4" .-&gt; COFRE
+    PESSOAL -- "devolve Canal 3" --&gt; C3
+    C3 --&gt; CONSOLIDAR["ORQUESTRADOR · no_consolidar_grupo&lt;br/&gt;(Código Puro · span: consolidar_grupo)&lt;br/&gt;• Agrega tipos ('x de y'), vibes e restrições sem autor&lt;br/&gt;• Cruza janelas comuns no Cofre"]:::code
+
+    CONSOLIDAR -. "depois_de_consolidar:&lt;br/&gt;há janela comum (≥ 2 pessoas)" .-&gt; PESQUISA
+    CONSOLIDAR -. "sem janela comum:&lt;br/&gt;direto para o fim" .-&gt; FINALIZAR
+
+    PESQUISA["1. AGENTE DE PESQUISA · no_pesquisa&lt;br/&gt;(LLM: DeepSeek V4.1 Flash · span: pesquisa)&lt;br/&gt;• LLM escreve até 3 consultas; código executa buscar_lugares_rag&lt;br/&gt;• Base oficial de 93 lugares 2FA TikTok (ADR 0008)&lt;br/&gt;• 8 a 10 candidatos com trecho_citado conferido"]:::llm
+
+    PESQUISA -- "candidatos_pesquisa" --&gt; LOGISTICA["2. AGENTE DE LOGÍSTICA E JUSTIÇA · no_logistica&lt;br/&gt;(Código Puro — RNF-04, ADR 0013 · span: logistica)&lt;br/&gt;• Meio mais barato em até 75 min nas 35 RAs&lt;br/&gt;• Regra da Menor Miséria (nota pelo pior trajeto)&lt;br/&gt;• Score: 45% Aderência + 35% Justiça + 20% Horário"]:::code
+    C4 -. "lê origem e janelas" .-&gt; LOGISTICA
+
+    LOGISTICA -- "candidatos_avaliados (só agregados)" --&gt; VALIDACAO["3. AGENTE DE VALIDAÇÃO · no_validacao&lt;br/&gt;(Híbrido: Código + Juiz LLM 1ª passagem opcional · span: validacao)&lt;br/&gt;• Vetos em código: horário, orçamento, restrição, encerrado, deslocamento &gt; 75 min&lt;br/&gt;• Juiz 1ª passagem (#72, opcional, GLM-5.3-Flash): derruba motivo que contradiz documento"]:::hybrid
+    C1 -. "teto individual" .-&gt; VALIDACAO
+    C2 -. "restrições duras" .-&gt; VALIDACAO
+
+    VALIDACAO -. "avaliar_convergencia:&lt;br/&gt;validados &lt; 3 e voltas &lt; 2&lt;br/&gt;PedidoNovaBusca (só contagens)" .-&gt; PESQUISA
+    VALIDACAO -. "nenhum validado após as buscas:&lt;br/&gt;direto para o fim" .-&gt; FINALIZAR
+    VALIDACAO -. "≥ 1 candidato validado" .-&gt; COMUNICACAO
+
+    COMUNICACAO["4. AGENTE DE COMUNICAÇÃO · no_comunicacao&lt;br/&gt;(LLM: DeepSeek V4.1 Flash · span: comunicacao)&lt;br/&gt;• Persona: Anfitrião de Brasília (JSON Schema estrito)&lt;br/&gt;• Escreve só titulo, resumo_acesso e por_que_combina&lt;br/&gt;• Na reescrita, só os cartões reprovados mudam"]:::llm
+
+    COMUNICACAO -- "cartoes + fatos" --&gt; VAL_TEXTOS["3. VALIDAÇÃO DOS TEXTOS · no_validacao_textos&lt;br/&gt;(Híbrido: Código + Juiz LLM 2ª passagem · span: validacao_textos)&lt;br/&gt;• Varredura em código (verificar_cartoes): número, nome ou RA do Cofre&lt;br/&gt;• Juiz 2ª passagem (#72, GLM-5.3-Flash): contradição factual e vazamento de PII"]:::hybrid
+
+    VAL_TEXTOS -. "depois_dos_textos:&lt;br/&gt;reprovado e reescritas &lt; 1 (máx. 1 reescrita)" .-&gt; COMUNICACAO
+    VAL_TEXTOS -. "aprovados, ou texto de reserva após 1 reescrita" .-&gt; FINALIZAR
+
+    FINALIZAR["ORQUESTRADOR · no_finalizar&lt;br/&gt;(Código Puro — RNF-04 · span: finalizar)&lt;br/&gt;• Preenche por código: preços, gastos, tempos, horário, tiktok_url e fonte 2FA&lt;br/&gt;• Cartão ainda reprovado recebe texto_reserva por regras&lt;br/&gt;• Sem cartões: emite aviso ao grupo para flexibilizar critérios"]:::code
+
+    FINALIZAR --&gt; END_NODE(["__end__ · Tela 3: resultado_final_cartoes ou aviso ao grupo"]):::data
+
+    subgraph TELEMETRIA ["Observabilidade e Auditoria (Langfuse Cloud v5.x)"]
+        TRACE["Spans: agente_pessoal · consolidar_grupo · pesquisa · logistica · validacao · comunicacao · validacao_textos · finalizar"]:::trace
+    end</code></pre>
+<h3 id="arestas-do-grafo-compilado-grafo_agentesmmd">Arestas do Grafo Compilado (<code>grafo_agentes.mmd</code>)<a class="headerlink" href="#arestas-do-grafo-compilado-grafo_agentesmmd" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>__start__ -.-&gt; no_pessoal (um por membro, via Send)    no_pessoal --&gt; no_consolidar_grupo
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>no_consolidar_grupo -.-&gt; no_pesquisa                   no_consolidar_grupo -.-&gt; no_finalizar
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>no_pesquisa --&gt; no_logistica --&gt; no_validacao
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>no_validacao -.-&gt; no_pesquisa | no_comunicacao | no_finalizar
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>no_comunicacao --&gt; no_validacao_textos
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>no_validacao_textos -.-&gt; no_comunicacao | no_finalizar
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>no_finalizar --&gt; __end__
+</code></pre></div>
+<hr />
+<h2 id="3-especificacao-detalhada-dos-nos-e-agentes">3. Especificação Detalhada dos Nós e Agentes<a class="headerlink" href="#3-especificacao-detalhada-dos-nos-e-agentes" title="Permanent link">&para;</a></h2>
+<h3 id="31-agente-0-agente-pessoal-no_pessoal-n-e-consolidacao-no_consolidar_grupo">3.1. Agente 0 — Agente Pessoal (<code>no_pessoal</code> ×N) e Consolidação (<code>no_consolidar_grupo</code>)<a class="headerlink" href="#31-agente-0-agente-pessoal-no_pessoal-n-e-consolidacao-no_consolidar_grupo" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Natureza Técnica:</strong> 100% código determinístico em Python (<a href="../../src/agentes/pessoal.py"><code>src/agentes/pessoal.py</code></a> e <a href="../../src/interpretador/campos.py"><code>src/interpretador/campos.py</code></a>) na preparação do rolê (<code>RNF-04</code>). O uso de LLM no Agente Pessoal ocorre apenas <strong>depois do rolê</strong>, para transformar comentário pós-evento em sugestão de memória confirmada pelo usuário.</li>
+<li><strong>Execução Paralela (<code>Send</code>) e Consolidação:</strong></li>
+<li>A aresta inicial <code>distribuir</code> dispara um <code>Send("no_pessoal", {"membro": m})</code> para cada marcador <code>m1..mN</code> em paralelo;</li>
+<li>Cada instância interpreta os 4 campos da Tela 2 (sem voz, ADR 0009), mescla o log pessoal do <code>store</code> do LangGraph e separa os dados nos <strong>4 Canais</strong> (Seção 3.2);</li>
+<li>Os canais 1, 2 e 4 são gravados diretamente em <code>cofre.perfis_efetivos[m.id]</code>; apenas o Canal 3 (<code>PerfilAnonimoMembro</code>) retorna ao estado em <code>membros_anonimos</code>;</li>
+<li>O nó <code>no_consolidar_grupo</code> agrega os perfis anônimos em <code>preferencias_grupo</code> (contagens <code>"x de y"</code> por tipo, vibes, o que evitar e restrições somadas sem autor). Se não houver janela comum para pelo menos 2 pessoas (<code>cofre.janelas</code> vazio), a aresta <code>depois_de_consolidar</code> desvia direto para <code>no_finalizar</code>, sem chamar LLMs.</li>
+</ul>
+<h3 id="32-segregacao-nos-4-canais-rnf-02-e-rf-17">3.2. Segregação nos 4 Canais (RNF-02 e RF-17)<a class="headerlink" href="#32-segregacao-nos-4-canais-rnf-02-e-rf-17" title="Permanent link">&para;</a></h3>
+<p>Conforme implementado em <a href="../../src/agentes/pessoal.py"><code>src/agentes/pessoal.py</code></a>:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Canal</th>
+<th style="text-align: left;">Conteúdo</th>
+<th style="text-align: left;">Destino</th>
+<th style="text-align: left;">Público no <code>MultiAgentState</code>?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Canal 1 (Orçamento)</strong></td>
+<td style="text-align: left;">Teto individual em R$ (<code>Decimal</code>)</td>
+<td style="text-align: left;">Vetos financeiros da Validação (<code>no_validacao</code>, código)</td>
+<td style="text-align: left;"><strong>Não</strong> — fica no <code>Cofre</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Canal 2 (Restrições)</strong></td>
+<td style="text-align: left;">Restrições duras (alimentação, acessibilidade)</td>
+<td style="text-align: left;">Vetos da Validação (<code>no_validacao</code>, código); chegam ao grupo só somadas sem autor</td>
+<td style="text-align: left;"><strong>Não</strong> — por pessoa fica no <code>Cofre</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Canal 3 (Preferências)</strong></td>
+<td style="text-align: left;">Tipos, vibes, o que evitar, transporte e pedido sanitizado (<code>PerfilAnonimoMembro</code>)</td>
+<td style="text-align: left;"><code>membros_anonimos</code> → <code>preferencias_grupo</code> → Pesquisa (<code>no_pesquisa</code>)</td>
+<td style="text-align: left;"><strong>Sim</strong> — o único canal público</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Canal 4 (Logística)</strong></td>
+<td style="text-align: left;">RA de origem, região, janelas de horário e transporte (<code>CanalLogistica</code>)</td>
+<td style="text-align: left;">Logística (<code>no_logistica</code>) e cruzamento de janelas (código)</td>
+<td style="text-align: left;"><strong>Não</strong> — fica no <code>Cofre</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="33-agente-1-agente-de-pesquisa-no_pesquisa">3.3. Agente 1 — Agente de Pesquisa (<code>no_pesquisa</code>)<a class="headerlink" href="#33-agente-1-agente-de-pesquisa-no_pesquisa" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Natureza Técnica:</strong> Agente com LLM (<strong>DeepSeek V4.1 Flash</strong> via OpenRouter, <a href="../../src/agentes/pesquisa.py"><code>src/agentes/pesquisa.py</code></a>) acoplado à ferramenta determinística <code>buscar_lugares_rag</code> (<a href="../../src/agentes/ferramentas.py"><code>src/agentes/ferramentas.py</code></a>).</li>
+<li><strong>Planejamento sem <em>Tool Calling</em> Nativo (Decisão da #70):</strong> Em vez de <em>tool calling</em> nativo do provedor, o LLM recebe o perfil anônimo do grupo e devolve em JSON Schema estrito até 3 consultas estruturadas; o código Python executa <code>buscar_lugares_rag</code> sobre a <strong>base oficial de 93 lugares com validação em 2 fatores (2FA)</strong> do TikTok (ADR 0008).</li>
+<li><strong>Seleção e Conferência Literal:</strong> Na segunda etapa, o LLM escolhe de <strong>8 a 10 candidatos</strong> (<code>candidatos_pesquisa</code>) justificando cada um com <code>trecho_citado</code>, que o código confere literalmente contra o documento da base (descartando trechos inventados). Em modo offline ou falha de rede, opera por fallback determinístico.</li>
+<li><strong>Proteção de Privacidade:</strong> Não recebe orçamento individual, RA de origem nem nomes dos participantes.</li>
+</ul>
+<h3 id="34-agente-2-agente-de-logistica-justica-no_logistica">3.4. Agente 2 — Agente de Logística &amp; Justiça (<code>no_logistica</code>)<a class="headerlink" href="#34-agente-2-agente-de-logistica-justica-no_logistica" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Natureza Técnica:</strong> 100% código determinístico em Python (<a href="../../src/agentes/logistica.py"><code>src/agentes/logistica.py</code></a> e <a href="../../src/logistica/transporte_df.py"><code>src/logistica/transporte_df.py</code></a>), sem inferência por LLM (<code>RNF-04</code>).</li>
+<li><strong>Matriz das 35 RAs e Regra da Menor Miséria (ADR 0013):</strong> Para cada candidato, encontra a primeira janela comum em que o local abre e escolhe, para cada membro presente, o meio de transporte mais barato que chega em até <strong>75 minutos</strong>. A nota de justiça penaliza o pior trajeto e a assimetria entre participantes:
+  $$\text{Pontuação} = 0{,}45 \times \text{Aderência} + 0{,}35 \times \text{Justiça Espacial} + 0{,}20 \times \text{Certeza de Horário}$$</li>
+<li><strong>Sigilo dos Trajetos (RNF-02):</strong> O trajeto individual de cada membro fica guardado exclusivamente em <code>Cofre.analises</code>. Para o estado do grafo (<code>candidatos_avaliados</code>) e para o parecer textual (<code>gerar_parecer</code>), vão apenas valores agregados (pior trajeto, média e diferença), sem marcador nem RA de origem.</li>
+</ul>
+<h3 id="35-agente-3-agente-de-validacao-no_validacao">3.5. Agente 3 — Agente de Validação (<code>no_validacao</code>)<a class="headerlink" href="#35-agente-3-agente-de-validacao-no_validacao" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Natureza Técnica:</strong> Nó híbrido (<a href="../../src/agentes/validacao.py"><code>src/agentes/validacao.py</code></a> e <a href="../../src/agentes/juiz.py"><code>src/agentes/juiz.py</code></a>) combinando <strong>vetos duros em código Python</strong> com a <strong>1ª passagem opcional do Juiz LLM</strong> (<strong>GLM-5.3-Flash</strong> via OpenRouter, ADR 0014).</li>
+<li><strong>5 Vetos Duros em Código (RNF-04):</strong></li>
+<li><code>horario</code>: local fechado na janela comum do grupo;</li>
+<li><code>orcamento</code> (<code>cabe_para_cada_um</code>): confere se $\text{Consumo Médio} + \text{Transporte Ida e Volta} \le \text{Teto Individual}$ para cada participante no <code>Cofre</code>, sem revelar quem vetou;</li>
+<li><code>restricao</code>: ausência de comprovação na base para restrição inegociável do grupo (ex.: opção vegetariana/vegana);</li>
+<li><code>encerrado</code>: evento pontual ou promoção com data já encerrada;</li>
+<li><code>deslocamento</code>: trajeto individual acima do limite aceitável de <strong>75 minutos</strong> (<code>TEMPO_ACEITAVEL_MIN</code>).</li>
+<li><strong>Juiz LLM — 1ª Passagem (<code>juiz_parecer</code>, Issue #72, opcional):</strong> Quando habilitada (<code>julgar_parecer_pesquisa</code>), audita os motivos da Pesquisa contra o documento oficial da base 2FA e derruba apenas os candidatos cujo motivo contradiz a fonte (<code>derrubados_pelo_juiz</code>).</li>
+<li><strong>Aresta Condicional <code>avaliar_convergencia</code> (3 Destinos):</strong></li>
+<li><strong><code>no_pesquisa</code>:</strong> se houver <strong>menos de 3 candidatos validados</strong> e <code>iteracao_pesquisa &lt; 2</code> (máximo de <strong>2 voltas</strong>), devolve um <code>PedidoNovaBusca</code> contendo apenas contagens (<code>faltam</code>, <code>vetos</code> por categoria e <code>ja_vistos</code>), nunca texto livre;</li>
+<li><strong><code>no_finalizar</code>:</strong> se após as tentativas <strong>nenhum lugar passar</strong> (<code>validados == 0</code>, como no cenário padrão de estresse da #66), encerra direto para avisar o grupo, sem passar pela Comunicação;</li>
+<li><strong><code>no_comunicacao</code>:</strong> se houver ao menos 1 candidato validado (e $\ge 3$ ou fim das 2 voltas), envia até 4 candidatos escolhidos (<code>selecionar_cartoes</code>) para redação.</li>
+</ul>
+<h3 id="36-agente-4-agente-de-comunicacao-no_comunicacao">3.6. Agente 4 — Agente de Comunicação (<code>no_comunicacao</code>)<a class="headerlink" href="#36-agente-4-agente-de-comunicacao-no_comunicacao" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Natureza Técnica:</strong> Agente com LLM (<strong>DeepSeek V4.1 Flash</strong>, <a href="../../src/agentes/comunicacao.py"><code>src/agentes/comunicacao.py</code></a>) com o prompt de sistema "Anfitrião de Brasília" (<a href="../../src/agentes/prompts/comunicacao.md"><code>src/agentes/prompts/comunicacao.md</code></a>).</li>
+<li><strong>Entrada Sanitizada (<code>montar_fatos</code>):</strong> Recebe apenas os fatos que pode afirmar de cada cartão (<code>fatos</code>) e as preferências coletivas do grupo. Gera estritamente <code>titulo</code>, <code>resumo_acesso</code> e <code>por_que_combina</code> (<code>CartaoTexto</code>), sem escrever preços, tempos individuais nem links.</li>
+<li><strong>Reescrita Seletiva:</strong> Quando acionado em reescrita a partir de <code>no_validacao_textos</code>, reescreve <strong>apenas os cartões reprovados</strong>, preservando inalterados os cartões já aprovados na primeira tentativa.</li>
+</ul>
+<h3 id="37-validacao-dos-textos-no_validacao_textos-e-finalizacao-no_finalizar">3.7. Validação dos Textos (<code>no_validacao_textos</code>) e Finalização (<code>no_finalizar</code>)<a class="headerlink" href="#37-validacao-dos-textos-no_validacao_textos-e-finalizacao-no_finalizar" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Validação dos Textos (<code>no_validacao_textos</code>):</strong> Combina duas barreiras sobre os cartões redigidos:</li>
+<li><strong>Varredura em Código (<code>verificar_cartoes</code>):</strong> Caça números soltos, valores em R$, nomes ou partes de nomes dos membros e RAs de origem presentes no <code>Cofre</code>;</li>
+<li><strong>Juiz LLM — 2ª Passagem (<code>julgar_cartoes_comunicacao</code>, Issue #72):</strong> Audita fidelidade aos <code>fatos</code> e ausência de pistas de PII/orçamento (com fallback determinístico em regras quando offline).</li>
+<li><strong>Laço de Reescrita (<code>depois_dos_textos</code>):</strong> Se houver cartão reprovado e <code>reescritas &lt; 1</code> (<strong>no máximo 1 reescrita</strong>), devolve para <code>no_comunicacao</code> apenas o mapa de motivos enumerados (<code>reprovados</code>). Se ainda restar reprovação após a reescrita, segue para <code>no_finalizar</code>.</li>
+<li><strong>Nó de Finalização (<code>no_finalizar</code> — Código Puro):</strong></li>
+<li>Substitui qualquer cartão que ainda esteja em <code>reprovados</code> pelo <code>texto_reserva</code> determinístico feito por regras;</li>
+<li>Constrói os objetos <code>Sugestao</code> e preenche <strong>por código</strong> todos os números do cartão (<code>consumo_rs</code>, <code>gasto_min</code>, <code>gasto_max</code>, <code>tempo_medio_min</code>, <code>tempo_max_min</code>, <code>nota_justica</code>, <code>pontuacao</code>), além de <code>tiktok_url</code> e <code>fonte</code> do vídeo oficial 2FA;</li>
+<li>Publica <code>resultado_final_cartoes</code> (versão pública sem <code>por_participante</code>) para votação na Tela 3 (<code>RF-06</code>) ou a mensagem explicando por que nenhum cartão pôde ser gerado.</li>
+</ul>
+<hr />
+<h2 id="4-estado-compartilhado-multiagentstate-e-cofre-do-servidor">4. Estado Compartilhado (<code>MultiAgentState</code>) e Cofre do Servidor<a class="headerlink" href="#4-estado-compartilhado-multiagentstate-e-cofre-do-servidor" title="Permanent link">&para;</a></h2>
+<p>No código (<a href="../../src/agentes/estado.py"><code>src/agentes/estado.py</code></a>), o estado que circula pelo LangGraph e o cofre privado são estritamente separados:</p>
+<ul>
+<li><strong><code>Cofre</code> (<a href="../../src/agentes/contratos.py"><code>src/agentes/contratos.py</code></a>):</strong> Guarda <code>membros</code> (com nome e perfil bruto), <code>perfis_efetivos</code> (canais 1, 2 e 4), <code>janelas</code>, <code>analises</code> (trajeto por participante) e <code>sugestoes</code> completas. Fica preso ao grafo por <em>closure</em> em <code>construir_grafo</code> e nunca entra no <code>MultiAgentState</code>.</li>
+<li><strong>Guarda de Serialização (<code>serializar_estado</code>):</strong> Valida o estado com <code>EstadoSerializado</code> (<code>extra="forbid"</code>) e recusa com <code>VazamentoNoEstado</code> qualquer dicionário que contenha chaves privadas (<code>teto</code>, <code>origem</code>, <code>nome_membro</code>, <code>por_participante</code>, etc.) ou o nome de algum membro da sala.</li>
+</ul>
+<p>Definição real de <code>MultiAgentState</code> em <a href="../../src/agentes/estado.py"><code>src/agentes/estado.py</code></a>:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">MultiAgentState</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="c1"># entrada</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>    <span class="n">sala_id</span><span class="p">:</span> <span class="nb">str</span>                                               <span class="c1"># código da sala (não identifica ninguém)</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="n">trace_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>                                      <span class="c1"># link do trace no Langfuse, anexado por executar()</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>    <span class="n">membros</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>                                         <span class="c1"># marcadores m1..mN; o Send abre um Agente Pessoal por um</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="c1"># Agente 0 (Pessoal) -&gt; grupo</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="n">membros_anonimos</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">operator</span><span class="o">.</span><span class="n">add</span><span class="p">]</span>      <span class="c1"># PerfilAnonimoMembro (Canal 3), um por membro, em paralelo</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>    <span class="n">preferencias_grupo</span><span class="p">:</span> <span class="nb">dict</span>                                   <span class="c1"># PreferenciasGrupo: tipos e vibes agregados, restrições</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>    <span class="c1"># Agente 1 (Pesquisa)</span>
+<a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="n">candidatos_pesquisa</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>                            <span class="c1"># Candidato: id, motivo e trecho literal conferido</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>    <span class="n">documentos</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span>                                <span class="c1"># documentos da base que a Pesquisa leu, por id</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>    <span class="n">vistos</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>                                          <span class="c1"># ids já devolvidos pela Pesquisa (não repetir)</span>
+<a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>    <span class="n">pedido_nova_busca</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span>                             <span class="c1"># PedidoNovaBusca: só contagens, nunca texto livre</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="n">iteracao_pesquisa</span><span class="p">:</span> <span class="nb">int</span>                                     <span class="c1"># voltas Validação -&gt; Pesquisa (máximo 2)</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>    <span class="c1"># Agente 2 (Logística)</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>    <span class="n">candidatos_avaliados</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>                           <span class="c1"># CandidatoAvaliado: agregados de deslocamento e nota</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>    <span class="c1"># Agente 3 (Validação)</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>    <span class="n">julgados</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>                                        <span class="c1"># ids que já passaram pelo juiz do parecer</span>
+<a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>    <span class="n">relatorio_validacao</span><span class="p">:</span> <span class="nb">dict</span>                                  <span class="c1"># RelatorioValidacao: aprovados, vetos e contagem</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>    <span class="n">candidatos_validados</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>                           <span class="c1"># CandidatoAvaliado dos aprovados, na ordem do ranking</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>    <span class="c1"># Agente 4 (Comunicação) e Validação dos textos</span>
+<a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>    <span class="n">fatos</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>                                          <span class="c1"># o que a Comunicação pode afirmar de cada cartão</span>
+<a id="__codelineno-1-23" name="__codelineno-1-23" href="#__codelineno-1-23"></a>    <span class="n">cartoes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>                                        <span class="c1"># CartaoTexto escritos pela Comunicação</span>
+<a id="__codelineno-1-24" name="__codelineno-1-24" href="#__codelineno-1-24"></a>    <span class="n">cartoes_por_llm</span><span class="p">:</span> <span class="nb">bool</span>
+<a id="__codelineno-1-25" name="__codelineno-1-25" href="#__codelineno-1-25"></a>    <span class="n">reprovados</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>                           <span class="c1"># cartão -&gt; motivos (só enumerações)</span>
+<a id="__codelineno-1-26" name="__codelineno-1-26" href="#__codelineno-1-26"></a>    <span class="n">reescritas</span><span class="p">:</span> <span class="nb">int</span>                                            <span class="c1"># voltas Validação -&gt; Comunicação (máximo 1)</span>
+<a id="__codelineno-1-27" name="__codelineno-1-27" href="#__codelineno-1-27"></a>    <span class="c1"># saída</span>
+<a id="__codelineno-1-28" name="__codelineno-1-28" href="#__codelineno-1-28"></a>    <span class="n">resultado_final_cartoes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>                        <span class="c1"># cartões públicos para a votação (Tela 3)</span>
+<a id="__codelineno-1-29" name="__codelineno-1-29" href="#__codelineno-1-29"></a>    <span class="n">mensagens</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">operator</span><span class="o">.</span><span class="n">add</span><span class="p">]</span>             <span class="c1"># Mensagem: a conversa entre os agentes</span>
+<a id="__codelineno-1-30" name="__codelineno-1-30" href="#__codelineno-1-30"></a>    <span class="n">historico_erros</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">operator</span><span class="o">.</span><span class="n">add</span><span class="p">]</span>        <span class="c1"># vetos, reprovações e falhas, em ordem</span>
+</code></pre></div>
+<hr />
+<h2 id="5-rastreabilidade-e-observabilidade-langfuse-cloud-v5x">5. Rastreabilidade e Observabilidade (Langfuse Cloud v5.x)<a class="headerlink" href="#5-rastreabilidade-e-observabilidade-langfuse-cloud-v5x" title="Permanent link">&para;</a></h2>
+<p>O grafo é instrumentado em <a href="../../src/agentes/grafo.py"><code>src/agentes/grafo.py</code></a> com o decorador <code>@_observado</code> e registro seletivo via <code>_registrar</code>:</p>
+<ul>
+<li><strong>Trace por Execução:</strong> A função <code>executar</code> abre o span raiz <code>orquestrador_multiagente</code>, associa <code>session_id=cofre.sala_id</code> e anexa o link do trace em <code>trace_url</code> no estado final.</li>
+<li><strong>Nomes Reais dos Spans no Código:</strong> Cada etapa do grafo gera um span próprio com entrada e saída escolhidas à mão (<code>capture_input=False, capture_output=False</code>, evitando que o estado inteiro ou dados do cofre subam para a telemetria):</li>
+<li><code>agente_pessoal</code> (um span por membro via <code>Send</code>)</li>
+<li><code>consolidar_grupo</code></li>
+<li><code>pesquisa</code></li>
+<li><code>logistica</code></li>
+<li><code>validacao</code></li>
+<li><code>comunicacao</code></li>
+<li><code>validacao_textos</code></li>
+<li><code>finalizar</code></li>
+<li><strong>Métricas e SLA de Latência (RNF-14):</strong></li>
+<li>O <strong>RNF-14</strong> estabelece <strong>$\le 5\text{ s}$</strong> para responder na conversa e <strong>$\le 60\text{ s}$</strong> para gerar os planos completos do grupo. Na demonstração com LLM real (issue #74), o cenário de controle levou <strong>24,6 s</strong> até os cartões finais, confortavelmente dentro do limite de 60 s;</li>
+<li>Os spans registram versão de prompt, se usou LLM ou fallback em regras (<code>usou_llm</code>), contagens de trechos descartados, voltas de convergência e vereditos do juiz.</li>
+</ul>
+<hr />
+<h2 id="6-mapeamento-de-requisitos-e-decisoes-de-arquitetura">6. Mapeamento de Requisitos e Decisões de Arquitetura<a class="headerlink" href="#6-mapeamento-de-requisitos-e-decisoes-de-arquitetura" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Requisito / ADR</th>
+<th style="text-align: left;">Descrição</th>
+<th style="text-align: left;">Onde é Garantido no Grafo</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>RNF-02</strong></td>
+<td style="text-align: left;">Sigilo Estrito do Perfil Individual</td>
+<td style="text-align: left;"><code>Cofre</code> fora do <code>MultiAgentState</code>; <code>serializar_estado</code> bloqueia chaves privadas e nomes; varredura em código + Juiz 2ª passagem em <code>no_validacao_textos</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>RNF-03</strong></td>
+<td style="text-align: left;">Zero Alucinação / Grounding Factual</td>
+<td style="text-align: left;">Pesquisa restrita aos 93 locais 2FA com conferência literal de <code>trecho_citado</code>; Juiz LLM em 2 passagens (<code>no_validacao</code> e <code>no_validacao_textos</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>RNF-04</strong></td>
+<td style="text-align: left;">Cálculos Fora de Modelos de Linguagem</td>
+<td style="text-align: left;"><code>no_pessoal</code>, <code>no_consolidar_grupo</code>, <code>no_logistica</code>, vetos de <code>no_validacao</code>, varredura de <code>no_validacao_textos</code> e <code>no_finalizar</code> rodam em Python puro.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>RNF-12</strong></td>
+<td style="text-align: left;">Arquitetura Modular e Provedores Trocáveis</td>
+<td style="text-align: left;">LangGraph construindo sobre <code>src/salas</code> sem reescrevê-lo; <code>ClienteLLM</code> na OpenRouter alternando DeepSeek V4.1 Flash e GLM-5.3-Flash com fallback offline.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>RNF-14</strong></td>
+<td style="text-align: left;">SLA de Latência ($\le 5\text{ s}$ conversa / $\le 60\text{ s}$ planos)</td>
+<td style="text-align: left;">Agentes pessoais em paralelo (<code>Send</code>), máximo de 2 voltas na Pesquisa e 1 reescrita na Comunicação (24,6 s no demo com LLM da #74).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>RF-06</strong></td>
+<td style="text-align: left;">Apresentação Clara e Votação Democrática</td>
+<td style="text-align: left;"><code>no_comunicacao</code> redige os textos e <code>no_finalizar</code> injeta preços, tempos, <code>tiktok_url</code> e fonte para os cartões da Tela 3.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>RF-17</strong></td>
+<td style="text-align: left;">Orçamento Sigiloso</td>
+<td style="text-align: left;"><code>cabe_para_cada_um</code> avalia consumo + transporte contra o teto individual lendo o <code>Cofre</code> em <code>no_validacao</code>, sem expor quem vetou.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ADR 0008</strong></td>
+<td style="text-align: left;">Base 2FA dos 93 Lugares TikTok</td>
+<td style="text-align: left;"><code>buscar_lugares_rag</code> consulta apenas registros curados; <code>no_finalizar</code> preenche o link oficial do vídeo.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ADR 0009</strong></td>
+<td style="text-align: left;">4 Campos de Texto Secretos (Sem Voz)</td>
+<td style="text-align: left;"><code>no_pessoal</code> interpreta os 4 campos da Tela 2 por regras determinísticas (<code>interpretar_campos</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ADR 0013</strong></td>
+<td style="text-align: left;">Regra da Menor Miséria no Deslocamento</td>
+<td style="text-align: left;"><code>no_logistica</code> ranqueia penalizando o pior trajeto (&gt; 75 min gera veto de deslocamento em <code>no_validacao</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ADR 0014</strong></td>
+<td style="text-align: left;">Juiz LLM GLM-5.3-Flash em 2 Passagens</td>
+<td style="text-align: left;"><code>juiz.py</code> audita motivos da Pesquisa (1ª passagem opcional em <code>no_validacao</code>) e cartões da Comunicação (2ª passagem em <code>no_validacao_textos</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>ADR 0015 / 0016</strong></td>
+<td style="text-align: left;">Orquestração LangGraph e Cofre Fora do Estado</td>
+<td style="text-align: left;"><code>StateGraph</code> com <code>Send</code>, <code>InMemoryStore</code> para log pessoal e separação entre <code>MultiAgentState</code> público e <code>Cofre</code> privado.</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "content.code.copy"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

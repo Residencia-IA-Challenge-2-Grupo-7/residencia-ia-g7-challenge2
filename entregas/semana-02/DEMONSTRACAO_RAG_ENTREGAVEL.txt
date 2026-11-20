@@ -1,0 +1,202 @@
+===============================================================================================
+ENTREGÁVEL: BASE DE CONHECIMENTO CURADA (2FA) + PROTÓTIPO DE RAG
+   RES IA ELD UNB - Turma 2 | Grupo 7 — Orquestrador de Rolês
+===============================================================================================
+Base de Conhecimento Curada : 93 documentos-fonte aprovados no 2FA (Mínimo exigido: 20)
+Estratégia de Chunking      : Entity-Centric Semantic Chunking (1 chunk estruturado autocontido por rolê)
+Estratégia de Embeddings    : Google models/gemini-embedding-001 (Vetores densos de 3.072 dimensões)
+Banco Vetorial Persistido   : banco_vetorial_embeddings.json (Busca por Similaridade de Cosseno)
+===============================================================================================
+
+
+###############################################################################################
+CASO DE DEMONSTRAÇÃO #1
+###############################################################################################
+
+[1] CONSULTA SUBMETIDA AO SISTEMA:
+    "Quero levar meus filhos pequenos num passeio iluminado ou parque tranquilo gastando até 30 reais por pessoa"
+
+[2] RECUPERAÇÃO DOS CHUNKS MAIS RELEVANTES (TOP-3 POR SIMILARIDADE DE COSSENO):
+
+    - CHUNK RECUPERADO #1 | Score Vetorial (Cosseno): 0.7205 | ID: tiktok_7622722061256920327
+       • Documento Indexado (Chunk): "Local: Nicolândia Parque Urbano | Categoria: Experiência / Evento | Região: Plano Piloto (Parque da Cidade) (Parque da Cidade — Parque da Cidade Dona Sarah Kubitschek, SRPS, Asa Sul, Brasília, Plano Piloto, Distrito Fe) | Faixa de Preço: Barato ($) (R$ 29.9) |..."
+
+    - CHUNK RECUPERADO #2 | Score Vetorial (Cosseno): 0.6923 | ID: tiktok_7698914646354447634
+       • Documento Indexado (Chunk): "Local: Vale Encantado | Categoria: Experiência / Evento | Região: Taguatinga (Complexo Quireibara, em Taguatinga, perto do avião, Brasília - DF) | Faixa de Preço: Barato ($) (R$ 19.9) | Vibes: Kid Friendly, Baratinho, Animado / Galera. Sim, Kid Friendly (ótimo..."
+
+    - CHUNK RECUPERADO #3 | Score Vetorial (Cosseno): 0.6851 | ID: tiktok_7688858178133527816
+       • Documento Indexado (Chunk): "Local: Wellness Life Expo | Categoria: Experiência / Evento | Região: Plano Piloto (Parque da Cidade) (Parque da Cidade, Estacionamento 11) | Faixa de Preço: Barato ($) (R$ 35.0) | Vibes: Cultural / Alternativo, Kid Friendly, Animado / Galera. Sim, Kid Friendl..."
+
+[3] RESPOSTA FUNDAMENTADA NO CONTEÚDO RECUPERADO (RAG GENERATION):
+    Com base nas informações recuperadas, encontrei duas opções que atendem perfeitamente ao seu pedido de levar filhos pequenos a um local tranquilo ou iluminado, gastando até R$ 30,00 por pessoa.
+    
+    Aqui estão as recomendações fundamentadas:
+    
+    ### 1. Nicolândia Parque Urbano
+    Esta é a opção mais alinhada com a busca por um "parque tranquilo" e "kid friendly", com custo dentro do seu orçamento.
+    
+    *   **Por que atende ao pedido:** É um parque urbano focado em diversão infantil e familiar, onde as crianças podem "brincar o tanto que aguentar em todos os brinquedos" [FONTE #1 - Nicolândia Parque Urbano]. A vibe é descrita como "Animado / Galera, Kid Friendly", ideal para passeios em família [FONTE #1 - Nicolândia Parque Urbano].
+    *   **Endereço/Região:** Parque da Cidade Dona Sarah Kubitschek, SRPS, Asa Sul, Plano Piloto, Brasília - DF [FONTE #1 - Nicolândia Parque Urbano].
+    *   **Faixa de Preço:** Barato ($). O custo médio é de **R$ 29,90** por pessoa, o que está dentro do seu limite de R$ 30,00 [FONTE #1 - Nicolândia Parque Urbano].
+    *   **Detalhes Adicionais:** O evento oferece acesso ilimitado a brinquedos e desafios. Há uma menção a um combo de hambúrguer grátis para os 500 primeiros clientes, o que pode ser um bônus para a família [FONTE #1 - Nicolândia Parque Urbano].
+    
+    ### 2. Vale Encantado
+    Esta é a opção ideal se você busca especificamente um passeio "iluminado", com uma experiência temática imersiva.
+    
+    *   **Por que atende ao pedido:** O evento é descrito como uma experiência temática familiar com "túnel de luzes", "mega árvore" e "show de neve artificial", atendendo diretamente ao desejo de um passeio iluminado [FONTE #2 - Vale Encantado]. A vibe é "Kid Friendly, Baratinho, Animado / Galera", com personagens e praça gastronômica para toda a família [FONTE #2 - Vale Encantado].
+    *   **Endereço/Região:** Complexo Quireibara, em Taguatinga, perto do avião, Brasília - DF [FONTE #2 - Vale Encantado].
+    *   **Faixa de Preço:** Barato ($). O custo médio é de **R$ 19,90** por pessoa, bem abaixo do seu limite de R$ 30,00 [FONTE #2 - Vale Encantado].
+    *   **Detalhes Adicionais:** É um evento natalino imersivo, perfeito para criar uma atmosfera mágica e iluminada para as crianças [FONTE #2 - Vale Encantado].
+    
+    **Nota sobre a terceira fonte:** A *Wellness Life Expo* [FONTE #3] foi descartada porque, embora tenha espaço kids e seja no Parque da Cidade, o custo médio listado é de R$ 35,00, excedendo o seu orçamento de R$ 30,00 por pessoa.
+
+[4] EVIDÊNCIA E RASTREABILIDADE DAS FONTES UTILIZADAS:
+    [OK] [FONTE #1] Nicolândia Parque Urbano (Experiência / Evento)
+       ├─ ID do Documento : tiktok_7622722061256920327 (Publicado em: 29/03/2026)
+       ├─ Score Similaridade: 0.7205 (Vetor de 3072 dimensões)
+       ├─ Localização (Fator 2): Parque da Cidade — Parque da Cidade Dona Sarah Kubitschek, SRPS, Asa Sul, Brasília, Plano Piloto, Distrito Fe | RA: Plano Piloto (Parque da Cidade) | GPS: (-15.80126, -47.91021)
+       ├─ Preço Validado (Fator 2): Barato ($) (Média R$ 29.9)
+       ├─ Evidência Áudio Whisper : "E nessa segunda, dia 30 de março, é o último dia com o passaporte do Nicolândia por apenas R$29,90. E pra ficar ainda melhor, os 500 primeiros clientes ganham u..."
+       └─ Link Original (TikTok)  : https://www.tiktok.com/@rolezandoembrasilia/video/7622722061256920327
+    [OK] [FONTE #2] Vale Encantado (Experiência / Evento)
+       ├─ ID do Documento : tiktok_7698914646354447634 (Publicado em: 21/10/2026)
+       ├─ Score Similaridade: 0.6923 (Vetor de 3072 dimensões)
+       ├─ Localização (Fator 2): Complexo Quireibara, em Taguatinga, perto do avião, Brasília - DF | RA: Taguatinga | GPS: (-15.833, -48.056)
+       ├─ Preço Validado (Fator 2): Barato ($) (Média R$ 19.9)
+       ├─ Evidência Áudio Whisper : "E Brasília vai receber um Natal igual dos filmes, com ingressos por apenas R$19,90. Eu tô falando do famoso Vale Encantado, e pra quem perdeu a pré-venda, amanh..."
+       └─ Link Original (TikTok)  : https://www.tiktok.com/@rolezandoembrasilia/video/7698914646354447634
+    [OK] [FONTE #3] Wellness Life Expo (Experiência / Evento)
+       ├─ ID do Documento : tiktok_7688858178133527816 (Publicado em: 23/09/2026)
+       ├─ Score Similaridade: 0.6851 (Vetor de 3072 dimensões)
+       ├─ Localização (Fator 2): Parque da Cidade, Estacionamento 11 | RA: Plano Piloto (Parque da Cidade) | GPS: (-15.8005, -47.9065)
+       ├─ Preço Validado (Fator 2): Barato ($) (Média R$ 35.0)
+       ├─ Evidência Áudio Whisper : "E um dos maiores eventos de saúde e bem-estar de Brasília está de volta com entrada totalmente gratuita, mas os ingressos podem esgotar muito rápido. E depois d..."
+       └─ Link Original (TikTok)  : https://www.tiktok.com/@rolezandoembrasilia/video/7688858178133527816
+
+
+###############################################################################################
+CASO DE DEMONSTRAÇÃO #2
+###############################################################################################
+
+[1] CONSULTA SUBMETIDA AO SISTEMA:
+    "Onde consigo comer um hambúrguer artesanal caprichado ou rodízio num ambiente animado para ir com amigos?"
+
+[2] RECUPERAÇÃO DOS CHUNKS MAIS RELEVANTES (TOP-3 POR SIMILARIDADE DE COSSENO):
+
+    - CHUNK RECUPERADO #1 | Score Vetorial (Cosseno): 0.7151 | ID: tiktok_7670312298690481415
+       • Documento Indexado (Chunk): "Local: Cabiburger | Categoria: Restaurante / Gastronomia | Região: Plano Piloto (Sudoeste) (Sudoeste Quadra 100 — Escola Canadense de Brasília - Sudoeste, Lote 2225, SIG - Quadra 8, SIG - Setor de Industr) | Faixa de Preço: Moderado ($$) (R$ 50.0) | Vibes: Ani..."
+
+    - CHUNK RECUPERADO #2 | Score Vetorial (Cosseno): 0.7034 | ID: tiktok_7688864663336963336
+       • Documento Indexado (Chunk): "Local: Filomenamburger | Categoria: Restaurante / Gastronomia | Região: Taguatinga (Taguatinga norte, CNB 4, Brasília - DF) | Faixa de Preço: Moderado ($$) (R$ 50.0) | Vibes: Kid Friendly, Animado / Galera. Sim, Kid Friendly (ótimo para crianças e família). | ..."
+
+    - CHUNK RECUPERADO #3 | Score Vetorial (Cosseno): 0.6989 | ID: tiktok_7698914666063432968
+       • Documento Indexado (Chunk): "Local: House Burger | Categoria: Restaurante / Gastronomia | Região: Riacho Fundo (Riacho Fundo 1, QN 05 — Riacho Fundo, Distrito Federal, Região Centro-Oeste, Brasil) | Faixa de Preço: Barato ($) (R$ 30.0) | Vibes: Animado / Galera, Baratinho, Intimista / Aco..."
+
+[3] RESPOSTA FUNDAMENTADA NO CONTEÚDO RECUPERADO (RAG GENERATION):
+    Para atender ao seu pedido de um hambúrguer artesanal caprichado ou rodízio em um ambiente animado para ir com amigos, encontrei três opções excelentes no banco de dados, cada uma com características específicas:
+    
+    **1. Cabiburger (Foco em Hambúrguer Artesanal na Brasa)**
+    Se a prioridade é o hambúrguer "caprichado" e a experiência gastronômica, esta é a melhor escolha.
+    *   **Por que atende ao pedido:** O local é descrito como uma hamburgueria com foco em hambúrgueres feitos **na brasa com carvão de verdade** (não na chapa), oferecendo opções criativas e intensas, como queijo coalho no melaço e abacaxi na brasa [FONTE #1 - Cabiburger].
+    *   **Ambiente:** As vibes são classificadas como **Animado / Galera** e Cultural / Alternativo, ideal para um rolê com amigos [FONTE #1 - Cabiburger].
+    *   **Localização:** Sudoeste Quadra 100, Lote 2225, SIG (Plano Piloto/Sudoeste) [FONTE #1 - Cabiburger].
+    *   **Preço:** Moderado ($$), com custo médio de **R$ 50,00** [FONTE #1 - Cabiburger].
+    
+    **2. Filomenamburger (Foco em Rodízio e Ambiente Animado)**
+    Se você prefere a opção de **rodízio** e quer um ambiente muito animado e descontraído.
+    *   **Por que atende ao pedido:** Oferece um **rodízio variado** com mini hambúrgueres, pizzas, pastéis e uma cascata de cheddar, onde você monta suas próprias combinações e pode repetir à vontade [FONTE #2 - Filomenamburger].
+    *   **Ambiente:** As vibes são **Animado / Galera** e Kid Friendly (possui brinquedoteca), sendo ideal para comemorações e grupos [FONTE #2 - Filomenamburger].
+    *   **Localização:** Taguatinga Norte, CNB 4 [FONTE #2 - Filomenamburger].
+    *   **Preço:** Moderado ($$), com custo médio de **R$ 50,00** [FONTE #2 - Filomenamburger].
+    
+    **3. House Burger (Opção Econômica e Animada)**
+    Uma alternativa mais barata, focada em hambúrgueres robustos.
+    *   **Por que atende ao pedido:** Serve hambúrgueres robustos com **filé mignon de 200g** e combinações criativas (como costela com abacaxi caramelizado) em um ambiente bonito e descontraído, ideal para reunir a galera sem pesar no bolso [FONTE #3 - House Burger].
+    *   **Ambiente:** Vibes **Animado / Galera**, Baratinho e Intimista/Aconchegante [FONTE #3 - House Burger].
+    *   **Localização:** Riacho Fundo 1, QN 05 [FONTE #3 - House Burger].
+    *   **Preço:** Barato ($), com custo médio de **R$ 30,00** e combos a partir de R$ 29,90 [FONTE #3 - House Burger].
+    
+    **Resumo da Recomendação:**
+    *   Para **hambúrguer artesanal premium** na brasa: Vá ao **Cabiburger** [FONTE #1].
+    *   Para **rodízio** e ambiente muito animado: Vá ao **Filomenamburger** [FONTE #2].
+    *   Para **custo-benefício** e ambiente animado: Vá ao **House Burger** [FONTE #3].
+
+[4] EVIDÊNCIA E RASTREABILIDADE DAS FONTES UTILIZADAS:
+    [OK] [FONTE #1] Cabiburger (Restaurante / Gastronomia)
+       ├─ ID do Documento : tiktok_7670312298690481415 (Publicado em: 04/08/2026)
+       ├─ Score Similaridade: 0.7151 (Vetor de 3072 dimensões)
+       ├─ Localização (Fator 2): Sudoeste Quadra 100 — Escola Canadense de Brasília - Sudoeste, Lote 2225, SIG - Quadra 8, SIG - Setor de Industr | RA: Plano Piloto (Sudoeste) | GPS: (-15.79616, -47.91498)
+       ├─ Preço Validado (Fator 2): Moderado ($$) (Média R$ 50.0)
+       ├─ Evidência Áudio Whisper : "Inaugurou uma hamburgueria no sudoeste muito bonita que tá fazendo muito sucesso e lá não tem hambúrguer na chapa, é feito direto na brasa com carvão de verdade..."
+       └─ Link Original (TikTok)  : https://www.tiktok.com/@rolezandoembrasilia/video/7670312298690481415
+    [OK] [FONTE #2] Filomenamburger (Restaurante / Gastronomia)
+       ├─ ID do Documento : tiktok_7688864663336963336 (Publicado em: 23/09/2026)
+       ├─ Score Similaridade: 0.7034 (Vetor de 3072 dimensões)
+       ├─ Localização (Fator 2): Taguatinga norte, CNB 4, Brasília - DF | RA: Taguatinga | GPS: (-15.833, -48.056)
+       ├─ Preço Validado (Fator 2): Moderado ($$) (Média R$ 50.0)
+       ├─ Evidência Áudio Whisper : "E acaba de chegar em Brasília, a sobremesa mais absurda do Brasil, e eu te conto no final como ganhar de graça. E pra completar, nesse lugar tem um rodízio de m..."
+       └─ Link Original (TikTok)  : https://www.tiktok.com/@rolezandoembrasilia/video/7688864663336963336
+    [OK] [FONTE #3] House Burger (Restaurante / Gastronomia)
+       ├─ ID do Documento : tiktok_7698914666063432968 (Publicado em: 21/10/2026)
+       ├─ Score Similaridade: 0.6989 (Vetor de 3072 dimensões)
+       ├─ Localização (Fator 2): Riacho Fundo 1, QN 05 — Riacho Fundo, Distrito Federal, Região Centro-Oeste, Brasil | RA: Riacho Fundo | GPS: (-15.88331, -48.01748)
+       ├─ Preço Validado (Fator 2): Barato ($) (Média R$ 30.0)
+       ├─ Evidência Áudio Whisper : "E acaba de inaugurar uma hamburgueria que serve um sanduba com 200 gramas de filé mignon fatiado, uma seleção de baguetes com costela, choro e pão e muito mais ..."
+       └─ Link Original (TikTok)  : https://www.tiktok.com/@rolezandoembrasilia/video/7698914666063432968
+
+
+###############################################################################################
+CASO DE DEMONSTRAÇÃO #3
+###############################################################################################
+
+[1] CONSULTA SUBMETIDA AO SISTEMA:
+    "Procuro uma confeitaria ou gelateria com opções zero açúcar ou saudáveis na Asa Sul para conversar com calma"
+
+[2] RECUPERAÇÃO DOS CHUNKS MAIS RELEVANTES (TOP-3 POR SIMILARIDADE DE COSSENO):
+
+    - CHUNK RECUPERADO #1 | Score Vetorial (Cosseno): 0.7763 | ID: tiktok_7699233720657530119
+       • Documento Indexado (Chunk): "Local: Lefit Gelatos e Doces Saudáveis | Categoria: Cafeteria / Doceria | Região: Plano Piloto (Asa Sul) (Asa Sul CLS 116, Bloco A, Brasília - DF) | Faixa de Preço: Barato ($) (R$ 28.0) | Vibes: Intimista / Aconchegante, Kid Friendly. Sim, Kid Friendly (ótimo ..."
+
+    - CHUNK RECUPERADO #2 | Score Vetorial (Cosseno): 0.7166 | ID: tiktok_7645713289552481543
+       • Documento Indexado (Chunk): "Local: Oficina de Tortas | Categoria: Restaurante / Gastronomia | Região: Plano Piloto (Asa Sul) (Asa Sul (SCLS 310 Bloco C Loja 16); Águas Claras (Rua 37 Norte, Ed. São Lorenzo, Loja 05); Sudoeste (CLSW 304 Bloco A Loja 28), Brasília - DF) | Faixa de Preço: B..."
+
+    - CHUNK RECUPERADO #3 | Score Vetorial (Cosseno): 0.7009 | ID: tiktok_7600076848222997767
+       • Documento Indexado (Chunk): "Local: The Coffee Talk | Categoria: Cafeteria / Doceria | Região: Plano Piloto (Asa Sul) (Sudoeste — Sudoeste e Octogonal, Distrito Federal, Região Centro-Oeste, Brasil) | Faixa de Preço: Moderado ($$) (R$ 50.0) | Vibes: Calmo / Bom para Conversar, Intimista /..."
+
+[3] RESPOSTA FUNDAMENTADA NO CONTEÚDO RECUPERADO (RAG GENERATION):
+    **Lefit Gelatos e Doces Saudáveis**  
+    
+    - **Endereço / região:** Asa Sul CLS 116, Bloco A, Brasília – DF (Plano Piloto – Asa Sul) – GPS (-15.8192, -47.8988)[FONTE #1]  
+    - **Faixa de preço:** Barato (≈ R$ 28,00)[FONTE #1]  
+    - **Vibe:** Intimista e aconchegante, ideal para conversar com calma; o espaço também é “Kid Friendly”, caso queira levar crianças ou bebês[FONTE #1]  
+    - **Por que atende ao seu pedido:**  
+      - É **gelateria e confeitaria autoral** que produz tudo na casa, livre de trigo, lactose e **açúcar refinado** – ou seja, opções “zero açúcar” ou muito mais saudáveis[FONTE #1].  
+      - Oferece 16 sabores de gelatos, picolés personalizáveis e ainda opções específicas para bebês e pets, tudo sem conservantes nem gordura hidrogenada, permitindo desfrutar de doces sem “peso na consciência”[FONTE #1].  
+      - O ambiente aconchegante e intimista cria o clima perfeito para uma conversa tranquila, sem barulho excessivo.  
+    
+    **Resumo:** Se você quer uma confeitaria/gelateria na Asa Sul que sirva doces saudáveis (sem açúcar refinado) e ainda ofereça um espaço calmo e acolhedor para conversar, a **Lefit Gelatos e Doces Saudáveis** é a escolha ideal. Boa conversa e sobremesa leve!
+
+[4] EVIDÊNCIA E RASTREABILIDADE DAS FONTES UTILIZADAS:
+    [OK] [FONTE #1] Lefit Gelatos e Doces Saudáveis (Cafeteria / Doceria)
+       ├─ ID do Documento : tiktok_7699233720657530119 (Publicado em: 21/10/2026)
+       ├─ Score Similaridade: 0.7763 (Vetor de 3072 dimensões)
+       ├─ Localização (Fator 2): Asa Sul CLS 116, Bloco A, Brasília - DF | RA: Plano Piloto (Asa Sul) | GPS: (-15.8192, -47.8988)
+       ├─ Preço Validado (Fator 2): Barato ($) (Média R$ 28.0)
+       ├─ Evidência Áudio Whisper : "E em Brasília existe uma gelateria e confeitaria autoral, onde você come diversas delícias sem peso na consciência e vale a pena sair de qualquer lugar pra conh..."
+       └─ Link Original (TikTok)  : https://www.tiktok.com/@rolezandoembrasilia/video/7699233720657530119
+    [OK] [FONTE #2] Oficina de Tortas (Restaurante / Gastronomia)
+       ├─ ID do Documento : tiktok_7645713289552481543 (Publicado em: 30/05/2026)
+       ├─ Score Similaridade: 0.7166 (Vetor de 3072 dimensões)
+       ├─ Localização (Fator 2): Asa Sul (SCLS 310 Bloco C Loja 16); Águas Claras (Rua 37 Norte, Ed. São Lorenzo, Loja 05); Sudoeste (CLSW 304 Bloco A Loja 28), Brasília - DF | RA: Plano Piloto (Asa Sul) | GPS: (-15.8192, -47.8988)
+       ├─ Preço Validado (Fator 2): Barato ($) (Média R$ 23.5)
+       ├─ Evidência Áudio Whisper : "E vai ter fatia de torta de graça tamanho padrão para os 23 primeiros clientes no aniversário de 23 anos da confeitaria mais artesanal de Brasília. Eu tô faland..."
+       └─ Link Original (TikTok)  : https://www.tiktok.com/@rolezandoembrasilia/video/7645713289552481543
+    [OK] [FONTE #3] The Coffee Talk (Cafeteria / Doceria)
+       ├─ ID do Documento : tiktok_7600076848222997767 (Publicado em: 27/01/2026)
+       ├─ Score Similaridade: 0.7009 (Vetor de 3072 dimensões)
+       ├─ Localização (Fator 2): Sudoeste — Sudoeste e Octogonal, Distrito Federal, Região Centro-Oeste, Brasil | RA: Plano Piloto (Asa Sul) | GPS: (-15.80022, -47.92439)
+       ├─ Preço Validado (Fator 2): Moderado ($$) (Média R$ 50.0)
+       ├─ Evidência Áudio Whisper : "E existe uma cafeteria famosa no Rio de Janeiro que tem uma filial em Brasília e tá fazendo muito sucesso. E lá tem um cardápio bem completo com preço super jus..."
+       └─ Link Original (TikTok)  : https://www.tiktok.com/@rolezandoembrasilia/video/7600076848222997767
+
+===============================================================================================

@@ -1,0 +1,2197 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentação Oficial de Engenharia, DevOps e Arquitetura do Grupo 7 (Residência em IA Eldorado/UnB)">
+      
+      
+        <meta name="author" content="Grupo 7">
+      
+      
+        <link rel="canonical" href="https://residencia-ia-challenge-2-grupo-7.github.io/residencia-ia-g7-challenge2/semanas/semana-04/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
+    
+    
+      
+        <title>Semana 4 — Primeiro Protótipo Multiagente (LangGraph + Ferramentas Determinísticas) - Orquestrador de Rolês — Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#semana-4-primeiro-prototipo-multiagente-langgraph-ferramentas-deterministicas" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../.." title="Orquestrador de Rolês — Docs" class="md-header__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Orquestrador de Rolês — Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Semana 4 — Primeiro Protótipo Multiagente (LangGraph + Ferramentas Determinísticas)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Orquestrador de Rolês — Docs" class="md-nav__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Orquestrador de Rolês — Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../guia-contribuicao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Contribuição
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arquitetura & Decisões
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Arquitetura & Decisões
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../arquitetura/multiagente/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arquitetura Multiagente
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../produto/visao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visão do Produto
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../produto/requisitos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Requisitos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../decisoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisões Técnicas (ADRs)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dados & RAG
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Dados & RAG
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dados/esquema-base/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Esquema da Base
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dados/guia-curadoria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Curadoria
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../dados/golden-dataset-semana3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Golden Dataset (Semana 3)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semanas & Entregas
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Semanas & Entregas
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../semana-01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 01
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../semana-02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 02
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../entregas/semana-02/RELATORIO_TECNICO_RAG_SEMANA_02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Relatório Semana 2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-contexto-desafio-e-principios-arquiteturais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Contexto, Desafio e Princípios Arquiteturais
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Contexto, Desafio e Princípios Arquiteturais">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-big-idea-essential-question" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1. Big Idea &amp; Essential Question
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-principios-nao-negociaveis-de-design-manual-dos-agentes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2. Princípios Não Negociáveis de Design (Manual dos Agentes)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-escopo-negativo-o-que-o-sistema-nao-faz" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3. Escopo Negativo (O que o sistema NÃO faz)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-arquitetura-do-grafo-multiagente-langgraph" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Arquitetura do Grafo Multiagente (LangGraph)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-os-5-agentes-como-implementados" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Os 5 Agentes como Implementados
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Os 5 Agentes como Implementados">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#0-agente-pessoal-srcagentespessoalpy-issue-65" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔒 0. Agente Pessoal (src/agentes/pessoal.py, issue #65)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1-pesquisa-srcagentespesquisapy-issue-70" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🔎 1. Pesquisa (src/agentes/pesquisa.py, issue #70)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-logistica-e-justica-srcagenteslogisticapy-issue-67" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🚌 2. Logística e Justiça (src/agentes/logistica.py, issue #67)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-validacao-srcagentesvalidacaopy-e-srcagentesjuizpy-issues-68-e-72" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        🛡️ 3. Validação (src/agentes/validacao.py e src/agentes/juiz.py, issues #68 e #72)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-comunicacao-srcagentescomunicacaopy-issue-69" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        💬 4. Comunicação (src/agentes/comunicacao.py, issue #69)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-estado-do-grafo-multiagentstate-e-cofre" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Estado do Grafo (MultiAgentState) e Cofre
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-mapeamento-oficial-das-13-issues-no-github" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Mapeamento Oficial das 13 Issues no GitHub
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-distribuicao-de-carga-horaria-12h-por-integrante" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Distribuição de Carga Horária (~12h por Integrante)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-instrucoes-operacionais-e-comandos-do-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Instruções Operacionais e Comandos do Time
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Instruções Operacionais e Comandos do Time">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-fluxo-git-e-convencao-de-branches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1. Fluxo Git e Convenção de Branches
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-execucao-de-testes-automatizados-locais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2. Execução de Testes Automatizados Locais
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-demonstracao-oficial-do-multiagente-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3. Demonstração Oficial do Multiagente (CLI)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74-submissao-no-microsoft-teams" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4. Submissão no Microsoft Teams
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#75-criterio-de-aceitacao-obrigatorio-registro-de-entregas-e-decisoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.5. Critério de Aceitação Obrigatório: Registro de Entregas e Decisões
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-registro-de-execucao-e-decisoes-tecnicas-por-issue" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Registro de Execução e Decisões Técnicas por Issue
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. Registro de Execução e Decisões Técnicas por Issue">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-issue-64-modelagem-do-estado-compartilhado-multiagentstate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1. Issue #64 — Modelagem do Estado Compartilhado (MultiAgentState)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-issue-65-agente-0-pessoal-sanitizacao-de-pii-e-segregacao-dos-4-canais" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2. Issue #65 — Agente 0 (Pessoal): Sanitização de PII e Segregação dos 4 Canais
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-issue-66-dataset-de-teste-com-cenario-dos-4-amigos-no-df-golden-de-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3. Issue #66 — Dataset de Teste com Cenário dos 4 Amigos no DF (Golden de Rolê)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#84-issue-67-agente-2-logistica-justica-deslocamento-e-regra-da-menor-miseria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.4. Issue #67 — Agente 2 (Logística &amp; Justiça): Deslocamento e Regra da Menor Miséria
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#85-issue-68-agente-3-validacao-filtros-deterministicos-de-horario-orcamento-e-restricoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.5. Issue #68 — Agente 3 (Validação): Filtros Determinísticos de Horário, Orçamento e Restrições
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#86-issue-69-agente-4-comunicacao-prompt-do-anfitriao-e-formatacao-de-cartoes-em-json" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.6. Issue #69 — Agente 4 (Comunicação): Prompt do Anfitrião e Formatação de Cartões em JSON
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#87-issue-70-agente-1-pesquisa-prompt-do-curador-tool-rag-dos-93-lugares-do-tiktok" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.7. Issue #70 — Agente 1 (Pesquisa): Prompt do Curador + Tool RAG dos 93 Lugares do TikTok
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#88-issue-71-orquestrador-do-grafo-no-langgraph-com-ciclo-condicional-pesquisa-validacao" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.8. Issue #71 — Orquestrador do Grafo no LangGraph com Ciclo Condicional Pesquisa-Validação
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#89-issue-72-juiz-llm-em-2-passagens-para-validacao-factual-e-prevencao-de-vazamento-adr-0014" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.9. Issue #72 — Juiz LLM em 2 Passagens para Validação Factual e Prevenção de Vazamento (ADR 0014)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#810-issue-73-instrumentacao-de-telemetria-e-tracing-do-grafo-multiagente-no-langfuse-cloud" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.10. Issue #73 — Instrumentação de Telemetria e Tracing do Grafo Multiagente no Langfuse Cloud
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#811-issue-74-script-executavel-de-demonstracao-cli-do-fluxo-multiagente-demo_multiagentepy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.11. Issue #74 — Script Executável de Demonstração CLI do Fluxo Multiagente (demo_multiagente.py)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#812-issue-75-diagrama-visual-da-arquitetura-do-grafo-multiagente-mermaid-svg" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.12. Issue #75 — Diagrama Visual da Arquitetura do Grafo Multiagente (Mermaid &amp; SVG)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#813-issue-76-relatorio-tecnico-da-semana-4-para-o-teams-e-submissao-oficial" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.13. Issue #76 — Relatório Técnico da Semana 4 para o Teams e Submissão Oficial
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-registro-do-dia" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Registro do dia
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="9. Registro do dia">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#1711-cauan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        17/11 (Cauan)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="semana-4-primeiro-prototipo-multiagente-langgraph-ferramentas-deterministicas">Semana 4 — Primeiro Protótipo Multiagente (LangGraph + Ferramentas Determinísticas)<a class="headerlink" href="#semana-4-primeiro-prototipo-multiagente-langgraph-ferramentas-deterministicas" title="Permanent link">&para;</a></h1>
+<p><strong>Projeto:</strong> Orquestrador de Rolês (<em>Challenge 2 — Residência em IA | Instituto Eldorado &amp; UnB</em>)<br />
+<strong>Entregável Oficial:</strong> Primeiro protótipo funcional do sistema multiagente baseado em <strong>LangGraph</strong>, integrando agentes amparados por <strong>LLM</strong> (curadoria, síntese e avaliação semântica) e <strong>ferramentas determinísticas em Python</strong> (cálculo financeiro, deslocamento pelas 35 RAs do DF com a regra da <em>Menor Miséria</em>, checagem de horários e vetos duros), com <strong>rastreabilidade completa no Langfuse Cloud</strong>, script de demonstração CLI executável e <strong>Relatório Técnico ABNT</strong> para submissão no canal <code>4_Second Challenge</code> do Microsoft Teams.</p>
+<hr />
+<h2 id="1-contexto-desafio-e-principios-arquiteturais">1. Contexto, Desafio e Princípios Arquiteturais<a class="headerlink" href="#1-contexto-desafio-e-principios-arquiteturais" title="Permanent link">&para;</a></h2>
+<h3 id="11-big-idea-essential-question">1.1. Big Idea &amp; Essential Question<a class="headerlink" href="#11-big-idea-essential-question" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Big Idea:</strong> Qualidade de Vida e Bem-Estar Social no Distrito Federal.</li>
+<li><strong>Essential Question:</strong> <em>"Como sistemas de IA podem ajudar amigos a transformar a vontade de se encontrar em encontros reais, de forma justa para todos?"</em></li>
+<li><strong>Problema Resolvido:</strong> Planos de encontro que morrem pela vergonha de expor limitações financeiras, fadiga de decisão e assimetria logística de deslocamento entre quem mora no Plano Piloto e nas demais Regiões Administrativas periféricas do DF.</li>
+</ul>
+<h3 id="12-principios-nao-negociaveis-de-design-manual-dos-agentes">1.2. Princípios Não Negociáveis de Design (Manual dos Agentes)<a class="headerlink" href="#12-principios-nao-negociaveis-de-design-manual-dos-agentes" title="Permanent link">&para;</a></h3>
+<p>Estes princípios operam como restrições rígidas de arquitetura. Toda decisão de modelagem e código deriva deles:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Princípio</th>
+<th style="text-align: left;">Consequência Arquitetural no Código</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Sigilo Estrito do Perfil (<code>RNF-02</code>)</strong></td>
+<td style="text-align: left;">Os dados cadastrados no perfil (teto financeiro, endereço/RA exata e restrições) ficam isolados no servidor; nenhuma resposta pública da IA ou card expõe quem limitou o orçamento do grupo.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Consenso Assistido, Não Imposição</strong></td>
+<td style="text-align: left;">A IA nunca impõe uma decisão: ela filtra incompatibilidades e publica de <strong>3 a 4 propostas viáveis</strong> para votação democrática com suporte a múltipla escolha (<code>RF-06</code>).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Grounding em Dados Reais (<code>RNF-03</code>)</strong></td>
+<td style="text-align: left;">Zero alucinação: nenhum local, horário ou preço é inventado. A pesquisa consome estritamente os <strong>93 lugares oficiais aprovados em 2 fatores (2FA)</strong> validados pelo TikTok.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Cálculos Fora do LLM (<code>RNF-04</code>)</strong></td>
+<td style="text-align: left;">Interseção de agendas, teto financeiro individual, estimativas de custo de transporte e cálculo da nota de justiça social rodam em <strong>funções Python determinísticas</strong>, jamais via texto gerado por IA.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Justiça Espacial ('Menor Miséria' — <code>ADR 0013</code>)</strong></td>
+<td style="text-align: left;">O ranqueamento protege quem tem menor orçamento e quem depende de transporte público em RAs afastadas (Ceilândia, Samambaia, Planaltina), penalizando locais que imponham trajetos desumanos ao participante mais desfavorecido.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Transparência e Fechamento</strong></td>
+<td style="text-align: left;">Cada card exibe claramente local, dia/horário, faixa de preço média e modal sugerido, encerrando o ciclo de votação com o banner fixo: <em>"Rolê orquestrado com sucesso!"</em>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-escopo-negativo-o-que-o-sistema-nao-faz">1.3. Escopo Negativo (O que o sistema NÃO faz)<a class="headerlink" href="#13-escopo-negativo-o-que-o-sistema-nao-faz" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Não expõe dados privados:</strong> Jamais revela no chat público o orçamento individual ou quem vetou financeiramente uma opção.</li>
+<li><strong>Não atende eventos corporativos (Antipersona Patrícia):</strong> Salas limitadas a grupos de amigos (2 a 20 adultos), sem emissão de notas fiscais, venda de ingressos ou contratação de fornecedores.</li>
+<li><strong>Não promove encontros entre desconhecidos:</strong> Não opera como rede social aberta ou app de relacionamento (Modo Descoberta fora do MVP).</li>
+<li><strong>Não atende menores de 18 anos:</strong> Cadastros de menores são bloqueados em conformidade com o Art. 14 da LGPD.</li>
+<li><strong>Sem dependência de áudio/voz:</strong> A entrada de dados opera exclusivamente pelos 4 campos de texto secretos (ADR 0009).</li>
+</ul>
+<hr />
+<h2 id="2-arquitetura-do-grafo-multiagente-langgraph">2. Arquitetura do Grafo Multiagente (LangGraph)<a class="headerlink" href="#2-arquitetura-do-grafo-multiagente-langgraph" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>Atualizado em 20/11 para o que foi implementado</strong> (<code>src/agentes/grafo.py</code>, PRs #80, #86 e #88). A versão anterior desta seção era o plano de 17/11, escrito antes do código.</p>
+</blockquote>
+<p>O fluxo é um <code>StateGraph</code> do LangGraph (<a href="../../decisoes/0015-orquestracao-com-langgraph/">ADR 0015</a>), com 8 nós, um ciclo condicional entre a Validação e a Pesquisa e outro entre a validação dos textos e a Comunicação.
+- O estado do grafo (<code>MultiAgentState</code>, Seção 4) só tem dados públicos e mensagens anônimas.
+- Teto, origem, janelas e restrições de cada pessoa ficam no <strong>cofre</strong>, um objeto do servidor preso ao grafo na construção, que só os nós de código leem (RNF-02).</p>
+<pre class="mermaid"><code>flowchart TD
+    classDef llm fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
+    classDef code fill:#e8f5e9,stroke:#388e3c,stroke-width:2px;
+    classDef hybrid fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+    classDef decision fill:#fff3e0,stroke:#f57c00,stroke-width:2px;
+    classDef data fill:#eceff1,stroke:#546e7a,stroke-width:1.5px;
+
+    START(["Sala com os 4 campos de cada membro"]):::data --&gt;|"Send: um por membro, em paralelo"| P["0. Agente Pessoal (um por membro)&lt;br/&gt;código; canais 1, 2 e 4 vão para o cofre,&lt;br/&gt;canal 3 (preferências) vai para o grupo"]:::code
+    P --&gt; G["Consolidação do grupo&lt;br/&gt;tipos, vibes e restrições somados, sem dizer de quem"]:::code
+    G --&gt;|"sem janela comum"| F
+    G --&gt; PQ["1. Pesquisa&lt;br/&gt;LLM DeepSeek V4.1 Flash planeja até 3 consultas;&lt;br/&gt;a ferramenta busca nos 93 lugares (ADR 0008)"]:::llm
+    PQ --&gt; L["2. Logística e Justiça&lt;br/&gt;código: trajeto de cada um, Menor Miséria,&lt;br/&gt;pontuação 45/35/20; não veta"]:::code
+    L --&gt; V["3. Validação&lt;br/&gt;código: horário, restrição, deslocamento acima de 75 min, orçamento;&lt;br/&gt;juiz LLM da 1ª passagem opcional"]:::hybrid
+    V --&gt; C1{"menos de 3 validados&lt;br/&gt;e menos de 2 voltas?"}:::decision
+    C1 --&gt;|"sim: pedido só com contagens de vetos"| PQ
+    C1 --&gt;|"não, e há validados"| CM["4. Comunicação&lt;br/&gt;LLM DeepSeek V4.1 Flash: título, acesso e&lt;br/&gt;por que combina, sem números"]:::llm
+    C1 --&gt;|"não, e nada passou"| F
+    CM --&gt; VT["Validação dos textos&lt;br/&gt;varredura em código (nomes e RAs do cofre)&lt;br/&gt;+ juiz LLM GLM 5.3 Flash (2ª passagem)"]:::hybrid
+    VT --&gt;|"reprovado: 1 reescrita, só dos reprovados"| CM
+    VT --&gt;|"aprovado ou já reescrito"| F["Finalização&lt;br/&gt;código: preço, horário, tempos, endereço e link&lt;br/&gt;do TikTok em cada cartão; aviso se houver menos de 3"]:::code
+    F --&gt; END(["Tela 3: 3 a 4 cartões para votação,&lt;br/&gt;ou o aviso de que nada atende o grupo"]):::data</code></pre>
+<p><strong>Como ler o diagrama</strong>
+- <strong>Ciclo da Pesquisa:</strong> volta enquanto houver menos de 3 lugares validados, no máximo 2 vezes (<code>avaliar_convergencia</code>). O pedido de nova busca leva só a contagem dos vetos por motivo (<code>PedidoNovaBusca</code>), nunca texto livre, para uma instrução injetada não passar de um agente a outro.
+- <strong>Saídas para o fim:</strong> quando não há horário em que pelo menos 2 pessoas possam, o grafo vai direto da consolidação para o fim. Quando nada passa depois das 2 voltas, vai da Validação para o fim, sem chamar a Comunicação. É o caso do cenário padrão da #66.
+- <strong>Ciclo da Comunicação:</strong> um cartão reprovado volta uma vez, e só os reprovados vão de novo para o LLM. Se continuar reprovado, o cartão sai com o texto de reserva por regras.
+- <strong>Limite de passos:</strong> <code>recursion_limit</code> 40. O pior caso usa 16 passos.
+- <strong>Estado:</strong> fica no <code>InMemorySaver</code>, por sala (<code>thread_id</code>).
+- <strong>Observabilidade:</strong> cada nó é um span do Langfuse com entrada e saída escolhidas à mão, nunca o estado inteiro (ADR 0015). Os nomes dos spans são <code>agente_pessoal</code>, <code>consolidar_grupo</code>, <code>pesquisa</code>, <code>logistica</code>, <code>validacao</code>, <code>comunicacao</code>, <code>validacao_textos</code> e <code>finalizar</code>, debaixo de um trace <code>sala_multiagente</code>. Os links dos traces do demo estão na Seção 8.11.
+- <strong>Diagrama do grafo compilado:</strong> o desenhado pelo próprio LangGraph fica em <a href="../../entregas/semana-04/grafo_agentes.mmd"><code>grafo_agentes.mmd</code></a>, gerado pelo demo.</p>
+<hr />
+<h2 id="3-os-5-agentes-como-implementados">3. Os 5 Agentes como Implementados<a class="headerlink" href="#3-os-5-agentes-como-implementados" title="Permanent link">&para;</a></h2>
+<p>Os exemplos de mensagem abaixo são do demo com LLM de 20/11, cenário de controle da #66 (<a href="../../entregas/semana-04/DEMO_MULTIAGENTE_LOG.txt">log</a>).</p>
+<h3 id="0-agente-pessoal-srcagentespessoalpy-issue-65">🔒 0. Agente Pessoal (<code>src/agentes/pessoal.py</code>, issue #65)<a class="headerlink" href="#0-agente-pessoal-srcagentespessoalpy-issue-65" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Natureza:</strong> código, antes do rolê; LLM só depois do rolê, para ler o comentário de avaliação (RF-37).</li>
+<li><strong>O que faz:</strong> um por membro, em paralelo. Lê os 4 campos da Tela 2 pelo interpretador (<code>src/interpretador/campos.py</code>, ADR 0009) e soma o log pessoal da pessoa (itens válidos por 180 dias; o que a pessoa escreve nos campos vale mais que o log). Depois, separa tudo em 4 canais:</li>
+<li><strong>orçamento</strong> (teto), para o veto de orçamento da Validação, fica no cofre;</li>
+<li><strong>restrições duras</strong>, para o veto de restrição, ficam no cofre;</li>
+<li><strong>preferências</strong> (tipos, vibes, o que evitar, trecho do pedido sem nomes, regiões nem números), o <strong>único canal público</strong>, vão para o grupo;</li>
+<li><strong>logística</strong> (origem, janelas e transporte), para a Logística e o cruzamento de horários, fica no cofre.</li>
+<li><strong>Depois do rolê:</strong> o LLM propõe o que lembrar do comentário; a pessoa confirma; só enumerações vão para o log, sem o texto. Instrução sobre outra pessoa é ignorada, e proposta que se contradiz não é gravada.</li>
+<li><strong>Mensagem real:</strong><blockquote>
+<p><em>"4 agentes pessoais responderam. Tipos pedidos: Ao Ar Livre (1 de 4), Restaurante (1 de 4). Restrições do grupo: 0. Itens de memória usados: 1. Melhor janela: sáb 21/11, 15h–18h (4 de 4 podem)."</em></p>
+</blockquote>
+</li>
+</ul>
+<h3 id="1-pesquisa-srcagentespesquisapy-issue-70">🔎 1. Pesquisa (<code>src/agentes/pesquisa.py</code>, issue #70)<a class="headerlink" href="#1-pesquisa-srcagentespesquisapy-issue-70" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Natureza:</strong> LLM (DeepSeek V4.1 Flash pela OpenRouter, roteamento sem retenção) + ferramenta determinística de busca (<code>buscar_lugares_rag</code>, léxica ou vetorial, ADR 0012).</li>
+<li><strong>Sem <em>tool calling</em> nativo:</strong> o LLM escreve até 3 consultas numa resposta só (JSON Schema estrito), o código executa a busca, e o LLM escolhe de 8 a 10 candidatos com <code>motivo</code> e <code>trecho</code> literal do documento. Assim é uma chamada a menos por rodada (RNF-14), e o modelo não decide quantas vezes buscar.</li>
+<li><strong>Zero alucinação (RNF-03):</strong> candidato com id que a busca não trouxe, repetido ou com trecho que não está no documento é descartado. A ferramenta não entrega ao LLM preço, horário nem endereço.</li>
+<li><strong>Na volta da Validação:</strong> recebe só o <code>PedidoNovaBusca</code> (contagens) e não repete lugares já vistos. Sem LLM, consultas e seleção saem por regras.</li>
+<li><strong>Limitação medida:</strong> sem LLM, a nota léxica quase não separa os lugares, e a Pesquisa acha só 1 dos 5 viáveis do cenário de controle (Seção 8.8). Com LLM, acha 3.</li>
+<li><strong>Mensagem real:</strong><blockquote>
+<p><em>"Encontrei 10 candidatos na base (3 consultas, busca lexica). Destaques: Fábrica de Bolos Valzira, Denise Suítez, The Coffee Talk, Restaurante Tete a Tete. Observação: A base trouxe poucas opções de ao ar livre…"</em></p>
+</blockquote>
+</li>
+</ul>
+<h3 id="2-logistica-e-justica-srcagenteslogisticapy-issue-67">🚌 2. Logística e Justiça (<code>src/agentes/logistica.py</code>, issue #67)<a class="headerlink" href="#2-logistica-e-justica-srcagenteslogisticapy-issue-67" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Natureza:</strong> código (RNF-04, <a href="../../decisoes/0013-deslocamento-e-menor-miseria/">ADR 0013</a>).</li>
+<li><strong>O que faz:</strong> para cada candidato, usa a primeira janela comum em que o lugar abre. Para cada presente, estima o trajeto pelo meio mais barato que chega em até 75 min (ou o mais rápido, se nenhum chega) com o módulo de transporte das 35 RAs. Com isso, calcula a nota da Menor Miséria (o pior trajeto pesa mais que a média) e a pontuação: 45% aderência ao pedido, 35% justiça e 20% certeza do horário.</li>
+<li><strong>Não veta:</strong> só mede e ordena. O trajeto de cada pessoa fica no cofre (<code>Cofre.analises</code>), e para o estado saem só agregados (<code>CandidatoAvaliado</code>).</li>
+<li><strong>Parecer por regra, sem LLM:</strong> cita o meio do pior trajeto só quando pelo menos 2 presentes usam esse meio, para não apontar quem mora longe.</li>
+<li><strong>Mensagem real:</strong><blockquote>
+<p><em>"Ranking Logístico: Uzuki Sushi (score 78; pior trajeto 109 min de ônibus/metrô; média 70 min), Farol Restaurante (score 77), Dudu Bar (score 77), Saguari Gastro House (score 73)…"</em></p>
+</blockquote>
+</li>
+</ul>
+<h3 id="3-validacao-srcagentesvalidacaopy-e-srcagentesjuizpy-issues-68-e-72">🛡️ 3. Validação (<code>src/agentes/validacao.py</code> e <code>src/agentes/juiz.py</code>, issues #68 e #72)<a class="headerlink" href="#3-validacao-srcagentesvalidacaopy-e-srcagentesjuizpy-issues-68-e-72" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Natureza:</strong> código, mais o juiz LLM (GLM 5.3 Flash, <a href="../../decisoes/0014-juiz-glm-5.3-flash/">ADR 0014</a>) em 2 passagens.</li>
+<li><strong>Vetos em código</strong> (<code>validar_candidatos_regras</code>). Todos os motivos de cada lugar são contados:</li>
+<li><strong>horário:</strong> o lugar não abre na janela comum, ou o evento já passou (<code>encerrado</code>);</li>
+<li><strong>restrição:</strong> o texto do vídeo não comprova a restrição do grupo (ex.: opção vegetariana);</li>
+<li><strong>deslocamento:</strong> o trajeto de algum presente passa de 75 min, ou não há trajeto estimado para ninguém;</li>
+<li><strong>orçamento:</strong> consumo mais ida e volta passa do teto de algum presente na janela.</li>
+<li><strong>Seleção dos cartões:</strong> até 4, na ordem do ranking, no máximo 2 por RA e sem nome repetido.</li>
+<li><strong>Juiz, 1ª passagem (opcional, <code>juiz_parecer=True</code>):</strong> confere os motivos da Pesquisa contra o documento do lugar. Só o que <strong>contradiz</strong> é derrubado; <code>sem_apoio</code> fica.</li>
+<li><strong>Validação dos textos:</strong></li>
+<li>uma varredura em código procura número, nome ou parte de nome de membro e a RA de onde alguém sai, com os dados do cofre, que o juiz não vê;</li>
+<li>o juiz, 2ª passagem, procura contradição com a base e exposição de origem, orçamento, restrição ou texto pessoal;</li>
+<li>qualquer achado manda o cartão para reescrita.</li>
+<li><strong>Mensagens reais:</strong><blockquote>
+<p><em>"Só 2 lugares passaram (vetos: 3 por horario, 8 por orcamento, 4 por deslocamento). Pesquisa, preciso de mais 1 candidatos."</em></p>
+<p><em>"3 cartões aprovados: a varredura não achou número, nome nem origem de ninguém, e o juiz (LLM) não achou contradição nem exposição."</em></p>
+</blockquote>
+</li>
+</ul>
+<h3 id="4-comunicacao-srcagentescomunicacaopy-issue-69">💬 4. Comunicação (<code>src/agentes/comunicacao.py</code>, issue #69)<a class="headerlink" href="#4-comunicacao-srcagentescomunicacaopy-issue-69" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Natureza:</strong> LLM (DeepSeek V4.1 Flash), com o prompt do Anfitrião e JSON Schema estrito.</li>
+<li><strong>O que recebe:</strong> só fatos do grupo por cartão: nome, tipo e região do lugar, trechos do documento citados pela Pesquisa e sinais booleanos (chegada equilibrada, cabe no orçamento do grupo, todos podem na janela). Nenhum tempo, valor ou origem de ninguém.</li>
+<li><strong>O que escreve:</strong> <code>titulo</code>, <code>resumo_acesso</code> e <code>por_que_combina</code>, sem números. Preço, horário, tempos, endereço e link do TikTok entram por código na finalização. Sem LLM, ou com o cartão reprovado duas vezes, o texto sai por regras (<code>texto_por</code> diz qual).</li>
+<li><strong>Pendência:</strong> o grafo usa <code>montar_fatos</code> e <code>escrever</code> para poder reescrever um cartão só. Juntar com o <code>executar_agente_comunicacao</code> da #69 fica para depois da entrega.</li>
+<li><strong>Mensagem real:</strong><blockquote>
+<p><em>"Escrevi 3 cartões: A) Jantar caprichado e conversa tranquila; B) Fatias de bolo sem pesar no bolso; C) Confeitaria aconchegante para conversar."</em></p>
+</blockquote>
+</li>
+</ul>
+<hr />
+<h2 id="4-estado-do-grafo-multiagentstate-e-cofre">4. Estado do Grafo (<code>MultiAgentState</code>) e Cofre<a class="headerlink" href="#4-estado-do-grafo-multiagentstate-e-cofre" title="Permanent link">&para;</a></h2>
+<p>O estado do grafo (<code>src/agentes/estado.py</code>, issue #64) só tem dados públicos. <code>serializar_estado</code> recusa o estado que tiver nome, usuário, teto ou origem de alguém. Os campos, por agente:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="k">class</span><span class="w"> </span><span class="nc">MultiAgentState</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">,</span> <span class="n">total</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="c1"># entrada</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    <span class="n">sala_id</span><span class="p">:</span> <span class="nb">str</span>                                           <span class="c1"># código da sala (não identifica ninguém)</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="n">trace_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span>                                  <span class="c1"># link do trace no Langfuse</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="n">membros</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>                                     <span class="c1"># marcadores m1..mN; o Send abre um Agente Pessoal por um</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="c1"># Agente 0 (Pessoal) -&gt; grupo</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="n">membros_anonimos</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">operator</span><span class="o">.</span><span class="n">add</span><span class="p">]</span>  <span class="c1"># canal 3 de cada membro, em paralelo</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="n">preferencias_grupo</span><span class="p">:</span> <span class="nb">dict</span>                               <span class="c1"># tipos e vibes agregados, restrições sem dizer de quem</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="c1"># Agente 1 (Pesquisa)</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="n">candidatos_pesquisa</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>                        <span class="c1"># id, motivo e trecho literal conferido</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="n">documentos</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span>                            <span class="c1"># documentos da base que a Pesquisa leu</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="n">vistos</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>                                      <span class="c1"># ids já devolvidos (não repetir)</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="n">pedido_nova_busca</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span>                         <span class="c1"># PedidoNovaBusca: só contagens</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="n">iteracao_pesquisa</span><span class="p">:</span> <span class="nb">int</span>                                 <span class="c1"># voltas Validação -&gt; Pesquisa (máximo 2)</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="c1"># Agente 2 (Logística)</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="n">candidatos_avaliados</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>                       <span class="c1"># agregados de deslocamento e nota</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="c1"># Agente 3 (Validação)</span>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="n">julgados</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>                                    <span class="c1"># ids que já passaram pelo juiz do parecer</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="n">relatorio_validacao</span><span class="p">:</span> <span class="nb">dict</span>                              <span class="c1"># aprovados, vetos (id e motivo) e contagem</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="n">candidatos_validados</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>                       <span class="c1"># os escolhidos para os cartões</span>
+<a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="c1"># Agente 4 (Comunicação) e validação dos textos</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    <span class="n">fatos</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>                                      <span class="c1"># o que a Comunicação pode afirmar de cada cartão</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    <span class="n">cartoes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>                                    <span class="c1"># textos escritos pela Comunicação</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>    <span class="n">cartoes_por_llm</span><span class="p">:</span> <span class="nb">bool</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    <span class="n">reprovados</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>                       <span class="c1"># cartão -&gt; motivos (só enumerações)</span>
+<a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>    <span class="n">reescritas</span><span class="p">:</span> <span class="nb">int</span>                                        <span class="c1"># voltas Validação -&gt; Comunicação (máximo 1)</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>    <span class="c1"># saída</span>
+<a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>    <span class="n">resultado_final_cartoes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>                    <span class="c1"># cartões públicos para a votação (Tela 3)</span>
+<a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>    <span class="n">mensagens</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">operator</span><span class="o">.</span><span class="n">add</span><span class="p">]</span>         <span class="c1"># a conversa entre os agentes</span>
+<a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a>    <span class="n">historico_erros</span><span class="p">:</span> <span class="n">Annotated</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">operator</span><span class="o">.</span><span class="n">add</span><span class="p">]</span>    <span class="c1"># vetos, reprovações e falhas, em ordem</span>
+</code></pre></div>
+<p><strong>O cofre</strong> (<code>Cofre</code>, em <code>src/agentes/contratos.py</code>) fica fora do estado, no servidor, e só os nós de código o leem. Ele guarda:
+- os membros, com nome e os 4 campos;
+- os perfis efetivos (campos mais log pessoal);
+- as janelas comuns;
+- a base de lugares;
+- o trajeto de cada pessoa por lugar (<code>analises</code>);
+- os cartões com o custo e o tempo de cada um (<code>sugestoes</code>, para a visão privada).</p>
+<p>Para o LLM, só vai o que está no estado e nos fatos dos cartões. Um teste confere, em cada corpo enviado à OpenRouter, que não há nome, teto nem origem de membro.</p>
+<hr />
+<h2 id="5-mapeamento-oficial-das-13-issues-no-github">5. Mapeamento Oficial das 13 Issues no GitHub<a class="headerlink" href="#5-mapeamento-oficial-das-13-issues-no-github" title="Permanent link">&para;</a></h2>
+<p>Todas as tarefas foram cadastradas no GitHub no padrão unificado <code>[Semana 4] [ÁREA]</code>, vinculadas ao <strong>Milestone #4</strong> e ao <strong>Projeto #1</strong>:</p>
+<blockquote>
+<p>[!IMPORTANT]
+<strong>Ponto de Atenção para o Time sobre o Início do Desenvolvimento e PRs:</strong><br />
+Os módulos dos agentes (<strong>#65</strong>, <strong>#67</strong>, <strong>#68</strong>, <strong>#69</strong> e <strong>#70</strong>) <strong>NÃO precisam esperar</strong> a modelagem do grafo para serem codificados. Todos os responsáveis podem (e devem) começar a implementar as funções de negócio, prompts e testes unitários locais imediatamente em suas branches!<br />
+<strong>Atenção 1:</strong> Só <strong>não façam Pull Request (PR) de integração</strong> no LangGraph antes que o Cauan (<code>@cadasiso</code>) finalize e publique a <strong>#64</strong> (<code>MultiAgentState</code>), pois o grafo precisa dessa estrutura compartilhada para conectar as pontas.<br />
+<strong>Atenção 2 (Critério Obrigatório de Aceitação para Todas as Issues):</strong> Todo membro deve, obrigatoriamente, registrar na <strong>Seção 8</strong> deste documento (<code>docs/semanas/semana-04.md</code>) o que foi feito na sua issue, justificando as <strong>decisões técnicas e de arquitetura</strong> tomadas, listando os arquivos criados/modificados e anexando as evidências de testes locais. Nenhum PR deve ser mergeado sem este registro.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Issue</th>
+<th style="text-align: left;">Título Oficial</th>
+<th style="text-align: center;">Responsável</th>
+<th style="text-align: center;">Área</th>
+<th style="text-align: center;">Início</th>
+<th style="text-align: center;">Prazo</th>
+<th style="text-align: center;">Status Oficial</th>
+<th style="text-align: left;">Dependência e Regra de PR</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;"><strong>#64</strong></td>
+<td style="text-align: left;"><code>[Semana 4] [BACKEND] Modelagem do Estado Compartilhado (MultiAgentState) no LangGraph</code></td>
+<td style="text-align: center;"><code>@cadasiso</code></td>
+<td style="text-align: center;"><code>BACKEND</code></td>
+<td style="text-align: center;">Ter (17/11)</td>
+<td style="text-align: center;">Ter 18:00</td>
+<td style="text-align: center;"><code>status:liberada</code></td>
+<td style="text-align: left;">Início imediato</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>#65</strong></td>
+<td style="text-align: left;"><code>[Semana 4] [BACKEND] Agente 0 (Pessoal): Sanitização de PII e Segregação dos 4 Canais</code></td>
+<td style="text-align: center;"><code>@cadasiso</code></td>
+<td style="text-align: center;"><code>BACKEND</code></td>
+<td style="text-align: center;">Ter (17/11)</td>
+<td style="text-align: center;">Ter 18:00</td>
+<td style="text-align: center;"><code>status:liberada</code></td>
+<td style="text-align: left;">Desenvolvimento em paralelo; PR aguarda #64</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>#66</strong></td>
+<td style="text-align: left;"><code>[Semana 4] [DATA] Dataset de Teste com Cenário dos 4 Amigos no DF (Golden de Rolê)</code></td>
+<td style="text-align: center;"><code>@samarawwleticia</code></td>
+<td style="text-align: center;"><code>DATA</code></td>
+<td style="text-align: center;">Ter (17/11)</td>
+<td style="text-align: center;">Ter 18:00</td>
+<td style="text-align: center;"><code>status:liberada</code></td>
+<td style="text-align: left;">Início imediato</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>#67</strong></td>
+<td style="text-align: left;"><code>[Semana 4] [BACKEND] Agente 2 (Logística &amp; Justiça): Deslocamento e Regra da Menor Miséria</code></td>
+<td style="text-align: center;"><code>@samarawwleticia</code></td>
+<td style="text-align: center;"><code>BACKEND</code></td>
+<td style="text-align: center;">Ter (17/11)</td>
+<td style="text-align: center;">Qui 12:00</td>
+<td style="text-align: center;"><code>status:liberada</code></td>
+<td style="text-align: left;">Desenvolvimento em paralelo; PR aguarda #64</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>#68</strong></td>
+<td style="text-align: left;"><code>[Semana 4] [BACKEND] Agente 3 (Validação): Filtros Determinísticos de Horário, Orçamento e Restrições</code></td>
+<td style="text-align: center;"><code>@eduarda-ogomes</code></td>
+<td style="text-align: center;"><code>BACKEND</code></td>
+<td style="text-align: center;">Ter (17/11)</td>
+<td style="text-align: center;">Ter 18:00</td>
+<td style="text-align: center;"><code>status:liberada</code></td>
+<td style="text-align: left;">Desenvolvimento em paralelo; PR aguarda #64</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>#69</strong></td>
+<td style="text-align: left;"><code>[Semana 4] [BACKEND] Agente 4 (Comunicação): Prompt do Anfitrião e Formatação de Cartões em JSON</code></td>
+<td style="text-align: center;"><code>@mcznh</code></td>
+<td style="text-align: center;"><code>BACKEND</code></td>
+<td style="text-align: center;">Ter (17/11)</td>
+<td style="text-align: center;">Ter 18:00</td>
+<td style="text-align: center;"><code>status:liberada</code></td>
+<td style="text-align: left;">Desenvolvimento em paralelo; PR aguarda #64</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>#70</strong></td>
+<td style="text-align: left;"><code>[Semana 4] [BACKEND] Agente 1 (Pesquisa): Prompt do Curador + Tool RAG dos 93 Lugares do TikTok</code></td>
+<td style="text-align: center;"><code>@cadasiso</code></td>
+<td style="text-align: center;"><code>BACKEND</code></td>
+<td style="text-align: center;">Qui (19/11)</td>
+<td style="text-align: center;">Qui 12:00</td>
+<td style="text-align: center;"><code>status:liberada</code></td>
+<td style="text-align: left;">Desenvolvimento em paralelo; PR aguarda #64</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>#71</strong></td>
+<td style="text-align: left;"><code>[Semana 4] [BACKEND] Orquestrador do Grafo no LangGraph com Ciclo Condicional Pesquisa-Validação</code></td>
+<td style="text-align: center;"><code>@cadasiso</code></td>
+<td style="text-align: center;"><code>BACKEND</code></td>
+<td style="text-align: center;">Qui (19/11)</td>
+<td style="text-align: center;">Qui 15:00</td>
+<td style="text-align: center;"><code>status:bloqueada</code></td>
+<td style="text-align: left;">Bloqueada por #65, #67, #68, #69, #70</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>#72</strong></td>
+<td style="text-align: left;"><code>[Semana 4] [LLMOPS] Juiz LLM em 2 Passagens para Validação Factual e Prevenção de Vazamento (ADR 0014)</code></td>
+<td style="text-align: center;"><code>@eduarda-ogomes</code></td>
+<td style="text-align: center;"><code>LLMOPS</code></td>
+<td style="text-align: center;">Qui (19/11)</td>
+<td style="text-align: center;">Qui 14:00</td>
+<td style="text-align: center;"><code>status:liberada</code></td>
+<td style="text-align: left;">Desenvolvimento em paralelo; integração com #68</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>#73</strong></td>
+<td style="text-align: left;"><code>[Semana 4] [LLMOPS] Instrumentação de Telemetria e Tracing do Grafo Multiagente no Langfuse Cloud</code></td>
+<td style="text-align: center;"><code>@eduarda-ogomes</code></td>
+<td style="text-align: center;"><code>LLMOPS</code></td>
+<td style="text-align: center;">Qui (19/11)</td>
+<td style="text-align: center;">Qui 16:00</td>
+<td style="text-align: center;"><code>status:bloqueada</code></td>
+<td style="text-align: left;">Bloqueada por #71 (Grafo Compilado)</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>#74</strong></td>
+<td style="text-align: left;"><code>[Semana 4] [BACKEND] Script Executável de Demonstração CLI do Fluxo Multiagente (demo_multiagente.py)</code></td>
+<td style="text-align: center;"><code>@cadasiso</code></td>
+<td style="text-align: center;"><code>BACKEND</code></td>
+<td style="text-align: center;">Qui (19/11)</td>
+<td style="text-align: center;">Qui 17:00</td>
+<td style="text-align: center;"><code>status:bloqueada</code></td>
+<td style="text-align: left;">Bloqueada por #71, #73</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>#75</strong></td>
+<td style="text-align: left;"><code>[Semana 4] [DOCS] Diagrama Visual da Arquitetura do Grafo Multiagente (Mermaid &amp; SVG)</code></td>
+<td style="text-align: center;"><code>@mcznh</code></td>
+<td style="text-align: center;"><code>DOCS</code></td>
+<td style="text-align: center;">Ter (17/11)</td>
+<td style="text-align: center;">Qui 15:00</td>
+<td style="text-align: center;"><code>status:concluida</code></td>
+<td style="text-align: left;">Concluída com docs, SVG e testes locais</td>
+</tr>
+<tr>
+<td style="text-align: center;"><strong>#76</strong></td>
+<td style="text-align: left;"><code>[Semana 4] [DOCS] Relatório Técnico da Semana 4 para o Teams e Submissão Oficial</code></td>
+<td style="text-align: center;"><code>@mitii05</code></td>
+<td style="text-align: center;"><code>DOCS</code></td>
+<td style="text-align: center;">Qui (19/11)</td>
+<td style="text-align: center;"><strong>Qui 18:00</strong></td>
+<td style="text-align: center;"><code>status:bloqueada</code></td>
+<td style="text-align: left;">Bloqueada por #74, #75 (Submissão Final)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-distribuicao-de-carga-horaria-12h-por-integrante">6. Distribuição de Carga Horária (~12h por Integrante)<a class="headerlink" href="#6-distribuicao-de-carga-horaria-12h-por-integrante" title="Permanent link">&para;</a></h2>
+<p>O cronograma do time opera estritamente nas terças (4h presenciais) e quintas (8h de desenvolvimento integrado), totalizando ~12 horas úteis por membro:</p>
+<ul>
+<li><strong>Cauan Soares (<code>@cadasiso</code>):</strong></li>
+<li>Terça: Modelagem do Estado Compartilhado (#64 - 2h) + Agente 0 Pessoal (#65 - 2h) = 4h</li>
+<li>Quinta: Agente 1 Pesquisa (#70 - 3h) + Orquestrador LangGraph (#71 - 3h) + Script Demo CLI (#74 - 2h) = 8h<br />
+<em>Total: 12h</em></li>
+<li><strong>Maria Eduarda (<code>@eduarda-ogomes</code>):</strong></li>
+<li>Terça: Agente 3 Validação — Vetos Duros em Código (#68 - 4h) = 4h</li>
+<li>Quinta: Juiz LLM em 2 Passagens (#72 - 4h) + Telemetria/Tracing Langfuse (#73 - 4h) = 8h<br />
+<em>Total: 12h</em></li>
+<li><strong>Samara Letícia (<code>@samarawwleticia</code>):</strong></li>
+<li>Terça: Dataset do Cenário dos 4 Amigos no DF (#66 - 2h) + Agente 2 Logística início (#67 - 2h) = 4h</li>
+<li>Quinta: Agente 2 Logística conclusão e testes com Menor Miséria (#67 - 4h) + Testes de Integração = 8h<br />
+<em>Total: 12h</em></li>
+<li><strong>Maria Carolina (<code>@mcznh</code>):</strong></li>
+<li>Terça: Agente 4 Comunicação e Schema JSON dos Cards (#69 - 4h) = 4h</li>
+<li>Quinta: Diagramas Arquiteturais Mermaid &amp; SVG (#75 - 4h) + Alinhamento do formato dos Cards = 8h<br />
+<em>Total: 12h</em></li>
+<li><strong>Letícia Miti Takahashi (<code>@mitii05</code>):</strong></li>
+<li>Terça: Apoio em testes de contrato e validação preliminar dos dados (4h) = 4h</li>
+<li>Quinta: Compilação do Relatório Técnico ABNT e Submissão Oficial no Teams (#76 - 8h) = 8h<br />
+<em>Total: 12h</em></li>
+</ul>
+<hr />
+<h2 id="7-instrucoes-operacionais-e-comandos-do-time">7. Instruções Operacionais e Comandos do Time<a class="headerlink" href="#7-instrucoes-operacionais-e-comandos-do-time" title="Permanent link">&para;</a></h2>
+<h3 id="71-fluxo-git-e-convencao-de-branches">7.1. Fluxo Git e Convenção de Branches<a class="headerlink" href="#71-fluxo-git-e-convencao-de-branches" title="Permanent link">&para;</a></h3>
+<p>Todo desenvolvimento ocorre em branches isoladas partindo da <code>main</code> atualizada:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>git<span class="w"> </span>checkout<span class="w"> </span>main
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>git<span class="w"> </span>pull<span class="w"> </span>origin<span class="w"> </span>main
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>feat/semana4-&lt;nome-da-tarefa&gt;
+</code></pre></div></p>
+<h3 id="72-execucao-de-testes-automatizados-locais">7.2. Execução de Testes Automatizados Locais<a class="headerlink" href="#72-execucao-de-testes-automatizados-locais" title="Permanent link">&para;</a></h3>
+<p>Nenhum Pull Request pode ser aberto sem os testes passando localmente:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># Executa testes unitários rápidos</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>pytest<span class="w"> </span>-v<span class="w"> </span>tests/test_&lt;sua_tarefa&gt;.py
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1"># Executa toda a suíte oficial do repositório</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>make<span class="w"> </span>test-local
+</code></pre></div></p>
+<h3 id="73-demonstracao-oficial-do-multiagente-cli">7.3. Demonstração Oficial do Multiagente (CLI)<a class="headerlink" href="#73-demonstracao-oficial-do-multiagente-cli" title="Permanent link">&para;</a></h3>
+<p>Para validar o fluxo completo e obter a URL do trace no Langfuse:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>python<span class="w"> </span>scripts/demo_multiagente.py
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="c1"># ou pelo Makefile</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>make<span class="w"> </span>demo-agentes
+</code></pre></div></p>
+<h3 id="74-submissao-no-microsoft-teams">7.4. Submissão no Microsoft Teams<a class="headerlink" href="#74-submissao-no-microsoft-teams" title="Permanent link">&para;</a></h3>
+<p>O envio formal do entregável deve ser postado impreterivelmente até <strong>Quinta-feira, 19/11/2026, às 18:00 (BRT)</strong> no canal <code>4_Second Challenge</code> contendo:
+1. Link do Pull Request / Repositório na branch <code>main</code>;
+2. PDF oficial do Relatório Técnico compilado;
+3. Prints dos logs de execução do <code>scripts/demo_multiagente.py</code>;
+4. Link público e capturas de tela da árvore de execução e traces no Langfuse Cloud.</p>
+<h3 id="75-criterio-de-aceitacao-obrigatorio-registro-de-entregas-e-decisoes">7.5. Critério de Aceitação Obrigatório: Registro de Entregas e Decisões<a class="headerlink" href="#75-criterio-de-aceitacao-obrigatorio-registro-de-entregas-e-decisoes" title="Permanent link">&para;</a></h3>
+<p>Para garantir a rastreabilidade do projeto, a consistência com os relatórios das semanas anteriores (Semana 02 e 03) e facilitar a compilação do Relatório Técnico ABNT (#76), <strong>todo integrante deve atualizar a Seção 8 abaixo ao concluir sua issue</strong>:
+- Descrever o que foi implementado;
+- Justificar as decisões técnicas e de design tomadas (por que foi feito dessa forma);
+- Listar arquivos criados ou modificados;
+- Registrar comandos de teste executados e evidências de validação (pytest/make).
+Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 esteja preenchida.</p>
+<hr />
+<h2 id="8-registro-de-execucao-e-decisoes-tecnicas-por-issue">8. Registro de Execução e Decisões Técnicas por Issue<a class="headerlink" href="#8-registro-de-execucao-e-decisoes-tecnicas-por-issue" title="Permanent link">&para;</a></h2>
+<blockquote>
+<p><strong>Regra do Time:</strong> Atualize o bloco da sua issue assim que concluir a implementação e testes locais, antes de abrir o PR.</p>
+</blockquote>
+<h3 id="81-issue-64-modelagem-do-estado-compartilhado-multiagentstate">8.1. Issue #64 — Modelagem do Estado Compartilhado (<code>MultiAgentState</code>)<a class="headerlink" href="#81-issue-64-modelagem-do-estado-compartilhado-multiagentstate" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Responsável:</strong> Cauan Soares (<code>@cadasiso</code>)</li>
+<li><strong>Status:</strong> Concluída (PR <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2/pull/77">#77</a>, mesclado em 17/11)</li>
+<li><strong>O que foi feito:</strong></li>
+<li><code>MultiAgentState</code> (TypedDict) com os campos da issue (<code>sala_id</code>, <code>membros_anonimos</code>, <code>preferencias_grupo</code>, <code>candidatos_pesquisa</code>, <code>candidatos_avaliados</code>, <code>candidatos_validados</code>, <code>resultado_final_cartoes</code>, <code>iteracao_pesquisa</code>, <code>historico_erros</code>), mais <code>trace_url</code> e os campos auxiliares do grafo (documentos lidos, ids já vistos, pedido de nova busca, cartões, reprovações e mensagens entre agentes).</li>
+<li>Reducers <code>operator.add</code> em <code>membros_anonimos</code> (um perfil por Agente Pessoal, em paralelo), <code>mensagens</code> e <code>historico_erros</code>.</li>
+<li><code>serializar_estado</code> e <code>desserializar_estado</code>, que validam o estado com um espelho Pydantic (<code>EstadoSerializado</code>) com <code>extra="forbid"</code>.</li>
+<li><strong>Decisões Técnicas e Arquitetura:</strong></li>
+<li><strong>Os dados privados de cada membro não entram no estado.</strong> Os 4 campos, o teto, a origem e o nome ficam num <em>cofre</em> (<code>contratos.py</code>) que só os nós de código leem. Assim nada disso vai para o checkpoint do LangGraph, para o Langfuse ou para um LLM (RNF-02). A issue sugeria separar canais privados e públicos dentro do estado; tirar os privados do estado é mais seguro.</li>
+<li><strong>A serialização recusa vazamento</strong> (<code>VazamentoNoEstado</code>) em dois casos:<ul>
+<li>chave do cofre (<code>teto</code>, <code>origem</code>, <code>usuario</code>, <code>por_participante</code>…) em qualquer nível;</li>
+<li>id de usuário, nome ou parte de nome composto de algum membro em qualquer texto, sem diferenciar maiúsculas nem acentos.</li>
+</ul>
+</li>
+<li><strong>Na revisão da Maria Eduarda</strong>, a varredura de nomes passou a tirar os nomes dos lugares da base e a ignorar partículas. Sem isso, o lugar "Maria Fumaça" e a palavra "dos" dariam falso positivo.</li>
+<li><strong>Arquivos:</strong> <code>src/agentes/estado.py</code>, <code>src/agentes/contratos.py</code>, <code>src/agentes/__init__.py</code>, <code>tests/test_multiagent_state.py</code>, <code>AGENTS.md</code> (convenção de commits).</li>
+<li><strong>Testes e Validação:</strong></li>
+<li><code>pytest -v tests/test_multiagent_state.py</code>: 22 testes sem rede (campos, reducers, ida e volta em JSON, chave privada, nome em minúsculas, nome composto, "Maria Fumaça", partículas, campo desconhecido).</li>
+<li><code>docker compose up -d</code>: 616 testes passaram no container; CI verde no PR.</li>
+</ul>
+<hr />
+<h3 id="82-issue-65-agente-0-pessoal-sanitizacao-de-pii-e-segregacao-dos-4-canais">8.2. Issue #65 — Agente 0 (Pessoal): Sanitização de PII e Segregação dos 4 Canais<a class="headerlink" href="#82-issue-65-agente-0-pessoal-sanitizacao-de-pii-e-segregacao-dos-4-canais" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Responsável:</strong> Cauan Soares (<code>@cadasiso</code>)</li>
+<li><strong>Status:</strong> Concluída, em revisão (PR <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2/pull/80">#80</a>, junto com a #70)</li>
+<li><strong>O que foi feito:</strong> <code>executar_agente_pessoal(campos_usuario)</code> interpreta os 4 campos por regras (<code>src/interpretador/campos.py</code>). Devolve <code>PerfilMembroAnonimizado</code>, identificado só pelo marcador da sala (m1, m2…), com 4 canais:</li>
+<li>orçamento: teto individual, para os vetos financeiros da Validação;</li>
+<li>restrições duras: para os vetos da Validação;</li>
+<li>preferências anônimas: para o perfil do grupo e a Pesquisa. É o único canal público;</li>
+<li>origem, janelas e transporte: para a Logística e o cruzamento de janelas.</li>
+</ul>
+<p>O agente também lê o log pessoal antes do rolê. Depois do rolê, um LLM transforma o comentário da pessoa numa proposta de memória.
+* <strong>Decisões Técnicas e Arquitetura:</strong>
+  - <strong>Proteção contra vazamento em log:</strong> os canais 1, 2 e 4 ficam fora do <code>repr</code>, então um <code>print</code> do objeto não mostra teto nem origem.
+  - <strong>Pedido sanitizado:</strong> o pedido do campo 4 que vai ao grupo sai sem nomes da sala, regiões e números.
+  - <strong>Entrada fechada:</strong> campos fora do contrato e marcador que não seja da sala (m1, m2…) são erro.
+  - <strong>Log pessoal:</strong> guarda só listas fechadas com data, nunca texto livre, o que evita envenenar a memória. Um item vale por 180 dias, e o que a pessoa escreve nos campos vence o log.
+  - <strong>Pós-rolê:</strong> o LLM só propõe o que guardar. O código descarta trecho que não está no comentário, e nada é gravado sem a confirmação da pessoa.
+  - <strong>Cliente LLM:</strong> <code>src/agentes/llm.py</code> é o cliente da OpenRouter dos agentes, com JSON Schema estrito, a mesma chave do projeto e o roteamento sem retenção. Com ele, <code>langgraph</code> entrou no <code>requirements.txt</code> (ADR 0015).
+* <strong>Arquivos:</strong> <code>src/agentes/pessoal.py</code>, <code>src/agentes/llm.py</code>, <code>src/agentes/prompts/pessoal_pos_role.md</code>, <code>requirements.txt</code>, <code>tests/test_agente_pessoal.py</code>.
+* <strong>Testes e Validação:</strong> <code>pytest -v tests/test_agente_pessoal.py</code>, com 15 testes sem rede: os 4 canais, o canal público sem nome, origem, valor nem id, o <code>repr</code>, campos fora do contrato, o log pessoal com validade e o pós-rolê com trecho inventado.</p>
+<hr />
+<h3 id="83-issue-66-dataset-de-teste-com-cenario-dos-4-amigos-no-df-golden-de-role">8.3. Issue #66 — Dataset de Teste com Cenário dos 4 Amigos no DF (Golden de Rolê)<a class="headerlink" href="#83-issue-66-dataset-de-teste-com-cenario-dos-4-amigos-no-df-golden-de-role" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Responsável:</strong> Samara Letícia (<code>@samarawwleticia</code>)</li>
+<li><strong>Status:</strong> Concluída (revisão do PR atendida)</li>
+<li><strong>O que foi feito:</strong></li>
+<li>Criação de <code>data/cenarios_teste_multiagente.json</code> com dois cenários de pessoas fictícias (marcadores <code>m1</code> a <code>m4</code>), cada um com código de sala fixo:<ul>
+<li><code>cenario_padrao_4_amigos</code> (<code>ROLE-PADR</code>), o pedido pela issue: Ceilândia (teto R$ 40, metrô, vegetariana), Águas Claras (R$ 70, ônibus/metrô, ar livre), Asa Norte/Plano Piloto (R$ 120, carro/Uber, gastronomia) e Sobradinho (R$ 50, transporte público, "nada muito longe");</li>
+<li><code>cenario_controle_viavel</code> (<code>ROLE-CTRL</code>), o mesmo grupo com só duas mudanças (m1 sem a restrição vegetariana e m4 saindo de Taguatinga), para cobrir o caminho feliz.</li>
+</ul>
+</li>
+<li>Para cada amigo, os 4 campos de texto da Tela 2 como seriam digitados (<code>campos_tela2</code>) e o que o Agente 0 deve entender deles (<code>interpretacao_esperada</code>: RA oficial, macrorregião, teto, janelas, tipos, vibes, restrições e transporte).</li>
+<li>Para cada cenário, <code>resultados_esperados</code>: janela comum (sábado 21/11, 15h–18h, os 4 presentes), teto do grupo (R$ 40), restrições duras, veredito, lugares viáveis, lugares plausíveis com os vetos esperados e lugares que nunca devem ser sugeridos.</li>
+<li><code>src/agentes/cenarios.py</code>: <code>carregar_cenario()</code> e <code>para_entrada_do_grafo()</code>, a conversão única de um cenário para a entrada do fluxo (<code>{"codigo", "agora", "membros"}</code>), para a demonstração (#74) e os testes da #67 e da #68.</li>
+<li>Suíte <code>tests/test_cenarios_multiagente.py</code> com 97 testes.</li>
+<li><strong>Decisões Técnicas e Arquitetura:</strong></li>
+<li><em>Entrada e gabarito no mesmo registro:</em> o texto cru alimenta o Agente 0 e a demonstração; a interpretação esperada é o gabarito. O teste roda <code>interpretar_campos()</code> sobre cada texto e exige a saída exata. A conversão para o grafo leva só o que a Tela 2 teria recebido: nada do gabarito nem os marcadores chegam ao sistema testado.</li>
+<li><em>Data de referência fixa (<code>agora_referencia</code> = 17/11/2026 12h):</em> "sábado das 14h às 22h" só vira data relativa a um "agora". Sem ela, o teste quebraria sozinho depois do sábado (pendência <code>janela_passada</code>). A conversão para o grafo sempre usa esse valor.</li>
+<li><em>Dois cenários: estresse e controle.</em> O cenário pedido na issue <strong>não tem lugar viável</strong>: o veredito é <code>sem_lugar_viavel</code> e o comportamento esperado é vetar tudo, devolver à Pesquisa só a contagem dos vetos (até 2 voltas) e avisar que há menos de 3 opções, sem inventar cartão (RNF-03). Com só esse cenário, um sistema que nunca gera cartão passaria em tudo e a demonstração terminaria vazia; por isso o cenário de controle tem 5 lugares viáveis (Fábrica de Bolos Valzira, Denise Suítez, Debeche Açaí, Golden Black e Saguari Gastro House). Mudar só uma das duas coisas, ou subir o teto do m1 para R$ 80, ainda deixa 0 viáveis.</li>
+<li><em>Causa estável do veredito do cenário padrão:</em> a restrição vegetariana com o teto de R$ 40. Só 3 lugares da base comprovam opção vegetariana (Pizzaria Natureto, Yaki Nikuya e The Plenty) e nenhum cabe no teto do m1 com a passagem. Com o estimador atual de transporte público, o deslocamento também veta os 93 lugares (Ceilândia e Sobradinho ficam em pontas opostas do DF), mas isso depende da calibração do <code>estimar_deslocamento</code> (#67); o teste do veredito não depende dela e continua passando com um estimador simulado que dá 10 min para tudo.</li>
+<li><em>Regra dos vetos "nem na melhor hipótese":</em> <code>deslocamento</code> usa o meio mais rápido da pessoa contra o teto de 75 min da Logística, o mesmo para todos (o "nada muito longe" do m4 fica só no texto, porque o sistema não lê minutos da Tela 2); <code>orcamento</code> usa o meio mais barato (consumo médio + ida e volta). Os motivos são os de <code>MotivoVeto</code> (<code>src/agentes/contratos.py</code>).</li>
+<li><em>Vetos do lugar separados dos vetos por membro:</em> <code>vetos_do_lugar</code> (horário, encerrado) e <code>vetos_por_membro</code> (deslocamento, orçamento, restrição, sempre com alguém barrado). A saída da Validação (<code>Veto(id, motivo)</code>) é comparada só pelo conjunto de motivos de cada lugar, porque ela não diz quem foi barrado (RNF-02); os marcadores servem só aos testes internos da Logística e da Validação.</li>
+<li><em>Oráculo independente:</em> o teste recalcula os vetos com regra própria e usa do repositório só as medidas (<code>estimar_deslocamento</code> e <code>ler_funcionamento</code>) e os parâmetros (teto de 75 min, motivos de veto), não a decisão dos agentes; assim o gabarito pode pegar erro neles em vez de repeti-los.</li>
+<li><em>Lugares citados por <code>id</code> da base 2FA:</em> o teste confere id, nome e RA contra <code>data/banco_aprovado_2fa.json</code> (RNF-03, RNF-04).</li>
+<li><em>Achados para outras issues:</em> (1) a Hamburgueria Espacial está como Taguatinga, mas endereço e coordenada são de Sobradinho; no cenário de controle a armadilha se inverte (mesma RA do m4, mas longe de verdade); (2) o gerador atual de cartões (<code>src/salas/sugestoes.py</code>) não descarta trajetos acima de 75 min: para o cenário padrão sugere o Cachorrão da 5 (Santa Maria) com mais de 3 horas para quem sai de Sobradinho; (3) o Golden Black (R$ 1,99) é viável no controle, mas o valor é preço de promoção (Raio-X da base) e deve ser revisado pela curadoria antes da demonstração. Os três estão anotados no dataset e devem orientar a Logística (#67), a Validação (#68) e a curadoria da base.</li>
+<li><strong>Arquivos:</strong></li>
+<li><code>data/cenarios_teste_multiagente.json</code></li>
+<li><code>src/agentes/cenarios.py</code></li>
+<li><code>tests/test_cenarios_multiagente.py</code></li>
+<li><code>docs/semanas/semana-04.md</code> (esta seção) e <code>STATUS.md</code></li>
+<li><strong>Testes e Validação:</strong></li>
+<li><code>pytest -v tests/test_cenarios_multiagente.py</code>: 97 testes aprovados (estrutura, 35 RAs oficiais, vocabulário do interpretador, contraste dos perfis, <code>interpretar_campos()</code> reproduzindo o gabarito, janela comum via <code>cruzar()</code>, teto via <code>teto_seguro_grupo()</code>, vetos de cada lugar citado nos dois cenários, lugares viáveis iguais aos calculados, causa estável do veredito, diferença mínima entre os cenários e conversão para a entrada do grafo).</li>
+<li>Testes de mutação manuais: retirar um veto anotado, trocar um viável, pôr <code>horario</code> em <code>vetos_por_membro</code> ou mudar um teto no JSON faz os testes correspondentes falharem; simular um estimador que dá 10 min para tudo não muda o veredito do cenário padrão.</li>
+<li><code>make test-local</code>: 742 aprovados, 1 pulado (<code>test_ambiente_container_ok</code>, só roda no Docker).</li>
+</ul>
+<hr />
+<h3 id="84-issue-67-agente-2-logistica-justica-deslocamento-e-regra-da-menor-miseria">8.4. Issue #67 — Agente 2 (Logística &amp; Justiça): Deslocamento e Regra da Menor Miséria<a class="headerlink" href="#84-issue-67-agente-2-logistica-justica-deslocamento-e-regra-da-menor-miseria" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Responsável:</strong> Samara Letícia (<code>@samarawwleticia</code>)</li>
+<li><strong>Status:</strong> Concluída</li>
+<li><strong>O que foi feito:</strong></li>
+<li><code>src/agentes/logistica.py</code> com <code>executar_agente_logistica(candidatos, origens_membros, *, lugares, janelas, agora, analises=None) -&gt; list[dict]</code>. Para cada candidato da Pesquisa:<ol>
+<li>escolhe a primeira janela comum em que o lugar não está fechado nem encerrado, com a certeza do horário (aberto 1,0; provável 0,7; incerto 0,4; fechado em todas as janelas: a primeira janela, com certeza 0);</li>
+<li>calcula o trajeto de cada membro que pode na janela pelo meio que ele usaria: o mais barato que chega em até 75 min, senão o mais rápido (<code>escolher_meio</code>), via <code>estimar_deslocamento</code> com a reserva das salas;</li>
+<li>dá a <code>nota_menor_miseria</code> pelos tempos (pior trajeto acima de 20 min + desigualdade entre o pior e o melhor, ADR 0013);</li>
+<li>calcula a pontuação de 0 a 1: 45% aderência, 35% justiça, 20% certeza do horário; ordena por pontuação, nota de justiça e id.</li>
+</ol>
+</li>
+<li><code>gerar_parecer(avaliados, analises=None)</code>: texto feito por regra para a mensagem do agente. Exemplo dos testes (grupo de Ceilândia, Samambaia e Plano Piloto; lugares sintéticos no ponto de cada RA): <em>"Ranking Logístico: Lugar Águas Claras (score 68; pior trajeto 85 min de ônibus/metrô; média 62 min), Lugar Taguatinga (score 66), Lugar Plano Piloto (score 63; pior trajeto 120 min de ônibus/metrô; média 86 min). 3 lugares com trajeto acima de 75 min para alguém do grupo."</em></li>
+<li><code>escolher_meio</code> e <code>TEMPO_ACEITAVEL_MIN</code> saíram de <code>src/salas/sugestoes.py</code> para <code>src/logistica/transporte_df.py</code>: a Tela 3 e o agente usam a mesma regra (refatoração sem mudança de comportamento).</li>
+<li><strong>Decisões Técnicas e Arquitetura:</strong></li>
+<li><em>Público e privado separados (RNF-02):</em> o retorno é uma lista de <code>CandidatoAvaliado</code> (Pydantic com <code>extra="forbid"</code>), só com agregados (pior trajeto, média, diferença, nota). O trajeto de cada pessoa vai para <code>analises</code> (<code>Cofre.analises</code>), que a Validação usa no orçamento individual. Um campo privado acrescentado por engano à saída faz o código falhar em vez de vazar.</li>
+<li><em>A Logística mede, não veta:</em> lugar fechado ou com trajeto acima de 75 min fica com nota baixa e segue para a Validação (#68), que tem os motivos <code>horario</code>, <code>encerrado</code> e <code>deslocamento</code>. Cada agente com uma responsabilidade.</li>
+<li><em>Aderência sem busca vetorial (RNF-04):</em> os pesos da Tela 3 (tipo 0,45, vibe 0,25, restrição 0,15, busca 0,15) sem o termo da busca, redistribuídos na mesma proporção (÷ 0,85). A busca usa embeddings e não roda offline; a ordem relativa de tipo, vibe e restrição continua a mesma.</li>
+<li><em><code>agora</code> obrigatório:</em> dá o ano das datas dos vídeos (<code>ano_do_lugar</code>); sem ele a função dependeria do relógio e deixaria de ser determinística.</li>
+<li><em>Escala do score:</em> <code>pontuacao</code> de 0 a 1, como <code>Sugestao.pontuacao</code>; o parecer mostra ×100 ("score 81").</li>
+<li><em>Parecer sem identificar ninguém:</em> cita o meio do pior trajeto pelo rótulo genérico ("ônibus/metrô", "Uber/99") só quando pelo menos 2 presentes usariam esse meio naquele lugar (<code>MINIMO_PARA_CITAR_MEIO</code>); com um só, "de carro" apontaria quem mora longe, e o texto fica só "pior trajeto 50 min". Nunca cita o marcador nem a RA; trajetos acima de 75 min só em contagem. Achado da revisão do PR com o <code>cenario_controle_viavel</code> da #66, em que só o m3 vai de carro ou de app. Primeiro e último colocados vêm com os tempos, os do meio só com o score, para o texto não crescer com 8 a 10 candidatos.</li>
+<li><em>Vai de Graça:</em> o deslocamento usa o início do trecho aberto da janela; num domingo ou feriado, ônibus e metrô custam zero.</li>
+<li><strong>Arquivos:</strong></li>
+<li><code>src/agentes/logistica.py</code> (novo)</li>
+<li><code>src/logistica/transporte_df.py</code> (<code>escolher_meio</code>, <code>TEMPO_ACEITAVEL_MIN</code>)</li>
+<li><code>src/salas/sugestoes.py</code> (passa a usar <code>escolher_meio</code>)</li>
+<li><code>tests/test_agente_logistica.py</code> (novo, 40 testes)</li>
+<li><code>tests/test_transporte_df.py</code> (6 testes de <code>escolher_meio</code>)</li>
+<li><code>docs/semanas/semana-04.md</code> (esta seção) e <code>STATUS.md</code></li>
+<li><strong>Testes e Validação:</strong></li>
+<li><code>pytest -v tests/test_agente_logistica.py</code>: 40 aprovados (21 com lugares sintéticos e 19 com os cenários da #66; 2 dos sintéticos para o meio do pior trajeto: não aparece com uma pessoa só nesse meio, aparece com duas). Cenários periféricos com lugares sintéticos no ponto de cada RA:<ul>
+<li>Ceilândia + Samambaia + Plano Piloto: Taguatinga (meio do caminho) vence o Plano, com pior trajeto menor e nota maior;</li>
+<li>Ceilândia + Sobradinho (pontas opostas): pior trajeto acima de 75 min, avaliado sem veto, nota abaixo de 60% da de um grupo que mora perto e maior que zero;</li>
+<li>Ceilândia com "metrô ou Uber": vai de Uber/99 até o Plano (~120 min de ônibus/metrô contra ~68 de app) e de ônibus/metrô até Taguatinga (~40 min);</li>
+<li>domingo: ônibus e metrô a R$ 0,00 para todos.</li>
+</ul>
+</li>
+<li>Também cobertos: pesos 45/35/20 recalculados à mão, lugar pedido pelo grupo subindo no ranking, lugar fechado com certeza 0 (perde exatamente 0,20), primeira janela em que o lugar abre, saída igual ao contrato <code>CandidatoAvaliado</code> e vazia em <code>dados_privados_no_estado</code>, nenhuma RA de origem nem teto na saída ou no parecer, mesma saída em qualquer ordem de entrada, id fora da base, sem janela e lugar sem coordenada (nota 30, estimativa provisória).</li>
+<li><code>pytest -v tests/test_transporte_df.py</code>: 6 testes novos de <code>escolher_meio</code> (mais barato a tempo, mais rápido quando nada cabe, limite de 75 min inclusivo, desempate pelo tempo, opções sem estimativa). Os testes existentes de <code>sugestoes</code> passam sem alteração, o que prova a refatoração.</li>
+<li><code>make test-local</code>: 789 aprovados, 1 pulado (<code>test_ambiente_container_ok</code>, só roda no Docker), já com a <code>main</code> do #82 mesclada (os 97 testes de <code>tests/test_cenarios_multiagente.py</code> incluídos).</li>
+<li>Cenários da #66 com a base real (19 testes): os dois cenários de <code>data/cenarios_teste_multiagente.json</code> passam pelo agente como no grafo (4 campos -&gt; <code>interpretar_campos</code> -&gt; <code>cruzar</code> -&gt; 93 lugares), o que a revisão do PR tinha feito à mão e que achou o meio do pior trajeto apontando o m3:<ul>
+<li>os 93 lugares saem avaliados, no contrato <code>CandidatoAvaliado</code> e em ordem de pontuação;</li>
+<li>nos 12 lugares do gabarito (locais plausíveis e "nunca sugerir"), quem passa de 75 min no trajeto do agente é exatamente quem o gabarito veta por deslocamento (o gabarito usa o meio mais rápido; o agente, o mais barato que chega em até 75 min, senão o mais rápido: as duas regras vetam as mesmas pessoas);</li>
+<li>em todos os 93 lugares, o parecer só cita o meio do pior trajeto quando pelo menos 2 presentes o usam, e o cenário de controle tem os dois casos (meio único que some e meio de 3 pessoas que aparece), para o teste não passar por falta de caso;</li>
+<li>saída e parecer passam na varredura do cofre do #64 (<code>dados_privados_no_estado</code>) com os nomes fictícios dos amigos.</li>
+</ul>
+</li>
+<li>Teste de mutação: voltar <code>MINIMO_PARA_CITAR_MEIO</code> para 1 (o bug da revisão) faz 3 testes falharem, 2 deles dos cenários.</li>
+</ul>
+<hr />
+<h3 id="85-issue-68-agente-3-validacao-filtros-deterministicos-de-horario-orcamento-e-restricoes">8.5. Issue #68 — Agente 3 (Validação): Filtros Determinísticos de Horário, Orçamento e Restrições<a class="headerlink" href="#85-issue-68-agente-3-validacao-filtros-deterministicos-de-horario-orcamento-e-restricoes" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Responsável:</strong> Maria Eduarda (<code>@eduarda-ogomes</code>)</li>
+<li><strong>Status:</strong> Concluída (PR pronto com testes e revisão atendida)</li>
+<li><strong>O que foi feito:</strong></li>
+<li>Implementação da camada completa de Vetos Duros Determinísticos do Agente de Validação em código Python puro (<code>src/agentes/validacao.py</code>).</li>
+<li>Veto 1 (Orçamento Sigiloso com Deslocamento): <code>dentro_do_orcamento_individual</code> (com alias <code>cabe_para_cada_um</code>), conferindo se consumo estimado + custo de deslocamento de ida e volta &lt;= teto individual de cada membro participante, ignorando membros sem teto informado (RF-17). Trata com robustez dados de trajetos ausentes (<code>None</code>).</li>
+<li>Veto 2 e 3 (Horário e Validade de Evento): <code>validar_horario_e_evento</code>, integrando com <code>horario_lugar.py</code> para verificar sobreposição com a janela comum do grupo (<code>aberto</code>, <code>provavel</code>, <code>incerto</code>) e vetando locais fechados no dia/horário (<code>"horario"</code>) ou eventos com datas expiradas (<code>"encerrado"</code>).</li>
+<li>Veto 4 (Restrições Duras): <code>atende_restricoes_duras</code>, conferindo compatibilidade contra <code>TERMOS_RESTRICAO</code> oficial de <code>src/salas/sugestoes.py</code>, vetando qualquer local que não comprove evidência da restrição dura no texto/vídeo da base.</li>
+<li>Veto de Deslocamento (Menor Miséria): <code>validar_deslocamento_membros</code>, vetando candidatos cujo trajeto para qualquer membro presente exceda 75 minutos (<code>TEMPO_ACEITAVEL_MIN</code>), alinhado à ADR 0013 e aos cenários de controle da Issue #66.</li>
+<li>Orquestrador determinístico <code>validar_candidatos_regras</code>, que avalia todos os 4 filtros para cada candidato (acumulando todos os motivos violados em <code>contagem</code> para orientar a Pesquisa e registrando o primeiro veto em <code>vetos</code>), extraindo trajetos e tetos diretamente do <code>Cofre</code>.</li>
+<li>Função de feedback condicional <code>gerar_pedido_nova_busca</code> para alimentar o loop do LangGraph com <code>PedidoNovaBusca</code> quando restarem menos de 3 candidatos viáveis.</li>
+<li><strong>Decisões Técnicas e Arquitetura:</strong></li>
+<li><em>RNF-04 (Cálculos Fora do LLM):</em> Toda a checagem de viabilidade temporal, financeira, geográfica e alimentar roda em Python puro antes de qualquer acionamento de LLM, eliminando risco de alucinação aritmética.</li>
+<li><em>RF-17 e RNF-02 (Orçamento Sigiloso):</em> A validação de gastos é estritamente individual e roda na memória do servidor sem expor quem estourou o teto nem vazar valores em reais para o estado compartilhado ou para prompts.</li>
+<li><em>ADR 0013 e Menor Miséria:</em> Aplicação do limite de 75 min por membro, garantindo que locais isolados com deslocamento abusivo não alcancem a geração de cartões.</li>
+<li><em>Ciclo Condicional LangGraph:</em> O relatório estruturado agrega as contagens completas de todos os motivos de veto (<code>horario</code>, <code>orcamento</code>, <code>restricao</code>, <code>encerrado</code>, <code>deslocamento</code>), permitindo à Pesquisa recalibrar a busca vetorial sem quebrar a privacidade.</li>
+<li><strong>Arquivos:</strong></li>
+<li><code>src/agentes/validacao.py</code></li>
+<li><code>tests/test_agente_validacao_regras.py</code></li>
+<li><strong>Testes e Validação:</strong></li>
+<li>14 testes unitários e de integração em <code>tests/test_agente_validacao_regras.py</code> cobrindo todos os filtros determinísticos, tratamento de <code>None</code> vindo da Logística, veto de deslocamento &gt; 75 min e os dois cenários reais da Issue #66 (cenário padrão com 0 aprovados e cenário de controle aprovando exatamente os 5 lugares viáveis esperados).</li>
+<li>Suíte completa do repositório validada localmente via pytest com 100% de sucesso.</li>
+</ul>
+<hr />
+<h3 id="86-issue-69-agente-4-comunicacao-prompt-do-anfitriao-e-formatacao-de-cartoes-em-json">8.6. Issue #69 — Agente 4 (Comunicação): Prompt do Anfitrião e Formatação de Cartões em JSON<a class="headerlink" href="#86-issue-69-agente-4-comunicacao-prompt-do-anfitriao-e-formatacao-de-cartoes-em-json" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Responsável:</strong> Maria Carolina (<code>@mcznh</code>)</li>
+<li><strong>Status:</strong> Concluída</li>
+<li><strong>O que foi feito:</strong></li>
+<li>Criação do Agente de Síntese e Comunicação (<code>src/agentes/comunicacao.py</code>) e da função principal <code>executar_agente_comunicacao(candidatos_validados) -&gt; list[dict]</code>.</li>
+<li>Elaboração do system prompt do Anfitrião de Brasília (<code>src/agentes/prompts/comunicacao.md</code>) com tom caloroso, empático e candango.</li>
+<li>Implementação do preenchimento determinístico de preços médios, tempos de trajeto, links do TikTok e endereços oficiais no esquema <code>Sugestao</code> da aplicação.</li>
+<li>Validação estrita dos cartões de saída via Pydantic (<code>CartaoSugestaoValidado</code>) e integração com o nó do LangGraph (<code>no_comunicacao</code>).</li>
+<li>Implementação de fallback determinístico offline/gracioso para operação sem chave externa ou em caso de instabilidade na API.</li>
+<li>Suíte completa de 10 testes unitários em <code>tests/test_agente_comunicacao.py</code>.</li>
+<li><strong>Decisões Técnicas e Arquitetura:</strong></li>
+<li><em>RF-06 (Apresentação Clara de Sugestões):</em> Os cartões contêm títulos convidativos (<code>titulo</code>), justificativas de afinidade com o grupo (<code>por_que_combina</code>) e resumos de conveniência logística (<code>resumo_acesso</code>).</li>
+<li><em>RNF-02 (Privacidade e Orçamento Sigiloso):</em> Zero citação de quem tem restrições alimentares, de onde cada membro sai ou quanto cada um pode gastar. O Anfitrião recebe apenas fatos aprovados e agregados anônimos do grupo.</li>
+<li><em>RNF-04 (Cálculos Fora do LLM):</em> Todos os dados numéricos (consumo estimado, faixa de gasto com transporte, tempos de chegada e notas de justiça) são preenchidos por código determinístico a partir da base oficial curada de 93 lugares (2FA) e dos cálculos de logística.</li>
+<li><em>JSON Schema Estrito:</em> Saída gerada pela LLM validada contra o contrato Pydantic <code>SaidaComunicacao</code> com <code>extra="forbid"</code>, eliminando alucinações de formato.</li>
+<li><strong>Arquivos:</strong></li>
+<li><code>src/agentes/comunicacao.py</code></li>
+<li><code>src/agentes/prompts/comunicacao.md</code></li>
+<li><code>src/agentes/llm.py</code></li>
+<li><code>tests/test_agente_comunicacao.py</code></li>
+<li><strong>Testes e Validação:</strong></li>
+<li><code>tests/test_agente_comunicacao.py</code>: 10 testes aprovados cobrindo geração offline, mock de LLM, preenchimento determinístico, sigilo RNF-02, fallbacks, compatibilidade com dataclass <code>Sugestao</code>, instâncias de <code>CandidatoAvaliado</code> e integração com <code>no_comunicacao</code>.</li>
+<li>Suíte completa de testes locais passando via pytest.</li>
+</ul>
+<hr />
+<h3 id="87-issue-70-agente-1-pesquisa-prompt-do-curador-tool-rag-dos-93-lugares-do-tiktok">8.7. Issue #70 — Agente 1 (Pesquisa): Prompt do Curador + Tool RAG dos 93 Lugares do TikTok<a class="headerlink" href="#87-issue-70-agente-1-pesquisa-prompt-do-curador-tool-rag-dos-93-lugares-do-tiktok" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Responsável:</strong> Cauan Soares (<code>@cadasiso</code>)</li>
+<li><strong>Status:</strong> Concluída, em revisão (PR <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2/pull/80">#80</a>)</li>
+<li><strong>O que foi feito:</strong></li>
+<li><code>buscar_lugares_rag(query, categorias)</code> é a ferramenta determinística, sobre a base oficial de 93 lugares (ADR 0008), com a busca léxica ou vetorial do RAG (ADR 0012).</li>
+<li><code>executar_agente_pesquisa(perfil_grupo, feedback_validacao=None)</code> devolve de 8 a 10 candidatos com <code>fonte_id</code>, <code>nome</code>, <code>tipo</code>, <code>motivo</code> e <code>trecho_citado</code>. O LLM é o DeepSeek V4.1 Flash pela OpenRouter.</li>
+<li><strong>Decisões Técnicas e Arquitetura:</strong></li>
+<li><strong>Sem <em>tool calling</em> nativo:</strong> o LLM escreve até 3 consultas numa resposta só, com JSON Schema estrito, e o código executa a ferramenta. É uma chamada de LLM a menos por rodada (RNF-14), e o modelo não decide quantas vezes buscar.</li>
+<li><strong>Zero alucinação (RNF-03):</strong> o código descarta candidato com id que a busca não trouxe, repetido ou com <code>trecho_citado</code> que não está no documento.</li>
+<li><strong>A ferramenta não entrega ao LLM preço, horário nem endereço.</strong> Esses dados vão por código para a Logística e a Validação.</li>
+<li><strong>Entrada validada:</strong> o perfil passa pelo esquema <code>PreferenciasGrupo</code>, e o retorno da Validação pelo <code>PedidoNovaBusca</code>, que só tem contagens de veto. Chave a mais, como um teto ou um texto livre, é erro antes de chegar ao LLM (RNF-02).</li>
+<li><strong>Reserva por regras:</strong> sem chave ou com o LLM fora do ar, a Pesquisa funciona por regras, e os vetos de orçamento e de horário ampliam a busca.</li>
+<li><strong>Arquivos:</strong> <code>src/agentes/pesquisa.py</code>, <code>src/agentes/ferramentas.py</code>, <code>src/agentes/prompts/pesquisa.md</code>, <code>tests/test_agente_pesquisa.py</code>.</li>
+<li><strong>Testes e Validação:</strong></li>
+<li><code>pytest -v tests/test_agente_pesquisa.py</code>: 14 testes sem rede, com um LLM falso que inventa trecho, cita id que não existe e repete candidato.</li>
+<li><code>docker compose up -d</code>: 645 testes passaram no container.</li>
+</ul>
+<hr />
+<h3 id="88-issue-71-orquestrador-do-grafo-no-langgraph-com-ciclo-condicional-pesquisa-validacao">8.8. Issue #71 — Orquestrador do Grafo no LangGraph com Ciclo Condicional Pesquisa-Validação<a class="headerlink" href="#88-issue-71-orquestrador-do-grafo-no-langgraph-com-ciclo-condicional-pesquisa-validacao" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Responsável:</strong> Cauan Soares (<code>@cadasiso</code>)</li>
+<li><strong>Status:</strong> Concluída, em revisão (no PR <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2/pull/80">#80</a>, junto com as #65 e #70)</li>
+<li><strong>O que foi feito:</strong></li>
+<li><code>src/agentes/grafo.py</code> monta o <code>StateGraph</code> com os nós <code>no_pessoal</code> (um por membro, em paralelo com <code>Send</code>), <code>no_consolidar_grupo</code>, <code>no_pesquisa</code>, <code>no_logistica</code>, <code>no_validacao</code>, <code>no_comunicacao</code>, <code>no_validacao_textos</code> e <code>no_finalizar</code>, e exporta <code>executar_fluxo_multiagente(dados_sala)</code>.</li>
+<li>O grafo chama as implementações das issues de cada agente:<ul>
+<li>Logística (#67): <code>executar_agente_logistica</code> e <code>gerar_parecer</code>;</li>
+<li>Validação (#68): <code>validar_candidatos_regras</code>.</li>
+</ul>
+</li>
+<li>A aresta condicional <code>avaliar_convergencia</code> tem três saídas:<ul>
+<li>volta para a Pesquisa enquanto houver menos de 3 lugares validados e menos de 2 voltas;</li>
+<li>segue para a Comunicação quando há pelo menos um validado;</li>
+<li>vai direto para o fim quando nada passou.</li>
+</ul>
+</li>
+<li><code>validacao.selecionar_cartoes</code> escolhe os cartões na ordem do ranking da Logística: até 4, no máximo 2 por RA e sem nome repetido (a base tem o mesmo lugar em mais de um vídeo).</li>
+<li>A varredura de vazamento dos cartões (<code>varrer_cartao</code>, <code>verificar_cartoes</code>), em código, foi para o fim de <code>validacao.py</code>, sem mudar as funções da #68. Ela procura número, nome ou parte de nome composto de membro (sem contar nomes de lugares da base) e a RA de onde alguém sai (sem contar formas que são palavras comuns, como "plano" e "gama").</li>
+<li><strong>O juiz LLM ficou de fora:</strong> é a entrega da #72 (PR #86, <code>src/agentes/juiz.py</code>). Uma versão provisória dele estava neste PR e foi tirada na revisão. Depois que o #86 entrou, o grafo passou a chamar o <code>juiz.py</code> (ver Seção 8.11).</li>
+<li>As funções da Comunicação que o grafo usa (<code>montar_fatos</code>, <code>escrever</code>, <code>texto_reserva</code>) foram para o fim de <code>comunicacao.py</code>, ao lado do <code>executar_agente_comunicacao</code> da #69.</li>
+<li><strong>Decisões Técnicas e Arquitetura:</strong></li>
+<li><strong>Sem aprovado, sem Comunicação:</strong> com 0 lugares depois das 2 voltas, o grafo não chama o LLM para escrever cartão nenhum. As mensagens dizem que nada passou e que o grupo precisa flexibilizar algum critério. Antes, a Validação dizia "Autorizado para a síntese" e a varredura dizia "Cartões aprovados" mesmo com 0 cartões.</li>
+<li><strong>Menos de 3 opções é dito ao grupo:</strong> o fim avisa "Só N cartões prontos (menos de 3 opções viáveis na base)", em vez de completar com lugar vetado (RNF-03).</li>
+<li><strong>Janela parcial:</strong> a Logística e a Validação avaliam cada lugar na primeira janela comum em que ele abre, que pode não ter todos. O cartão mostra a contagem ("3 de 4 podem"), e a Validação avisa quantos cartões estão nessa situação.</li>
+<li><strong>Dois ajustes na Validação, apontados na revisão do PR #84:</strong><ul>
+<li>o orçamento só conta os presentes da janela em que o lugar foi avaliado;</li>
+<li>lugar sem nenhum trajeto estimado é vetado por deslocamento, em vez de passar com R$ 0 de transporte.</li>
+</ul>
+</li>
+<li><strong>Comunicação:</strong> o grafo ainda usa o esquema <code>SaidaComunicacao</code> para poder pedir a reescrita de um cartão só. Juntar com <code>executar_agente_comunicacao</code> (#69) fica para depois da entrega de 19/11.</li>
+<li><strong>Revisão do PR #80 (Maria Eduarda), atendida em 19/11:</strong><ul>
+<li>na reescrita, só os cartões reprovados vão para o LLM; a resposta parcial é aceita, e os outros cartões ficam como estavam (antes, a resposta parcial caía na reserva por regras e marcava todos como "reserva_por_regras");</li>
+<li><code>texto_por</code> foi declarado no <code>CartaoSugestaoValidado</code>, e o cartão final do grafo valida nesse esquema;</li>
+<li>a varredura passou a pegar parte de nome composto ("Maria" de "Maria Eduarda") e RA no fim da frase ("…de Ceilândia."), e deixou de reprovar "um ótimo plano" e nome de lugar igual ao de membro;</li>
+<li>a Pesquisa só marca <code>usou_llm</code> quando a seleção final veio do LLM (o planejamento vai em <code>planejou_com_llm</code>);</li>
+<li>o juiz LLM provisório e os prompts <code>juiz_parecer.md</code> e <code>juiz_cartoes.md</code> saíram (ficam na #72).</li>
+</ul>
+</li>
+<li><strong>Arquivos:</strong> <code>src/agentes/grafo.py</code>, <code>src/agentes/validacao.py</code> (fim do arquivo e os dois ajustes), <code>src/agentes/comunicacao.py</code> (fim do arquivo e o campo <code>texto_por</code> do <code>CartaoSugestaoValidado</code>), <code>src/agentes/pesquisa.py</code> (<code>usou_llm</code>), <code>src/agentes/README.md</code>, <code>tests/test_grafo_multiagente.py</code>, <code>tests/test_agente_validacao_regras.py</code>.</li>
+<li><strong>Testes e Validação:</strong></li>
+<li><code>pytest tests/test_grafo_multiagente.py</code>: 32 testes sem rede, com um LLM falso que grava cada corpo enviado à OpenRouter. Eles cobrem:<ul>
+<li>o grafo e as três saídas da aresta;</li>
+<li>o limite de 2 voltas;</li>
+<li>a reescrita de um cartão que expõe a origem;</li>
+<li>o LLM fora do ar;</li>
+<li>que nenhum nome, teto ou origem vai para o LLM;</li>
+<li>os dois cenários da #66;</li>
+<li>a seleção dos cartões;</li>
+<li>a reescrita parcial, o cartão final no esquema da Comunicação e a varredura de nomes e RAs (revisão do #80).</li>
+</ul>
+</li>
+<li>Cenários da #66 pelo grafo inteiro, sem LLM:<ul>
+<li>o padrão termina sem cartões depois de 2 voltas e sem passar pela Comunicação;</li>
+<li>o de controle termina com 1 cartão, que está entre os 5 viáveis do gabarito, e avisa que há menos de 3 opções.</li>
+</ul>
+</li>
+<li>Suíte inteira (<code>python -m pytest tests</code>, sem o <code>test_pipeline_haystack.py</code>, que pede o Haystack): 862 aprovados.</li>
+<li><strong>Limitação medida (pendência):</strong> sem LLM, a Pesquisa vê 24 dos 93 lugares em 3 rodadas e acha só 1 dos 5 viáveis do cenário de controle.</li>
+<li>Causa: a nota da busca léxica satura (0,97 a 0,98 nos 12 primeiros), então a ordem é quase arbitrária.</li>
+<li>Fator a mais: 3 dos 5 viáveis são cafeterias, e o grupo pediu restaurante e lugar ao ar livre.</li>
+<li>Tentei duas mudanças: priorizar as consultas pelo motivo de veto mais frequente, com uma consulta nas RAs centrais do DF quando o deslocamento veta, e intercalar os resultados das consultas. Nenhuma das duas mudou o resultado, e ambas foram revertidas.</li>
+<li>Correção provável: a busca vetorial (ADR 0012) ou outra nota na ferramenta, medida nos dois cenários.</li>
+</ul>
+<hr />
+<h3 id="89-issue-72-juiz-llm-em-2-passagens-para-validacao-factual-e-prevencao-de-vazamento-adr-0014">8.9. Issue #72 — Juiz LLM em 2 Passagens para Validação Factual e Prevenção de Vazamento (ADR 0014)<a class="headerlink" href="#89-issue-72-juiz-llm-em-2-passagens-para-validacao-factual-e-prevencao-de-vazamento-adr-0014" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Responsável:</strong> Maria Eduarda (<code>@eduarda-ogomes</code>)</li>
+<li><strong>Status:</strong> Concluída (PR pronto com testes)</li>
+<li><strong>O que foi feito:</strong></li>
+<li>Implementação do Avaliador Semântico (LLM-as-a-Judge) em 2 Passagens em <code>src/agentes/juiz.py</code> e prompts em <code>src/agentes/prompts/</code>.</li>
+<li><strong>Passagem 1 (Auditoria da Pesquisa - <code>julgar_parecer_pesquisa</code>):</strong> Audita semanticamente os candidatos propostos pelo Agente de Pesquisa, verificando se cada afirmação/trecho <code>confere</code>, <code>contradiz</code> ou está <code>sem_apoio</code> na base oficial 2FA de 93 locais curados (RNF-03).</li>
+<li><strong>Passagem 2 (Auditoria da Comunicação - <code>julgar_cartoes_comunicacao</code>):</strong> Audita os textos gerados pelo Anfitrião (<code>titulo</code>, <code>resumo_acesso</code>, <code>por_que_combina</code>), assegurando fidelidade factual e prevenção absoluta de vazamento de PII (orçamento individual, origem de membros, restrições pessoais ou citações diretas) (RNF-02).</li>
+<li>Implementação de fallback determinístico robusto em ambas as passagens para operação offline e resiliência a indisponibilidades do endpoint da OpenRouter.</li>
+<li>Funções de integração e orquestração: <code>filtrar_candidatos_aprovados_pelo_juiz</code> (segregação de candidatos aptos e catalogação de <code>derrubados_pelo_juiz</code>) e <code>avaliar_reprovacoes_cartoes</code> (mapeamento estruturado de reprovações de cartões por vazamento e alucinação).</li>
+<li><strong>Decisões Técnicas e Arquitetura:</strong></li>
+<li><em>ADR 0014 (Juiz semântico):</em> Utilização de <code>z-ai/glm-5.3-flash</code> como padrão de baixo custo e alta fidelidade (com suporte a <code>xiaomi/mimo-v2.6-pro</code> via variável <code>JUIZ_LLM_MODELO</code>, atendendo RNF-12).</li>
+<li><em>JSON Schema Estrito (<code>esquema_estrito</code>):</em> Validação estrita via Pydantic com <code>extra="forbid"</code> (<code>SaidaJuizParecer</code> e <code>SaidaJuizCartoes</code>), garantindo estruturação determinística dos julgamentos.</li>
+<li><em>RNF-03 (Fidelidade e Alucinação):</em> Separação explícita entre afirmações corroboradas e alucinações sem apoio no vídeo/legenda oficial 2FA.</li>
+<li><em>RNF-02 (Prevenção de Vazamento de PII):</em> Varredura em 4 categorias de exposição (<code>origem</code>, <code>orcamento</code>, <code>restricao</code>, <code>texto_pessoal</code>), impedindo que textos públicos contenham pistas identificáveis de participantes.</li>
+<li><em>Spotlighting de Segurança:</em> Entrada do modelo delimitada via <code>embrulhar</code> para mitigar injeção de prompt vinda de conteúdos externos.</li>
+<li><strong>Arquivos:</strong></li>
+<li><code>src/agentes/juiz.py</code></li>
+<li><code>src/agentes/prompts/juiz_pesquisa.md</code></li>
+<li><code>src/agentes/prompts/juiz_comunicacao.md</code></li>
+<li><code>tests/test_juiz_agentes.py</code></li>
+<li><strong>Testes e Validação:</strong></li>
+<li>16 testes automatizados em <code>tests/test_juiz_agentes.py</code> cobrindo fallback offline, MockLLM, detecção estrita de vazamento de PII em todas as categorias, integração com a base 2FA e troca de modelo via env.</li>
+<li>Validação de tipagem e execução rápida em 0.03s.</li>
+</ul>
+<hr />
+<h3 id="810-issue-73-instrumentacao-de-telemetria-e-tracing-do-grafo-multiagente-no-langfuse-cloud">8.10. Issue #73 — Instrumentação de Telemetria e Tracing do Grafo Multiagente no Langfuse Cloud<a class="headerlink" href="#810-issue-73-instrumentacao-de-telemetria-e-tracing-do-grafo-multiagente-no-langfuse-cloud" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Responsável:</strong> Maria Eduarda (<code>@eduarda-ogomes</code>)</li>
+<li><strong>Status:</strong> Concluída, em revisão</li>
+<li><strong>O que foi feito:</strong></li>
+<li><strong>Aderência Estrita ao ADR 0015 (Spans Explícitos vs. CallbackHandler Automático):</strong> Conforme deliberado no ADR 0015, a instrumentação do grafo multiagente adota spans explícitos (<code>@_observado</code> e <code>_registrar</code>) nos nós e arestas condicionalmente relevantes. O uso do <code>CallbackHandler</code> padrão do LangGraph/LangChain foi descartado por inflar em 52× o payload enviado ao Langfuse (634 KB contra ~12 KB por execução) e expor o estado serializado bruto desnecessariamente.</li>
+<li><strong>Spans Canônicos Padronizados:</strong> Registro de spans nomeados para cada nó do grafo no Langfuse Cloud (<code>src/telemetria/langfuse_agentes.py</code>):<ul>
+<li><code>agente_0_pessoal</code> (spans paralelos por membro via <code>Send</code>)</li>
+<li><code>agente_orquestrador_consolidar</code> (consolidação de preferências e janelas)</li>
+<li><code>agente_1_pesquisa</code> (planejamento e seleção de candidatos na base)</li>
+<li><code>agente_2_logistica</code> (avaliação de deslocamento e cálculo de justiça)</li>
+<li><code>agente_3_validacao</code> (checagem de regras de negócio, orçamento e vetos)</li>
+<li><code>agente_4_comunicacao</code> (geração dos cartões com LLM ou fallback)</li>
+<li><code>agente_3_validacao_textos</code> (auditoria do juiz e varredura determinística contra PII)</li>
+<li><code>agente_orquestrador_finalizar</code> (consolidação final dos cartões públicos)</li>
+<li><code>agente_juiz_pesquisa</code> e <code>agente_juiz_comunicacao</code> (auditorias em 2 passagens)</li>
+<li><code>grafo_sala_multiagente</code> (span raiz que engloba a execução do grafo)</li>
+</ul>
+</li>
+<li><strong>Métricas de Tokens, Custo e Latência por Agente:</strong> Coleta e agregação a partir de <code>ClienteLLM.chamadas</code> (<code>tokens</code>, <code>custo_usd</code>, <code>latencia_llm_s</code>, <code>chamadas_llm</code>, <code>tentativas_sem_resposta</code> e <code>modelos</code>), registrando os custos reais e volumetria de cada nó no Langfuse sem depender de generations opacas do LangChain.</li>
+<li><strong>Metadados Estruturados de Convergência:</strong> Registro nos spans de cada volta de pesquisa (<code>iteracao_pesquisa</code>), contagem e motivos de vetos (<code>quantidade_vetos</code> e <code>motivos_vetos</code>), status de convergência (<code>convergido</code>) e resultados das auditorias do juiz (<code>juiz</code>, <code>juiz_llm</code>, <code>exposicoes</code>).</li>
+<li><strong>Sanitização Ativa de PII (<code>mascarar_pii</code>):</strong> Algoritmo recursivo que expurga valores monetários em R$, telefones, e-mails, CPFs, origens explícitas e nomes de participantes fornecidos (<code>[VALOR_REMOVIDO]</code>, <code>[ORIGEM_REMOVIDA]</code>, <code>[NOME_REMOVIDO]</code>), blindando o tracing contra vazamento de dados privados (RNF-02).</li>
+<li><strong>Captura Dinâmica do Trace Link (<code>obter_trace_url</code>):</strong> Priorização do método dinâmico <code>get_client().get_trace_url()</code> do SDK do Langfuse (que detecta automaticamente o ID do projeto a partir das credenciais ativas), utilizando o fallback estruturado apenas quando o SDK estiver indisponível.</li>
+<li><strong>Campo Unificado de Rastreio (<code>trace_url</code>):</strong> Manutenção do campo canônico e consistente <code>trace_url</code> no <code>MultiAgentState</code> e no <code>EstadoSerializado</code> (<code>src/agentes/estado.py</code>), eliminando redundâncias.</li>
+<li><strong>Harmonização com o PR #88:</strong> Integração dos parâmetros <code>juiz_parecer</code> em <code>construir_grafo</code>, <code>executar</code> e <code>executar_fluxo_multiagente</code>, garantindo merge limpo e sem conflitos com a demonstração da Semana 4.</li>
+<li><strong>Decisões Técnicas e Arquitetura:</strong></li>
+<li><em>ADR 0015 (Spans Explícitos vs. CallbackHandler Automático):</em> Spans explícitos selecionam apenas fatos públicos sanitizados, eliminando a gravação indiscriminada do estado e reduzindo o consumo de rede em mais de 98%.</li>
+<li><em>RNF-10 e RNF-14 (Observabilidade Estruturada e SLAs):</em> Spans canônicos permitem aferição de tempo p50/p90/p99 de cada agente, quantidade de chamadas e gasto financeiro em USD no Langfuse Cloud v5.x.</li>
+<li><em>RNF-02 (Defesa em Profundidade contra PII):</em> O cofre isola dados privados na origem, e a telemetria aplica mascaramento preventivo em qualquer dado repassado aos spans.</li>
+<li><strong>Arquivos:</strong></li>
+<li><code>src/telemetria/__init__.py</code></li>
+<li><code>src/telemetria/langfuse_agentes.py</code></li>
+<li><code>src/agentes/grafo.py</code></li>
+<li><code>src/agentes/estado.py</code></li>
+<li><code>tests/test_telemetria_agentes.py</code></li>
+<li><code>docs/semanas/semana-04.md</code></li>
+<li><strong>Testes e Validação:</strong></li>
+<li>18 testes automatizados em <code>tests/test_telemetria_agentes.py</code> (100% de aprovação) cobrindo mascaramento recursivo, mapeamento canônico de spans, geração de trace URLs dinâmicas e de fallback, decoradores, registro de métricas de tokens/custo/latência, resiliência offline e retorno do <code>trace_url</code> na execução do grafo.</li>
+<li>Suíte completa de 281 testes dos agentes da Semana 4 aprovada.</li>
+<li>Suíte geral de 896 testes do projeto aprovada com 100% de sucesso.</li>
+</ul>
+<hr />
+<h3 id="811-issue-74-script-executavel-de-demonstracao-cli-do-fluxo-multiagente-demo_multiagentepy">8.11. Issue #74 — Script Executável de Demonstração CLI do Fluxo Multiagente (<code>demo_multiagente.py</code>)<a class="headerlink" href="#811-issue-74-script-executavel-de-demonstracao-cli-do-fluxo-multiagente-demo_multiagentepy" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Responsável:</strong> Cauan Soares (<code>@cadasiso</code>)</li>
+<li><strong>Status:</strong> Concluída, em revisão</li>
+<li><strong>O que foi feito:</strong></li>
+<li><code>scripts/demo_multiagente.py</code> (ou <code>make demo-agentes</code>; <code>OFFLINE=1</code> roda sem LLM) roda os dois cenários da #66 de ponta a ponta, em 5 atos:<ol>
+<li>a memória do Agente Pessoal depois de um rolê anterior;</li>
+<li>os 4 amigos entrando pelo back-end real das salas;</li>
+<li>o fluxo atual sem agentes, para comparar;</li>
+<li>a conversa entre os agentes, ao vivo;</li>
+<li>o resultado, com o gabarito da #66, a visão privada de um membro, a varredura de vazamento, o custo e a latência por agente e o link do trace.</li>
+</ol>
+</li>
+<li>No fim, um resumo dos dois cenários (tempo, chamadas, tokens, custo, voltas, reescritas, vetos e cartões) para o relatório (#76).</li>
+<li>O log fica em <code>docs/entregas/semana-04/DEMO_MULTIAGENTE_LOG.txt</code>, e o diagrama do grafo compilado em <code>docs/entregas/semana-04/grafo_agentes.mmd</code>.</li>
+<li>O juiz LLM da #72 (<code>src/agentes/juiz.py</code>, PR #86) entrou no grafo:<ul>
+<li>a 2ª passagem, sobre os cartões, roda sempre na validação dos textos, junto com a varredura em código (que olha os nomes e as RAs do cofre, que o juiz não vê);</li>
+<li>a 1ª passagem, sobre os motivos da Pesquisa, é opcional (<code>--juiz-parecer</code>) e derruba só o que contradiz o documento.</li>
+</ul>
+</li>
+<li><strong>Decisões Técnicas e Arquitetura:</strong></li>
+<li><strong>Os dois cenários da #66, e não uma sala própria:</strong> o demo compara o resultado com um gabarito independente. O padrão mostra o ciclo condicional e o aviso sem cartão; o de controle mostra o caminho feliz.</li>
+<li><strong>A memória não muda os vetos:</strong> os comentários do ato 1 viram preferência (lugar sem barulho) ou são uma instrução injetada que o agente ignora. Assim o gabarito da #66 continua valendo depois da memória.</li>
+<li><strong>Proposta contraditória não é gravada:</strong> na primeira rodada, o LLM do pós-rolê leu "a música alta atrapalhou" como <code>barulho:evita</code> e "prefiro lugar mais tranquilo" como <code>barulho:gosta</code>, e o log gravava o último. Agora, se a mesma proposta trouxer "gosta" e "evita" para o mesmo aspecto, nada é gravado sobre ele (<code>pessoal.depois_do_role</code>).</li>
+<li><strong>Arquivos:</strong> <code>scripts/demo_multiagente.py</code>, <code>Makefile</code> (<code>demo-agentes</code>), <code>src/agentes/grafo.py</code> (juiz da #72), <code>src/agentes/pessoal.py</code>, <code>src/agentes/llm.py</code> (tentativas sem resposta), <code>tests/test_demo_multiagente.py</code>, <code>tests/test_grafo_multiagente.py</code>, <code>tests/test_agente_pessoal.py</code>, <code>docs/entregas/semana-04/DEMO_MULTIAGENTE_LOG.txt</code>, <code>docs/entregas/semana-04/grafo_agentes.mmd</code>.</li>
+<li><strong>Testes e Validação:</strong></li>
+<li><code>pytest tests/test_demo_multiagente.py</code>: roda o demo sem LLM e confere os 5 atos nos dois cenários, o veredito do padrão, os cartões do controle dentro dos viáveis e a varredura sem nome de membro.</li>
+<li><code>pytest tests/test_grafo_multiagente.py</code>: 34 testes, entre eles o juiz usando o GLM e os agentes o DeepSeek, nenhum nome, teto ou origem nas mensagens enviadas aos LLMs (inclusive ao juiz) e a reescrita quando o juiz acha uma exposição que a varredura não pega.</li>
+<li>Suíte inteira, sem o <code>test_pipeline_haystack.py</code>: 884 aprovados.</li>
+<li>
+<p>Demo com LLM e Langfuse, em 20/11 (o log está em <code>DEMO_MULTIAGENTE_LOG.txt</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Sala</th>
+<th>Tempo</th>
+<th>Chamadas</th>
+<th>Tokens</th>
+<th>Custo</th>
+<th>Voltas</th>
+<th>Cartões</th>
+<th>Trace</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ROLE-PADR (sem lugar viável)</td>
+<td>15,1 s</td>
+<td>6</td>
+<td>19.545</td>
+<td>US$ 0,0026</td>
+<td>2</td>
+<td>0, com o aviso ao grupo</td>
+<td><a href="https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/39bfd356e4ef94d7e760d91be8baacb8">39bfd356</a></td>
+</tr>
+<tr>
+<td>ROLE-CTRL (5 viáveis)</td>
+<td>24,6 s</td>
+<td>6</td>
+<td>21.660</td>
+<td>US$ 0,0035</td>
+<td>1</td>
+<td>3, os 3 entre os viáveis</td>
+<td><a href="https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/d862895248205cffc031c42bef3d4376">d8628952</a></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>Cada trace tem um span por etapa do grafo (<code>agente_pessoal</code> ×4, <code>consolidar_grupo</code>, <code>pesquisa</code>, <code>logistica</code>, <code>validacao</code> por volta, <code>comunicacao</code>, <code>validacao_textos</code>, <code>finalizar</code>), conferido pela API do Langfuse.</li>
+<li>No controle, o juiz dos cartões é a chamada mais lenta (12,9 s) e a mais cara (US$ 0,0012).</li>
+<li><strong>RNF-14 em risco:</strong> numa rodada anterior, o controle levou 73,9 s, acima dos 60 s. A 1ª chamada ao juiz estourou o limite de 40 s do cliente, e a 2ª respondeu em 20 s. Essa tentativa sem resposta não aparecia no custo nem no tempo por agente; agora o cliente registra cada tentativa (<code>Chamada.falhou</code>), e o demo mostra quantas houve.</li>
+<li>O fluxo atual das salas, sem agentes, sugere o Cachorrão da 5, que está no <code>nunca_sugerir</code> da #66, nos dois cenários (pior trajeto de 218 min no padrão). O fluxo com agentes não sugere.</li>
+</ul>
+</li>
+</ul>
+<hr />
+<h3 id="812-issue-75-diagrama-visual-da-arquitetura-do-grafo-multiagente-mermaid-svg">8.12. Issue #75 — Diagrama Visual da Arquitetura do Grafo Multiagente (Mermaid &amp; SVG)<a class="headerlink" href="#812-issue-75-diagrama-visual-da-arquitetura-do-grafo-multiagente-mermaid-svg" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Responsável:</strong> Maria Carolina (<code>@mcznh</code>)</li>
+<li><strong>Status:</strong> Concluída (revisão do PR #85 atendida)</li>
+<li><strong>O que foi feito:</strong></li>
+<li>Elaboração da documentação técnica arquitetural completa em <code>docs/arquitetura/multiagente.md</code> alinhada ao grafo real implementado em <code>src/agentes/grafo.py</code> e ao estado em <code>src/agentes/estado.py</code>;</li>
+<li>Criação de página web completa e responsiva em <code>docs/arquitetura/multiagente.html</code> com Mermaid.js e SVG integrado (sem botão no <code>index.html</code>, preservando o mapa público como arquivo único conforme <code>docs/arquitetura/AGENTS.md</code>);</li>
+<li>Diagrama estrutural em Mermaid e diagrama vetorial em alta resolução (<code>docs/arquitetura/img/grafo_multiagente.svg</code>, gerado por <code>scripts/gerar_grafo_multiagente_svg.py</code>) refletindo todas as arestas do grafo compilado (<code>grafo_agentes.mmd</code>): fan-out de <code>no_pessoal</code> ×N via <code>Send</code> + <code>no_consolidar_grupo</code>, saídas diretas para <code>no_finalizar</code> (sem janela comum ou sem lugar viável após as buscas), laço <code>avaliar_convergencia</code> (até 2 voltas com <code>PedidoNovaBusca</code>), <code>no_validacao_textos</code> com reescrita seletiva de no máximo 1 volta, Juiz LLM em 2 passagens (#72) e preenchimento determinístico de números e <code>tiktok_url</code> em <code>no_finalizar</code>;</li>
+<li>Atualização do menu de navegação e suporte a diagramas Mermaid no <code>mkdocs.yml</code>;</li>
+<li>Criação de suíte de testes automatizados em <code>tests/test_arquitetura_multiagente.py</code>.</li>
+<li><strong>Decisões Técnicas e Arquitetura:</strong></li>
+<li><em>RNF-04 (Cálculos Fora do LLM):</em> Diferenciação visual e estrutural estrita entre nós com LLM (<code>no_pesquisa</code>, <code>no_comunicacao</code> e Juiz LLM) e nós em código puro Python (<code>no_pessoal</code>, <code>no_consolidar_grupo</code>, <code>no_logistica</code> com Menor Miséria, vetos duros de <code>no_validacao</code>, varredura de <code>no_validacao_textos</code> e <code>no_finalizar</code>).</li>
+<li><em>RNF-02 e RF-17 (Cofre do Servidor e 4 Canais):</em> Representação explícita do <code>Cofre</code> fora do <code>MultiAgentState</code> (ADR 0015 e 0016) e dos 4 canais na ordem de <code>src/agentes/pessoal.py</code> (Canais 1, 2 e 4 retidos no Cofre; Canal 3 como único público no estado).</li>
+<li><em>Observabilidade e SLA (RNF-14):</em> Documentação dos nomes reais dos spans no Langfuse (<code>agente_pessoal</code>, <code>consolidar_grupo</code>, <code>pesquisa</code>, <code>logistica</code>, <code>validacao</code>, <code>comunicacao</code>, <code>validacao_textos</code> e <code>finalizar</code>) e do limite do RNF-14 ($\le 5\text{ s}$ na conversa e $\le 60\text{ s}$ para gerar os planos).</li>
+<li><strong>Arquivos:</strong></li>
+<li><code>docs/arquitetura/multiagente.md</code></li>
+<li><code>docs/arquitetura/multiagente.html</code></li>
+<li><code>docs/arquitetura/img/grafo_multiagente.svg</code></li>
+<li><code>scripts/gerar_grafo_multiagente_svg.py</code></li>
+<li><code>mkdocs.yml</code></li>
+<li><code>tests/test_arquitetura_multiagente.py</code></li>
+<li><code>docs/semanas/semana-04.md</code></li>
+<li><strong>Testes e Validação:</strong></li>
+<li>Execução de <code>pytest tests/test_arquitetura_multiagente.py</code> com 6 testes aprovados cobrindo integridade do SVG, nós reais do grafo, canais, contrato <code>MultiAgentState</code>, página HTML e configuração do MkDocs.</li>
+<li>Execução da suíte completa de testes locais com 890 testes passando.</li>
+</ul>
+<hr />
+<h3 id="813-issue-76-relatorio-tecnico-da-semana-4-para-o-teams-e-submissao-oficial">8.13. Issue #76 — Relatório Técnico da Semana 4 para o Teams e Submissão Oficial<a class="headerlink" href="#813-issue-76-relatorio-tecnico-da-semana-4-para-o-teams-e-submissao-oficial" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Responsável:</strong> Letícia Miti Takahashi (<code>@mitii05</code>)</li>
+<li><strong>Status:</strong> Bloqueada</li>
+<li><strong>O que foi feito:</strong></li>
+<li><strong>Decisões Técnicas e Arquitetura:</strong></li>
+<li><strong>Arquivos:</strong></li>
+<li><strong>Testes e Validação:</strong></li>
+</ul>
+<hr />
+<h2 id="9-registro-do-dia">9. Registro do dia<a class="headerlink" href="#9-registro-do-dia" title="Permanent link">&para;</a></h2>
+<h3 id="1711-cauan">17/11 (Cauan)<a class="headerlink" href="#1711-cauan" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Juiz do avaliador:</strong> passou do MiMo-V2.6-Pro para o GLM 5.3 Flash, por custo (<a href="../../decisoes/0014-juiz-glm-5.3-flash/">ADR 0014</a>, PR #78 mesclado). Nas mesmas 94 respostas da rodada 2 da semana 3:</li>
+<li>custo de US$ 0,057 contra US$ 0,731;</li>
+<li>p90 de 10,1 s contra 18,8 s;</li>
+<li>concordância de 90 em 94 sobre haver contradição.</li>
+</ul>
+<p>Parte do custo do MiMo vinha do roteamento: o <code>sort: latency</code> mandou 63 das 94 chamadas ao provedor 10 vezes mais caro.
+- <strong>Plano dos agentes:</strong> avaliado e reestruturado em <a href="../../entregas/semana-04/PLANO_AGENTES/">PLANO_AGENTES.md</a>: Logística sem LLM, Validação com vetos em código, Comunicação sem dado pessoal e um Agente Pessoal por membro com log de preferências. LangGraph decidido (<a href="../../decisoes/0015-orquestracao-com-langgraph/">ADR 0015</a>).
+  - Ferramentas e observabilidade: <a href="../../entregas/semana-04/FERRAMENTAS_E_OBSERVABILIDADE/">FERRAMENTAS_E_OBSERVABILIDADE.md</a>.
+  - Prompts: <a href="../../entregas/semana-04/PROMPTS_AGENTES/">PROMPTS_AGENTES.md</a>.
+  - Estrutura em proposta: <a href="../../decisoes/0016-estrutura-dos-agentes/">ADR 0016</a>.
+- <strong>Demonstração com LLMs</strong> numa sala de 4 pessoas (<a href="../../entregas/semana-04/DEMO_MULTIAGENTE_LOG.txt">log</a>): 8 chamadas, US$ 0,0036 e 38,9 s até os cartões, dentro dos 60 s do RNF-14.
+  - A memória do Agente Pessoal virou restrição vegetariana e preferência por lugar calmo, e uma instrução injetada num comentário foi ignorada.
+  - A varredura não achou vazamento.
+- <strong>Encontrado no caminho:</strong>
+  - A "Hamburgueria Espacial Taguatinga" está com as coordenadas em Sobradinho.
+  - O GLM 5.3 Flash não aceita desligar o raciocínio.
+  - Um exemplo do prompt da Comunicação fez o modelo inventar "dá para chegar de metrô".
+  - O primeiro build do Docker levou cerca de 15 min, por causa do espelho do Debian; o ffmpeg ainda está no Dockerfile.
+- <strong>Reviews:</strong>
+  - #77: a revisão da Maria Eduarda foi atendida (varredura de nomes, <code>trace_url</code>, commits e template).
+  - #79 (Telas 1 a 3): mudanças pedidas à Maria Carolina (conflito no <code>STATUS.md</code>, descrição vazia, barra "Modo Dev" em produção, ida para a DEMO em qualquer erro da API).
+- <strong>Pendências:</strong>
+  - <strong>#71 (grafo):</strong> segue bloqueada. Há um rascunho local com a aresta <code>avaliar_convergencia</code> e <code>executar_fluxo_multiagente</code>, mas ele precisa usar as implementações das #67, #68 e #69 quando entrarem. A Maria Carolina já tem a #69 numa branch. <em>(Atualização de 19/11: concluída; ver Seção 8.8.)</em>
+  - <strong>#73:</strong> pede o <code>CallbackHandler</code> do Langfuse, o que contradiz o ADR 0015.
+  - <strong>#74:</strong> depende do cenário da #66.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "content.code.copy"], "search": "../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>
