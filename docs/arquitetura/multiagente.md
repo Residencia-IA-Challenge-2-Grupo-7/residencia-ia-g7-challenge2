@@ -28,6 +28,7 @@ O sistema multiagente do **Orquestrador de Rolês** roda sobre a biblioteca **La
 O diagrama abaixo mostra de forma direta como os agentes conversam entre si do início ao fim da orquestração:
 
 ```mermaid
+%%{init: {'theme': 'dark', 'themeVariables': {'darkMode': true, 'primaryColor': '#1e293b', 'primaryTextColor': '#ffffff', 'primaryBorderColor': '#818cf8', 'lineColor': '#818cf8', 'edgeLabelBackground': '#0f172a'}}}%%
 flowchart TD
     IN(["🏁 Início: Sala com os amigos"]) --> P["0. Agente Pessoal<br/>(Lê preferências de cada amigo)"]
     P -->|"Guarda no Cofre Secreto"| COF[("🔒 Cofre Seguro<br/>Tetos e Origens Privadas")]

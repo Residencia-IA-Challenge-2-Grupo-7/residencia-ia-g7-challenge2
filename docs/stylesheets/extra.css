@@ -1,0 +1,68 @@
+/* ==========================================================================
+   Estilos de Alto Contraste para o Tema Escuro do MkDocs Material
+   ========================================================================== */
+
+/* Remove caixas claras e garante contraste perfeito em diagramas Mermaid */
+.mermaid {
+  text-align: center;
+  background-color: transparent !important;
+  margin: 1.5rem 0 !important;
+}
+
+/* Nós com fundo escuro e borda de destaque */
+.mermaid .node rect,
+.mermaid .node circle,
+.mermaid .node ellipse,
+.mermaid .node polygon,
+.mermaid .node path {
+  fill: #1e293b !important;
+  stroke: #818cf8 !important;
+  stroke-width: 2px !important;
+}
+
+/* Textos dentro dos nós sempre em branco puro e legíveis */
+.mermaid .node .label,
+.mermaid .node .label text,
+.mermaid .node text,
+.mermaid .node tspan,
+.mermaid text {
+  fill: #ffffff !important;
+  color: #ffffff !important;
+  font-family: inherit !important;
+  font-weight: 600 !important;
+  font-size: 14px !important;
+}
+
+/* Rótulos das setas com fundo escuro e texto claro */
+.mermaid .edgeLabel,
+.mermaid .edgeLabel rect {
+  background-color: #0f172a !important;
+  fill: #0f172a !important;
+}
+
+.mermaid .edgeLabel span,
+.mermaid .edgeLabel text,
+.mermaid .edgeLabel tspan {
+  color: #cbd5e1 !important;
+  fill: #cbd5e1 !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+}
+
+/* Setas e linhas em azul índigo vibrante */
+.mermaid .edgePath .path,
+.mermaid .flowchart-link {
+  stroke: #818cf8 !important;
+  stroke-width: 2.5px !important;
+}
+
+.mermaid .marker,
+.mermaid marker path {
+  fill: #818cf8 !important;
+  stroke: #818cf8 !important;
+}
+
+/* Remove poluição visual e garante espaçamento limpo */
+.md-content {
+  max-width: 1000px !important;
+}
