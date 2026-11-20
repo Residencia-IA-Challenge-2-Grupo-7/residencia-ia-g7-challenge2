@@ -482,7 +482,7 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
     - vai direto para o fim quando nada passou.
   - `validacao.selecionar_cartoes` escolhe os cartões na ordem do ranking da Logística: até 4, no máximo 2 por RA e sem nome repetido (a base tem o mesmo lugar em mais de um vídeo).
   - A varredura de vazamento dos cartões (`varrer_cartao`, `verificar_cartoes`), em código, foi para o fim de `validacao.py`, sem mudar as funções da #68. Ela procura número, nome ou parte de nome composto de membro (sem contar nomes de lugares da base) e a RA de onde alguém sai (sem contar formas que são palavras comuns, como "plano" e "gama").
-  - **O juiz LLM ficou de fora:** é a entrega da #72 (PR #86, `src/agentes/juiz.py`). Uma versão provisória dele estava neste PR e foi tirada na revisão; o grafo passa a chamar o `juiz.py` quando o #86 entrar.
+  - **O juiz LLM ficou de fora:** é a entrega da #72 (PR #86, `src/agentes/juiz.py`). Uma versão provisória dele estava neste PR e foi tirada na revisão. Depois que o #86 entrou, o grafo passou a chamar o `juiz.py` (ver Seção 8.11).
   - As funções da Comunicação que o grafo usa (`montar_fatos`, `escrever`, `texto_reserva`) foram para o fim de `comunicacao.py`, ao lado do `executar_agente_comunicacao` da #69.
 * **Decisões Técnicas e Arquitetura:**
   - **Sem aprovado, sem Comunicação:** com 0 lugares depois das 2 voltas, o grafo não chama o LLM para escrever cartão nenhum. As mensagens dizem que nada passou e que o grupo precisa flexibilizar algum critério. Antes, a Validação dizia "Autorizado para a síntese" e a varredura dizia "Cartões aprovados" mesmo com 0 cartões.
@@ -559,11 +559,38 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
 
 ### 8.11. Issue #74 — Script Executável de Demonstração CLI do Fluxo Multiagente (`demo_multiagente.py`)
 * **Responsável:** Cauan Soares (`@cadasiso`)
-* **Status:** Bloqueada
+* **Status:** Concluída, em revisão
 * **O que foi feito:**
+  - `scripts/demo_multiagente.py` (ou `make demo-agentes`; `OFFLINE=1` roda sem LLM) roda os dois cenários da #66 de ponta a ponta, em 5 atos:
+    1. a memória do Agente Pessoal depois de um rolê anterior;
+    2. os 4 amigos entrando pelo back-end real das salas;
+    3. o fluxo atual sem agentes, para comparar;
+    4. a conversa entre os agentes, ao vivo;
+    5. o resultado, com o gabarito da #66, a visão privada de um membro, a varredura de vazamento, o custo e a latência por agente e o link do trace.
+  - No fim, um resumo dos dois cenários (tempo, chamadas, tokens, custo, voltas, reescritas, vetos e cartões) para o relatório (#76).
+  - O log fica em `docs/entregas/semana-04/DEMO_MULTIAGENTE_LOG.txt`, e o diagrama do grafo compilado em `docs/entregas/semana-04/grafo_agentes.mmd`.
+  - O juiz LLM da #72 (`src/agentes/juiz.py`, PR #86) entrou no grafo:
+    - a 2ª passagem, sobre os cartões, roda sempre na validação dos textos, junto com a varredura em código (que olha os nomes e as RAs do cofre, que o juiz não vê);
+    - a 1ª passagem, sobre os motivos da Pesquisa, é opcional (`--juiz-parecer`) e derruba só o que contradiz o documento.
 * **Decisões Técnicas e Arquitetura:**
-* **Arquivos:**
+  - **Os dois cenários da #66, e não uma sala própria:** o demo compara o resultado com um gabarito independente. O padrão mostra o ciclo condicional e o aviso sem cartão; o de controle mostra o caminho feliz.
+  - **A memória não muda os vetos:** os comentários do ato 1 viram preferência (lugar sem barulho) ou são uma instrução injetada que o agente ignora. Assim o gabarito da #66 continua valendo depois da memória.
+  - **Proposta contraditória não é gravada:** na primeira rodada, o LLM do pós-rolê leu "a música alta atrapalhou" como `barulho:evita` e "prefiro lugar mais tranquilo" como `barulho:gosta`, e o log gravava o último. Agora, se a mesma proposta trouxer "gosta" e "evita" para o mesmo aspecto, nada é gravado sobre ele (`pessoal.depois_do_role`).
+* **Arquivos:** `scripts/demo_multiagente.py`, `Makefile` (`demo-agentes`), `src/agentes/grafo.py` (juiz da #72), `src/agentes/pessoal.py`, `tests/test_demo_multiagente.py`, `tests/test_grafo_multiagente.py`, `tests/test_agente_pessoal.py`, `docs/entregas/semana-04/DEMO_MULTIAGENTE_LOG.txt`, `docs/entregas/semana-04/grafo_agentes.mmd`.
 * **Testes e Validação:**
+  - `pytest tests/test_demo_multiagente.py`: roda o demo sem LLM e confere os 5 atos nos dois cenários, o veredito do padrão, os cartões do controle dentro dos viáveis e a varredura sem nome de membro.
+  - `pytest tests/test_grafo_multiagente.py`: 33 testes, entre eles o juiz usando o GLM e os agentes o DeepSeek, nenhum nome, teto ou origem nas mensagens enviadas aos LLMs (inclusive ao juiz) e a reescrita quando o juiz acha uma exposição que a varredura não pega.
+  - Suíte inteira, sem o `test_pipeline_haystack.py`: 883 aprovados.
+  - Demo com LLM, em 20/11 (o log está em `DEMO_MULTIAGENTE_LOG.txt`):
+
+    | Sala | Tempo | Chamadas | Tokens | Custo | Voltas | Cartões |
+    |---|---|---|---|---|---|---|
+    | ROLE-PADR (sem lugar viável) | 15,4 s | 6 | 21.001 | US$ 0,0028 | 2 | 0, com o aviso ao grupo |
+    | ROLE-CTRL (5 viáveis) | 20,6 s | 6 | 23.154 | US$ 0,0037 | 1 | 3, os 3 entre os viáveis |
+
+    - Os dois cenários ficam dentro dos 60 s do RNF-14. No controle, o juiz dos cartões é a chamada mais lenta (7,3 s) e a mais cara (US$ 0,0012).
+    - O fluxo atual das salas, sem agentes, sugere o Cachorrão da 5, que está no `nunca_sugerir` da #66, nos dois cenários (pior trajeto de 218 min no padrão). O fluxo com agentes não sugere.
+  - **Limitação:** a máquina em que o demo rodou não tem as chaves do Langfuse no `.env`, então o log não traz link de trace. O trace depende da #73.
 
 ---
 
