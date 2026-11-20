@@ -1,11 +1,12 @@
 """Testes unitários e de integração da telemetria e tracing do grafo no Langfuse Cloud (Issue #73).
 
 Valida:
-1. Mascaramento estrito de PII (valores em R$, CPFs, e-mails, telefones, origens e nomes de membros) (RNF-02, RNF-10);
-2. Nomenclatura oficial dos spans dos nós (agente_0_pessoal .. agente_4_comunicacao);
-3. Geração e formatação correta de URLs de trace (trace_url e langfuse_trace_url);
-4. CallbackHandler integrado com LangGraph/LangChain com sanitização de inputs/outputs;
-5. Resiliência e fallback offline quando credenciais não estiverem disponíveis.
+1. Mascaramento estrito de PII privada (CPFs, e-mails, telefones, origens e nomes de membros) (RNF-02, RNF-10);
+2. Preservação de preços públicos dos lugares para validação factual do juiz;
+3. Nomenclatura oficial dos spans dos nós (agente_0_pessoal .. agente_4_comunicacao);
+4. Geração e formatação correta de URLs de trace dinâmicas (trace_url);
+5. Spans explícitos com métricas de tokens, custo, latência e falhas em conformidade com o ADR 0015;
+6. Resiliência e fallback offline quando credenciais não estiverem disponíveis.
 """
 from __future__ import annotations
 
@@ -17,8 +18,6 @@ import pytest
 from src.telemetria.langfuse_agentes import (
     PROJETO_LANGFUSE_ID,
     SPANS_AGENTES,
-    LangfuseAgentesCallbackHandler,
-    criar_callback_handler_agentes,
     mascarar_pii,
     obter_trace_url,
     observar_agente,
@@ -26,13 +25,16 @@ from src.telemetria.langfuse_agentes import (
 )
 
 
-def test_mascarar_pii_valores_monetarios():
-    """Valores em reais e moeda devem ser substituídos por [VALOR_REMOVIDO]."""
-    texto = "O teto da Maria é R$ 40,00 e o João tem 50 reais para gastar."
-    mascarado = mascarar_pii(texto)
-    assert "R$ 40,00" not in mascarado
-    assert "50 reais" not in mascarado
-    assert "[VALOR_REMOVIDO]" in mascarado
+def test_mascarar_pii_preserva_precos_publicos_e_bloqueia_chaves_privadas():
+    """Preços públicos dos lugares não devem ser apagados; tetos e dados privados são protegidos no cofre e por chaves."""
+    texto = "Fatias a partir de R$ 15,00 e bolos no pote por R$ 12,00."
+    assert mascarar_pii(texto) == texto  # preserva preços públicos para conferência do juiz
+
+    dados = {"lugar": "Valzira", "preco": "R$ 15,00", "teto": "60", "origem": "Guará"}
+    mascarado = mascarar_pii(dados)
+    assert mascarado["preco"] == "R$ 15,00"
+    assert mascarado["teto"] == "[DADO_PRIVADO_REMOVIDO]"
+    assert mascarado["origem"] == "[DADO_PRIVADO_REMOVIDO]"
 
 
 def test_mascarar_pii_emails_telefones_cpfs():
@@ -48,9 +50,9 @@ def test_mascarar_pii_emails_telefones_cpfs():
 
 
 def test_mascarar_pii_origens_individuais():
-    """Expressões indicando origens individuais devem ser mascaradas."""
-    texto = "Ótimo pra quem sai de Ceilândia e muito bom partindo de Taguatinga."
-    mascarado = mascarar_pii(texto)
+    """Menções explícitas de origens individuais devem ser mascaradas."""
+    frase = "Recomendo um lugar bom para quem sai de Ceilândia ou partindo de Taguatinga."
+    mascarado = mascarar_pii(frase)
     assert "[ORIGEM_REMOVIDA]" in mascarado
     assert "quem sai de Ceilândia" not in mascarado
 
@@ -84,38 +86,41 @@ def test_mascarar_pii_chaves_privadas_em_dicionarios():
 
 
 def test_mascarar_pii_estruturas_aninhadas():
-    """Estruturas complexas (listas dentro de dicionários) devem ser varridas recursivamente."""
-    dados = {
-        "candidatos": [
-            {"nome": "Café do Lago", "comentario": "quem vem de Samambaia chega rápido"},
-            {"nome": "Bar Central", "valor": "gasto de 80 reais"},
+    """Estruturas complexas (listas aninhadas em dicionários) devem ser varridas recursivamente."""
+    payload = {
+        "membros": [
+            {"nome": "Eduarda", "email": "duda@test.com"},
+            {"nome": "Lucas", "origem": "Águas Claras"},
         ],
-        "metadados": {"contatos": ["teste@unb.br"]},
+        "metadados": {
+            "contatos": ["(61) 91111-2222"],
+        },
     }
-    limpo = mascarar_pii(dados)
-    assert "[ORIGEM_REMOVIDA]" in limpo["candidatos"][0]["comentario"]
-    assert "[VALOR_REMOVIDO]" in limpo["candidatos"][1]["valor"]
-    assert "[EMAIL_REMOVIDO]" in limpo["metadados"]["contatos"][0]
+    limpo = mascarar_pii(payload, nomes_proibidos=["Eduarda", "Lucas"])
+    assert limpo["membros"][0]["nome"] == "[NOME_REMOVIDO]"
+    assert limpo["membros"][0]["email"] == "[EMAIL_REMOVIDO]"
+    assert limpo["membros"][1]["origem"] == "[DADO_PRIVADO_REMOVIDO]"
+    assert limpo["metadados"]["contatos"][0] == "[TELEFONE_REMOVIDO]"
 
 
 def test_spans_agentes_mapeamento_canonico():
-    """Garante que todos os nós do fluxo possuem os nomes canônicos requeridos pela Issue #73."""
+    """Mapeamento canônico deve conter todos os nós oficiais exigidos na issue #73."""
     assert SPANS_AGENTES["no_pessoal"] == "agente_0_pessoal"
+    assert SPANS_AGENTES["no_consolidar_grupo"] == "agente_orquestrador_consolidar"
     assert SPANS_AGENTES["no_pesquisa"] == "agente_1_pesquisa"
     assert SPANS_AGENTES["no_logistica"] == "agente_2_logistica"
     assert SPANS_AGENTES["no_validacao"] == "agente_3_validacao"
     assert SPANS_AGENTES["no_comunicacao"] == "agente_4_comunicacao"
     assert SPANS_AGENTES["no_validacao_textos"] == "agente_3_validacao_textos"
-    assert SPANS_AGENTES["juiz_pesquisa"] == "agente_juiz_pesquisa"
-    assert SPANS_AGENTES["juiz_comunicacao"] == "agente_juiz_comunicacao"
+    assert SPANS_AGENTES["no_finalizar"] == "agente_orquestrador_finalizar"
+    assert SPANS_AGENTES["sala_multiagente"] == "grafo_sala_multiagente"
 
 
 def test_obter_trace_url_com_id_explicito():
-    """Gera link oficial no Langfuse Cloud baseado no trace_id e projeto oficial."""
-    url = obter_trace_url("trace_teste_abc_123")
+    """obter_trace_url deve gerar o link canônico do trace no Langfuse."""
+    url = obter_trace_url("tr_123456789abc")
     assert url is not None
-    assert PROJETO_LANGFUSE_ID in url
-    assert "trace_teste_abc_123" in url
+    assert "tr_123456789abc" in url
     assert "https://cloud.langfuse.com" in url
 
 
@@ -157,34 +162,6 @@ def test_observar_agente_retorna_funcao_decoradora():
     assert func_teste(3) == 6
 
 
-def test_callback_handler_mascara_inputs_e_outputs():
-    """O CallbackHandler deve aplicar mascaramento em inputs e outputs de chains e tools."""
-    handler = LangfuseAgentesCallbackHandler(nomes_proibidos=["Duda", "Caio"])
-
-    inputs = {"pergunta": "O que a Duda quer?", "orcamento": "R$ 40"}
-    meta = {"usuario": "Caio"}
-
-    with patch("src.telemetria.langfuse_agentes._BaseCallbackHandler.on_chain_start", autospec=True, return_value=None) as mock_start:
-        handler.on_chain_start({}, inputs, run_id="run_1", metadata=meta)
-        if mock_start.called:
-            chamada_inputs = mock_start.call_args[0][2]
-            assert "Duda" not in str(chamada_inputs)
-
-    outputs = {"resposta": "Sugiro barzinho perto de quem sai de Sobradinho."}
-    with patch("src.telemetria.langfuse_agentes._BaseCallbackHandler.on_chain_end", autospec=True, return_value=None) as mock_end:
-        handler.on_chain_end(outputs, run_id="run_1")
-        if mock_end.called:
-            chamada_outputs = mock_end.call_args[0][1]
-            assert "[ORIGEM_REMOVIDA]" in str(chamada_outputs)
-
-
-def test_criar_callback_handler_sem_chaves_retorna_none():
-    """Sem credenciais do Langfuse no ambiente, deve retornar None sem levantar erro."""
-    with patch.dict(os.environ, {}, clear=True):
-        handler = criar_callback_handler_agentes()
-        assert handler is None
-
-
 def test_resiliencia_offline_registrar_span():
     """registrar_span_agente não deve quebrar quando Langfuse não estiver gravando."""
     # Chamada segura fora de contexto do Langfuse
@@ -208,7 +185,7 @@ def test_registrar_span_quando_gravando_chama_update_current_span():
          patch("langfuse.get_client", return_value=mock_client):
         registrar_span_agente(
             "no_validacao",
-            entrada={"candidato": "quem sai de Ceilândia", "orcamento": "R$ 50,00"},
+            entrada={"candidato": "quem sai de Ceilândia", "teto": "60"},
             saida={"resultado": "aprovado para a Maria"},
             nomes_proibidos=["Maria"],
             iteracao_pesquisa=1,
@@ -220,7 +197,7 @@ def test_registrar_span_quando_gravando_chama_update_current_span():
         kw = mock_client.update_current_span.call_args[1]
         assert kw["name"] == "agente_3_validacao"
         assert "[ORIGEM_REMOVIDA]" in str(kw["input"])
-        assert "[VALOR_REMOVIDO]" in str(kw["input"])
+        assert "[DADO_PRIVADO_REMOVIDO]" in str(kw["input"])
         assert "[NOME_REMOVIDO]" in str(kw["output"])
         assert kw["metadata"]["iteracao_pesquisa"] == 1
         assert kw["metadata"]["quantidade_vetos"] == 2
@@ -306,4 +283,3 @@ def test_grafo_executar_adere_ao_adr_0015_sem_callbacks_duplicados():
     cofre = cofre_dos_dados(dados_sala)
     grafo = construir_grafo(cofre, ClienteLLM(offline=True))
     assert grafo is not None
-

@@ -2,8 +2,6 @@
 from src.telemetria.langfuse_agentes import (
     PROJETO_LANGFUSE_ID,
     SPANS_AGENTES,
-    LangfuseAgentesCallbackHandler,
-    criar_callback_handler_agentes,
     mascarar_pii,
     obter_trace_url,
     observar_agente,
@@ -13,8 +11,6 @@ from src.telemetria.langfuse_agentes import (
 __all__ = [
     "PROJETO_LANGFUSE_ID",
     "SPANS_AGENTES",
-    "LangfuseAgentesCallbackHandler",
-    "criar_callback_handler_agentes",
     "mascarar_pii",
     "obter_trace_url",
     "observar_agente",

@@ -140,6 +140,8 @@ def cofre_da_sala(sala: Sala, lugares, agora: datetime, store=None, usuarios: di
 
 def construir_grafo(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica", juiz_parecer: bool = False,
                     checkpointer=None):
+    """`juiz_parecer`: liga a 1ª passagem do juiz (#72) sobre os motivos da Pesquisa; a 2ª, sobre os cartões,
+    roda sempre (sem LLM, cai nas regras do próprio juiz)."""
     lugares = list(cofre.lugares.values())
 
     def distribuir(estado: MultiAgentState):
@@ -399,10 +401,9 @@ def construir_grafo(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica",
             fecho = f"Só {len(finais)} cartões prontos para a votação (menos de 3 opções viáveis na base)."
         else:
             fecho = f"{len(finais)} cartões prontos para a votação."
-        metricas_totais = _metricas_chamadas(cliente.chamadas)
         _registrar({"aprovados": escolhidos}, [{k: c[k] for k in ("id", "nome", "titulo")} for c in finais],
                    nome_agente="agente_orquestrador_finalizar", iteracao_pesquisa=estado.get("iteracao_pesquisa", 0),
-                   reescritas=estado.get("reescritas", 0), convergido=True, **metricas_totais)
+                   reescritas=estado.get("reescritas", 0), convergido=True)
         return {"resultado_final_cartoes": finais, "mensagens": [_msg("Orquestrador", "Tela 3", fecho)]}
 
     g = StateGraph(MultiAgentState)
