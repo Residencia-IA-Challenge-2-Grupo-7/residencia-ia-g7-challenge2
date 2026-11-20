@@ -121,26 +121,30 @@ def mascarar_pii(dados: Any, nomes_proibidos: Iterable[str] | None = None) -> An
 
 def obter_trace_url(trace_id: str | None = None) -> str | None:
     """Retorna a URL pública canônica do trace no Langfuse Cloud (ou None caso indisponível)."""
-    env_host = os.environ.get("LANGFUSE_BASE_URL") or os.environ.get("LANGFUSE_HOST")
     try:
-        from opentelemetry import trace
         from langfuse import get_client
 
         c = get_client()
         tid = trace_id or c.get_current_trace_id()
         if tid:
-            if env_host:
-                return f"{env_host.rstrip('/')}/project/{PROJETO_LANGFUSE_ID}/traces/{tid}"
             url = c.get_trace_url(trace_id=tid)
             if url:
                 return url
-            return f"https://cloud.langfuse.com/project/{PROJETO_LANGFUSE_ID}/traces/{tid}"
     except Exception:
         pass
 
-    if trace_id:
-        host = (env_host or "https://cloud.langfuse.com").rstrip("/")
-        return f"{host}/project/{PROJETO_LANGFUSE_ID}/traces/{trace_id}"
+    env_host = os.environ.get("LANGFUSE_BASE_URL") or os.environ.get("LANGFUSE_HOST") or "https://cloud.langfuse.com"
+    tid_fallback = trace_id
+    if not tid_fallback:
+        try:
+            from langfuse import get_client
+            tid_fallback = get_client().get_current_trace_id()
+        except Exception:
+            pass
+
+    if tid_fallback:
+        proj = os.environ.get("LANGFUSE_PROJECT_ID", PROJETO_LANGFUSE_ID)
+        return f"{env_host.rstrip('/')}/project/{proj}/traces/{tid_fallback}"
     return None
 
 
@@ -232,7 +236,6 @@ class LangfuseAgentesCallbackHandler(_BaseCallbackHandler):
     ):
         self.nomes_proibidos = list(nomes_proibidos or [])
         self.trace_name = trace_name
-        self.ultimo_trace_id: Optional[str] = None
 
         try:
             super().__init__(public_key=public_key, **kwargs)
@@ -328,14 +331,6 @@ class LangfuseAgentesCallbackHandler(_BaseCallbackHandler):
             )
         except Exception:
             pass
-
-    def get_trace_url(self) -> Optional[str]:
-        """Obtém a URL oficial do trace atual gerado por este handler."""
-        try:
-            tid = getattr(self, "last_trace_id", None) or self.ultimo_trace_id
-            return obter_trace_url(tid)
-        except Exception:
-            return None
 
 
 def criar_callback_handler_agentes(

@@ -119,19 +119,32 @@ def test_obter_trace_url_com_id_explicito():
     assert "https://cloud.langfuse.com" in url
 
 
-def test_obter_trace_url_respeita_host_personalizado():
-    """Respeita LANGFUSE_HOST ou LANGFUSE_BASE_URL customizados."""
-    with patch.dict(os.environ, {"LANGFUSE_HOST": "https://telemetria.local", "LANGFUSE_BASE_URL": ""}):
-        url = obter_trace_url("tr_001")
-        assert url is not None
-        assert url.startswith("https://telemetria.local")
-        assert "tr_001" in url
+def test_obter_trace_url_prioriza_sdk_dinamico():
+    """Prioriza o get_trace_url retornado dinamicamente pelo cliente do SDK sem forçar id fixo."""
+    mock_client = MagicMock()
+    mock_client.get_trace_url.return_value = "https://meu-langfuse.corp/project/proj_novo_123/traces/tr_dinamico"
+    with patch("langfuse.get_client", return_value=mock_client):
+        url = obter_trace_url("tr_dinamico")
+        assert url == "https://meu-langfuse.corp/project/proj_novo_123/traces/tr_dinamico"
+        mock_client.get_trace_url.assert_called_once_with(trace_id="tr_dinamico")
 
-    with patch.dict(os.environ, {"LANGFUSE_BASE_URL": "https://base.local", "LANGFUSE_HOST": ""}):
-        url = obter_trace_url("tr_002")
-        assert url is not None
-        assert url.startswith("https://base.local")
-        assert "tr_002" in url
+
+def test_obter_trace_url_respeita_host_personalizado():
+    """Respeita LANGFUSE_HOST ou LANGFUSE_BASE_URL customizados no fallback."""
+    mock_client = MagicMock()
+    mock_client.get_trace_url.return_value = None
+    with patch("langfuse.get_client", return_value=mock_client):
+        with patch.dict(os.environ, {"LANGFUSE_HOST": "https://telemetria.local", "LANGFUSE_BASE_URL": ""}):
+            url = obter_trace_url("tr_001")
+            assert url is not None
+            assert url.startswith("https://telemetria.local")
+            assert "tr_001" in url
+
+        with patch.dict(os.environ, {"LANGFUSE_BASE_URL": "https://base.local", "LANGFUSE_HOST": ""}):
+            url = obter_trace_url("tr_002")
+            assert url is not None
+            assert url.startswith("https://base.local")
+            assert "tr_002" in url
 
 
 def test_observar_agente_retorna_funcao_decoradora():
@@ -214,18 +227,40 @@ def test_registrar_span_quando_gravando_chama_update_current_span():
         assert kw["metadata"]["convergido"] is True
 
 
-def test_callback_handler_get_trace_url():
-    """get_trace_url deve retornar a URL oficial quando o trace_id estiver definido."""
-    handler = LangfuseAgentesCallbackHandler()
-    handler.ultimo_trace_id = "trace_custom_xyz"
-    url = handler.get_trace_url()
-    assert url is not None
-    assert "trace_custom_xyz" in url
-    assert PROJETO_LANGFUSE_ID in url
+def test_registrar_span_com_metricas_tokens_e_custo():
+    """Registra tokens, custo, latência e tentativas sem resposta nos metadados do span."""
+    mock_span = MagicMock()
+    mock_span.is_recording.return_value = True
+    mock_client = MagicMock()
+
+    with patch("opentelemetry.trace.get_current_span", return_value=mock_span), \
+         patch("langfuse.get_client", return_value=mock_client):
+        registrar_span_agente(
+            "agente_1_pesquisa",
+            entrada={"query": "café"},
+            saida={"candidatos": ["c1"]},
+            tokens=450,
+            custo_usd=0.00125,
+            latencia_llm_s=2.34,
+            chamadas_llm=1,
+            tentativas_sem_resposta=0,
+            modelos=["deepseek/deepseek-v4.1-flash-1017"],
+        )
+
+        assert mock_client.update_current_span.called
+        kw = mock_client.update_current_span.call_args[1]
+        assert kw["name"] == "agente_1_pesquisa"
+        meta = kw["metadata"]
+        assert meta["tokens"] == 450
+        assert meta["custo_usd"] == 0.00125
+        assert meta["latencia_llm_s"] == 2.34
+        assert meta["chamadas_llm"] == 1
+        assert meta["tentativas_sem_resposta"] == 0
+        assert meta["modelos"] == ["deepseek/deepseek-v4.1-flash-1017"]
 
 
-def test_grafo_executar_retorna_trace_url_e_langfuse_trace_url():
-    """O estado final retornado pelo grafo deve conter trace_url e langfuse_trace_url."""
+def test_grafo_executar_retorna_trace_url_unificado():
+    """O estado final retornado pelo grafo deve conter apenas trace_url (sem langfuse_trace_url duplicado)."""
     from src.agentes.grafo import executar_fluxo_multiagente
     from src.agentes.llm import ClienteLLM
 
@@ -252,6 +287,23 @@ def test_grafo_executar_retorna_trace_url_e_langfuse_trace_url():
 
     final = executar_fluxo_multiagente(dados_sala, cliente=ClienteLLM(offline=True))
     assert "trace_url" in final
-    assert "langfuse_trace_url" in final
-    assert final["trace_url"] == final["langfuse_trace_url"]
+    assert "langfuse_trace_url" not in final
+
+
+def test_grafo_executar_adere_ao_adr_0015_sem_callbacks_duplicados():
+    """Garante que executar não injeta callbacks duplicados no LangGraph e roda spans explícitos."""
+    from src.agentes.grafo import cofre_dos_dados, construir_grafo
+    from src.agentes.llm import ClienteLLM
+
+    dados_sala = {
+        "codigo": "ROLE-ADR0015",
+        "agora": "2026-11-21T15:00:00",
+        "membros": [
+            {"nome": "Duda", "origem": "Taguatinga", "horarios": "sábado 15h às 18h", "teto": "60", "preferencias": "café"},
+            {"nome": "Caio", "origem": "Águas Claras", "horarios": "sábado 15h às 18h", "teto": "80", "preferencias": "café"},
+        ],
+    }
+    cofre = cofre_dos_dados(dados_sala)
+    grafo = construir_grafo(cofre, ClienteLLM(offline=True))
+    assert grafo is not None
 
