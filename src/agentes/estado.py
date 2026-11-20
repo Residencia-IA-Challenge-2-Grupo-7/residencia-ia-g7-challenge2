@@ -42,7 +42,7 @@ CAMPOS_DA_BASE = frozenset({"documentos"})
 class MultiAgentState(TypedDict, total=False):
     # entrada
     sala_id: str                                               # código da sala (não identifica ninguém)
-    trace_url: str | None                                      # link do trace no Langfuse, anexado por executar()
+    trace_url: str | None                                      # link oficial do trace no Langfuse Cloud (Issue #73)
     membros: list[str]                                         # marcadores m1..mN; o Send abre um Agente Pessoal por um
     # Agente 0 (Pessoal) -> grupo
     membros_anonimos: Annotated[list[dict], operator.add]      # PerfilAnonimoMembro, um por membro, em paralelo

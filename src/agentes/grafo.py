@@ -86,24 +86,37 @@ def _msg(de: str, para: str, texto: str, **extra) -> dict:
     return {"de": de, "para": para, "texto": texto, "em": time.strftime("%H:%M:%S"), **extra}
 
 
-def _registrar(entrada=None, saida=None, **metadados) -> None:
-    """Entrada e saída do span atual no Langfuse, escolhidas à mão. Sem chaves, não faz nada."""
-    try:
-        from opentelemetry import trace
-        if not trace.get_current_span().is_recording():
-            return
-        from langfuse import get_client
-        get_client().update_current_span(input=entrada, output=saida, metadata=metadados or None)
-    except Exception:
-        pass
+from src.telemetria.langfuse_agentes import (
+    SPANS_AGENTES,
+    mascarar_pii,
+    obter_trace_url,
+    observar_agente as _observado,
+    registrar_span_agente,
+)
 
 
-def _observado(nome: str, tipo: str = "agent"):
-    try:
-        from langfuse import observe
-        return observe(name=nome, as_type=tipo, capture_input=False, capture_output=False)
-    except Exception:  # sem Langfuse instalado
-        return lambda f: f
+def _metricas_chamadas(chamadas: list) -> dict[str, Any]:
+    """Extrai métricas estruturadas de chamadas LLM para telemetria de spans (RNF-10, Issue #73)."""
+    if not chamadas:
+        return {}
+    tokens = sum(c.tokens for c in chamadas)
+    custo = sum(c.custo_usd for c in chamadas)
+    latencia = sum(c.latencia_s for c in chamadas)
+    falhas = sum(1 for c in chamadas if getattr(c, "falhou", ""))
+    modelos = sorted({c.modelo for c in chamadas})
+    return {
+        "tokens": tokens,
+        "custo_usd": round(custo, 6),
+        "latencia_llm_s": round(latencia, 2),
+        "chamadas_llm": len(chamadas),
+        "tentativas_sem_resposta": falhas,
+        "modelos": modelos,
+    }
+
+
+def _registrar(entrada=None, saida=None, nome_agente: str = "", **metadados) -> None:
+    """Entrada e saída do span atual no Langfuse, com mascaramento estrito de PII (RNF-02, RNF-10)."""
+    registrar_span_agente(nome_agente, entrada=entrada, saida=saida, **metadados)
 
 
 # ------------------------------------------------------------------ cofre a partir de uma sala real
@@ -127,22 +140,23 @@ def cofre_da_sala(sala: Sala, lugares, agora: datetime, store=None, usuarios: di
 
 def construir_grafo(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica", juiz_parecer: bool = False,
                     checkpointer=None):
-    """`juiz_parecer`: liga a 1ª passagem do juiz (#72) sobre os motivos da Pesquisa; a 2ª, sobre os cartões,
-    roda sempre (sem LLM, cai nas regras do próprio juiz)."""
     lugares = list(cofre.lugares.values())
 
     def distribuir(estado: MultiAgentState):
         return [Send("no_pessoal", {"membro": m}) for m in estado["membros"]]
 
-    @_observado("agente_pessoal")
+    @_observado("pessoal")
     def no_pessoal(entrada: dict):
         m = cofre.membros[entrada["membro"]]
+        n0 = len(cliente.chamadas)
         saida = pessoal.agente_pessoal(m, cofre.store, cofre.agora, cofre.nomes())
         cofre.perfis_efetivos[m.id] = saida.perfil_efetivo   # canais 1, 2 e 4 ficam no cofre
         a = saida.publico()                                   # canal 3 vai para o grupo
+        metricas = _metricas_chamadas(cliente.chamadas[n0:])
         _registrar({"campos_preenchidos": 4}, {"preferencias": len(a["tipos"]) + len(a["vibes"]),
                                                 "restricoes": len(a["restricoes"]),
-                                                "itens_do_log_usados": a["itens_do_log_usados"]})
+                                                "itens_do_log_usados": a["itens_do_log_usados"]},
+                   nome_agente="agente_0_pessoal", **metricas)
         return {"membros_anonimos": [a]}
 
     @_observado("consolidar_grupo", "chain")
@@ -167,7 +181,7 @@ def construir_grafo(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica",
                  + (", ".join(f"{t.split(' / ')[0]} ({c})" for t, c in grupo["tipos_pedidos"].items()) or "nenhum")
                  + f". Restrições do grupo: {len(grupo['restricoes'])}. Itens de memória usados: {usados}."
                  + (f" Melhor janela: {grupo['janela']}." if grupo["janela"] else ""))
-        _registrar({"membros_anonimos": n}, grupo)
+        _registrar({"membros_anonimos": n}, grupo, nome_agente="agente_orquestrador_consolidar")
         return {"preferencias_grupo": grupo, "iteracao_pesquisa": 0, "reescritas": 0, "vistos": [],
                 "candidatos_pesquisa": [], "pedido_nova_busca": None, "historico_erros": avisos,
                 "mensagens": [_msg("Agentes Pessoais", "Pesquisa", texto)]}
@@ -180,8 +194,10 @@ def construir_grafo(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica",
         pedido = estado.get("pedido_nova_busca")
         aprovados = set((estado.get("relatorio_validacao") or {}).get("aprovados", []))
         mantidos = [c for c in estado.get("candidatos_pesquisa", []) if c["id"] in aprovados]
+        n0 = len(cliente.chamadas)
         r = pesquisa.pesquisar(estado["preferencias_grupo"], pedido, lugares, cliente, busca=busca,
                                excluir=set(estado.get("vistos", [])))
+        metricas = _metricas_chamadas(cliente.chamadas[n0:])
         novos = [c for c in r["candidatos"] if c["id"] not in aprovados]
         candidatos = mantidos + novos
         docs = {**estado.get("documentos", {}), **r["documentos"]}
@@ -191,7 +207,9 @@ def construir_grafo(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica",
                  f"Destaques: {nomes}." + (f" Observação: {r['observacao']}" if r["observacao"] else ""))
         _registrar({"preferencias_grupo": estado["preferencias_grupo"], "pedido": pedido},
                    {"consultas": r["consultas"], "candidatos": [c["id"] for c in novos]},
-                   usou_llm=r["usou_llm"], trechos_descartados=r["descartados"], prompt=versao_prompt("pesquisa"))
+                   nome_agente="agente_1_pesquisa", iteracao_pesquisa=estado.get("iteracao_pesquisa", 0),
+                   usou_llm=r["usou_llm"], trechos_descartados=r["descartados"],
+                   prompt=versao_prompt("pesquisa"), **metricas)
         return {"candidatos_pesquisa": candidatos, "documentos": docs, "pedido_nova_busca": None,
                 "iteracao_pesquisa": estado.get("iteracao_pesquisa", 0) + (1 if pedido else 0),
                 "vistos": sorted(set(estado.get("vistos", [])) | {c["id"] for c in r["candidatos"]}),
@@ -204,12 +222,14 @@ def construir_grafo(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica",
             estado["candidatos_pesquisa"], cofre.perfis_efetivos, lugares=cofre.lugares, janelas=cofre.janelas,
             agora=cofre.agora, analises=cofre.analises)
         _registrar({"candidatos": len(estado["candidatos_pesquisa"])},
-                   [{k: r[k] for k in ("id", "nota_justica", "pior_trajeto_min", "pontuacao")} for r in ranking])
+                   [{k: r[k] for k in ("id", "nota_justica", "pior_trajeto_min", "pontuacao")} for r in ranking],
+                   nome_agente="agente_2_logistica")
         return {"candidatos_avaliados": ranking,
                 "mensagens": [_msg("Logística", "Validação", logistica.gerar_parecer(ranking, cofre.analises))]}
 
     @_observado("validacao", "guardrail")
     def no_validacao(estado: MultiAgentState):
+        n0 = len(cliente.chamadas)
         # 1ª passagem do juiz (#72, opcional): derruba só o candidato cujo motivo contradiz o documento
         julgados = set(estado.get("julgados", []))
         novos = [c for c in estado["candidatos_pesquisa"] if c["id"] not in julgados]
@@ -248,8 +268,12 @@ def construir_grafo(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica",
                      + (" Menos de 3 opções: aviso o grupo." if len(validados) < validacao.MINIMO_CARTOES else "")
                      + " Comunicação, pode escrever.")
             para = "Comunicação"
+        metricas = _metricas_chamadas(cliente.chamadas[n0:])
         _registrar({"ranking": [r["id"] for r in ranking]}, {k: res[k] for k in ("aprovados", "contagem")},
-                   juiz=vereditos, volta=voltas)
+                   nome_agente="agente_3_validacao", volta=voltas, iteracao_pesquisa=voltas,
+                   quantidade_vetos=len(res["vetos"]), motivos_vetos=res["contagem"],
+                   convergido=(destino != "no_pesquisa"), destino=destino,
+                   juiz=vereditos, derrubados_juiz=len(derrubados), **metricas)
         erros = [f"validacao (volta {voltas}): {v['id']} vetado por {v['motivo']}" for v in res["vetos"]] + \
             [f"validacao (volta {voltas}): {i} derrubado pelo juiz do parecer" for i in sorted(derrubados)]
         return {"relatorio_validacao": res, "pedido_nova_busca": pedido, "candidatos_validados": validados,
@@ -265,13 +289,15 @@ def construir_grafo(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica",
                                          estado.get("documentos", {}), res["teto_aplicado"])
         pedido = {k: estado["preferencias_grupo"][k] for k in ("tipos", "vibes", "evitar", "trechos_pedido")}
         correcoes = estado.get("reprovados") if estado.get("reescritas") else None
+        n0 = len(cliente.chamadas)
         r = comunicacao.escrever(fatos, pedido, cliente, correcoes)
+        metricas = _metricas_chamadas(cliente.chamadas[n0:])
         cartoes = r["cartoes"]
         if correcoes and estado.get("cartoes"):  # na reescrita, só os reprovados mudam
             novos = {c["id"]: c for c in cartoes}
             cartoes = [novos[c["id"]] if c["id"] in correcoes else c for c in estado["cartoes"]]
-        _registrar({"fatos": fatos, "correcoes": correcoes}, cartoes, usou_llm=r["usou_llm"],
-                   prompt=versao_prompt("comunicacao"))
+        _registrar({"fatos": fatos, "correcoes": correcoes}, cartoes, nome_agente="agente_4_comunicacao",
+                   usou_llm=r["usou_llm"], prompt=versao_prompt("comunicacao"), **metricas)
         texto = f"{'Reescrevi' if correcoes else 'Escrevi'} {len(cartoes)} cartões: " + \
             "; ".join(f"{c['id']}) {c['titulo']}" for c in cartoes) + "."
         # Na reescrita, os cartões que não foram reprovados continuam com o texto de antes (#71, revisão do #80)
@@ -281,6 +307,7 @@ def construir_grafo(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica",
 
     @_observado("validacao_textos", "guardrail")
     def no_validacao_textos(estado: MultiAgentState):
+        n0 = len(cliente.chamadas)
         # Varredura em código (nomes e RAs do cofre, que o juiz não vê) + 2ª passagem do juiz (#72)
         reprovados = {k: list(v) for k, v in validacao.verificar_cartoes(estado["cartoes"], estado["fatos"],
                                                                           cofre)["reprovados"].items()}
@@ -291,6 +318,7 @@ def construir_grafo(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica",
         vereditos = dict(Counter(a.veredito for a in julgamento.afirmacoes))
         exposicoes = [e.model_dump() for e in julgamento.exposicoes]
         reescritas = estado.get("reescritas", 0)
+        destino = "no_comunicacao" if reprovados and reescritas < MAX_REESCRITAS else "no_finalizar"
         if reprovados and reescritas < MAX_REESCRITAS:
             texto = "Cartões reprovados: " + "; ".join(f"{k} ({', '.join(v)})" for k, v in reprovados.items()) + \
                 ". Comunicação, reescreva."
@@ -301,8 +329,11 @@ def construir_grafo(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica",
                      "exposição." if not reprovados
                      else "Ainda reprovados depois da reescrita: " + ", ".join(reprovados) + "; uso o texto de reserva.")
             para = "Orquestrador"
-        _registrar({"cartoes": len(estado["cartoes"])}, {"reprovados": reprovados}, juiz=vereditos,
-                   juiz_llm=usou_juiz, exposicoes=len(exposicoes), reescrita=estado.get("reescritas", 0))
+        metricas = _metricas_chamadas(cliente.chamadas[n0:])
+        _registrar({"cartoes": len(estado["cartoes"])}, {"reprovados": reprovados},
+                   nome_agente="agente_3_validacao_textos", reescrita=estado.get("reescritas", 0),
+                   reprovados_qtd=len(reprovados), convergido=(destino == "no_finalizar"),
+                   juiz=vereditos, juiz_llm=usou_juiz, exposicoes=len(exposicoes), **metricas)
         erros = [f"validacao_textos (reescrita {estado.get('reescritas', 0)}): cartão {k} reprovado por "
                  f"{', '.join(v)}" for k, v in reprovados.items()]
         return {"reprovados": reprovados, "reescritas": reescritas, "historico_erros": erros,
@@ -368,7 +399,10 @@ def construir_grafo(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica",
             fecho = f"Só {len(finais)} cartões prontos para a votação (menos de 3 opções viáveis na base)."
         else:
             fecho = f"{len(finais)} cartões prontos para a votação."
-        _registrar({"aprovados": escolhidos}, [{k: c[k] for k in ("id", "nome", "titulo")} for c in finais])
+        metricas_totais = _metricas_chamadas(cliente.chamadas)
+        _registrar({"aprovados": escolhidos}, [{k: c[k] for k in ("id", "nome", "titulo")} for c in finais],
+                   nome_agente="agente_orquestrador_finalizar", iteracao_pesquisa=estado.get("iteracao_pesquisa", 0),
+                   reescritas=estado.get("reescritas", 0), convergido=True, **metricas_totais)
         return {"resultado_final_cartoes": finais, "mensagens": [_msg("Orquestrador", "Tela 3", fecho)]}
 
     g = StateGraph(MultiAgentState)
@@ -398,14 +432,18 @@ def executar(cofre: Cofre, cliente: ClienteLLM, *, busca: str = "lexica", juiz_p
 
     @_observado("sala_multiagente", "chain")
     def rodar():
-        _registrar({"membros": len(cofre.membros), "busca": busca}, None)
+        metricas_iniciais = _metricas_chamadas(cliente.chamadas)
+        _registrar({"membros": len(cofre.membros), "busca": busca}, None,
+                   nome_agente="grafo_sala_multiagente", **metricas_iniciais)
         inicial = {"sala_id": cofre.sala_id, "membros": list(cofre.membros)}
         for parte in grafo.stream(inicial, config, stream_mode="updates"):
             for no, atualizacao in parte.items():
                 if ao_atualizar and atualizacao:
                     ao_atualizar(no, atualizacao)
         final = dict(grafo.get_state(config).values)
-        _registrar(None, {"cartoes": [c["nome"] for c in final.get("resultado_final_cartoes", [])]})
+        metricas_finais = _metricas_chamadas(cliente.chamadas)
+        _registrar(None, {"cartoes": [c["nome"] for c in final.get("resultado_final_cartoes", [])]},
+                   nome_agente="grafo_sala_multiagente", **metricas_finais)
         final["trace_url"] = _url_do_trace()
         return final
 
@@ -463,14 +501,8 @@ def executar_fluxo_multiagente(dados_sala: dict, *, cliente: ClienteLLM | None =
     return executar(cofre, cliente or ClienteLLM(), busca=busca, juiz_parecer=juiz_parecer, ao_atualizar=ao_atualizar,
                     thread_id=cofre.sala_id)
 
-def _url_do_trace() -> str | None:
-    """Link do trace atual no Langfuse, ou None sem chaves."""
-    try:
-        from opentelemetry import trace
-        if not trace.get_current_span().is_recording():
-            return None
-        from langfuse import get_client
-        c = get_client()
-        return c.get_trace_url(trace_id=c.get_current_trace_id())
-    except Exception:
-        return None
+
+def _url_do_trace(trace_id: str | None = None) -> str | None:
+    """Link do trace atual no Langfuse Cloud, ou None sem chaves."""
+    return obter_trace_url(trace_id)
+
