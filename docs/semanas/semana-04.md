@@ -35,142 +35,153 @@ Estes princípios operam como restrições rígidas de arquitetura. Toda decisã
 
 ## 2. Arquitetura do Grafo Multiagente (LangGraph)
 
-O fluxo é orquestrado como um grafo de estados (`StateGraph`) cíclico e condicional, no qual nós especializados interagem através de um estado compartilhado estritamente tipado (`MultiAgentState`), com controle de loops e fallback automático.
+> **Atualizado em 20/11 para o que foi implementado** (`src/agentes/grafo.py`, PRs #80, #86 e #88). A versão anterior desta seção era o plano de 17/11, escrito antes do código.
+
+O fluxo é um `StateGraph` do LangGraph ([ADR 0015](../decisoes/0015-orquestracao-com-langgraph.md)), com 8 nós, um ciclo condicional entre a Validação e a Pesquisa e outro entre a validação dos textos e a Comunicação.
+- O estado do grafo (`MultiAgentState`, Seção 4) só tem dados públicos e mensagens anônimas.
+- Teto, origem, janelas e restrições de cada pessoa ficam no **cofre**, um objeto do servidor preso ao grafo na construção, que só os nós de código leem (RNF-02).
 
 ```mermaid
 flowchart TD
     classDef llm fill:#e1f5fe,stroke:#0288d1,stroke-width:2px;
     classDef code fill:#e8f5e9,stroke:#388e3c,stroke-width:2px;
+    classDef hybrid fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
     classDef decision fill:#fff3e0,stroke:#f57c00,stroke-width:2px;
-    classDef data fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px;
+    classDef data fill:#eceff1,stroke:#546e7a,stroke-width:1.5px;
 
-    IN["Perfis Privados (4 Campos dos Amigos)"]:::data --> AG0["0. AGENTE PESSOAL<br/>(Regras em Código Puro)<br/>• Anonimização e Eliminação de PII<br/>• Segregação Estrita em 4 Canais"]:::code
-
-    AG0 -- "Canal 4: Vibes do Grupo" --> AG1["1. AGENTE DE PESQUISA<br/>(LLM: DeepSeek V4.1 Flash)<br/>• Persona: Curador da Cena do DF<br/>• Tool RAG: 93 Locais 2FA TikTok<br/>• Gera 8 a 10 Candidatos"]:::llm
-    AG0 -. "Canal 1 e 2: Teto e Restrições" .-> AG3
-    AG0 -. "Canal 3: RAs de Origem" .-> AG2
-
-    AG1 --> AG2["2. AGENTE DE LOGÍSTICA & JUSTIÇA<br/>(Código Puro — RNF-04, ADR 0013)<br/>• Estimativa Multimodal 35 RAs (<= 75 min)<br/>• Cálculo da 'Menor Miséria'<br/>• Score: 45% Vibe + 35% Justiça + 20% Horário"]:::code
-
-    AG2 --> AG3["3. AGENTE DE VALIDAÇÃO<br/>(Híbrido: Código + Juiz LLM)<br/>• Vetos Duros em Python (Teto, Horário, Restrições)<br/>• Juiz LLM: GLM 5.3 Flash (ADR 0014)<br/>• Auditoria de Fatos vs Documentos"]:::code
-
-    AG3 --> COND{"Avaliador de Convergência<br/>Aprovados >= 3?"}:::decision
-
-    COND -- "Não (e iteração < 2)<br/>[Ciclo Condicional]" -->|Contagem de Motivos dos Vetos| AG1
-    COND -- "Sim (ou atingiu 2 voltas)" --> AG4["4. AGENTE DE COMUNICAÇÃO<br/>(LLM: Anfitrião de Brasília)<br/>• Persona acolhedora e calorosa<br/>• Síntese sem citar orçamentos individuais<br/>• Formatação JSON dos 3 a 4 Cartões"]:::llm
-
-    AG4 --> END_VAL["3. VALIDAÇÃO (2ª Passagem)<br/>• Juiz LLM audita vazamento de PII<br/>• Preenchimento determinístico de preços"]:::code
-    END_VAL --> PUB["Aba Pública da Sala<br/>Cards da Votação Democrática Multi-Escolha"]:::data
-
-    subgraph TELEMETRIA ["Observabilidade & Auditoria (Langfuse Cloud v5.x)"]
-        TRACE["Traces End-to-End • Spans por Agente • Latência (RNF-14) • Tokens • Scores de Alucinação"]
-    end
-    AG0 -.-> TRACE
-    AG1 -.-> TRACE
-    AG2 -.-> TRACE
-    AG3 -.-> TRACE
-    AG4 -.-> TRACE
+    START(["Sala com os 4 campos de cada membro"]):::data -->|"Send: um por membro, em paralelo"| P["0. Agente Pessoal (um por membro)<br/>código; canais 1, 2 e 4 vão para o cofre,<br/>canal 3 (preferências) vai para o grupo"]:::code
+    P --> G["Consolidação do grupo<br/>tipos, vibes e restrições somados, sem dizer de quem"]:::code
+    G -->|"sem janela comum"| F
+    G --> PQ["1. Pesquisa<br/>LLM DeepSeek V4.1 Flash planeja até 3 consultas;<br/>a ferramenta busca nos 93 lugares (ADR 0008)"]:::llm
+    PQ --> L["2. Logística e Justiça<br/>código: trajeto de cada um, Menor Miséria,<br/>pontuação 45/35/20; não veta"]:::code
+    L --> V["3. Validação<br/>código: horário, restrição, deslocamento acima de 75 min, orçamento;<br/>juiz LLM da 1ª passagem opcional"]:::hybrid
+    V --> C1{"menos de 3 validados<br/>e menos de 2 voltas?"}:::decision
+    C1 -->|"sim: pedido só com contagens de vetos"| PQ
+    C1 -->|"não, e há validados"| CM["4. Comunicação<br/>LLM DeepSeek V4.1 Flash: título, acesso e<br/>por que combina, sem números"]:::llm
+    C1 -->|"não, e nada passou"| F
+    CM --> VT["Validação dos textos<br/>varredura em código (nomes e RAs do cofre)<br/>+ juiz LLM GLM 5.3 Flash (2ª passagem)"]:::hybrid
+    VT -->|"reprovado: 1 reescrita, só dos reprovados"| CM
+    VT -->|"aprovado ou já reescrito"| F["Finalização<br/>código: preço, horário, tempos, endereço e link<br/>do TikTok em cada cartão; aviso se houver menos de 3"]:::code
+    F --> END(["Tela 3: 3 a 4 cartões para votação,<br/>ou o aviso de que nada atende o grupo"]):::data
 ```
 
----
-
-## 3. Especificação Detalhada dos 5 Agentes
-
-### 🤖 0. Agente Pessoal (Personal Agent)
-* **Natureza Técnica:** 100% código determinístico na fase de organização do rolê (`src/interpretador/campos.py`); LLM acionado apenas no pós-rolê para leitura de comentários livres (`RF-37`).
-* **Responsabilidade Principal:** Lê os 4 campos de texto secretos de cada participante, sanitiza completamente nomes e identificadores de rede (PII) e segrega os dados em 4 canais privados independentes:
-  1. **Canal 1 (Orçamento Sigiloso):** Encaminhado exclusivamente para verificação do veto financeiro (`cabe_para_cada_um`);
-  2. **Canal 2 (Restrições Duras):** Encaminhado para a checagem de restrições alimentares e de acessibilidade na Validação;
-  3. **Canal 3 (Origem Geoespacial & Janelas):** Encaminhado para a matriz de deslocamento da Logística e cruzamento de horários comuns;
-  4. **Canal 4 (Vibes e Preferências):** Agregado anonimamente no perfil coletivo da sala para o Agente de Pesquisa.
-* **Exemplo de Mensagem Emitida:**
-  > *"Grupo de 4 pessoas. Tipos pedidos: bar (3 de 4), café (1 de 4). Vibes: descontraído, ar livre. Evitar: lugares barulhentos (pedido de 1 pessoa). Texto do pedido consolidado: 'comemorar aniversário, boa comida, espaço arejado'."*
+**Como ler o diagrama**
+- **Ciclo da Pesquisa:** volta enquanto houver menos de 3 lugares validados, no máximo 2 vezes (`avaliar_convergencia`). O pedido de nova busca leva só a contagem dos vetos por motivo (`PedidoNovaBusca`), nunca texto livre, para uma instrução injetada não passar de um agente a outro.
+- **Saídas para o fim:** quando não há horário em que pelo menos 2 pessoas possam, o grafo vai direto da consolidação para o fim. Quando nada passa depois das 2 voltas, vai da Validação para o fim, sem chamar a Comunicação. É o caso do cenário padrão da #66.
+- **Ciclo da Comunicação:** um cartão reprovado volta uma vez, e só os reprovados vão de novo para o LLM. Se continuar reprovado, o cartão sai com o texto de reserva por regras.
+- **Limite de passos:** `recursion_limit` 40. O pior caso usa 16 passos.
+- **Estado:** fica no `InMemorySaver`, por sala (`thread_id`).
+- **Observabilidade:** cada nó é um span do Langfuse com entrada e saída escolhidas à mão, nunca o estado inteiro (ADR 0015). Os nomes dos spans são `agente_pessoal`, `consolidar_grupo`, `pesquisa`, `logistica`, `validacao`, `comunicacao`, `validacao_textos` e `finalizar`, debaixo de um trace `sala_multiagente`. Os links dos traces do demo estão na Seção 8.11.
+- **Diagrama do grafo compilado:** o desenhado pelo próprio LangGraph fica em [`grafo_agentes.mmd`](../entregas/semana-04/grafo_agentes.mmd), gerado pelo demo.
 
 ---
 
-### 🤖 1. Agente de Pesquisa (Research Agent)
-* **Natureza Técnica:** Agente autônomo com LLM (**DeepSeek V4.1 Flash** via OpenRouter) dotado de *Tool Calling* determinístico.
-* **Persona & System Prompt:**
-  > *"Você é um curador da cena cultural, gastronômica e de lazer do Distrito Federal. Você recebe o perfil anônimo de um grupo e usa a ferramenta de busca para levantar candidatos da base oficial de 93 lugares. Você só cita fatos que estão nos documentos recebidos. Você não sabe e não pergunta o orçamento de ninguém."*
-* **Responsabilidade Principal:**
-  1. Constrói consultas estruturadas (`ConsultaBusca`, ADR 0007) e aciona a tool de busca vetorial (`buscar_lugares_rag`);
-  2. Recupera de **8 a 10 candidatos** sustentados por evidências (`trecho_citado`, `fonte_id`);
-  3. **No ciclo de retorno da Validação**, refaz a busca recebendo apenas a contagem anônima dos vetos (ex: *"faltam 2 candidatos; motivos dos vetos: 3 por horário fechado, 2 por estouro de teto"*).
-* **Exemplo de Mensagem Emitida:**
-  > *"Encontrei 9 candidatos na base oficial. Destaques: Local A (ar livre, 'quiosque com mesas no gramado', FONTE #2) e Local B (gastronomia, 'cardápio variado de petiscos', FONTE #5). Seguem os IDs para análise de logística."*
+## 3. Os 5 Agentes como Implementados
+
+Os exemplos de mensagem abaixo são do demo com LLM de 20/11, cenário de controle da #66 ([log](../entregas/semana-04/DEMO_MULTIAGENTE_LOG.txt)).
+
+### 🔒 0. Agente Pessoal (`src/agentes/pessoal.py`, issue #65)
+* **Natureza:** código, antes do rolê; LLM só depois do rolê, para ler o comentário de avaliação (RF-37).
+* **O que faz:** um por membro, em paralelo. Lê os 4 campos da Tela 2 pelo interpretador (`src/interpretador/campos.py`, ADR 0009) e soma o log pessoal da pessoa (itens válidos por 180 dias; o que a pessoa escreve nos campos vale mais que o log). Depois, separa tudo em 4 canais:
+  1. **orçamento** (teto), para o veto de orçamento da Validação, fica no cofre;
+  2. **restrições duras**, para o veto de restrição, ficam no cofre;
+  3. **preferências** (tipos, vibes, o que evitar, trecho do pedido sem nomes, regiões nem números), o **único canal público**, vão para o grupo;
+  4. **logística** (origem, janelas e transporte), para a Logística e o cruzamento de horários, fica no cofre.
+* **Depois do rolê:** o LLM propõe o que lembrar do comentário; a pessoa confirma; só enumerações vão para o log, sem o texto. Instrução sobre outra pessoa é ignorada, e proposta que se contradiz não é gravada.
+* **Mensagem real:**
+  > *"4 agentes pessoais responderam. Tipos pedidos: Ao Ar Livre (1 de 4), Restaurante (1 de 4). Restrições do grupo: 0. Itens de memória usados: 1. Melhor janela: sáb 21/11, 15h–18h (4 de 4 podem)."*
+
+### 🔎 1. Pesquisa (`src/agentes/pesquisa.py`, issue #70)
+* **Natureza:** LLM (DeepSeek V4.1 Flash pela OpenRouter, roteamento sem retenção) + ferramenta determinística de busca (`buscar_lugares_rag`, léxica ou vetorial, ADR 0012).
+* **Sem *tool calling* nativo:** o LLM escreve até 3 consultas numa resposta só (JSON Schema estrito), o código executa a busca, e o LLM escolhe de 8 a 10 candidatos com `motivo` e `trecho` literal do documento. Assim é uma chamada a menos por rodada (RNF-14), e o modelo não decide quantas vezes buscar.
+* **Zero alucinação (RNF-03):** candidato com id que a busca não trouxe, repetido ou com trecho que não está no documento é descartado. A ferramenta não entrega ao LLM preço, horário nem endereço.
+* **Na volta da Validação:** recebe só o `PedidoNovaBusca` (contagens) e não repete lugares já vistos. Sem LLM, consultas e seleção saem por regras.
+* **Limitação medida:** sem LLM, a nota léxica quase não separa os lugares, e a Pesquisa acha só 1 dos 5 viáveis do cenário de controle (Seção 8.8). Com LLM, acha 3.
+* **Mensagem real:**
+  > *"Encontrei 10 candidatos na base (3 consultas, busca lexica). Destaques: Fábrica de Bolos Valzira, Denise Suítez, The Coffee Talk, Restaurante Tete a Tete. Observação: A base trouxe poucas opções de ao ar livre…"*
+
+### 🚌 2. Logística e Justiça (`src/agentes/logistica.py`, issue #67)
+* **Natureza:** código (RNF-04, [ADR 0013](../decisoes/0013-deslocamento-e-menor-miseria.md)).
+* **O que faz:** para cada candidato, usa a primeira janela comum em que o lugar abre. Para cada presente, estima o trajeto pelo meio mais barato que chega em até 75 min (ou o mais rápido, se nenhum chega) com o módulo de transporte das 35 RAs. Com isso, calcula a nota da Menor Miséria (o pior trajeto pesa mais que a média) e a pontuação: 45% aderência ao pedido, 35% justiça e 20% certeza do horário.
+* **Não veta:** só mede e ordena. O trajeto de cada pessoa fica no cofre (`Cofre.analises`), e para o estado saem só agregados (`CandidatoAvaliado`).
+* **Parecer por regra, sem LLM:** cita o meio do pior trajeto só quando pelo menos 2 presentes usam esse meio, para não apontar quem mora longe.
+* **Mensagem real:**
+  > *"Ranking Logístico: Uzuki Sushi (score 78; pior trajeto 109 min de ônibus/metrô; média 70 min), Farol Restaurante (score 77), Dudu Bar (score 77), Saguari Gastro House (score 73)…"*
+
+### 🛡️ 3. Validação (`src/agentes/validacao.py` e `src/agentes/juiz.py`, issues #68 e #72)
+* **Natureza:** código, mais o juiz LLM (GLM 5.3 Flash, [ADR 0014](../decisoes/0014-juiz-glm-5.3-flash.md)) em 2 passagens.
+* **Vetos em código** (`validar_candidatos_regras`). Todos os motivos de cada lugar são contados:
+  - **horário:** o lugar não abre na janela comum, ou o evento já passou (`encerrado`);
+  - **restrição:** o texto do vídeo não comprova a restrição do grupo (ex.: opção vegetariana);
+  - **deslocamento:** o trajeto de algum presente passa de 75 min, ou não há trajeto estimado para ninguém;
+  - **orçamento:** consumo mais ida e volta passa do teto de algum presente na janela.
+* **Seleção dos cartões:** até 4, na ordem do ranking, no máximo 2 por RA e sem nome repetido.
+* **Juiz, 1ª passagem (opcional, `juiz_parecer=True`):** confere os motivos da Pesquisa contra o documento do lugar. Só o que **contradiz** é derrubado; `sem_apoio` fica.
+* **Validação dos textos:**
+  - uma varredura em código procura número, nome ou parte de nome de membro e a RA de onde alguém sai, com os dados do cofre, que o juiz não vê;
+  - o juiz, 2ª passagem, procura contradição com a base e exposição de origem, orçamento, restrição ou texto pessoal;
+  - qualquer achado manda o cartão para reescrita.
+* **Mensagens reais:**
+  > *"Só 2 lugares passaram (vetos: 3 por horario, 8 por orcamento, 4 por deslocamento). Pesquisa, preciso de mais 1 candidatos."*
+  >
+  > *"3 cartões aprovados: a varredura não achou número, nome nem origem de ninguém, e o juiz (LLM) não achou contradição nem exposição."*
+
+### 💬 4. Comunicação (`src/agentes/comunicacao.py`, issue #69)
+* **Natureza:** LLM (DeepSeek V4.1 Flash), com o prompt do Anfitrião e JSON Schema estrito.
+* **O que recebe:** só fatos do grupo por cartão: nome, tipo e região do lugar, trechos do documento citados pela Pesquisa e sinais booleanos (chegada equilibrada, cabe no orçamento do grupo, todos podem na janela). Nenhum tempo, valor ou origem de ninguém.
+* **O que escreve:** `titulo`, `resumo_acesso` e `por_que_combina`, sem números. Preço, horário, tempos, endereço e link do TikTok entram por código na finalização. Sem LLM, ou com o cartão reprovado duas vezes, o texto sai por regras (`texto_por` diz qual).
+* **Pendência:** o grafo usa `montar_fatos` e `escrever` para poder reescrever um cartão só. Juntar com o `executar_agente_comunicacao` da #69 fica para depois da entrega.
+* **Mensagem real:**
+  > *"Escrevi 3 cartões: A) Jantar caprichado e conversa tranquila; B) Fatias de bolo sem pesar no bolso; C) Confeitaria aconchegante para conversar."*
 
 ---
 
-### ⚙️ 2. Agente de Logística & Justiça (Logistics Agent)
-* **Natureza Técnica:** 100% código determinístico Python (`src/agentes/logistica.py`), sem uso de LLM (`RNF-04`, `ADR 0013`).
-* **Responsabilidade Principal:** Especialista na malha de transporte das 35 Regiões Administrativas do DF e guardião da equidade espacial:
-  1. Para cada candidato e cada membro da sala, calcula `estimar_deslocamento(ra_origem, lat, lng, modo, quando)` adotando o meio mais econômico que cumpra o teto de 75 minutos;
-  2. Aplica a **Regra da Menor Miséria**, calculando a `nota_menor_miseria` baseada na discrepância e tempo máximo do pior trajeto;
-  3. Gera o **Score Ponderado do Rolê**:
-     $$\text{Score} = 0{,}45 \times \text{Aderência Vibe} + 0{,}35 \times \text{Justiça Deslocamento} + 0{,}20 \times \text{Certeza Horário}$$
-  4. Redige o parecer de rota por regras parametrizadas (ex: *"pior trajeto de 38 min de metrô; média de 27 min entre os membros"*).
-* **Exemplo de Mensagem Emitida:**
-  > *"Ranking Logístico: Local A (Score 81; pior trajeto 38 min; média 27 min), Local C (74), Local D (70), Local B (41; pior trajeto 92 min de ônibus). Local B fica por último pela Menor Miséria."*
+## 4. Estado do Grafo (`MultiAgentState`) e Cofre
 
----
-
-### 🛡️ 3. Agente de Validação e Consistência (Validation Agent)
-* **Natureza Técnica:** Arquitetura híbrida combinando filtros determinísticos em Python puro com **LLM-as-a-Judge** (**GLM 5.3 Flash**, `z-ai/glm-5.3-flash` via OpenRouter, ADR 0014; trocado do MiMo-V2.6-Pro no PR #78).
-* **Persona & System Prompt do Juiz:**
-  > *"Você é um auditor factual. Compare cada afirmação do texto com os documentos da base e diga se confere, se contradiz ou se não está na base. Aponte também qualquer trecho que permita deduzir o orçamento, a origem ou as restrições de uma pessoa específica."*
-* **Responsabilidade Principal:**
-  1. **Filtros Duros em Código:**
-     - `cabe_para_cada_um`: confere se $\text{Consumo Estimado} + \text{Deslocamento Individual} \le \text{Teto Individual}$ para cada participante (sem expor quem estourou);
-     - Horário de funcionamento sobreposto à janela comum do grupo (`horario_lugar.py`);
-     - Expiração de eventos e promoções passadas;
-     - Restrições alimentares inegociáveis.
-  2. **Juiz LLM — 1ª Passagem (Auditoria da Pesquisa):** Confere fidelidade factual das afirmações do Agente 1 contra a base curada; afirmações alucinadas são desconsideradas;
-  3. **Controle de Loop de Realimentação:** Se restarem menos de 3 candidatos viáveis, aciona o retorno para o Agente 1 (máximo de 2 voltas);
-  4. **Juiz LLM — 2ª Passagem (Auditoria da Comunicação):** Confere ausência absoluta de pistas sobre orçamentos ou origens individuais nos cartões.
-* **Exemplo de Mensagem Emitida:**
-  > *"Validação concluída: 4 locais passam nos critérios de horário, restrições e orçamento. 3 vetados (2 por horário fechado, 1 por orçamento do grupo). Aprovado para síntese final."*
-
----
-
-### 🤖 4. Agente de Síntese e Comunicação (Communication Agent)
-* **Natureza Técnica:** Agente gerador via LLM com prompt de tom empático e formatação JSON estrita.
-* **Persona & System Prompt:**
-  > *"Você é o anfitrião do rolê em Brasília. Você escreve convites calorosos e claros para um grupo de amigos a partir dos fatos recebidos. Você nunca menciona de onde alguém sai, quanto alguém pode gastar ou a restrição de uma pessoa, e nunca escreve números: eles são preenchidos pelo sistema."*
-* **Responsabilidade Principal:**
-  1. Recebe apenas agregados do grupo e fatos confirmados da base;
-  2. Redige com tom candango e envolvente os campos `titulo`, `resumo_acesso` e `por_que_combina`;
-  3. Emite a lista de 3 a 4 cartões estruturados no esquema da classe `Sugestao` da aplicação; dados financeiros, endereços oficiais e links do TikTok são injetados diretamente por código após a geração do texto.
-* **Exemplo de Mensagem Emitida:**
-  > *JSON contendo os 3 a 4 cartões de sugestão completos prontos para renderização nos componentes de votação da interface pública.*
-
----
-
-## 4. Contratos de Dados e Estado (`MultiAgentState`)
-
-O fluxo trafega uma única estrutura tipada derivada de `TypedDict` em `src/agentes/estado.py`:
+O estado do grafo (`src/agentes/estado.py`, issue #64) só tem dados públicos. `serializar_estado` recusa o estado que tiver nome, usuário, teto ou origem de alguém. Os campos, por agente:
 
 ```python
-from typing import Annotated, TypedDict
-from operator import add
-
-class MultiAgentState(TypedDict):
-    sala_id: str
-    # Canais privados (isolados e protegidos)
-    membros_privados: list[dict]       # orçamentos, origens e restrições individuais
-    # Canal anônimo do grupo
-    perfil_grupo_anonimizado: dict     # vibes agregadas, janela comum de horários
-    # Estados intermediários
-    candidatos_pesquisa: list[dict]    # 8 a 10 candidatos retornados pelo Agente 1
-    candidatos_avaliados: list[dict]   # notas e tempos calculados pelo Agente 2
-    candidatos_validados: list[dict]   # locais aprovados nos vetos do Agente 3
-    motivos_vetos: dict[str, int]      # contagem estruturada de reprovações
-    # Saída final
-    resultado_cartoes: list[dict]      # 3 a 4 cartões consolidados pelo Agente 4
-    # Controle de execução
-    iteracao_pesquisa: int             # contador do loop (máximo 2 voltas)
-    historico_mensagens: Annotated[list[str], add] # log cumulativo da sala
-    trace_id_langfuse: str             # identificador de rastreabilidade
+class MultiAgentState(TypedDict, total=False):
+    # entrada
+    sala_id: str                                           # código da sala (não identifica ninguém)
+    trace_url: str | None                                  # link do trace no Langfuse
+    membros: list[str]                                     # marcadores m1..mN; o Send abre um Agente Pessoal por um
+    # Agente 0 (Pessoal) -> grupo
+    membros_anonimos: Annotated[list[dict], operator.add]  # canal 3 de cada membro, em paralelo
+    preferencias_grupo: dict                               # tipos e vibes agregados, restrições sem dizer de quem
+    # Agente 1 (Pesquisa)
+    candidatos_pesquisa: list[dict]                        # id, motivo e trecho literal conferido
+    documentos: dict[str, dict]                            # documentos da base que a Pesquisa leu
+    vistos: list[str]                                      # ids já devolvidos (não repetir)
+    pedido_nova_busca: dict | None                         # PedidoNovaBusca: só contagens
+    iteracao_pesquisa: int                                 # voltas Validação -> Pesquisa (máximo 2)
+    # Agente 2 (Logística)
+    candidatos_avaliados: list[dict]                       # agregados de deslocamento e nota
+    # Agente 3 (Validação)
+    julgados: list[str]                                    # ids que já passaram pelo juiz do parecer
+    relatorio_validacao: dict                              # aprovados, vetos (id e motivo) e contagem
+    candidatos_validados: list[dict]                       # os escolhidos para os cartões
+    # Agente 4 (Comunicação) e validação dos textos
+    fatos: list[dict]                                      # o que a Comunicação pode afirmar de cada cartão
+    cartoes: list[dict]                                    # textos escritos pela Comunicação
+    cartoes_por_llm: bool
+    reprovados: dict[str, list[str]]                       # cartão -> motivos (só enumerações)
+    reescritas: int                                        # voltas Validação -> Comunicação (máximo 1)
+    # saída
+    resultado_final_cartoes: list[dict]                    # cartões públicos para a votação (Tela 3)
+    mensagens: Annotated[list[dict], operator.add]         # a conversa entre os agentes
+    historico_erros: Annotated[list[str], operator.add]    # vetos, reprovações e falhas, em ordem
 ```
+
+**O cofre** (`Cofre`, em `src/agentes/contratos.py`) fica fora do estado, no servidor, e só os nós de código o leem. Ele guarda:
+- os membros, com nome e os 4 campos;
+- os perfis efetivos (campos mais log pessoal);
+- as janelas comuns;
+- a base de lugares;
+- o trajeto de cada pessoa por lugar (`analises`);
+- os cartões com o custo e o tempo de cada um (`sugestoes`, para a visão privada).
+
+Para o LLM, só vai o que está no estado e nos fatos dos cartões. Um teste confere, em cada corpo enviado à OpenRouter, que não há nome, teto nem origem de membro.
 
 ---
 
@@ -482,7 +493,7 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
     - vai direto para o fim quando nada passou.
   - `validacao.selecionar_cartoes` escolhe os cartões na ordem do ranking da Logística: até 4, no máximo 2 por RA e sem nome repetido (a base tem o mesmo lugar em mais de um vídeo).
   - A varredura de vazamento dos cartões (`varrer_cartao`, `verificar_cartoes`), em código, foi para o fim de `validacao.py`, sem mudar as funções da #68. Ela procura número, nome ou parte de nome composto de membro (sem contar nomes de lugares da base) e a RA de onde alguém sai (sem contar formas que são palavras comuns, como "plano" e "gama").
-  - **O juiz LLM ficou de fora:** é a entrega da #72 (PR #86, `src/agentes/juiz.py`). Uma versão provisória dele estava neste PR e foi tirada na revisão; o grafo passa a chamar o `juiz.py` quando o #86 entrar.
+  - **O juiz LLM ficou de fora:** é a entrega da #72 (PR #86, `src/agentes/juiz.py`). Uma versão provisória dele estava neste PR e foi tirada na revisão. Depois que o #86 entrou, o grafo passou a chamar o `juiz.py` (ver Seção 8.11).
   - As funções da Comunicação que o grafo usa (`montar_fatos`, `escrever`, `texto_reserva`) foram para o fim de `comunicacao.py`, ao lado do `executar_agente_comunicacao` da #69.
 * **Decisões Técnicas e Arquitetura:**
   - **Sem aprovado, sem Comunicação:** com 0 lugares depois das 2 voltas, o grafo não chama o LLM para escrever cartão nenhum. As mensagens dizem que nada passou e que o grupo precisa flexibilizar algum critério. Antes, a Validação dizia "Autorizado para a síntese" e a varredura dizia "Cartões aprovados" mesmo com 0 cartões.
@@ -559,11 +570,39 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
 
 ### 8.11. Issue #74 — Script Executável de Demonstração CLI do Fluxo Multiagente (`demo_multiagente.py`)
 * **Responsável:** Cauan Soares (`@cadasiso`)
-* **Status:** Bloqueada
+* **Status:** Concluída, em revisão
 * **O que foi feito:**
+  - `scripts/demo_multiagente.py` (ou `make demo-agentes`; `OFFLINE=1` roda sem LLM) roda os dois cenários da #66 de ponta a ponta, em 5 atos:
+    1. a memória do Agente Pessoal depois de um rolê anterior;
+    2. os 4 amigos entrando pelo back-end real das salas;
+    3. o fluxo atual sem agentes, para comparar;
+    4. a conversa entre os agentes, ao vivo;
+    5. o resultado, com o gabarito da #66, a visão privada de um membro, a varredura de vazamento, o custo e a latência por agente e o link do trace.
+  - No fim, um resumo dos dois cenários (tempo, chamadas, tokens, custo, voltas, reescritas, vetos e cartões) para o relatório (#76).
+  - O log fica em `docs/entregas/semana-04/DEMO_MULTIAGENTE_LOG.txt`, e o diagrama do grafo compilado em `docs/entregas/semana-04/grafo_agentes.mmd`.
+  - O juiz LLM da #72 (`src/agentes/juiz.py`, PR #86) entrou no grafo:
+    - a 2ª passagem, sobre os cartões, roda sempre na validação dos textos, junto com a varredura em código (que olha os nomes e as RAs do cofre, que o juiz não vê);
+    - a 1ª passagem, sobre os motivos da Pesquisa, é opcional (`--juiz-parecer`) e derruba só o que contradiz o documento.
 * **Decisões Técnicas e Arquitetura:**
-* **Arquivos:**
+  - **Os dois cenários da #66, e não uma sala própria:** o demo compara o resultado com um gabarito independente. O padrão mostra o ciclo condicional e o aviso sem cartão; o de controle mostra o caminho feliz.
+  - **A memória não muda os vetos:** os comentários do ato 1 viram preferência (lugar sem barulho) ou são uma instrução injetada que o agente ignora. Assim o gabarito da #66 continua valendo depois da memória.
+  - **Proposta contraditória não é gravada:** na primeira rodada, o LLM do pós-rolê leu "a música alta atrapalhou" como `barulho:evita` e "prefiro lugar mais tranquilo" como `barulho:gosta`, e o log gravava o último. Agora, se a mesma proposta trouxer "gosta" e "evita" para o mesmo aspecto, nada é gravado sobre ele (`pessoal.depois_do_role`).
+* **Arquivos:** `scripts/demo_multiagente.py`, `Makefile` (`demo-agentes`), `src/agentes/grafo.py` (juiz da #72), `src/agentes/pessoal.py`, `src/agentes/llm.py` (tentativas sem resposta), `tests/test_demo_multiagente.py`, `tests/test_grafo_multiagente.py`, `tests/test_agente_pessoal.py`, `docs/entregas/semana-04/DEMO_MULTIAGENTE_LOG.txt`, `docs/entregas/semana-04/grafo_agentes.mmd`.
 * **Testes e Validação:**
+  - `pytest tests/test_demo_multiagente.py`: roda o demo sem LLM e confere os 5 atos nos dois cenários, o veredito do padrão, os cartões do controle dentro dos viáveis e a varredura sem nome de membro.
+  - `pytest tests/test_grafo_multiagente.py`: 34 testes, entre eles o juiz usando o GLM e os agentes o DeepSeek, nenhum nome, teto ou origem nas mensagens enviadas aos LLMs (inclusive ao juiz) e a reescrita quando o juiz acha uma exposição que a varredura não pega.
+  - Suíte inteira, sem o `test_pipeline_haystack.py`: 884 aprovados.
+  - Demo com LLM e Langfuse, em 20/11 (o log está em `DEMO_MULTIAGENTE_LOG.txt`):
+
+    | Sala | Tempo | Chamadas | Tokens | Custo | Voltas | Cartões | Trace |
+    |---|---|---|---|---|---|---|---|
+    | ROLE-PADR (sem lugar viável) | 15,1 s | 6 | 19.545 | US$ 0,0026 | 2 | 0, com o aviso ao grupo | [39bfd356](https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/39bfd356e4ef94d7e760d91be8baacb8) |
+    | ROLE-CTRL (5 viáveis) | 24,6 s | 6 | 21.660 | US$ 0,0035 | 1 | 3, os 3 entre os viáveis | [d8628952](https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/d862895248205cffc031c42bef3d4376) |
+
+    - Cada trace tem um span por etapa do grafo (`agente_pessoal` ×4, `consolidar_grupo`, `pesquisa`, `logistica`, `validacao` por volta, `comunicacao`, `validacao_textos`, `finalizar`), conferido pela API do Langfuse.
+    - No controle, o juiz dos cartões é a chamada mais lenta (12,9 s) e a mais cara (US$ 0,0012).
+    - **RNF-14 em risco:** numa rodada anterior, o controle levou 73,9 s, acima dos 60 s. A 1ª chamada ao juiz estourou o limite de 40 s do cliente, e a 2ª respondeu em 20 s. Essa tentativa sem resposta não aparecia no custo nem no tempo por agente; agora o cliente registra cada tentativa (`Chamada.falhou`), e o demo mostra quantas houve.
+    - O fluxo atual das salas, sem agentes, sugere o Cachorrão da 5, que está no `nunca_sugerir` da #66, nos dois cenários (pior trajeto de 218 min no padrão). O fluxo com agentes não sugere.
 
 ---
 

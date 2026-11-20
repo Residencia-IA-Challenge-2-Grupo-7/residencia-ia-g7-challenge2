@@ -185,6 +185,19 @@ def test_pos_role_descarta_trecho_que_nao_esta_no_comentario():
     assert sessao.enviados[0]["response_format"]["json_schema"]["name"] == "pessoal_pos_role"
 
 
+def test_pos_role_descarta_aspecto_com_gosta_e_evita_na_mesma_proposta():
+    """Visto no demo da #74: o LLM leu "música alta atrapalhou" como barulho:evita e "lugar tranquilo" como
+    barulho:gosta. Proposta contraditória não grava nada sobre o aspecto; o resto continua."""
+    sessao = _SessaoFalsa({
+        "preferencias": [{"aspecto": "barulho", "sentido": "evita", "trecho": "a música alta atrapalhou"},
+                         {"aspecto": "barulho", "sentido": "gosta", "trecho": "prefiro lugar mais tranquilo"},
+                         {"aspecto": "preco", "sentido": "evita", "trecho": "achei caro"}],
+        "restricoes": [], "frase_de_confirmacao": "Está certo?", "tentativa_de_instrucao": False})
+    a = pessoal.depois_do_role("A música alta atrapalhou, achei caro. Prefiro lugar mais tranquilo.",
+                               ClienteLLM(sessao=sessao, chave="teste"))
+    assert [(p.aspecto, p.sentido) for p in a.preferencias] == [("preco", "evita")]
+
+
 def test_pos_role_sem_llm_nao_propoe_nada():
     a = pessoal.depois_do_role("adorei", ClienteLLM(offline=True))
     assert not a.preferencias and not a.restricoes

@@ -4,7 +4,7 @@
 # Ajuda os desenvolvedores a rodar testes, containers e infraestrutura
 # sem precisar decorar comandos longos do Docker.
 
-.PHONY: help up down test test-local logs clean
+.PHONY: help up down test test-local logs clean demo-agentes
 
 help:
 	@echo "====================================================================="
@@ -16,6 +16,7 @@ help:
 	@echo "  make down        - Para todos os containers do Docker"
 	@echo "  make logs        - Exibe os logs dos containers em tempo real"
 	@echo "  make clean       - Limpa caches e arquivos temporários do Python"
+	@echo "  make demo-agentes - Roda a demonstração dos agentes nos 2 cenários da #66 (OFFLINE=1: sem LLM)"
 	@echo "====================================================================="
 
 # Detecta automaticamente o pytest do venv caso não esteja no PATH
@@ -28,6 +29,10 @@ test:
 # Executa testes direto na máquina local (detecta venv automaticamente)
 test-local:
 	ORQ_SEM_TORCH=1 PYTHONPATH=. $(VENV_PYTEST) -v tests
+
+# Demonstração do sistema multiagentes (issue #74); OFFLINE=1 roda sem LLM, só com as reservas por regras
+demo-agentes:
+	PYTHONPATH=. python scripts/demo_multiagente.py $(if $(OFFLINE),--offline,)
 
 # Sobe os containers (Postgres com pgvector e App)
 up:

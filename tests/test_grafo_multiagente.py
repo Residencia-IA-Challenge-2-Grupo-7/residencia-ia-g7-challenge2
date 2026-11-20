@@ -19,7 +19,7 @@ from src.agentes.estado import Veto, desserializar_estado, serializar_estado
 from src.agentes import validacao
 from src.agentes.grafo import (MAX_VOLTAS_PESQUISA, avaliar_convergencia, construir_grafo, cofre_da_sala,
                                cofre_dos_dados, executar, executar_fluxo_multiagente)
-from src.agentes.llm import ClienteLLM
+from src.agentes.llm import ClienteLLM, MODELO_JUIZ
 from src.salas.gerenciador_salas import GerenciadorSalas
 from src.state import RepositorioMemoria
 
@@ -86,9 +86,9 @@ def _respostas(primeira_expoe=False):
         "pesquisa_planejar": {"consultas": [{"texto": "restaurante animado", "tipos_role": ["comer_beber"],
                                              "exigir": [], "ras": []}], "raciocinio": "pedido principal"},
         "pesquisa_selecionar": _selecionar,
-        "juiz_parecer": {"afirmacoes": []},
+        "juiz_pesquisa": {"afirmacoes": []},
         "comunicacao": _comunicar(primeira_expoe),
-        "juiz_cartoes": {"afirmacoes": [], "exposicoes": []},
+        "juiz_comunicacao": {"afirmacoes": [], "exposicoes": []},
         "pessoal_pos_role": {"preferencias": [], "restricoes": [], "frase_de_confirmacao": "ok",
                              "tentativa_de_instrucao": False},
     }
@@ -242,13 +242,13 @@ def test_nenhum_nome_teto_ou_origem_vai_para_o_llm(sala_e_lugares):
     sala, lugares = sala_e_lugares
     sessao = SessaoFalsa(_respostas())
     cliente = ClienteLLM(sessao=sessao, chave="teste")
-    final = executar(cofre_da_sala(sala, lugares, AGORA), cliente)
+    final = executar(cofre_da_sala(sala, lugares, AGORA), cliente, juiz_parecer=True)
     assert final["resultado_final_cartoes"]
     agentes = {c["response_format"]["json_schema"]["name"] for c in sessao.corpos}
-    assert {"pesquisa_planejar", "pesquisa_selecionar", "comunicacao"} <= agentes
-    assert not any(a.startswith("juiz") for a in agentes), "o juiz LLM é da #72 (PR #86)"
+    assert {"pesquisa_planejar", "pesquisa_selecionar", "juiz_pesquisa", "comunicacao", "juiz_comunicacao"} <= agentes
     for corpo in sessao.corpos:
-        texto = json.dumps(corpo, ensure_ascii=False)
+        # só o que sai da sala: o prompt de sistema tem exemplos com personas fictícias ("a Bia que sai do Guará")
+        texto = json.dumps([m for m in corpo["messages"] if m["role"] != "system"], ensure_ascii=False)
         for nome, *_ in MEMBROS:
             assert not re.search(rf"\b{nome}\b", texto), nome
         assert '"teto' not in texto
@@ -258,13 +258,35 @@ def test_nenhum_nome_teto_ou_origem_vai_para_o_llm(sala_e_lugares):
             assert not re.search(r"\b(80|150|60|100)\b", " ".join(grupo["trechos_pedido"]))
 
 
-def test_agentes_usam_o_deepseek_sem_raciocinio_e_sem_retencao(sala_e_lugares):
+def test_juiz_usa_o_glm_sem_desligar_o_raciocinio_e_os_agentes_o_deepseek(sala_e_lugares):
     sala, lugares = sala_e_lugares
     sessao = SessaoFalsa(_respostas())
-    executar(cofre_da_sala(sala, lugares, AGORA), ClienteLLM(sessao=sessao, chave="teste"))
+    executar(cofre_da_sala(sala, lugares, AGORA), ClienteLLM(sessao=sessao, chave="teste"), juiz_parecer=True)
+    juizes = 0
     for corpo in sessao.corpos:
-        assert corpo["model"].startswith("deepseek/") and corpo["reasoning"] == {"enabled": False}
+        if corpo["response_format"]["json_schema"]["name"].startswith("juiz"):
+            juizes += 1
+            assert corpo["model"] == MODELO_JUIZ and "reasoning" not in corpo
+        else:
+            assert corpo["model"].startswith("deepseek/") and corpo["reasoning"] == {"enabled": False}
         assert corpo["provider"]["zdr"] is True and corpo["temperature"] == 0
+    assert juizes >= 2  # 1ª passagem (parecer) e 2ª (cartões)
+
+
+def test_juiz_dos_cartoes_reprova_e_a_comunicacao_reescreve(sala_e_lugares):
+    """A 2ª passagem do juiz (#72) acha uma exposição que a varredura em código não pega; o cartão volta para a
+    Comunicação uma vez."""
+    def juiz_cartoes(corpo, n):
+        if n == 1:
+            return {"afirmacoes": [], "exposicoes": [{"cartao": "A", "trecho": "galera do bairro",
+                                                     "o_que_expoe": "origem"}]}
+        return {"afirmacoes": [], "exposicoes": []}
+    sala, lugares = sala_e_lugares
+    sessao = SessaoFalsa({**_respostas(), "juiz_comunicacao": juiz_cartoes})
+    final = executar(cofre_da_sala(sala, lugares, AGORA), ClienteLLM(sessao=sessao, chave="teste"))
+    assert final["reescritas"] == 1
+    assert any("vazamento_origem" in e for e in final["historico_erros"])
+    assert final["resultado_final_cartoes"]
 
 
 def test_cartao_que_expoe_origem_volta_para_a_comunicacao(sala_e_lugares):
@@ -415,3 +437,23 @@ def test_varredura_ignora_nome_de_lugar_igual_ao_de_membro():
     cofre.perfis_efetivos = {m: mb.perfil for m, mb in cofre.membros.items()}
     assert varrer_cartao("Chico Padeiro: pão quentinho.", cofre, "Águas Claras") == []
     assert varrer_cartao("O Chico vai adorar.", cofre, "Águas Claras") == ["nome_de_membro"]
+
+
+def test_tentativa_sem_resposta_fica_registrada_com_o_tempo_gasto():
+    """Visto no demo da #74: o juiz estourou o tempo na 1ª tentativa e respondeu na 2ª; sem registrar a falha, o
+    demo mostrava 20 s de juiz num nó que levou 58 s."""
+    import requests
+
+    class Sessao:
+        def __init__(self):
+            self.n = 0
+
+        def post(self, url, json=None, timeout=None, headers=None):  # noqa: A002
+            self.n += 1
+            if self.n == 1:
+                raise requests.Timeout("tempo esgotado")
+            return _Resposta({"ok": True}, json["model"])
+
+    cliente = ClienteLLM(sessao=Sessao(), chave="teste")
+    assert cliente.json("juiz_comunicacao", "sistema", "usuario", {"type": "object"}, modelo=MODELO_JUIZ) == {"ok": True}
+    assert [c.falhou for c in cliente.chamadas] == ["Timeout", ""]

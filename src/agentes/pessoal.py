@@ -208,5 +208,12 @@ def depois_do_role(comentario: str, cliente: ClienteLLM) -> AtualizacaoLog:
         return vazio
     c = canon(comentario)
     literal = lambda trecho: len(canon(trecho)) >= 3 and canon(trecho) in c  # noqa: E731
-    return a.model_copy(update={"preferencias": [p for p in a.preferencias if literal(p.trecho)],
+    prefs = [p for p in a.preferencias if literal(p.trecho)]
+    # "gosta" e "evita" do mesmo aspecto na mesma proposta se contradizem: nada é gravado sobre ele (demo da #74:
+    # "a música alta atrapalhou" virou barulho:evita e "prefiro lugar tranquilo" virou barulho:gosta)
+    sentidos: dict[str, set[str]] = {}
+    for p in prefs:
+        sentidos.setdefault(p.aspecto, set()).add(p.sentido)
+    prefs = [p for p in prefs if len(sentidos[p.aspecto]) == 1]
+    return a.model_copy(update={"preferencias": prefs,
                                 "restricoes": [r for r in a.restricoes if literal(r.trecho)]})
