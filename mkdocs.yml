@@ -10,41 +10,85 @@ theme:
   name: material
   language: pt-BR
   palette:
+    # Modo Claro (Default)
     - scheme: default
       primary: deep purple
       accent: indigo
       toggle:
         icon: material/brightness-7
         name: Mudar para modo escuro
+    # Modo Escuro
     - scheme: slate
       primary: deep purple
       accent: indigo
       toggle:
         icon: material/brightness-4
         name: Mudar para modo claro
+  font:
+    text: Roboto
+    code: JetBrains Mono
   features:
-    - navigation.instant
-    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
     - navigation.sections
     - navigation.expand
+    - navigation.top
+    - navigation.tracking
+    - search.suggest
+    - search.highlight
     - content.code.copy
+    - content.tabs.link
+    - toc.follow
 
 nav:
   - Início: index.md
-  - Guia de Contribuição: guia-contribuicao.md
-  - Arquitetura & Decisões:
+  - Arquitetura & Sistema:
       - Arquitetura Multiagente: arquitetura/multiagente.md
       - Visão do Produto: produto/visao.md
-      - Requisitos: produto/requisitos.md
-      - Decisões Técnicas (ADRs): decisoes/README.md
-  - Dados & RAG:
-      - Esquema da Base: dados/esquema-base.md
+      - Requisitos (RFs e RNFs): produto/requisitos.md
+      - Plano dos Agentes: entregas/semana-04/PLANO_AGENTES.md
+      - Prompts dos Agentes: entregas/semana-04/PROMPTS_AGENTES.md
+      - Ferramentas & Observabilidade: entregas/semana-04/FERRAMENTAS_E_OBSERVABILIDADE.md
+  - Semanas & Entregas:
+      - Semana 01 — Descoberta & Alinhamento: semanas/semana-01.md
+      - Semana 02 — RAG & Base 2FA: semanas/semana-02.md
+      - Semana 03 — Benchmark A/B: semanas/semana-03.md
+      - Semana 04 — Protótipo Multiagente: semanas/semana-04.md
+      - Relatórios Técnicos:
+          - Relatório Técnico Semana 02: entregas/semana-02/RELATORIO_TECNICO_RAG_SEMANA_02.md
+          - Relatório Técnico Semana 03: entregas/semana-03/RELATORIO_TECNICO_SEMANA_03.md
+  - Dados & Experimentos:
+      - Esquema da Base 2FA: dados/esquema-base.md
       - Guia de Curadoria: dados/guia-curadoria.md
       - Golden Dataset (Semana 3): dados/golden-dataset-semana3.md
-  - Semanas & Entregas:
-      - Semana 01: semanas/semana-01.md
-      - Semana 02: semanas/semana-02.md
-      - Relatório Semana 2: entregas/semana-02/RELATORIO_TECNICO_RAG_SEMANA_02.md
+      - Experimentos & Benchmarks:
+          - Voz e Interpretador: experimentos/2026-11-05-voz-e-interpretador.md
+          - LLM Pura e Raciocínio: experimentos/2026-11-10-llm-pura-raciocinio.md
+          - Busca Vetorial: experimentos/2026-11-12-busca-vetorial.md
+          - Comparativo de Raciocínio: experimentos/2026-11-12-comparativo-raciocinio.md
+          - Benchmark Semana 03: experimentos/2026-11-13-benchmark-semana3.md
+          - Haystack Recall: experimentos/2026-11-13-haystack-recall.md
+          - Juiz GLM 5.3 Flash: experimentos/2026-11-17-juiz-glm.md
+  - Decisões (ADRs):
+      - Catálogo de Decisões: decisoes/README.md
+      - 0001 — Escolha do Orquestrador: decisoes/0001-escolha-do-orquestrador-de-roles.md
+      - 0002 — Recorte do MVP: decisoes/0002-recorte-do-mvp.md
+      - 0003 — Canal App Web: decisoes/0003-canal-app-web.md
+      - 0004 — Fonte e Manutenção da Base: decisoes/0004-fonte-e-manutencao-da-base.md
+      - 0005 — Coleta Automática e Vetorial: decisoes/0005-coleta-automatica-e-base-vetorial.md
+      - 0006 — Transcrição de Fala: decisoes/0006-transcricao-de-fala.md
+      - 0007 — Interpretador de Busca: decisoes/0007-interpretador-e-contrato-de-busca.md
+      - 0008 — Base 2FA 93 Lugares e LGPD: decisoes/0008-base-2fa-de-93-lugares-e-lgpd.md
+      - 0009 — 4 Campos de Texto: decisoes/0009-entrada-pelos-4-campos-de-texto.md
+      - 0010 — LLM Pura e Guardrails: decisoes/0010-baseline-llm-pura-e-guardrails.md
+      - 0011 — Comparativo A/B: decisoes/0011-comparativo-ab-com-o-mesmo-llm.md
+      - 0012 — Busca Vetorial OpenRouter: decisoes/0012-busca-vetorial-pela-openrouter.md
+      - 0013 — Menor Miséria (Logística): decisoes/0013-deslocamento-e-menor-miseria.md
+      - 0014 — Juiz GLM 5.3 Flash: decisoes/0014-juiz-glm-5.3-flash.md
+      - 0015 — LangGraph e Observabilidade: decisoes/0015-orquestracao-com-langgraph.md
+      - 0016 — Estrutura dos Agentes: decisoes/0016-estrutura-dos-agentes.md
+  - Governança:
+      - Guia de Contribuição: guia-contribuicao.md
 
 markdown_extensions:
   - admonition
@@ -56,8 +100,14 @@ markdown_extensions:
           format: !!python/name:pymdownx.superfences.fence_code_format
   - pymdownx.highlight:
       anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
   - pymdownx.tabbed:
       alternate_style: true
   - tables
+  - attr_list
+  - md_in_html
   - toc:
       permalink: true
