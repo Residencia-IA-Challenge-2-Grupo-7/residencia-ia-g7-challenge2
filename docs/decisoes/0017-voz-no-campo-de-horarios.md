@@ -43,6 +43,8 @@ Para o provedor:
 - **Formatos:** webm/opus (Android e Chrome), mp4/aac (iPhone), m4a, ogg e wav foram aceitos sem conversão no servidor, com áudio sintético.
 - **ZDR conferido:** um modelo sem provedor ZDR é recusado com HTTP 404.
 - **O gargalo era a leitura, não a transcrição:** com as regras antigas, 4 de 6 frases reais certas e 2 erros silenciosos; com as novas, 6 de 6. São as mesmas frases usadas na correção, então falta o conjunto cego.
+- **Ponta a ponta com voz sintética (24/11):** 46 de 46 gravações certas, p90 de 1,23 s, US$ 0,0050 no total. Whisper large-v3 e Voxtral Mini ficaram a 1 gravação de distância, e o large-v3 passou de 3 s no p90 ([experimento](../experimentos/2026-11-24-voz-horarios.md)).
+- **Vocabulário sem dias nem horas:** com "sexta depois das 19h" no vocabulário, o modelo ouviu "19h" num áudio que dizia "nove", nas 2 rodadas; sem o exemplo, acertou nas 2.
 - **Voz real (05/11, uma pessoa, 22 frases):** 5,9% de erro nos termos críticos, acima da meta de 5%; p90 de 0,8 s.
 
 ## Riscos e limitações
@@ -54,6 +56,7 @@ Para o provedor:
 | A pessoa diz endereço ou valor no microfone | Aviso ao lado do botão. Não há filtro: o áudio já foi ouvido pelo provedor |
 | A rota não exige token, porque a pessoa ainda não entrou na sala | Sala válida, cotas e teto diário. As cotas ficam em memória: zeram no reinício e não valem entre processos |
 | Transcrição errada com aparência de certa | Texto editável, resumo e confirmação; trava do interpretador |
+| O vocabulário induz palavras | Só gírias, sem dias nem horas, com teste que impede a volta |
 | Sotaque, ruído e poucas vozes medidas | Conjunto de teste aberto a novas gravações; resultado com intervalo de confiança |
 | Falar em voz alta expõe a agenda a quem está perto | O botão é opcional; o campo aceita texto |
 | Instrução falada ("ignore as instruções…") | O texto é dado: o campo 2 só reconhece dias e horas |

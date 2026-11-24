@@ -38,8 +38,9 @@ Programa de Residência em IA (Instituto Eldorado + UnB), metodologia CBL (Chall
 | `src/main.py`, `src/state.py` | API FastAPI (rotas de RAG, entregáveis e salas) e onde as salas ficam guardadas |
 | `src/financas/` | Orçamento sigiloso, divisão da conta do pós-rolê e código Pix (BR Code), sem LLM; detalhes no `README.md` da pasta |
 | `src/salas/` | Salas, cruzamento de horários, cartões de sugestão e votação; rotas em `/api/salas`; encaixe das peças de finanças, transporte e busca no `README.md` da pasta |
+| `src/voz/` | Voz no campo de horários da Tela 2 (ADR 0017, proposta): transcrição sem retenção, rota com consentimento e cotas, medição; o botão fica em `src/telas/static/voz.js`. Regras no `README.md` da pasta |
 | `src/telas/` | Telas 1 a 3 do aplicativo web/PWA (`/app`, `/sala/{codigo}/perfil`, `/sala/{codigo}`) em HTML, CSS e JS sem build, servidas pelo FastAPI |
-| `eval/` | Conjuntos de teste com gabarito (50 frases), roteiro de gravação e resultados das medições; os áudios ficam em `data/raw/voz/` |
+| `eval/` | Conjuntos de teste com gabarito (50 frases, 24 frases faladas do campo de horários), como acrescentar áudios (`voz/README.md`) e resultados das medições; os áudios ficam em `data/raw/voz/` |
 | `tests/` | Testes da API, do interpretador, dos 4 campos e das salas (`python -m pytest tests`; o `conftest.py` ajusta o caminho) |
 | `docs/pesquisa/` | Instrumentos de pesquisa com usuários (questionários, roteiros de entrevista) e o script que gera o Google Forms |
 

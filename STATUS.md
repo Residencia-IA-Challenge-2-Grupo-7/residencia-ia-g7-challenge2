@@ -4,9 +4,16 @@
 > Mantenha curto: o histórico fica em `docs/semanas/` e no `git log`.
 
 **Atualizado em:** 2026-11-24
-**Semana do roadmap:** 4 — Primeiro Protótipo Multiagente (LangGraph + Ferramentas Determinísticas)
+**Semana do roadmap:** 5 — Agentes multimodais (texto e áudio)
 
 ## Agora
+
+- **Semana 5, multimodal (Cauan, 24/11), branches locais `fix/horarios-fala-coloquial` e `feat/semana5-voz` (sem PR ainda):** texto e áudio. Registro em [semana-05.md](docs/semanas/semana-05.md), entrega em [ASSISTENTE_MULTIMODAL.md](docs/entregas/semana-05/ASSISTENTE_MULTIMODAL.md).
+  - **Voz só no campo de horários** da Tela 2 ([ADR 0017](docs/decisoes/0017-voz-no-campo-de-horarios.md), **proposta: falta o acordo do grupo**; o guia oficial ainda diz "sem voz"). Whisper pela OpenRouter com ZDR, áudio só em memória, consentimento e cotas; `src/voz/` e `src/telas/static/voz.js`.
+  - **Campo 2 corrigido** ([experimento](docs/experimentos/2026-11-24-horarios-fala.md)): hora que as regras não usam vira pergunta, em vez de "dia todo".
+  - **Medido só com voz sintética:** 46 de 46 ([experimento](docs/experimentos/2026-11-24-voz-horarios.md)). Faltam o conjunto cego, mais vozes ([como acrescentar](eval/voz/README.md)) e o teste no celular.
+  - **Demonstração:** `make demo-multimodal` (`OFFLINE=1` sem rede).
+  - **RNF-14:** os agentes levaram 64,9 s em uma das rodadas da demonstração; o juiz dos cartões é a etapa lenta.
 
 - **Relatório técnico da semana 4 (Cauan, 20/11), issue #76, branch `docs/76-relatorio-semana4`:** concluído e entregue; por acordo do grupo, o relatório ficou com o Cauan.
   - [RELATORIO_TECNICO_SEMANA_04.md](docs/entregas/semana-04/RELATORIO_TECNICO_SEMANA_04.md), com o `.tex` em ABNT para o Overleaf, o PDF e o ZIP, no formato da semana 3;

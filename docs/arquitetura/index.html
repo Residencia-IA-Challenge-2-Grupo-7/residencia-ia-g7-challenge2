@@ -350,8 +350,8 @@ button{cursor:pointer}
    (estilo acima, motor do mapa abaixo) não precisa ser lido para editar.
    Guia de edição: docs/arquitetura/AGENTS.md, no repositório do grupo. */
 
-const ATUALIZADO = '20/11/2026';
-const SUBTITULO = 'guia oficial de 10/11; Telas 1 a 3 prontas e o sistema multiagentes da semana 4 demonstrado';
+const ATUALIZADO = '24/11/2026';
+const SUBTITULO = 'guia oficial de 10/11; sistema multiagentes demonstrado e voz no campo de horários em proposta (semana 5)';
 
 // Tamanho do canvas. Se uma zona crescer além dele, aumente aqui.
 const W = 3560, H = 1990;
@@ -417,11 +417,13 @@ const CARDS = [
  pq:['O guia mostra quem já preencheu; o RF-45 dizia para não mostrar quem falta. Fica para o grupo decidir.'],
  rq:['RF-03, RF-45','Guia oficial, Telas 1 e 3']},
 {id:'f-privada',k:'tela',z:'app',x:470,y:445,w:245,eb:'Tela 2',t:'Meus dados secretos',far:'4 campos',st:'ok',
- tx:'4 campos de texto: de onde sai, quando pode, teto em R$ e o que quer fazer. Ninguém mais vê.',ch:['texto','sigilo'],
- faz:'Exemplos: Águas Claras perto da estação; sexta depois das 19h ou sábado à tarde; 60; barzinho calmo, vou de metrô. O servidor devolve um resumo (sáb 14/11, 13h–18h, saindo de Águas Claras, teto de R$ 60) e a pessoa confirma em segredo. Se algo não foi entendido, a tela mostra a pergunta daquele campo.',
- entra:['Resumo para confirmar','Perguntas pendentes por campo'],sai:['Os 4 campos','Confirmação em segredo'],
- pq:['O teto só volta para o próprio dono (RF-11).','Localização e dinheiro são interpretados no servidor, sem LLM externo (ADR 0009).'],
- rq:['RF-07, RF-08, RF-11','ADR 0009']},
+ tx:'4 campos: de onde sai, quando pode, teto em R$ e o que quer fazer. Ninguém mais vê.',ch:['texto','voz em proposta','sigilo'],
+ faz:'Exemplos: Águas Claras perto da estação; sexta depois das 19h ou sábado à tarde; 60; barzinho calmo, vou de metrô. O servidor devolve um resumo (sáb 14/11, 13h–18h, saindo de Águas Claras, teto de R$ 60) e a pessoa confirma em segredo. Se algo não foi entendido, a tela mostra a pergunta daquele campo. No campo de horários, a pessoa também pode falar: o áudio vira texto editável e segue o mesmo caminho (ADR 0017, proposta).',
+ entra:['Resumo para confirmar','Perguntas pendentes por campo'],sai:['Os 4 campos','Áudio do campo de horários, com consentimento','Confirmação em segredo'],
+ pq:['O teto só volta para o próprio dono (RF-11).','Localização e dinheiro são interpretados no servidor, sem LLM externo (ADR 0009); por isso só o campo de horários tem voz.'],
+ num:['Voz sintética, do áudio aos horários: 46 de 46 certas, p90 de 1,23 s e US$ 0,00011 por gravação','Voz real: só a medição de 05/11, com uma pessoa'],
+ fora:['Conjunto cego, mais vozes e teste no celular.'],
+ rq:['RF-07, RF-08, RF-11, RF-47','ADR 0009','ADR 0017 · proposta']},
 {id:'f-decisao',k:'tela',z:'app',x:470,y:715,w:245,eb:'Tela 3',t:'Votação múltipla',far:'Votação',st:'ok',
  tx:'Cada um vota em um ou mais cartões; empate vai para a melhor nota de justiça.',ch:['quem não vota não trava'],
  faz:'A votação fecha sozinha quando todos os que confirmaram votam, ou quando o organizador a fecha. Aparece o aviso Rolê orquestrado com sucesso, com o resumo para o WhatsApp e o link da agenda.',
@@ -581,10 +583,10 @@ const CARDS = [
  fora:['Interpretador: proposta do ADR 0007 (OpenRouter, sem retenção), só de reserva no campo de horários.','Agentes da semana 4: DeepSeek V4.1 Flash; juiz: GLM 5.3 Flash (ADR 0014); orquestração: LangGraph (ADR 0015).','LLM da leitura da nota: a decidir na semana 5.'],
  rq:['RNF-01, RNF-12, RNF-15']},
 {id:'ia-multimodal',k:'ia',z:'ia',x:2780,y:435,w:300,eb:'Entrada multimodal',t:'Leitura da nota fiscal',far:'Foto da nota',st:'plan',
- tx:'A foto da nota ou da comanda vira total e itens, para dividir a conta.',ch:['semana 5','sem voz'],
+ tx:'A foto da nota ou da comanda vira total e itens, para dividir a conta.',ch:['planejado'],
  faz:'Lê o total e, quando der, os itens da foto da nota fiscal. O valor lido é mostrado para quem pagou confirmar antes da divisão. A foto é descartada depois da extração.',
- pq:['É a parte multimodal do curso, no lugar da voz, que o grupo tirou do app (ADR 0009).','Nenhum valor vai para o Pix sem confirmação de quem pagou (RNF-04).'],
- fora:['Modelo de visão: a decidir na semana 5.'],
+ pq:['É a parte multimodal prevista no guia. Na semana 5, a segunda modalidade entregue é o áudio do campo de horários (ADR 0017, proposta).','Nenhum valor vai para o Pix sem confirmação de quem pagou (RNF-04).'],
+ fora:['Modelo de visão: a decidir.'],
  rq:['RF-31','RNF-01, RNF-04','ADR 0009']},
 {id:'ia-memoria',k:'ia',z:'ia',x:2780,y:695,w:300,eb:'Aprendizado',t:'Log pessoal',far:'Log pessoal',st:'plan',
  tx:'O que cada pessoa confirmou depois dos rolês ajusta as próximas sugestões dela.',ch:['partida a frio','só listas fechadas'],
@@ -607,7 +609,7 @@ const CARDS = [
 {id:'e-llm',k:'externo',z:'ext',x:3210,y:375,w:285,eb:'Externo',t:'Provedor de LLM',far:'LLM',st:'prop',
  tx:'O modelo que conversa e orquestra. Recebe só o necessário, sem nome nem contato.',ch:['OpenRouter','sem retenção'],
  faz:'Para o interpretador, a proposta é o DeepSeek V4.1 Flash pela OpenRouter, com o roteamento restrito a provedores sem retenção de dados, sem coleta para treino e sem quantização fp4. Os nomes dos membros viram marcadores antes do envio. Se nenhum provedor atender, outro modelo entra pela configuração.',
- fora:['Agentes da semana 4: DeepSeek V4.1 Flash pela mesma rota sem retenção; juiz: GLM 5.3 Flash (ADR 0014).'],
+ fora:['Agentes da semana 4: DeepSeek V4.1 Flash pela mesma rota sem retenção; juiz: GLM 5.3 Flash (ADR 0014).','Voz do campo de horários: Whisper large-v3-turbo pela mesma rota sem retenção (ADR 0017, proposta).'],
  rq:['RNF-01, RNF-12','ADR 0007 · proposta']},
 {id:'e-supabase',k:'externo',z:'ext',x:3210,y:575,w:285,eb:'Externo',t:'Supabase',st:'prop',
  tx:'PostgreSQL gratuito na nuvem para as salas, acessível pela equipe pelo .env.',ch:['guia oficial'],
@@ -818,7 +820,7 @@ const TOURS = [
   {c:['r-fontes','r-curadoria','r-esquema','r-ingestao','r-base'], tx:'Semana 2: base de 93 lugares, busca, telemetria e deploy no Render.'},
   {c:['d-perguntas','d-avaliacao','r-base','ia-modelos','f-sala','f-privada','f-decisao'], tx:'Semana 3: benchmark do LLM puro contra o RAG (o puro inventou 32 lugares; o RAG, quase nenhum); em paralelo, o back-end das salas e as Telas 1 a 3.'},
   {c:['ia-membro','ia-mediador','ia-planejador','ia-logistica','ia-saida','s1','s5','s7'], tx:'Semana 4: cinco agentes num grafo LangGraph, sobre o motor de cálculo que já existe. Prontos o estado e a comunicação; os demais em revisão ou a construir.'},
-  {c:['ia-multimodal','f-gastos','c-divisao','c-pix'], tx:'Semana 5: leitura da foto da nota fiscal, divisão da conta e Pix.'},
+  {c:['f-privada','e-llm'], tx:'Semana 5: texto e voz no campo de horários (proposta). A foto da nota fiscal continua planejada.'},
   {c:['f-sala','f-privada','f-decisao','f-planos','f-pwa','b-api','b-auth','b-ciclo','b-db'], tx:'Semana 6: app web e servidor integrados numa aplicação funcional.'},
   {c:['d-adversarial','b-log','d-metricas','d-form'], tx:'Semana 7: bateria de sigilo, métricas e piloto com grupos reais.'},
  ]},
@@ -839,6 +841,7 @@ const DEC = [
  {g:'IA',t:'Busca por contrato tipado',s:'ADR 0007 · proposta',tx:'buscar(ConsultaBusca) → ResultadoBusca: campos validados, SQL só com parâmetros, fonte e data em cada item. O LLM nunca escreve SQL.',c:['s3','r-base','ia-planejador']},
 {g:'IA',t:'Orquestração dos agentes com LangGraph',s:'ADR 0015 · aceita',tx:'Um grafo em código liga os agentes, com ciclos entre validação e pesquisa e entre validação e comunicação. O estado do grafo só tem mensagens anônimas; os 4 campos ficam fora dele.',c:['ia-membro','ia-planejador','ia-logistica','ia-saida','ia-mediador']}, {g:'IA',t:'Rastreio do grafo com spans explícitos',s:'ADR 0015 · aceita · issue #73',tx:'Cada nó é um span com entrada e saída escolhidas à mão e metadados de voltas, vetos e custo. O rastreio automático do LangGraph foi medido e descartado: no mesmo cenário, 43 observações e 634 mil caracteres, contra 15 e 12 mil com os spans explícitos.',c:['i-infra','ia-saida']},
  {g:'IA',t:'Logística sem LLM, validação com juiz só sobre texto',s:'ADR 0016 · proposta',tx:'Deslocamento, justiça e vetos são código (RNF-04). O juiz GLM 5.3 Flash confere fidelidade e exposição dos textos.',c:['ia-logistica','ia-saida']},
+ {g:'Produto',t:'Voz só no campo de horários',s:'ADR 0017 · proposta',tx:'O áudio vira texto editável, sem retenção e com consentimento. Origem e dinheiro continuam só por texto.',c:['f-privada','e-llm']},
  {g:'Produto',t:'Sem voz: 4 campos de texto',s:'ADR 0009 · aceita',tx:'O grupo tirou a voz do app. A Tela 2 tem 4 campos secretos, interpretados por regras; o LLM só entra de reserva no campo de horários. A parte multimodal é a foto da nota.',c:['f-privada','ia-membro','ia-multimodal']},
  {g:'Privacidade',t:'Orçamento é restrição, nunca informação',s:'RF-11',tx:'Nunca é mostrado nem atribuído a alguém nas explicações.',c:['ia-membro','c-filtro','c-negocia','ia-mediador']},
  {g:'Privacidade',t:'Nomes não vão ao provedor de LLM',s:'ADR 0007 · proposta',tx:'O código troca os nomes dos membros por marcadores antes do envio e desfaz na volta. Só provedores sem retenção.',c:['ia-membro','e-llm']},
@@ -852,7 +855,7 @@ const DEC = [
  {g:'Dados',t:'Fonte e data em cada item',s:'RF-16',tx:'Cada cartão leva o link do vídeo, o autor e a data. Preço e horário são segundo o vídeo; evento com data passada sai.',c:['r-esquema','f-planos']},
  {g:'Dados',t:'Supabase para as salas',s:'Guia oficial',tx:'PostgreSQL gratuito na nuvem para salas, participantes, cartões, votos e despesas. A base de lugares continua em arquivos versionados.',c:['b-db','e-supabase']},
  {g:'Em aberto',t:'Tempo real no painel',s:'a decidir',tx:'As telas são HTML, CSS e JavaScript sem framework, servidas pelo FastAPI. Falta decidir como o painel se atualiza sozinho; hoje ele consulta o servidor de novo.',c:['f-pwa','b-api']},
- {g:'Em aberto',t:'Modelo de visão da nota fiscal',s:'a decidir · semana 5',tx:'Os agentes usam o DeepSeek V4.1 Flash e o juiz o GLM 5.3 Flash (ADR 0014). Falta o modelo que lê a foto da nota.',c:['e-llm','ia-modelos','ia-multimodal']},
+ {g:'Em aberto',t:'Modelo de visão da nota fiscal',s:'a decidir',tx:'Os agentes usam o DeepSeek V4.1 Flash e o juiz o GLM 5.3 Flash (ADR 0014). Falta o modelo que lê a foto da nota.',c:['e-llm','ia-modelos','ia-multimodal']},
   {g:'Em aberto',t:'Transporte público do DF',s:'a confirmar',tx:'Confirmar se os dados abertos (GTFS) existem e estão atualizados.',c:['e-rotas','c-custo']},
  {g:'Em aberto',t:'Método de login',s:'a decidir',tx:'SMS e WhatsApp têm custo; e-mail ou conta Google não.',c:['e-login','b-auth']},
 ];
