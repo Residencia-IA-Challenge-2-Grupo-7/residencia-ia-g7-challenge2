@@ -341,3 +341,26 @@ def test_situacao_diz_se_ha_voz_sem_expor_a_chave(cliente, monkeypatch):
     assert r.json() == {"disponivel": True, "max_s": 30, "max_caracteres": 300} and "chave-secreta" not in r.text
     monkeypatch.setattr(tr, "segredo", lambda nome: None)
     assert cliente.get("/api/voz").json()["disponivel"] is False
+
+
+# ---------- tela
+
+ESTATICOS = Path(__file__).resolve().parents[1] / "src" / "telas" / "static"
+
+
+def test_componente_da_voz_entra_na_tela_2_em_arquivos_proprios():
+    c = TestClient(app)
+    html = c.get("/sala/ROLE-7KQ2/perfil").text
+    assert 'id="horarios"' in html and "/static/telas/voz.css" in html
+    assert html.index("perfil.js") < html.index("voz.js")  # o contrato com o redesenho: o campo e estas duas linhas
+    sw = c.get("/sw.js").text
+    for arq in ("voz.js", "voz.css"):
+        assert c.get(f"/static/telas/{arq}").status_code == 200 and f"/static/telas/{arq}" in sw
+
+
+def test_componente_nao_usa_reconhecimento_do_navegador_nem_guarda_audio():
+    js = (ESTATICOS / "voz.js").read_text(encoding="utf-8")
+    for proibido in ("SpeechRecognition", "innerHTML", "indexedDB", "sessionStorage", "createObjectURL", "FileReader"):
+        assert proibido not in js
+    assert js.count("localStorage.setItem") == 1  # só o consentimento
+    assert "X-Consentimento-Voz" in js and "getTracks" in js and "isSecureContext" in js

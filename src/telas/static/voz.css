@@ -1,0 +1,28 @@
+/* Voz no campo de horários (RF-47). Só usa as variáveis de app.css, para acompanhar qualquer mudança de identidade. */
+
+.voz { margin-top: 8px; display: grid; gap: 8px; }
+.voz .aviso { margin-bottom: 0; }
+.voz .dica { margin-bottom: 0; }
+.voz-acoes { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.voz-gravando { background: var(--erro); border-color: var(--erro); color: #fff; }
+.voz-gravando::before {
+  content: ""; width: 10px; height: 10px; border-radius: 50%; background: #fff;
+  animation: voz-pulso 1.2s ease-in-out infinite;
+}
+@keyframes voz-pulso { 50% { opacity: 0.25; } }
+
+.voz-pedido {
+  padding: 14px; border: 2px solid var(--borda); border-radius: var(--raio);
+  background: var(--primaria-clara); color: var(--primaria-escura);
+}
+.voz-pedido p { margin: 6px 0 12px; }
+
+.voz-link {
+  justify-self: start; min-height: 44px; padding: 8px 0; border: 0; background: none;
+  font: inherit; font-size: 0.9rem; color: var(--texto-suave); text-decoration: underline; cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .voz-gravando::before { animation: none; }
+}

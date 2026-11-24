@@ -2,12 +2,14 @@
    nunca de respostas da API (que podem conter perfil secreto). */
 'use strict';
 
-const CACHE = 'orquestrador-telas-v3';
+const CACHE = 'orquestrador-telas-v4';
 const ESTATICOS = [
   '/static/telas/app.css',
+  '/static/telas/voz.css',
   '/static/telas/comum.js',
   '/static/telas/app.js',
   '/static/telas/perfil.js',
+  '/static/telas/voz.js',
   '/static/telas/sala.js',
   '/static/telas/demo.js',
   '/static/telas/icone.svg',
