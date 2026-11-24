@@ -643,7 +643,7 @@ class PerfilInterpretado:
         return {
             "ra": self.ra, "regiao": self.regiao,
             "janelas": [{"inicio": j.inicio.isoformat(), "fim": j.fim.isoformat(), "disponivel": j.disponivel,
-                         "texto": j.texto()} for j in self.janelas],
+                         "texto": j.texto() + ("" if j.disponivel else " (não pode)")} for j in self.janelas],
             "teto": str(self.teto) if self.teto is not None else None,
             "tipos": p.tipos, "vibes": p.vibes, "restricoes": p.restricoes, "transporte": p.transporte,
             "pet": p.pet, "pendencias": self.pendencias, "resumo": self.resumo, "completo": self.completo,
