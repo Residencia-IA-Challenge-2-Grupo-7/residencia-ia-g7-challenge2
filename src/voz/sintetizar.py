@@ -39,17 +39,21 @@ def sem_fala(arquivo: Path, volume: int, segundos: int = 4) -> None:
         w.writeframes(b"".join(struct.pack("<h", sorteio.randint(-volume, volume)) for _ in range(16000 * segundos)))
 
 
-def sintetizar(voz: str = "Microsoft Maria Desktop", pasta: Path | None = None) -> Path:
+def falar(frases: dict[str, str], pasta: Path, voz: str = "Microsoft Maria Desktop") -> None:
+    """{nome: frase} -> pasta/nome.wav, com a voz local do Windows."""
     if platform.system() != "Windows":
         raise SystemExit("A voz sintética deste script é a do Windows.")
-    pasta = pasta or PASTA_VOZ / "sintetico" / voz.replace(" ", "_")
     pasta.mkdir(parents=True, exist_ok=True)
-    frases = {i: g["texto"] for i, g in carregar_gabarito().items() if g["texto"]}
     with tempfile.TemporaryDirectory() as tmp:
         entrada, script = Path(tmp) / "frases.json", Path(tmp) / "tts.ps1"
         entrada.write_text(json.dumps(frases, ensure_ascii=False), encoding="utf-8")
         script.write_text(_PS.format(voz=voz, entrada=entrada, pasta=pasta), encoding="utf-8-sig")
         subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(script)], check=True)
+
+
+def sintetizar(voz: str = "Microsoft Maria Desktop") -> Path:
+    pasta = PASTA_VOZ / "sintetico" / voz.replace(" ", "_")
+    falar({i: g["texto"] for i, g in carregar_gabarito().items() if g["texto"]}, pasta, voz)
     sem_fala(pasta / "F01.wav", 0)
     sem_fala(pasta / "F02.wav", 300)
     return pasta
