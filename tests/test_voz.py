@@ -364,3 +364,65 @@ def test_componente_nao_usa_reconhecimento_do_navegador_nem_guarda_audio():
         assert proibido not in js
     assert js.count("localStorage.setItem") == 1  # só o consentimento
     assert "X-Consentimento-Voz" in js and "getTracks" in js and "isSecureContext" in js
+
+
+# ---------- vocabulário e medição
+
+def test_vocabulario_nao_tem_dia_nem_hora():
+    """Um exemplo com hora no vocabulário fez o modelo ouvir essa hora (24/11)."""
+    from src.interpretador.numeros import canon
+    prompt = canon(tr.T["prompt"])
+    assert not any(ch.isdigit() for ch in prompt)
+    for palavra in ("segunda", "terca", "quarta", "quinta", "sexta", "sabado", "domingo", "noite", "tarde", "manha"):
+        assert palavra not in prompt
+
+
+def test_audio_novo_so_precisa_de_arquivo_e_gabarito(tmp_path, monkeypatch):
+    import json as _json
+
+    from src.voz import medir as m
+    falas = tmp_path / "falas.jsonl"
+    falas.write_text("\n".join(_json.dumps(x) for x in [
+        {"id": "C01", "conjunto": "cego", "texto": "sexta depois das 19h", "criticos": ["sexta", "19"],
+         "esperado": [{"janelas": [["2026-11-06 19:00", "2026-11-07 00:00", True]]}]},
+        {"id": "C02", "conjunto": "cego", "texto": "sábado à tarde", "esperado": [{"janelas": [
+            ["2026-11-07 13:00", "2026-11-07 18:00", True]]}]},
+        {"id": "C03", "conjunto": "cego", "texto": "domingo", "agora": "2026-12-01T10:00:00",
+         "esperado": [{"janelas": [["2026-12-06 08:00", "2026-12-07 00:00", True]]}]},
+        {"id": "Z01", "conjunto": "falha", "texto": "", "esperado": [{"pergunta": "falta_dia"}]},
+    ]), encoding="utf-8")
+    monkeypatch.setattr(m, "FALAS", falas)
+    pasta = tmp_path / "cego"
+    dito = {"C01": "Sexta depois das 9 da manhã.", "C02": "Sábado à tarde.", "C03": "Domingo"}
+    for pessoa, nome in (("m1", "C01.webm"), ("m2", "X9-C02-rua.m4a"), ("m1", "C03.ogg"), ("m1", "Z01.wav"),
+                         ("m1", "C99.webm"), ("m1", "anotacoes.txt")):
+        (pasta / pessoa).mkdir(parents=True, exist_ok=True)
+        (pasta / pessoa / nome).write_bytes(nome.encode())
+
+    def falso(audio, modelo=None):
+        ids = [i for i in dito if i.encode() in audio]
+        if not ids:
+            raise tr.ErroVoz("vazio")
+        return tr.Transcricao(dito[ids[0]], "m", 0.9, 10, 0.0001)
+
+    c = m.conferir(pasta)
+    assert c["prontos"] == ["C01", "C02", "C03", "Z01"] and len(c["audio_sem_gabarito"]) == 1
+    assert any("anotacoes" in x for x in c["audio_sem_id_no_nome"])
+    r = m.medir(pasta, transcritor=falso, saida=tmp_path / "s", privado=tmp_path / "p")
+    assert {x["id"]: x["veredito"] for x in r["por_audio"]} == {"C01": "erro_silencioso", "C02": "certo", "C03": "certo",
+                                                                "Z01": "certo"}
+    assert r["por_conjunto"]["cego"]["pessoas"] == 2 and r["total"]["erro_termos_criticos"] == 0.5
+    publico = next((tmp_path / "s").glob("*.json")).read_text(encoding="utf-8")
+    for dito_por_alguem in ("manhã", "Sábado", "Domingo"):
+        assert dito_por_alguem not in publico
+    texto = Path(r["csv"]).read_text(encoding="utf-8-sig").replace("erro_silencioso;;", "erro_silencioso;certo;", 1)
+    texto = texto.replace("certo;;", "certo;certo;")
+    Path(r["csv"]).write_text(texto, encoding="utf-8-sig")
+    j = m.julgar(Path(r["csv"]))
+    assert j["julgados"] == 4 and j["divergem"] == ["C01"] and j["concordam_com_o_automatico"] == 3
+
+
+def test_gabaritos_do_repositorio_carregam_sem_id_repetido():
+    from src.voz import medir as m
+    g = m.carregar_gabarito()
+    assert len(g) >= 46 and {x["conjunto"] for x in g.values()} >= {"gabarito", "desenvolvimento", "falha"}
