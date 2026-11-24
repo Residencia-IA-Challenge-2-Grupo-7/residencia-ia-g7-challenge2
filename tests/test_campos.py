@@ -1,6 +1,9 @@
 """Testes dos 4 campos da Tela 2 (src/interpretador/campos.py), sem LLM e sem rede."""
+import json
+import random
 from datetime import date, datetime
 from decimal import Decimal
+from pathlib import Path
 
 import pytest
 
@@ -146,3 +149,60 @@ def test_resumo_para_confirmar_em_segredo():
 def test_pendencias_por_campo():
     p = interpretar_campos("Marte", "quando der", "muito", "", agora=TER)
     assert set(p.pendencias) == {"origem", "horarios", "teto"} and not p.completo
+
+
+# ---------- campo 2: como se fala (semana 5)
+
+QUI = datetime(2026, 11, 5, 10, 0)  # referência dos gabaritos em eval/interpretador
+EVAL = Path(__file__).resolve().parents[1] / "eval" / "interpretador"
+
+
+def _gabarito(arquivo, categoria=None):
+    linhas = [json.loads(x) for x in (EVAL / arquivo).read_text(encoding="utf-8").splitlines() if x.strip()]
+    return [pytest.param(f["texto"], f["esperado"][0], id=f["id"]) for f in linhas
+            if categoria is None or f["categoria"] == categoria]
+
+
+@pytest.mark.parametrize("texto, esperado",
+                         _gabarito("frases.jsonl", "disponibilidade") + _gabarito("horarios_fala.jsonl"))
+def test_horarios_do_gabarito(texto, esperado):
+    r = interpretar_horarios(texto, QUI)
+    if "pergunta" in esperado:
+        assert r.motivo == esperado["pergunta"] and not r.janelas
+        return
+    formato = "%Y-%m-%d %H:%M"
+    previsto = sorted([j.inicio.strftime(formato), j.fim.strftime(formato), j.disponivel] for j in r.janelas)
+    assert r.pergunta is None and previsto == sorted(esperado["janelas"])
+
+
+@pytest.mark.parametrize("texto", [
+    "sexta depois do trabalho", "sábado de madrugada", "sexta mais tarde", "sábado cedo", "sábado tenho prova às 14h",
+    "sexta às 9", "sexta das 9 às 11", "sexta depois das oito horas", "sexta 25h", "quarta, depois da faculdade",
+    "depois das 19h ou sábado o dia todo", "Tenho aula até às 10 da noite na segunda e terça. Tô livre à noite.",
+])
+def test_hora_que_as_regras_nao_entendem_vira_pergunta(texto):
+    """A trava: antes, estas frases viravam "dia todo" sem aviso."""
+    r = interpretar_horarios(texto, QUI)
+    assert r.pergunta and not r.janelas
+
+
+@pytest.mark.parametrize("texto, inicio, fim", [
+    ("sexta às 20", "20:00", "00:00"), ("sexta 7 da noite", "19:00", "00:00"), ("sexta vinte e uma e trinta", "21:30", "00:00"),
+    ("sexta das 20h às 2h", "20:00", "02:00"), ("sexta entre sete e dez da noite", "19:00", "22:00"),
+    ("sexta à noite até uma da manhã", "19:00", "01:00"), ("6ª feira depois das 19h", "19:00", "00:00"),
+    ("eu e uns 3 amigos podemos sexta à noite", "19:00", "00:00"), ("sexta ocupado até as 20h", "20:00", "00:00"),
+    ("sexta das 18 horas e 30 às 22 horas", "18:30", "22:00"), ("depois das 19h, sexta", "19:00", "00:00"), ("sexta depois do trabalho, tipo 19h", "19:00", "00:00"),
+])
+def test_horas_faladas(texto, inicio, fim):
+    j = interpretar_horarios(texto, QUI).janelas
+    assert [(x.inicio.strftime("%H:%M"), x.fim.strftime("%H:%M")) for x in j] == [(inicio, fim)]
+
+
+def test_qualquer_texto_vira_janela_ou_pergunta_sem_quebrar():
+    pecas = ["sexta", "sábado", "dia 14", "depois das", "às", "até", "8", "20h", "8 e meia", "da noite", "não", "ou", ",",
+             "mas", "trabalho", "depois disso", "menos", "das 2 às 6", "25:99", "entre", "@1900", "99/99", "à tarde"]
+    sorteio = random.Random(5)
+    for _ in range(3000):
+        texto = " ".join(sorteio.choice(pecas) for _ in range(sorteio.randint(1, 9)))
+        r = interpretar_horarios(texto, QUI)
+        assert bool(r.janelas) != bool(r.pergunta), texto
