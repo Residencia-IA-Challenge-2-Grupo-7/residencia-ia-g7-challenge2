@@ -71,7 +71,7 @@ flowchart TD
 - **Ciclo da Comunicação:** um cartão reprovado volta uma vez, e só os reprovados vão de novo para o LLM. Se continuar reprovado, o cartão sai com o texto de reserva por regras.
 - **Limite de passos:** `recursion_limit` 40. O pior caso usa 16 passos.
 - **Estado:** fica no `InMemorySaver`, por sala (`thread_id`).
-- **Observabilidade:** cada nó é um span do Langfuse com entrada e saída escolhidas à mão, nunca o estado inteiro (ADR 0015). Os nomes dos spans são `agente_pessoal`, `consolidar_grupo`, `pesquisa`, `logistica`, `validacao`, `comunicacao`, `validacao_textos` e `finalizar`, debaixo de um trace `sala_multiagente`. Os links dos traces do demo estão na Seção 8.11.
+- **Observabilidade:** cada nó é um span do Langfuse com entrada e saída escolhidas à mão, nunca o estado inteiro (ADR 0015). Desde o PR #89 (#73), os nomes dos spans são `agente_0_pessoal`, `agente_orquestrador_consolidar`, `agente_1_pesquisa`, `agente_2_logistica`, `agente_3_validacao`, `agente_4_comunicacao`, `agente_3_validacao_textos` e `agente_orquestrador_finalizar`, debaixo do span raiz `grafo_sala_multiagente`. Os links dos traces do demo estão nas Seções 8.11 e 8.13.
 - **Diagrama do grafo compilado:** o desenhado pelo próprio LangGraph fica em [`grafo_agentes.mmd`](../entregas/semana-04/grafo_agentes.mmd), gerado pelo demo.
 
 ---
@@ -664,12 +664,34 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
 ---
 
 ### 8.13. Issue #76 — Relatório Técnico da Semana 4 para o Teams e Submissão Oficial
-* **Responsável:** Letícia Miti Takahashi (`@mitii05`)
-* **Status:** Bloqueada
+* **Responsável:** Cauan Soares (`@cadasiso`), por acordo do grupo (a issue foi aberta para a Letícia Miti)
+* **Status:** Concluída e entregue
 * **O que foi feito:**
+  - Relatório técnico em `docs/entregas/semana-04/RELATORIO_TECNICO_SEMANA_04.md`, com a versão em LaTeX para o Overleaf (`.tex`), o PDF e o pacote ZIP, no formato da Semana 3 e com a formatação da ABNT.
+  - Conteúdo: arquitetura do grafo e dos 5 agentes, juiz em 2 passagens, privacidade (RNF-02), cenários da #66, resultados do demo com LLM, comparação com o fluxo sem agentes, custo e latência por agente, observabilidade no Langfuse, decisões da semana, limitações, conclusão e próximos passos.
+  - O demo foi rodado de novo em 20/11, depois dos merges dos PRs #85 e #89, para o log e os traces terem os nomes canônicos dos spans:
+
+    | Sala | Tempo | Chamadas | Tokens | Custo | Voltas | Cartões | Trace |
+    |---|---|---|---|---|---|---|---|
+    | ROLE-PADR (sem lugar viável) | 19,5 s | 6 | 21.326 | US$ 0,0045 | 2 | 0, com o aviso ao grupo | [c79c277c](https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/c79c277ce1627d3a63be8c6815d9b11f) |
+    | ROLE-CTRL (5 viáveis) | 24,6 s | 6 | 21.654 | US$ 0,0034 | 1 | 3, os 3 entre os viáveis | [e4f11619](https://cloud.langfuse.com/project/cmw59be2y01d8ad0jqbgsjut6/traces/e4f11619f662d0fc9e9c99460427f129) |
+
 * **Decisões Técnicas e Arquitetura:**
+  - *Figura do grafo:* o relatório usa o Mermaid da Seção 2, que cabe numa página A4; o SVG detalhado da #75 (1300 × 2752) fica citado como versão completa.
+  - *PDF gerado do HTML:* sem LaTeX instalado na máquina, o PDF sai do HTML com as mesmas regras da ABNT (A4, margens 3/2/3/2 cm, Times 12, entrelinha 1,5, legenda acima e fonte abaixo). O `.tex` gera o mesmo documento no Overleaf.
+* **Diferenças em relação à issue:**
+  - *Responsável:* o relatório ficou com o Cauan, e não com a Letícia.
+  - *Prazo:* a issue pedia a entrega até 19/11, às 18h; o relatório foi escrito em 20/11, depois dos merges de que dependia (#74 e #75).
+  - *Prints dos traces:* no lugar dos prints do Langfuse, há duas figuras feitas com as observações dos traces, lidas pela API, porque a conta usada não tem acesso ao projeto do grupo. Os links dos traces estão no relatório.
+  - *Prints do log:* o log da demonstração vai inteiro no pacote, em texto, e o relatório traz as tabelas com os números dele.
 * **Arquivos:**
+  - `docs/entregas/semana-04/RELATORIO_TECNICO_SEMANA_04.md`, `.tex` e `.pdf`
+  - `docs/entregas/semana-04/Entregavel_Grupo7_Semana_04.zip`
+  - `docs/entregas/semana-04/img/` (figura do grafo e figuras dos traces)
+  - `docs/entregas/semana-04/DEMO_MULTIAGENTE_LOG.txt` (nova rodada)
 * **Testes e Validação:**
+  - Números do relatório conferidos com o log do demo e com as observações dos traces pela API do Langfuse (15 observações no controle e 16 no padrão, sem nome, origem ou teto de membro).
+  - Suíte inteira na `main` com os PRs #85, #89 e #90: 906 aprovados (sem o `test_pipeline_haystack.py`, que pede o Haystack instalado).
 
 ---
 
