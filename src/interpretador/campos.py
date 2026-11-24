@@ -34,6 +34,8 @@ PERGUNTAS = {
     "falta_dia": "Quais dias você pode? Ex.: 'sexta depois das 19h ou sábado à tarde'.",
     "dia_invalido": "Não entendi o dia. Pode dizer o dia da semana ou a data (dd/mm)?",
     "horario_invalido": "Não entendi o horário. De que horas a que horas?",
+    "hora_ambigua": "É de manhã ou de noite? Escreva, por exemplo, '9 da manhã' ou '21h'.",
+    "so_negativa": "Entendi quando você não pode. E quando você pode?",
     "janela_passada": "Esses horários já passaram. Quais dias e horários você pode a partir de agora?",
     "teto_vazio": "Qual o máximo que você quer gastar neste rolê, em reais, transporte incluído? Ex.: 60.",
     "teto_invalido": "Não entendi o valor. Escreva um número só, em reais (ex.: 60).",
@@ -93,12 +95,70 @@ _DIA_PALAVRA = {"segunda": "seg", "terca": "ter", "quarta": "qua", "quinta": "qu
 _RE_DIA = re.compile(r"\b(segunda|terca|quarta|quinta|sexta|sabado|domingo|seg|qui|sex|sab|dom)s?(?:[- ]feiras?)?\b")
 _PERIODOS = {"manha": ("08:00", "12:00"), "tarde": ("13:00", "18:00"), "noite": ("19:00", "24:00"),
              "almoco": ("11:00", "15:00"), "dia_todo": ("08:00", "24:00")}
-_H = r"(\d{1,2})(?:\s*(?:h|:|horas?)\s*(\d{2})?)?"
-_RE_FAIXA = [re.compile(rf"\bd[ae]s?\s+{_H}\s*(?:as|a|ate|-)\s*{_H}"),
-             re.compile(rf"\b(\d{{1,2}})\s*(?:h|:)\s*(\d{{2}})?\s*(?:as|ate|a|-)\s*{_H}")]
-_RE_APOS = re.compile(rf"\b(?:depois|apos|a partir|partir|desde)\s+(?:d[ae]s?\s+|as\s+)?{_H}")
-_RE_ATE = re.compile(rf"\b(?:ate|antes)\s+(?:d[ae]s?\s+|as\s+)?{_H}")
-_RE_HORA = re.compile(r"\b(?:as\s+)?(\d{1,2})\s*(?:h|:)\s*(\d{2})?\b")
+_DIA = r"(?:segunda|terca|quarta|quinta|sexta|sabado|domingo|seg|qui|sex|sab|dom)s?(?:[- ]feiras?)?"
+_RE_FAIXA_DIAS = re.compile(rf"\b(?:d[aeo]\s+)?({_DIA})\s+(?:a|ao|ate(?:\s+[ao])?)\s+({_DIA})\b")
+_RE_ENTRE_DIAS = re.compile(rf"\bentre\s+({_DIA})\s+e\s+({_DIA})\b")
+_NOME_DIA = ["segunda", "terca", "quarta", "quinta", "sexta", "sabado", "domingo"]  # na ordem de tempo.DIAS
+
+# Horas ditas por extenso ("oito e meia", "vinte e duas horas"). As horas são femininas: "um" e "dois" não entram.
+_HORA_EXTENSO = {"uma": 1, "duas": 2, "tres": 3, "quatro": 4, "cinco": 5, "seis": 6, "sete": 7, "oito": 8, "nove": 9,
+                 "dez": 10, "onze": 11, "doze": 12, "treze": 13, "catorze": 14, "quatorze": 14, "quinze": 15,
+                 "dezesseis": 16, "dezessete": 17, "dezoito": 18, "dezenove": 19, "vinte": 20, "vinte e uma": 21,
+                 "vinte e duas": 22, "vinte e tres": 23, "vinte e quatro": 24}
+_MINUTO_EXTENSO = {"cinco": 5, "dez": 10, "quinze": 15, "vinte": 20, "vinte e cinco": 25, "trinta": 30,
+                   "trinta e cinco": 35, "quarenta": 40, "quarenta e cinco": 45, "cinquenta": 50,
+                   "cinquenta e cinco": 55, "meia": 30}
+
+
+def _ou(palavras) -> str:
+    return "|".join(sorted(palavras, key=len, reverse=True))
+
+
+# O que vem antes de um número solto para ele ser hora ("depois das 8", "lá pelas 8"), e não quantidade ("uns 3 amigos")
+_PRE = (r"(?:\b(?:as|das|da|ate|apos|depois|antes|pelas|pras|partir|desde|entre)\b"
+        r"(?:\s+(?:de|d[ao]s?|as?))?(?:\s+(?:umas?|uns))?\s+)")
+_PARTE_DO_DIA = r"noite|tarde|manha|madrugada"
+_RE_EXTENSO = re.compile(
+    rf"(?P<pre>{_PRE})?\b(?P<h>{_ou(_HORA_EXTENSO)})\b(?P<horas>\s+horas?\b)?(?:\s+e\s+(?P<m>{_ou(_MINUTO_EXTENSO)})\b)?"
+    rf"(?=(?P<pos>\s*(?:horas?\b|h\b|d[ao]\s+(?:{_PARTE_DO_DIA})\b|em diante\b))?)")
+_RE_ENTRE_EXTENSO = re.compile(
+    rf"\bentre\s+(?:as?\s+)?({_ou(_HORA_EXTENSO)})\s+e\s+(?:as?\s+)?({_ou(_HORA_EXTENSO)})\b")
+_RE_DE_A_EXTENSO = re.compile(
+    rf"\bde\s+({_ou(_HORA_EXTENSO)})\s+(?:a|as|ate(?:\s+as)?)\s+({_ou(_HORA_EXTENSO)})\b")
+_NAO_E_HORA = (r"(?!\s*(?:/|pessoas?\b|reais\b|contos?\b|anos\b|amig|min(?:utos?)?\b"
+               r"|de\s+(?:jan|fev|mar|abr|mai|jun|jul|ago|set|out|nov|dez)))")
+_RE_MENCAO = re.compile(
+    rf"(?P<pre>{_PRE})?(?<![\d/@.,])(?P<h>\d{{1,2}})(?!\d){_NAO_E_HORA}"
+    r"(?:\s*(?P<u>horas?|hrs?|hs|h)(?![a-z])(?:\s*(?:e\s+)?(?P<m1>meia\b|\d{2}(?!\d|\s*[h:/]|\s+horas?))(?:\s*min(?:utos?)?\b)?)?"
+    r"|:(?P<m2>\d{2})(?!\d)"
+    r"|\s+e\s+(?P<m3>meia\b|\d{2}(?!\d|\s*[h:/]|\s+horas?)))?"
+    rf"(?:\s*d[ao]\s+(?P<parte>{_PARTE_DO_DIA})\b)?(?![a-z])")
+_T = r"@(\d{2})(\d{2})([~!]?)"  # hora já lida: @HHMM; "~" = dita sem "h" nem parte do dia; "!" = "8 da noite"
+_RE_SEGUNDA = re.compile(r"(@\d{4}[~!]?\s*(?:-|\ba\b|\bate\b)\s*)(\d{1,2})(?![\dh:/])\b")
+_RE_FAIXA = [re.compile(rf"\bentre\s+(?:as?\s+)?{_T}\s+e\s+(?:as?\s+)?{_T}"),
+             re.compile(rf"(?:\bd[ae]s?\s+)?{_T}\s*(?:-|\bas?\b|\bate(?:\s+as?)?\b)\s*{_T}")]
+_RE_APOS = [re.compile(rf"\b(?:depois|apos|a partir|partir|desde)\s+(?:d[ae]s?\s+|as\s+)?(?:umas?\s+|uns\s+)?{_T}"),
+            re.compile(rf"(?:\bd[ae]s?\s+)?{_T}\s+(?:em diante|pra frente|pra la)\b")]
+_RE_ATE = re.compile(rf"\b(?:ate|antes)\s+(?:d[aeo]s?\s+|[ao]s?\s+)?(?:umas?\s+|uns\s+)?{_T}")
+_RE_HORA = re.compile(_T)
+
+_OCUPACAO = (r"trabalh\w*|trampo|aulas?|expediente|servico|faculdade|facul|academia|estagio|plantao|curso|escola"
+             r"|reuniao|prova")
+_RE_OCUPADO = re.compile(rf"\b(?:{_OCUPACAO}|ocupad[oa]|compromisso)\b")
+_RE_SAIDA = re.compile(r"\b(?:saio|sair|largo|termino|terminar|termina|acabo|acaba|acabar|libero|chego)\b")
+# "depois do trabalho" sem dizer a hora: o app não sabe a que horas a pessoa sai e precisa perguntar
+_RE_VAGO = re.compile(
+    r"\b(?:depois|apos|antes|ate|quando|assim que)\s+(?:eu\s+)?(?:sair\s+|acabar\s+|terminar\s+)?"
+    rf"(?:d?[oa]s?\s+|de\s+)?(?:meu\s+|minha\s+)?(?:{_OCUPACAO}|jantar|jogo|culto|missa)\b")
+_RE_DEPOIS_DISSO = re.compile(
+    r"\b(?:depois|apos)\s+(?:disso|desse horario|dessa hora|isso)\b|\bd[ae]i\s+(?:em diante|pra frente|pra la)\b"
+    r"|\ba partir d(?:ai|isso)\b|\bdepois\s+(?:eu\s+)?(?:to|fico|estou)\s+(?:livre|de boa|suave)\b")
+_RE_PISTA = re.compile(
+    r"@\d{4}|\b(?:manha|tarde|noite|almoco|jantar|dia todo|dia inteiro|qualquer hora|qualquer horario)\b")
+_RE_TOKEN_DIA = re.compile(
+    rf"\b(?:{_DIA}|depois de amanha|amanha|hoje|fim de semana|fds|dias?\s+\d{{1,2}})\b|\b\d{{1,2}}/\d{{1,2}}\b")
+_RE_SEPARADOR = re.compile(r"(\s+ou\s+|;|,|\s+mas\s+|\s+porem\s+|\s+so que\s+|\.\s|\n)")
+_RE_MENOS = re.compile(rf"\s+(?=(?:menos|exceto|tirando)\s+(?:(?:n?[ao]s?|de)\s+)?{_DIA}\b)")
 
 
 @dataclass
@@ -110,6 +170,20 @@ class HorariosInterpretados:
     origem: str = "regras"  # "regras" ou "llm"
 
 
+@dataclass(frozen=True)
+class _Hora:
+    h: int
+    m: int
+    curta: bool = False      # dita sem "h" nem parte do dia ("depois das 8"): pode ser de manhã ou de noite
+    explicita: bool = False  # "8 da noite": não se mexe mais
+
+    def mais12(self) -> "_Hora":
+        return _Hora(self.h + 12, self.m)
+
+    def txt(self) -> str:
+        return f"{self.h:02d}:{self.m:02d}"
+
+
 @dataclass
 class _Clausula:
     fichas: list[str] = field(default_factory=list)
@@ -118,44 +192,134 @@ class _Clausula:
     apos: str | None = None
     ate: str | None = None
     negativa: bool = False
+    separador: str = ""                   # o que veio antes ("ou", "mas", ",")
+    hora_ini: _Hora | None = None
+    hora_fim: _Hora | None = None
+    faixa: bool = False                   # "das X às Y"
+    partes: frozenset[str] = frozenset()  # manha, tarde, noite citadas na cláusula
+    vago: bool = False                    # "depois do trabalho", sem hora
+    depois_disso: bool = False            # "depois disso tô livre"
+    ocupacao: bool = False                # início veio de "aula até as 22h"
 
     @property
     def tem_horario(self) -> bool:
         return bool(self.periodo or self.apos or self.ate)
 
 
-def _hm(h: str | int, m: str | None) -> str:
-    h = int(h)
-    if h > 24:
-        raise ErroTempo("horario_invalido", str(h))
-    return f"{h:02d}:{int(m or 0):02d}"
+def _ler_hora(g) -> _Hora:
+    return _Hora(int(g[0]), int(g[1]), curta=g[2] == "~", explicita=g[2] == "!")
 
 
-def _tarde_se_curta(h: str, clausula: str) -> int:
-    """'depois das 7' sem 'manhã' é de noite: horas de 1 a 6 no início de um rolê viram 13 a 18."""
-    h = int(h)
-    return h + 12 if 1 <= h <= 6 and not re.search(r"\bmanha\b|madrugada", clausula) else h
-
-
-def _normalizar_horas(t: str) -> str:
+def _marcar_horas(t: str) -> str:
+    """Troca cada hora dita no texto (já em `canon`) por @HHMM. Número que não é hora fica como está."""
     t = re.sub(r"meia[- ]noite", "24h", t)
+    t = re.sub(r"meio[- ]dia e meia", "12h30", t)
     t = re.sub(r"meio[- ]dia", "12h", t)
-    t = re.sub(r"\b(\d{1,2})\s*(?:h|horas?)?\s*da (noite|tarde)\b",
-               lambda m: f"{int(m.group(1)) + 12 if int(m.group(1)) < 12 else int(m.group(1))}h", t)
-    t = re.sub(r"\b(\d{1,2})\s*(?:h|horas?)?\s*da manha\b", lambda m: f"{int(m.group(1))}h", t)
-    return t
+    t = re.sub(r"\b(?:depois|apos)\s+d?o\s+almoco\b", "depois das 13h", t)  # início da tarde na tabela de períodos
+    t = re.sub(r"\bantes\s+do\s+almoco\b", "ate as 12h", t)
+    for rx in (_RE_ENTRE_EXTENSO, _RE_DE_A_EXTENSO):
+        t = rx.sub(lambda m: f"das {_HORA_EXTENSO[m[1]]} as {_HORA_EXTENSO[m[2]]}", t)
+
+    def extenso(m: re.Match) -> str:
+        com_minuto = m["m"] and m["h"] != "vinte"  # "sexta vinte e uma e trinta"; mas "vinte e cinco" é um número
+        if not (m["pre"] or m["horas"] or m["pos"] or com_minuto):
+            return m[0]
+        minuto = "" if not m["m"] else " e meia" if m["m"] == "meia" else f" e {_MINUTO_EXTENSO[m['m']]:02d}"
+        return f"{m['pre'] or ('as ' if com_minuto else '')}{_HORA_EXTENSO[m['h']]}{' horas' if m['horas'] else ''}{minuto}"
+
+    t = _RE_EXTENSO.sub(extenso, t)
+    t = re.sub(r"\bentre\s+(?:as?\s+)?(\d{1,2}(?:h\d{0,2})?)\s+e\s+(?:as?\s+)?(\d{1,2})(?=\D|$)", r"das \1 as \2", t)
+    t = re.sub(rf"\bde\s+(\d{{1,2}})\s+a\s+(\d{{1,2}})\b{_NAO_E_HORA}", r"das \1 as \2", t)
+
+    def sem_das(m: re.Match) -> str:  # "sábado 18 às 22"; não em "dias 14 e 15 às 19" nem "das 18 horas e 30 às 22"
+        antes = m.string[:m.start()]
+        nao = re.search(r"\bdias?\b[\s\d,e]*$|\d\s*(?:h|horas?)?\s+e\s+$", antes)
+        return m[0] if nao else f"das {m[1]} as "
+
+    t = re.sub(r"(?<![\d/@:])\b(\d{1,2})\s+as\s+(?=\d)", sem_das, t)
+
+    def mencao(m: re.Match) -> str:
+        minuto = m["m1"] or m["m2"] or m["m3"]
+        if not (m["u"] or m["m2"] or m["parte"] or m["pre"] or m["m3"] == "meia"):
+            return m[0]
+        h, mm, parte = int(m["h"]), 30 if minuto == "meia" else int(minuto or 0), m["parte"]
+        if parte in ("noite", "tarde") and 1 <= h < 12:
+            h += 12
+        elif parte == "noite" and h == 12:
+            h = 24
+        if h > 24 or mm > 59 or (h == 24 and mm):
+            raise ErroTempo("horario_invalido", m[0])
+        falada = not m["m2"] and m["u"] not in ("h", "hs", "hr", "hrs")
+        return f"{m['pre'] or ''}@{h:02d}{mm:02d}{'!' if parte else '~' if falada and h < 12 else ''}"
+
+    t = _RE_MENCAO.sub(mencao, t)
+    return _RE_SEGUNDA.sub(lambda m: f"{m[1]}@{int(m[2]):02d}00{'~' if int(m[2]) < 12 else ''}", t)
 
 
-def _clausula(c: str) -> _Clausula:
-    k = _Clausula()
+def _expandir_dias(m: re.Match) -> str:
+    """'de sexta a domingo' -> 'sexta sabado domingo'."""
+    i, f = (DIAS.index(_DIA_PALAVRA[_RE_DIA.match(g)[1]]) for g in m.groups())
+    return " ".join(_NOME_DIA[(i + k) % 7] for k in range((f - i) % 7 + 1))
+
+
+def _inicio(x: _Hora, partes: frozenset[str]) -> _Hora:
+    if x.explicita or "manha" in partes:
+        return x
+    if 1 <= x.h <= 6 or ("noite" in partes and 1 <= x.h < 12) or (x.curta and x.h == 7):
+        return x.mais12()  # um rolê "depois das 7" é de noite (ADR 0009)
+    if x.curta and 8 <= x.h <= 11:
+        raise ErroTempo("hora_ambigua", x.txt())
+    return x
+
+
+def _fim(x: _Hora, partes: frozenset[str], ini: str | None) -> _Hora:
+    if x.explicita or x.h >= 12 or x.h == 0 or ("manha" in partes and "noite" not in partes):
+        return x
+    de_noite = "noite" in partes or (ini is not None and ini >= "18:00")
+    if x.h <= 6:
+        return x if de_noite else x.mais12()  # "à noite até as 2" passa da meia-noite
+    if de_noite or "tarde" in partes or (ini is not None and ini >= "12:00"):
+        return x.mais12()
+    if x.curta:
+        raise ErroTempo("hora_ambigua", x.txt())
+    return x
+
+
+def _das_as(a: _Hora, b: _Hora, partes: frozenset[str]) -> tuple[_Hora, _Hora]:
+    if "manha" in partes:
+        return a, b
+    dita = a.h
+    if not a.explicita:
+        if b.explicita and b.h >= 12:  # "das 7 às 11 da noite": os dois de noite
+            return (a.mais12() if 1 <= dita < 12 and dita + 12 < b.h else a), b
+        if "noite" in partes and 1 <= dita < 12:
+            a = a.mais12()
+        elif 1 <= dita <= 6 or (dita == 7 and a.curta):
+            if not (b.h >= 13 and dita + 12 >= b.h):  # "das 7 às 18" começa de manhã
+                a = a.mais12()
+        elif a.curta and 8 <= dita <= 11 and b.h <= 11 and not b.explicita:
+            raise ErroTempo("hora_ambigua", a.txt())
+    if not b.explicita:
+        deslocada = a.h != dita
+        if b.h == 12 and deslocada:
+            raise ErroTempo("hora_ambigua", b.txt())
+        if b.h < 12 and ((deslocada and b.h > dita) or (a.h >= 12 and b.h > 6)):
+            b = b.mais12()
+    return a, b
+
+
+def _clausula(c: str, separador: str = "") -> _Clausula:
+    k = _Clausula(separador=separador)
     k.proxima = bool(re.search(r"\bque vem\b|\bproxim[ao]s?\b", c))
-    k.negativa = bool(re.search(r"\bnao\b|\bmenos\b|\bexceto\b|\btirando\b", c))
 
-    def tirar(padrao: str) -> bool:
+    def tirar(padrao) -> bool:
         nonlocal c
         achou = re.search(padrao, c) is not None
         c = re.sub(padrao, " ", c)
         return achou
+
+    k.vago = tirar(r"\b(?:nao\s+)?(?:ate\s+)?(?:muito|mais|bem|tao)\s+(?:tarde|cedo)\b(?:\s+da\s+noite\b)?")  # que horas?
+    k.negativa = bool(re.search(r"\bnao\b|\bmenos\b|\bexceto\b|\btirando\b", c))
 
     if tirar(r"\b(fim|final|finais|fins) de semana\b|\bfds\b"):
         k.fichas.append("fim_de_semana")
@@ -172,64 +336,161 @@ def _clausula(c: str) -> _Clausula:
     for m in re.finditer(r"\b(\d{1,2})/(\d{1,2})\b", c):
         k.fichas.append(f"{int(m.group(1))}/{int(m.group(2))}")
     c = re.sub(r"\b(\d{1,2})/(\d{1,2})\b", " ", c)
-    for m in re.finditer(r"\bdia\s+(\d{1,2})\b", c):
-        k.fichas.append(str(int(m.group(1))))
-    c = re.sub(r"\bdia\s+(\d{1,2})\b", " ", c)
+    for m in re.finditer(r"\bdias?\s+(\d{1,2}(?:\s+e\s+\d{1,2})*)\b", c):
+        k.fichas += [str(int(d)) for d in re.findall(r"\d+", m.group(1))]
+    c = re.sub(r"\bdias?\s+\d{1,2}(?:\s+e\s+\d{1,2})*\b", " ", c)
+    periodo_por_dia = re.search(rf"\b(?:manha|tarde|noite)\s+(?:n[oa]|d[oa]|de)\s+{_DIA}\b", c) is not None
     for m in _RE_DIA.finditer(c):
         k.fichas.append(_DIA_PALAVRA[m.group(1)])
     c = _RE_DIA.sub(" ", c)
     if not k.fichas and k.proxima and re.search(r"\bsemana\b", c):
         k.fichas, k.proxima = ["semana_que_vem"], False
 
+    k.depois_disso = tirar(_RE_DEPOIS_DISSO)
+    k.vago = tirar(_RE_VAGO) or tirar(r"\b(?:cedo|cedinho|tardinha|tardezinha|noitinha)\b") or k.vago
+    ocupado = _RE_OCUPADO.search(c) is not None
+    antes = re.search(r"\bantes\b", c) is not None
     for rx in _RE_FAIXA:
         if m := rx.search(c):
-            k.apos = _hm(_tarde_se_curta(m.group(1), c), m.group(2))
-            fim = int(m.group(3))
-            if int(k.apos[:2]) >= 12 and fim < 12 and fim > 6:  # "das 19 às 11" não existe: "às 11 da noite"
-                fim += 12
-            k.ate = _hm(fim, m.group(4))
+            k.hora_ini, k.hora_fim, k.faixa = _ler_hora(m.groups()[:3]), _ler_hora(m.groups()[3:]), True
             c = c[:m.start()] + " " + c[m.end():]
             break
-    if not k.apos and (m := _RE_APOS.search(c)):
-        k.apos = _hm(_tarde_se_curta(m.group(1), c), m.group(2))
+    for rx in _RE_APOS:
+        if not k.hora_ini and (m := rx.search(c)):
+            k.hora_ini = _ler_hora(m.groups())
+            c = c[:m.start()] + " " + c[m.end():]
+    if not k.hora_fim and (m := _RE_ATE.search(c)):
+        k.hora_fim = _ler_hora(m.groups())
         c = c[:m.start()] + " " + c[m.end():]
-    if not k.ate and (m := _RE_ATE.search(c)):
-        k.ate = _hm(m.group(1), m.group(2))
+    solta = False
+    if not k.hora_ini and not k.hora_fim and (m := _RE_HORA.search(c)):
+        k.hora_ini, solta = _ler_hora(m.groups()), True  # "sábado às 20h": começa às 20h
         c = c[:m.start()] + " " + c[m.end():]
-    if not k.apos and not k.ate and (m := _RE_HORA.search(c)):
-        k.apos = _hm(_tarde_se_curta(m.group(1), c), m.group(2))  # "sábado às 20h": começa às 20h
+    # Trava: hora que sobrou sem uso vira pergunta, em vez de o app supor o dia todo
+    if "@" in c or re.search(r"\bmadrugada\b", c):
+        raise ErroTempo("horario_invalido", "hora não usada")
+
+    if ocupado and not k.vago:
+        if k.faixa:                     # "aula das 14h às 18h": é quando NÃO pode
+            k.negativa = True
+        elif k.hora_fim and not antes:  # "trabalho até as 18h": livre depois
+            k.hora_ini, k.hora_fim, k.ocupacao = k.hora_fim, None, True
+        elif solta and not _RE_SAIDA.search(c):  # "tenho aula às 19h": até quando?
+            raise ErroTempo("horario_invalido", "compromisso sem fim")
+    if k.negativa and antes and k.hora_fim and not k.hora_ini:  # "não posso antes das 19h"
+        k.hora_ini, k.hora_fim, k.negativa = k.hora_fim, None, False
 
     periodos = [p for p, rx in (("manha", r"\bmanha\b"), ("almoco", r"\balmoco\b"), ("tarde", r"\btarde\b"),
                                 ("noite", r"\bnoite\b|\bjantar\b"),
                                 ("dia_todo", r"\bdia (todo|inteiro)\b|\bqualquer hora(rio)?\b|\bo dia\b"))
                 if re.search(rx, c)]
-    if periodos:
-        ini = min(_PERIODOS[p][0] for p in periodos)
-        fim = max(_PERIODOS[p][1] for p in periodos)
-        if len(periodos) == 1 and periodos[0] in ("manha", "tarde", "noite", "dia_todo"):
-            k.periodo = periodos[0]
-        else:  # "tarde e noite", "almoço"
-            k.apos = k.apos or ini
-            k.ate = k.ate or fim
+    k.partes = frozenset(p for p in periodos if p in ("manha", "tarde", "noite"))
+    if len(k.partes) > 1 and len(k.fichas) > 1 and periodo_por_dia:  # "tarde na sexta e noite no sábado"
+        raise ErroTempo("horario_invalido", "períodos por dia")
+    if len(periodos) == 1 and periodos[0] in ("manha", "tarde", "noite", "dia_todo"):
+        k.periodo = periodos[0]
+    elif periodos:  # "tarde e noite", "almoço"
+        k.apos = min(_PERIODOS[p][0] for p in periodos)
+        k.ate = max(_PERIODOS[p][1] for p in periodos)
     return k
 
 
+def _fechar_horas(k: _Clausula, anterior: _Clausula | None) -> None:
+    """Resolve as horas ditas. Sem dia próprio, vale a parte do dia da cláusula anterior ("à noite, mas depois das 8")."""
+    partes = k.partes or (anterior.partes if anterior and not k.fichas else frozenset())
+    if k.faixa:
+        a, b = _das_as(k.hora_ini, k.hora_fim, partes)
+        k.apos, k.ate = a.txt(), b.txt()
+        return
+    if k.hora_ini:
+        k.apos = _inicio(k.hora_ini, partes).txt()
+    if k.hora_fim:
+        k.ate = _fim(k.hora_fim, partes, k.apos).txt()
+
+
+def _ordem(hora: str) -> str:
+    """Fim até as 6h é do dia seguinte, então vem depois de 23h59."""
+    return hora if hora > "06:00" else f"{int(hora[:2]) + 24}{hora[2:]}"
+
+
+def _pedacos(texto: str) -> list[tuple[str, str]]:
+    """(separador, cláusula). Além de vírgula, "ou" e "mas", separa "sexta à noite e sábado à tarde" (cada dia com o
+    seu horário, mesmo sem vírgula, como sai da fala) e "qualquer dia menos sexta"."""
+    t = re.sub(r"\b([2-6])a\b", lambda m: _NOME_DIA[int(m[1]) - 2], canon(texto))  # "6ª feira", "2ª"
+    t = _RE_ENTRE_DIAS.sub(_expandir_dias, t)
+    t = _marcar_horas(_RE_FAIXA_DIAS.sub(_expandir_dias, t))
+    partes = _RE_SEPARADOR.split(t)
+    out: list[tuple[str, str]] = []
+    for i in range(0, len(partes), 2):
+        sep = partes[i - 1].strip() if i else ""
+        for j, pedaco in enumerate(_RE_MENOS.split(partes[i])):
+            inicio, cortes = 0, []
+            dias = list(_RE_TOKEN_DIA.finditer(pedaco))
+            for n, b in enumerate(dias[1:], start=1):
+                proximo = dias[n + 1].start() if n + 1 < len(dias) else len(pedaco)
+                if _RE_PISTA.search(pedaco[inicio:b.start()]) and _RE_PISTA.search(pedaco[b.start():proximo]):
+                    cortes.append(b.start())
+                    inicio = b.start()
+            limites = [0, *cortes, len(pedaco)]
+            for n, (a, b) in enumerate(zip(limites, limites[1:])):
+                if pedaco[a:b].strip():
+                    out.append((sep if j == 0 and n == 0 else "e", pedaco[a:b]))
+    return out
+
+
 def _clausulas(texto: str) -> list[_Clausula]:
-    t = _normalizar_horas(canon(texto))
-    partes = [p for p in re.split(r"\s+ou\s+|;|,|\s+mas\s+|\.\s|\n", t) if p.strip()]
-    cls = [_clausula(p) for p in partes]
-    # sem dia herda o dia da anterior ("sábado de manhã ou de tarde")
-    for i, k in enumerate(cls):
-        if not k.fichas and i > 0 and (k.tem_horario or k.negativa):
-            k.fichas, k.proxima = list(cls[i - 1].fichas), cls[i - 1].proxima
-    # sem horário herda o da seguinte ("sexta, sábado ou domingo à noite")
-    seguinte = None
+    cls: list[_Clausula] = []
+    antes_do_dia: _Clausula | None = None  # "de noite, sexta ou sábado": o horário veio antes dos dias
+    for sep, pedaco in _pedacos(texto):
+        k = _clausula(pedaco, sep)
+        anterior = cls[-1] if cls else None
+        _fechar_horas(k, anterior)
+        if anterior is None and not k.fichas:
+            if k.tem_horario:
+                if antes_do_dia:
+                    raise ErroTempo("falta_dia", "mais de um horário sem dia")
+                antes_do_dia = k
+            continue
+        if k.fichas:
+            if antes_do_dia and anterior is None and (k.tem_horario or sep == "ou"):
+                raise ErroTempo("falta_dia", "horário sem dia")  # "depois das 19h ou sábado o dia todo"
+            cls.append(k)
+            continue
+        if k.depois_disso and not k.tem_horario:  # "saio às 18h, depois disso tô livre"
+            fim = anterior.ate or anterior.apos
+            if fim is None:
+                raise ErroTempo("horario_invalido", "depois disso")
+            anterior.apos, anterior.ate, anterior.periodo, anterior.negativa = fim, None, None, False
+            continue
+        if anterior.ocupacao and k.tem_horario and not k.negativa:
+            # "aula até as 22h na segunda e terça. Livre à noite": à noite em que dia, e antes das 22h?
+            raise ErroTempo("horario_invalido", "compromisso e horário livre sem dia")
+        so_um_limite = not k.periodo and bool(k.apos) != bool(k.ate)
+        if so_um_limite and sep != "ou" and anterior.tem_horario and not k.negativa:
+            # "à noite, mas tenho que voltar até as 23h": restringe o que já foi dito, não abre outra janela
+            for p in cls:
+                if p.fichas and p.tem_horario and not p.negativa:
+                    if k.ate and (p.ate is None or _ordem(k.ate) < _ordem(p.ate)):
+                        p.ate = k.ate
+                    if k.apos and (p.apos is None or k.apos > p.apos):
+                        p.apos = k.apos
+            continue
+        if k.tem_horario or k.negativa:  # sem dia herda o dia da anterior ("sábado de manhã ou de tarde")
+            k.fichas, k.proxima = list(anterior.fichas), anterior.proxima
+        elif k.vago and not anterior.tem_horario:
+            anterior.vago = True
+        cls.append(k)
+    # sem horário herda o da seguinte ("sexta, sábado ou domingo à noite") ou o dito antes de todos os dias
+    seguinte = antes_do_dia
     for k in reversed(cls):
         if k.fichas and k.tem_horario:
             seguinte = k
         elif k.fichas and not k.tem_horario and seguinte and not k.negativa:
             k.periodo, k.apos, k.ate = seguinte.periodo, seguinte.apos, seguinte.ate
-    return [k for k in cls if k.fichas]
+    cls = [k for k in cls if k.fichas]
+    if any((k.vago or k.depois_disso) and not k.tem_horario for k in cls):
+        raise ErroTempo("horario_invalido", "horário vago")
+    return cls
 
 
 def _por_regras(texto: str, agora: datetime) -> list[JanelaResolvida]:
@@ -272,6 +533,8 @@ def interpretar_horarios(texto: str, agora: datetime, llm=None) -> HorariosInter
     negativas = [j for j in futuras if not j.disponivel]
     futuras = [j for j in futuras if not j.disponivel or
                not any(n.inicio <= j.inicio and j.fim <= n.fim for n in negativas)]
+    if not any(j.disponivel for j in futuras):
+        return HorariosInterpretados([], pergunta=PERGUNTAS["so_negativa"], motivo="so_negativa", origem=origem)
     partes = [j.texto() + ("" if j.disponivel else " (não pode)") for j in futuras]
     return HorariosInterpretados(futuras, confirmacao="; ".join(partes), origem=origem)
 
