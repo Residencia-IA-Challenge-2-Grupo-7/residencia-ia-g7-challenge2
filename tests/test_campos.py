@@ -206,3 +206,8 @@ def test_qualquer_texto_vira_janela_ou_pergunta_sem_quebrar():
         texto = " ".join(sorteio.choice(pecas) for _ in range(sorteio.randint(1, 9)))
         r = interpretar_horarios(texto, QUI)
         assert bool(r.janelas) != bool(r.pergunta), texto
+
+
+def test_lista_para_conferir_diz_quando_a_pessoa_nao_pode():
+    p = interpretar_campos("Guará", "sábado não vai dar, mas domingo depois do almoço tô livre", "60", "bar", agora=QUI)
+    assert [j["texto"] for j in p.para_dono()["janelas"]] == ["sáb 07/11, 8h–24h (não pode)", "dom 08/11, 13h–24h"]
