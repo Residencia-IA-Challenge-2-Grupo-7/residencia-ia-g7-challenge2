@@ -24,6 +24,7 @@ Não apague nem reescreva uma decisão antiga: se ela mudar, crie uma nova e mar
 | [0014](0014-juiz-glm-5.3-flash.md) | Juiz do avaliador: GLM 5.3 Flash no lugar do MiMo-V2.6-Pro | aceita |
 | [0015](0015-orquestracao-com-langgraph.md) | Orquestração dos agentes com LangGraph | aceita |
 | [0016](0016-estrutura-dos-agentes.md) | Estrutura dos agentes: Pessoal, Pesquisa, Logística, Validação e Comunicação | proposta |
+| [0017](0017-voz-no-campo-de-horarios.md) | Voz no campo de horários, com o Whisper pela OpenRouter | proposta |
 
 
 A pasta [revisoes/](revisoes/) guarda as críticas feitas por outros agentes ou pessoas a um ADR (`NNNN-critica.md`), as respostas do autor e o prompt usado para pedir a crítica.

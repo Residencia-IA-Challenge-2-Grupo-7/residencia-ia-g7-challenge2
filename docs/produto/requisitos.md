@@ -1,8 +1,16 @@
 # Requisitos do MVP: Orquestrador de Rolês
 
-- **Versão:** 0.4, 2026-11-10 (mudanças do [guia oficial](../../GUIA_OFICIAL_PROJETO.md) na seção [Mudanças da v0.4](#mudanças-da-v04))
+- **Versão:** 0.5 (proposta), 2026-11-24 (voz no campo de horários, na seção [Mudanças da v0.5](#mudanças-da-v05)); 0.4, 2026-11-10 (mudanças do [guia oficial](../../GUIA_OFICIAL_PROJETO.md) na seção [Mudanças da v0.4](#mudanças-da-v04))
 - **Status:** para revisão do grupo. As escolhas de comportamento foram feitas na sessão de requisitos de 29/10 e ainda precisam ser validadas com o grupo, as personas e o resultado do formulário. O fechamento do MVP estava previsto para 30/10/2026 (premissa P04).
 - **Base:** [visão do produto](visao.md) · recorte do MVP no [ADR 0002](../decisoes/0002-recorte-do-mvp.md) · canal no [ADR 0003](../decisoes/0003-canal-app-web.md)
+
+## Mudanças da v0.5
+
+Proposta, depende do acordo do grupo sobre o [ADR 0017](../decisoes/0017-voz-no-campo-de-horarios.md).
+
+- **RF-47 (novo):** voz só no campo de dias e horários da Tela 2. O RF-39 (voz em toda conversa) e o RF-40 (resposta em voz) continuam removidos.
+- **Cenário de foto ilegível (RF-31) e lançamento de gasto (RF-30):** citavam voz, que não existe nesses pontos; ficam só com texto.
+- **RF-02, RNF-01, RNF-07, RNF-12 e RNF-15:** "voz" passa a significar o RF-47.
 
 ## Mudanças da v0.4
 
@@ -30,7 +38,7 @@ O grupo fechou em 10/11 o [guia oficial](../../GUIA_OFICIAL_PROJETO.md), que pas
 - App web, pensado primeiro para o celular. A exportação do plano fechado para o WhatsApp e para a agenda entra se couber (Should, RF-27 e RF-28).
 - Distrito Federal inteiro; adultos (18+) de qualquer idade.
 - Quatro tipos de rolê: comer e beber fora, eventos com data marcada, ao ar livre ou gratuitos e, se couber, em casa de alguém (Should, RF-20).
-- Entrada por texto, nos 4 campos secretos da Tela 2, e por foto da nota fiscal depois do rolê. Sem voz (v0.4, ADR 0009).
+- Entrada por texto, nos 4 campos secretos da Tela 2, e por foto da nota fiscal depois do rolê. Voz só no campo de dias e horários (v0.5, ADR 0017, proposta).
 
 **Fora** (ver [Extensões futuras](#7-extensões-futuras))
 
@@ -111,6 +119,7 @@ O grupo fechou em 10/11 o [guia oficial](../../GUIA_OFICIAL_PROJETO.md), que pas
 | RF-38 | Aprendizado com as avaliações | Should | | | |
 | RF-39 | ~~Entrada por voz~~ (removido na v0.4) | — | R-09 | Márcio | |
 | RF-40 | ~~Resposta em voz~~ (removido na v0.4) | — | R-09 | Márcio | |
+| RF-47 | Voz no campo de dias e horários (v0.5, proposta) | Should | R-09 | Márcio | |
 | RF-41 | Notificações agrupadas | Must | R-04 | Márcio, Rafaela | |
 | RF-42 | Login sem senha | Must | R-01 | Márcio | |
 | RF-43 | Disponibilidade recorrente | Should | | Cadu | |
@@ -496,7 +505,7 @@ O sistema DEVE, quando um imprevisto afetar um plano já confirmado (chuva em ro
 
 #### RF-30 · Lançamento de gastos no chat (Must)
 
-O sistema DEVE, ao fim do rolê, perguntar no chat da sala se alguém pagou algo para rachar e aceitar lançamentos de qualquer participante, por texto ou voz ("paguei 180 do bar"), confirmando valor e quem pagou antes de registrar.
+O sistema DEVE, ao fim do rolê, perguntar no chat da sala se alguém pagou algo para rachar e aceitar lançamentos de qualquer participante, por texto ("paguei 180 do bar"), confirmando valor e quem pagou antes de registrar.
 
 **Cenário: lançamento por outra pessoa**
 - **QUANDO** a Bia escreve "o Caio pagou 90 do Uber"
@@ -512,7 +521,7 @@ O sistema DEVE aceitar a foto da nota fiscal como forma de lançar um gasto, ext
 
 **Cenário: foto ilegível**
 - **QUANDO** a IA não consegue ler o total
-- **ENTÃO** pede o valor por texto ou voz
+- **ENTÃO** pede o valor por texto
 
 #### RF-32 · Divisão dos gastos (Must)
 
@@ -601,6 +610,30 @@ O sistema DEVE oferecer leitura em voz alta das mensagens da IA, que cada pessoa
 **Cenário: leitura ligada**
 - **QUANDO** a pessoa ativou a leitura em voz alta
 - **ENTÃO** as mensagens da IA para ela são lidas automaticamente, e a mensagem continua visível em texto
+
+#### RF-47 · Voz no campo de dias e horários (Should, proposta)
+
+O sistema DEVE permitir que a pessoa fale os dias e horários em que pode, transcrever a fala no próprio campo, editável, e tratar o resultado como texto digitado. DEVE pedir consentimento antes da primeira gravação e descartar o áudio depois da transcrição.
+
+**Cenário: fala entendida**
+- **QUANDO** a pessoa diz "sexta eu saio do trampo às 18 horas, aí depois disso tô livre"
+- **ENTÃO** o texto aparece no campo, o resumo mostra "sex, 18h–24h" e nada vale antes de "Confirmar em Segredo"
+
+**Cenário: transcrição errada**
+- **QUANDO** a transcrição sai errada
+- **ENTÃO** a pessoa corrige o texto ou fala de novo, e nada foi registrado
+
+**Cenário: hora ambígua**
+- **QUANDO** a pessoa diz "sexta depois das 9"
+- **ENTÃO** o app pergunta se é de manhã ou de noite
+
+**Cenário: silêncio ou ruído**
+- **QUANDO** a gravação não tem fala
+- **ENTÃO** nenhuma janela é criada e o app pede para falar de novo ou digitar
+
+**Cenário: sem consentimento, sem microfone ou serviço fora do ar**
+- **QUANDO** a pessoa recusa, o navegador não grava ou a transcrição falha
+- **ENTÃO** o campo continua funcionando por texto, com uma mensagem clara
 
 #### RF-41 · Notificações agrupadas (Must)
 
@@ -832,3 +865,4 @@ IDs da guia Riscos do documento da equipe, usados nas colunas Riscos acima.
 | 0.2 | 2026-10-29 | RF-42 a RF-45 vindos das personas, coluna Persona preenchida, prazos ajustáveis pelo organizador (RF-12) e recusa discreta (RF-26) |
 | 0.3 | 2026-10-29 | RF-46 (imprevistos, Could); coluna Riscos com os IDs R-NN da guia Riscos; consistência com as outras guias: sala de 2 a 20, adultos 18+, créditos gratuitos de API, testes do MVP sem piloto, itens Should marcados no escopo, ajustes no glossário e nos RF-02, 03, 04, 12, 15, 17 e 25. Trazida do documento da equipe para o repositório em 2026-11-03 |
 | 0.3.1 | 2026-11-03 | Consequências do ADR 0004: RNF-15 com cache só do que os termos permitem; RF-37 com a pergunta opcional sobre lugar aberto e preço; questão em aberto 4 fechada |
+| 0.5 (proposta) | 2026-11-24 | RF-47 (voz no campo de dias e horários, ADR 0017); voz retirada dos RF-30 e RF-31 |
