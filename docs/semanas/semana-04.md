@@ -664,8 +664,8 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
 ---
 
 ### 8.13. Issue #76 — Relatório Técnico da Semana 4 para o Teams e Submissão Oficial
-* **Responsável:** Cauan Soares (`@cadasiso`), por acordo do grupo (a issue foi aberta para a Letícia Miti); revisão da Maria Eduarda
-* **Status:** Concluída, em revisão
+* **Responsável:** Cauan Soares (`@cadasiso`), por acordo do grupo (a issue foi aberta para a Letícia Miti)
+* **Status:** Concluída e entregue
 * **O que foi feito:**
   - Relatório técnico em `docs/entregas/semana-04/RELATORIO_TECNICO_SEMANA_04.md`, com a versão em LaTeX para o Overleaf (`.tex`), o PDF e o pacote ZIP, no formato da Semana 3 e com a formatação da ABNT.
   - Conteúdo: arquitetura do grafo e dos 5 agentes, juiz em 2 passagens, privacidade (RNF-02), cenários da #66, resultados do demo com LLM, comparação com o fluxo sem agentes, custo e latência por agente, observabilidade no Langfuse, decisões da semana, limitações, conclusão e próximos passos.
@@ -679,10 +679,15 @@ Nenhum Pull Request será aprovado sem que a respectiva entrada na Seção 8 est
 * **Decisões Técnicas e Arquitetura:**
   - *Figura do grafo:* o relatório usa o Mermaid da Seção 2, que cabe numa página A4; o SVG detalhado da #75 (1300 × 2752) fica citado como versão completa.
   - *PDF gerado do HTML:* sem LaTeX instalado na máquina, o PDF sai do HTML com as mesmas regras da ABNT (A4, margens 3/2/3/2 cm, Times 12, entrelinha 1,5, legenda acima e fonte abaixo). O `.tex` gera o mesmo documento no Overleaf.
+* **Diferenças em relação à issue:**
+  - *Responsável:* o relatório ficou com o Cauan, e não com a Letícia.
+  - *Prazo:* a issue pedia a entrega até 19/11, às 18h; o relatório foi escrito em 20/11, depois dos merges de que dependia (#74 e #75).
+  - *Prints dos traces:* no lugar dos prints do Langfuse, há duas figuras feitas com as observações dos traces, lidas pela API, porque a conta usada não tem acesso ao projeto do grupo. Os links dos traces estão no relatório.
+  - *Prints do log:* o log da demonstração vai inteiro no pacote, em texto, e o relatório traz as tabelas com os números dele.
 * **Arquivos:**
   - `docs/entregas/semana-04/RELATORIO_TECNICO_SEMANA_04.md`, `.tex` e `.pdf`
   - `docs/entregas/semana-04/Entregavel_Grupo7_Semana_04.zip`
-  - `docs/entregas/semana-04/img/` (figura do grafo e prints dos traces)
+  - `docs/entregas/semana-04/img/` (figura do grafo e figuras dos traces)
   - `docs/entregas/semana-04/DEMO_MULTIAGENTE_LOG.txt` (nova rodada)
 * **Testes e Validação:**
   - Números do relatório conferidos com o log do demo e com as observações dos traces pela API do Langfuse (15 observações no controle e 16 no padrão, sem nome, origem ou teto de membro).

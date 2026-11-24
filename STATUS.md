@@ -3,18 +3,17 @@
 > Arquivo vivo. Toda sessão (humana ou de agente) lê no início e atualiza no fim.
 > Mantenha curto: o histórico fica em `docs/semanas/` e no `git log`.
 
-**Atualizado em:** 2026-11-20
+**Atualizado em:** 2026-11-24
 **Semana do roadmap:** 4 — Primeiro Protótipo Multiagente (LangGraph + Ferramentas Determinísticas)
 
 ## Agora
 
-- **Relatório técnico da semana 4 (Cauan, 20/11), issue #76, branch `docs/76-relatorio-semana4`:** por acordo do grupo, o relatório ficou com o Cauan, e a revisão com a Maria Eduarda.
+- **Relatório técnico da semana 4 (Cauan, 20/11), issue #76, branch `docs/76-relatorio-semana4`:** concluído e entregue; por acordo do grupo, o relatório ficou com o Cauan.
   - [RELATORIO_TECNICO_SEMANA_04.md](docs/entregas/semana-04/RELATORIO_TECNICO_SEMANA_04.md), com o `.tex` em ABNT para o Overleaf, o PDF e o ZIP, no formato da semana 3;
   - o demo foi rodado de novo depois dos merges dos PRs #85 (diagrama, #75) e #89 (telemetria, #73): o padrão termina sem cartões em 19,5 s (US$ 0,0045) e o controle com 3 cartões viáveis em 24,6 s (US$ 0,0034); registro na Seção 8.13 do [semana-04.md](docs/semanas/semana-04.md);
   - os prints do Langfuse viraram figuras geradas das observações lidas pela API, porque a conta do Cauan no Langfuse não tem acesso ao projeto do grupo; dá para trocar por prints reais depois;
   - PR #90 (refinamentos da telemetria pedidos na revisão do #89) mesclado; 906 testes passam;
-  - mapa da arquitetura atualizado: os 5 agentes e as etapas do grafo como prontos, e o rastreio decidido pelo ADR 0015; falta publicar no site;
-  - falta a submissão no canal `4_Second Challenge` do Teams.
+  - mapa da arquitetura atualizado: os 5 agentes e as etapas do grafo como prontos, e o rastreio decidido pelo ADR 0015; falta publicar no site.
 - **Diagrama Visual da Arquitetura do Grafo Multiagente (Maria Carolina, 20/11), issue #75, PR #85 mesclado em 20/11:**
   - Documentação técnica em `docs/arquitetura/multiagente.md` e página web `docs/arquitetura/multiagente.html` atualizadas para refletir o grafo real implementado em `src/agentes/grafo.py` (`grafo_agentes.mmd`) e o contrato de `src/agentes/estado.py`;
   - Diagrama vetorial `docs/arquitetura/img/grafo_multiagente.svg` (gerado por `scripts/gerar_grafo_multiagente_svg.py`) e Mermaid com fan-out dos Agentes Pessoais (`Send`) + `no_consolidar_grupo`, `Cofre` do servidor fora do `MultiAgentState` (Canais 1, 2 e 4 no Cofre; Canal 3 como único público), saídas diretas para `no_finalizar` (sem janela comum ou sem lugar viável), laço `avaliar_convergencia` (até 2 voltas), reescrita seletiva em `no_validacao_textos` (máximo 1 vez), Juiz LLM em 2 passagens (#72), preenchimento de preços/tempos/`tiktok_url` em `no_finalizar`, spans reais do Langfuse e SLA do RNF-14 ($\le 60\text{ s}$ para gerar planos);
