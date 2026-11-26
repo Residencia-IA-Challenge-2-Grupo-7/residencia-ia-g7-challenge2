@@ -341,3 +341,16 @@ def test_situacao_diz_se_ha_voz_sem_expor_a_chave(cliente, monkeypatch):
     assert r.json() == {"disponivel": True, "max_s": 30, "max_caracteres": 300} and "chave-secreta" not in r.text
     monkeypatch.setattr(tr, "segredo", lambda nome: None)
     assert cliente.get("/api/voz").json()["disponivel"] is False
+
+
+# ---------- vocabulário
+
+def test_vocabulario_nao_tem_dia_nem_hora():
+    """Um exemplo com hora no vocabulário fez o modelo ouvir essa hora (24/11)."""
+    from src.interpretador.numeros import canon
+    prompt = canon(tr.T["prompt"])
+    assert not any(ch.isdigit() for ch in prompt)
+    for palavra in ("segunda", "terca", "quarta", "quinta", "sexta", "sabado", "domingo", "noite", "tarde", "manha"):
+        assert palavra not in prompt
+
+

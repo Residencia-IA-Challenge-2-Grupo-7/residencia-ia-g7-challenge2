@@ -6,9 +6,9 @@ chave_env = "OPENROUTER_API_KEY"
 modelo = "openai/whisper-large-v3-turbo"
 idioma = "pt"
 timeout_s = 12
-# Vocabulário do domínio: reduz erro em dias, horas e gírias (ADR 0006). Sem nomes de lugares nem valores, porque
-# este campo só fala de quando a pessoa pode.
-prompt = "Conversa entre amigos de Brasília sobre quando podem sair: sexta depois das 19h, sábado o dia todo, domingo à tarde, fim de semana, semana que vem, saio do trampo, tô livre, bora, rolê."
+# Vocabulário do domínio, SEM dias nem horas: com "sexta depois das 19h" aqui, o modelo ouviu "depois das 19h" num
+# áudio que dizia "depois das 9" (medido em 24/11, 2 de 2 rodadas; sem o exemplo, acertou 2 de 2).
+prompt = "Conversa entre amigos de Brasília sobre quando podem sair: bora, rolê, trampo, tô livre, de boa, dá pra mim, fim de semana, semana que vem, feriado, o dia todo."
 
 # Só provedores sem retenção e sem coleta, em cada pedido (RNF-01). Groq é a principal; DeepInfra roda o mesmo
 # modelo e entra se a Groq faltar (RNF-15). Na segunda tentativa a ordem se inverte.
