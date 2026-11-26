@@ -1,0 +1,1427 @@
+
+<!doctype html>
+<html lang="pt" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Documentação Oficial de Engenharia, DevOps e Arquitetura do Grupo 7 (Residência em IA Eldorado/UnB)">
+      
+      
+        <meta name="author" content="Grupo 7">
+      
+      
+        <link rel="canonical" href="https://residencia-ia-challenge-2-grupo-7.github.io/residencia-ia-g7-challenge2/entregas/semana-03/RELATORIO_TECNICO_SEMANA_03/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.8.2">
+    
+    
+      
+        <title>Relatório Técnico da Semana 3: Comparação entre LLM pura e RAG - Orquestrador de Rolês — Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.57a0d79d.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.fb2fffe2.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#relatorio-tecnico-da-semana-3-comparacao-entre-llm-pura-e-rag" class="md-skip">
+          Pular para conteúdo
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Cabeçalho">
+    <a href="../../.." title="Orquestrador de Rolês — Docs" class="md-header__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Orquestrador de Rolês — Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Relatório Técnico da Semana 3: Comparação entre LLM pura e RAG
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo escuro"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo escuro" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="deep-purple" data-md-color-accent="indigo"  aria-label="Mudar para modo claro"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Mudar para modo claro" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Buscar" placeholder="Buscar" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Pesquisar">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Limpar" aria-label="Limpar" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Inicializando busca
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navegação" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Orquestrador de Rolês — Docs" class="md-nav__button md-logo" aria-label="Orquestrador de Rolês — Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Orquestrador de Rolês — Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2" title="Ir para repositório" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    Residencia-IA-Challenge-2-Grupo-7/residencia-ia-g7-challenge2
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Início
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../guia-contribuicao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Contribuição
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arquitetura & Decisões
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Arquitetura & Decisões
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../arquitetura/multiagente/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Arquitetura Multiagente
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../produto/visao/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Visão do Produto
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../produto/requisitos/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Requisitos
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../decisoes/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Decisões Técnicas (ADRs)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dados & RAG
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Dados & RAG
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../dados/esquema-base/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Esquema da Base
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../dados/guia-curadoria/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Guia de Curadoria
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../dados/golden-dataset-semana3/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Golden Dataset (Semana 3)
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semanas & Entregas
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Semanas & Entregas
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../semanas/semana-01/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 01
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../semanas/semana-02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Semana 02
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../semana-02/RELATORIO_TECNICO_RAG_SEMANA_02/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Relatório Semana 2
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Índice">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Índice
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-resumo-e-desenho-experimental" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Resumo e desenho experimental
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-golden-dataset" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Golden dataset
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-configuracoes-testadas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Configurações testadas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-como-as-respostas-foram-avaliadas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Como as respostas foram avaliadas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-resultados" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Resultados
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Resultados">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-comparacao-das-seis-configuracoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Comparação das seis configurações
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-resultados-por-categoria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Resultados por categoria
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-variacao-entre-as-duas-rodadas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 Variação entre as duas rodadas
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-criterio-de-escolha-e-configuracao-escolhida" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Critério de escolha e configuração escolhida
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-analise-qualitativa-de-casos" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Análise qualitativa de casos
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-limitacoes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Limitações
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-telemetria-e-auditoria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Telemetria e auditoria
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#referencias" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Referências
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="relatorio-tecnico-da-semana-3-comparacao-entre-llm-pura-e-rag">Relatório Técnico da Semana 3: Comparação entre LLM pura e RAG<a class="headerlink" href="#relatorio-tecnico-da-semana-3-comparacao-entre-llm-pura-e-rag" title="Permanent link">&para;</a></h1>
+<p><strong>Instituto de Pesquisas Eldorado · Universidade de Brasília · Residência em Inteligência Artificial — Brasília</strong>
+<strong>Grupo 07 — Orquestrador de Rolês (Distrito Federal)</strong>
+Letícia Miti Takahashi, Maria Eduarda, Maria Carolina, Cauan Soares e Samara Letícia
+Challenge 2, Semana 3 — Brasília, novembro de 2026</p>
+<ul>
+<li>Comparação interativa (as duas respostas lado a lado): <a href="https://orquestrador-roles.onrender.com/comparativo">https://orquestrador-roles.onrender.com/comparativo</a></li>
+<li>Central de Entregáveis: <a href="https://orquestrador-roles.onrender.com/entregaveis">https://orquestrador-roles.onrender.com/entregaveis</a></li>
+</ul>
+<hr />
+<h2 id="1-resumo-e-desenho-experimental">1. Resumo e desenho experimental<a class="headerlink" href="#1-resumo-e-desenho-experimental" title="Permanent link">&para;</a></h2>
+<p>O entregável da Semana 3 pede respostas baseadas em evidências: mostrar, com medição, se o RAG construído na Semana 2 responde melhor do que um modelo de linguagem sozinho. Testamos seis configurações nas 20 perguntas do golden dataset, cada uma rodada duas vezes, com as respostas avaliadas por código e por um segundo modelo que atua como juiz.</p>
+<p><strong>Resultado principal.</strong> A LLM pura não acertou o lugar do gabarito em nenhuma das 18 perguntas sobre o DF (0 de 18). O RAG com a busca por palavras acertou 10 de 18, e com a busca por embeddings, 16 de 18. Nas configurações com RAG, a fidelidade à base ficou entre 96,8% e 100%, acima da meta de 95% do RNF-03.</p>
+<p><strong>Achado que orienta a próxima semana.</strong> Com a busca por palavras, colocar o LLM depois da busca não aumentou o acerto: o texto fixo da Semana 2 e o RAG com LLM acertaram os mesmos 12 de 20. Quem limita o acerto é a recuperação: o lugar certo só chega entre os 3 documentos em 10 de 18 perguntas. Com a busca por embeddings, isso sobe para 16 de 18, mas a latência passa do limite de 5 s do RNF-14.</p>
+<p><strong>Mesmo modelo nos dois modos.</strong> O Modo A (LLM pura) e o Modo B (RAG) usam o mesmo modelo, o DeepSeek V4.1 Flash (<code>deepseek/deepseek-v4.1-flash-1017</code>, pela OpenRouter), com temperatura 0, o mesmo limite de palavras e a mesma instrução de não inventar. A única diferença é que o Modo B recebe até 3 lugares da base como <code>[FONTE #n]</code> e precisa citá-los. Assim, a diferença entre os modos mede a base, e não o modelo nem o prompt (<a href="../../../decisoes/0011-comparativo-ab-com-o-mesmo-llm/">ADR 0011</a>).</p>
+<p><strong>Por que não o Gemini 1.5 Flash.</strong> O plano inicial previa o Gemini 1.5 Flash, que foi descontinuado e para o qual o grupo não tinha chave. O DeepSeek V4.1 Flash custa cerca de R$ 0,0008 por pergunta, responde em 3 a 4 s e permite ligar o raciocínio, o que virou uma das configurações testadas (<a href="../../../decisoes/0010-baseline-llm-pura-e-guardrails/">ADR 0010</a>). As chamadas usam o roteamento sem retenção de dados da OpenRouter (<code>zdr</code>, <code>data_collection: deny</code>).</p>
+<h2 id="2-golden-dataset">2. Golden dataset<a class="headerlink" href="#2-golden-dataset" title="Permanent link">&para;</a></h2>
+<p>O golden dataset (<code>data/golden_dataset_semana3.json</code>) tem 20 perguntas escritas como um usuário faria, cada uma com um gabarito copiado da base de 93 lugares validados em dois fatores: nome, região administrativa (RA), preço médio e horário, além do vídeo do TikTok que serve de evidência (<a href="../../../dados/golden-dataset-semana3/">catálogo e regras</a>).</p>
+<table>
+<thead>
+<tr>
+<th>Categoria</th>
+<th>Casos</th>
+<th>O que testa</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>geoespacial_ra_fora_centro</code></td>
+<td>5</td>
+<td>Lugares reais fora do Plano Piloto (RNF-13)</td>
+</tr>
+<tr>
+<td><code>janela_horario</code></td>
+<td>3</td>
+<td>Horário real (madrugada depois da 1h, domingo)</td>
+</tr>
+<tr>
+<td><code>fora_de_escopo_df</code></td>
+<td>2</td>
+<td>Recusar perguntas sobre outras cidades</td>
+</tr>
+<tr>
+<td><code>precisao_financeira</code></td>
+<td>5</td>
+<td>Preço exato e teto estrito em reais (RNF-03)</td>
+</tr>
+<tr>
+<td><code>vibes_e_restricoes</code></td>
+<td>3</td>
+<td>Ambiente e restrição alimentar descritos só no vídeo</td>
+</tr>
+<tr>
+<td><code>conflito_e_girias</code></td>
+<td>2</td>
+<td>Pedido que parece impossível e pergunta em candanguês (RNF-08)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Uma resposta certa por pergunta.</strong> Cada pergunta é específica o bastante para ter um único lugar certo na base: são 18 lugares diferentes para as 18 perguntas do DF.</li>
+<li><strong>Gabarito travado por teste.</strong> <code>tests/test_golden_dataset.py</code>, que roda no CI, confere que nome, RA e preço do gabarito são iguais aos da base e que as 6 categorias têm a distribuição acima.</li>
+<li><strong>Armadilha registrada.</strong> Cada caso anota o erro que esperamos da LLM pura, por exemplo "sugerir hamburguerias do Plano Piloto" para uma pergunta sobre Taguatinga.</li>
+</ul>
+<h2 id="3-configuracoes-testadas">3. Configurações testadas<a class="headerlink" href="#3-configuracoes-testadas" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Configuração</th>
+<th>Como funciona</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>LLM pura, sem raciocínio</td>
+<td>Modo A: o modelo responde só com o que sabe</td>
+</tr>
+<tr>
+<td>2</td>
+<td>LLM pura, raciocínio alto</td>
+<td>Modo A com <code>reasoning.effort = "high"</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td>RAG sem LLM</td>
+<td>Busca por palavras e o texto fixo da Semana 2, preenchido com o 1º lugar</td>
+</tr>
+<tr>
+<td>4</td>
+<td>RAG + LLM, busca por palavras</td>
+<td>Modo B: busca por palavras e o modelo redige a resposta com as fontes</td>
+</tr>
+<tr>
+<td>5</td>
+<td>RAG + LLM, busca por palavras, raciocínio alto</td>
+<td>Configuração 4 com o raciocínio alto</td>
+</tr>
+<tr>
+<td>6</td>
+<td>RAG + LLM, busca por embeddings</td>
+<td>Configuração 4 com a busca vetorial (<code>google/gemini-embedding-001</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>As três configurações com LLM e RAG compartilham os mesmos ajustes da busca e os mesmos guardrails, que vêm antes do modelo e são escritos em Python:</p>
+<ul>
+<li><strong>3 documentos por pergunta.</strong> O modelo recebe no máximo 3 lugares, com nome, tipo, RA, endereço, horário, faixa e preço médio e descrição.</li>
+<li><strong>Limiar de aderência.</strong> Se a maior pontuação da busca fica abaixo do limiar, nenhum lugar é recomendado e o modelo nem é chamado. O limiar é 0,65 na busca por palavras e 0,63 no cosseno da busca vetorial. Os dois foram calibrados com perguntas fora do tema da base:</li>
+<li>na busca por palavras, as perguntas fora do tema ficaram entre 0,50 e 0,56;</li>
+<li>no cosseno, ficaram entre 0,574 e 0,624, e as perguntas do golden, entre 0,625 e 0,812 (<a href="../../../decisoes/0012-busca-vetorial-pela-openrouter/">ADR 0012</a>).</li>
+<li><strong>Escopo do DF.</strong> Perguntas que citam um lugar fora do DF, sem nenhuma RA, são recusadas antes da busca.</li>
+<li><strong>Teto em reais.</strong> Quando a pergunta tem teto ou pede algo grátis, os lugares acima do teto são retirados em Python, antes de chegar ao modelo.</li>
+</ul>
+<p>A busca híbrida (palavras e embeddings juntos, por Reciprocal Rank Fusion) foi medida na prévia de 12/11 e ficou de fora do benchmark, porque não superou a vetorial no acerto (6 de 8 contra 7 de 8) (<a href="../../../experimentos/2026-11-12-busca-vetorial/">experimento</a>). Como teste de ferramenta, também montamos a busca por palavras no framework Haystack (BM25): ela traz o lugar certo entre os 3 primeiros em 14 de 18 perguntas. É o mesmo tipo de busca, então o resultado não diz nada sobre o framework em si (<a href="../../../experimentos/2026-11-13-haystack-recall/">experimento</a>).</p>
+<h2 id="4-como-as-respostas-foram-avaliadas">4. Como as respostas foram avaliadas<a class="headerlink" href="#4-como-as-respostas-foram-avaliadas" title="Permanent link">&para;</a></h2>
+<p>O avaliador (<code>src/telemetria/evals_semana3.py</code>) funciona em duas etapas.</p>
+<ol>
+<li><strong>Verificação em código (RNF-04).</strong> Antes do juiz, o código confere:</li>
+<li>se os lugares citados existem entre os 93 da base;</li>
+<li>se a RA do lugar recomendado é a esperada;</li>
+<li>se os preços citados batem com os da base;</li>
+<li>se a pergunta fora do DF foi recusada.</li>
+<li><strong>Juiz.</strong> O MiMo-V2.6-Pro (<code>xiaomi/mimo-v2.6-pro</code>), de outra família que o modelo avaliado, roda com temperatura 0 e saída em JSON. Ele classifica cada afirmação da resposta sobre lugar, preço, endereço ou horário como "confere com a base", "contradiz a base" ou "não está na base".</li>
+<li>Para o Modo B, o juiz recebe os mesmos documentos que o modelo recebeu.</li>
+<li>Para o Modo A, ele recebe os lugares citados que existem na base e os do gabarito.</li>
+<li>Usamos um juiz de outra família porque um modelo tende a favorecer as próprias respostas.</li>
+</ol>
+<p>A partir dos vereditos, cada resposta recebe as notas abaixo.</p>
+<table>
+<thead>
+<tr>
+<th>Nota</th>
+<th>O que mede</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Acerto do gabarito</td>
+<td>O lugar do gabarito aparece na resposta (fora do DF, a recusa conta como acerto)</td>
+</tr>
+<tr>
+<td>Fidelidade (RNF-03)</td>
+<td>Proporção das afirmações que conferem com a base</td>
+</tr>
+<tr>
+<td>Alucinação</td>
+<td>Proporção das afirmações que a base desmente</td>
+</tr>
+<tr>
+<td>Fora da base</td>
+<td>Proporção das afirmações que a base não permite verificar</td>
+</tr>
+<tr>
+<td>Precisão da RA (RNF-13)</td>
+<td>Algum lugar recomendado está na RA esperada</td>
+</tr>
+<tr>
+<td>Recall@3 e MRR</td>
+<td>O lugar do gabarito está entre os 3 documentos recuperados, e em que posição</td>
+</tr>
+<tr>
+<td>Latência (RNF-14)</td>
+<td>Tempo de resposta, com meta de p90 até 5 s</td>
+</tr>
+<tr>
+<td>Custo (RNF-15)</td>
+<td>Custo das chamadas pagas por pergunta, em reais (cotação de R$ 5,80 por dólar)</td>
+</tr>
+</tbody>
+</table>
+<p>Uma recusa ou um "não sei" não tem afirmação a medir. Nesse caso, a resposta conta como abstenção nos dois modos, fica sem nota de fidelidade e de alucinação, e o erro, quando havia resposta na base, aparece no acerto do gabarito.</p>
+<h2 id="5-resultados">5. Resultados<a class="headerlink" href="#5-resultados" title="Permanent link">&para;</a></h2>
+<h3 id="51-comparacao-das-seis-configuracoes">5.1 Comparação das seis configurações<a class="headerlink" href="#51-comparacao-das-seis-configuracoes" title="Permanent link">&para;</a></h3>
+<p>Rodada 1, 20 perguntas por configuração. Contagens sobre os casos em que a nota se aplica. O p90 é calculado sobre as 20 latências com <code>statistics.quantiles</code> do Python (método exclusivo, que interpola entre a 18ª e a 19ª).</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Configuração</th>
+<th>Acerto (20)</th>
+<th>Acerto no DF (18)</th>
+<th>Fidelidade</th>
+<th>Alucinação</th>
+<th>Fora da base</th>
+<th>Precisão da RA</th>
+<th>Recall@3 / MRR</th>
+<th>Latência p50 / p90</th>
+<th>Custo por pergunta</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>LLM pura</td>
+<td>2 de 20</td>
+<td>0 de 18</td>
+<td>0,0%</td>
+<td>3,0%</td>
+<td>97,0%</td>
+<td>0 de 15</td>
+<td>—</td>
+<td>3,75 s / 5,26 s</td>
+<td>R$ 0,00079</td>
+</tr>
+<tr>
+<td>2</td>
+<td>LLM pura, raciocínio alto</td>
+<td>2 de 20</td>
+<td>0 de 18</td>
+<td>0,0%</td>
+<td>28,6%¹</td>
+<td>71,4%</td>
+<td>0 de 14</td>
+<td>—</td>
+<td>6,84 s / 14,58 s</td>
+<td>R$ 0,00198</td>
+</tr>
+<tr>
+<td>3</td>
+<td>RAG sem LLM</td>
+<td>12 de 20</td>
+<td>10 de 18</td>
+<td>99,2%</td>
+<td>0,0%</td>
+<td>0,8%</td>
+<td>13 de 16</td>
+<td>10 de 18 / 0,37</td>
+<td>0,02 s / 0,03 s</td>
+<td>R$ 0</td>
+</tr>
+<tr>
+<td>4</td>
+<td>RAG + LLM, palavras</td>
+<td>12 de 20</td>
+<td>10 de 18</td>
+<td>98,7%</td>
+<td>0,0%</td>
+<td>1,4%</td>
+<td>13 de 16</td>
+<td>10 de 18 / 0,37</td>
+<td>3,15 s / 3,61 s</td>
+<td>R$ 0,00081</td>
+</tr>
+<tr>
+<td>5</td>
+<td>RAG + LLM, palavras, raciocínio alto</td>
+<td>12 de 20</td>
+<td>10 de 18</td>
+<td>100,0%</td>
+<td>0,0%</td>
+<td>0,0%</td>
+<td>13 de 16</td>
+<td>10 de 18 / 0,37</td>
+<td>4,51 s / 6,88 s</td>
+<td>R$ 0,00121</td>
+</tr>
+<tr>
+<td>6</td>
+<td>RAG + LLM, embeddings</td>
+<td>18 de 20</td>
+<td>16 de 18</td>
+<td>96,8%</td>
+<td>0,7%</td>
+<td>2,5%</td>
+<td>16 de 17</td>
+<td>16 de 18 / 0,83</td>
+<td>5,10 s / 5,83 s</td>
+<td>R$ 0,00092</td>
+</tr>
+</tbody>
+</table>
+<p>¹ Valor inflado por um defeito do avaliador, explicado na seção 8. As quatro respostas que somam essa taxa são recusas que só repetem o teto da pergunta.</p>
+<ul>
+<li><strong>A LLM pura não erra o preço: ela fala de lugares que não pode comprovar.</strong> Na configuração 1, 97% das afirmações citam lugares fora da base. São 32 nomes em 13 das 20 respostas: parte existe, como o Coco Bambu; parte são descrições genéricas ("Feira de Vicente Pires", "praça de alimentação de shopping próximo") ou palavras que o extrator tomou por nome ("Alternativa"). Contradições reais, em que a base desmente o que foi dito, apareceram em 3 respostas. Com o raciocínio alto, o modelo se recusa em 6 das 20 perguntas (5 sem o raciocínio) e continua sem acertar nenhum lugar do DF.</li>
+<li><strong>O RAG fica fiel à base.</strong> Nas configurações 3 a 6, nenhum lugar fora da base foi recomendado. A única contradição da rodada 1 está na configuração 6 e é discutida na seção 7.</li>
+<li><strong>O raciocínio alto não ajuda o RAG.</strong> A configuração 5 acerta o mesmo que a 4, custa 50% mais e passa dos 5 s em 7 de 20 perguntas.</li>
+<li><strong>A busca por embeddings acerta mais, mas é mais lenta.</strong> O embedding da pergunta leva cerca de 1,5 s pela rede, e 11 de 20 respostas passam de 5 s.</li>
+</ul>
+<h3 id="52-resultados-por-categoria">5.2 Resultados por categoria<a class="headerlink" href="#52-resultados-por-categoria" title="Permanent link">&para;</a></h3>
+<p>Acerto do gabarito e fidelidade, rodada 1.</p>
+<table>
+<thead>
+<tr>
+<th>Categoria</th>
+<th>Casos</th>
+<th>LLM pura (1)</th>
+<th>RAG sem LLM (3)</th>
+<th>RAG + LLM, palavras (4)</th>
+<th>RAG + LLM, embeddings (6)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>RA fora do centro</td>
+<td>5</td>
+<td>0 de 5</td>
+<td>4 de 5</td>
+<td>4 de 5</td>
+<td>5 de 5</td>
+</tr>
+<tr>
+<td>Janela de horário</td>
+<td>3</td>
+<td>0 de 3</td>
+<td>2 de 3</td>
+<td>2 de 3</td>
+<td>2 de 3</td>
+</tr>
+<tr>
+<td>Fora do DF</td>
+<td>2</td>
+<td>2 de 2</td>
+<td>2 de 2</td>
+<td>2 de 2</td>
+<td>2 de 2</td>
+</tr>
+<tr>
+<td>Precisão financeira</td>
+<td>5</td>
+<td>0 de 5</td>
+<td>3 de 5</td>
+<td>3 de 5</td>
+<td>5 de 5</td>
+</tr>
+<tr>
+<td>Ambiente e restrições</td>
+<td>3</td>
+<td>0 de 3</td>
+<td>1 de 3</td>
+<td>1 de 3</td>
+<td>3 de 3</td>
+</tr>
+<tr>
+<td>Conflito e gírias</td>
+<td>2</td>
+<td>0 de 2</td>
+<td>0 de 2</td>
+<td>0 de 2</td>
+<td>1 de 2</td>
+</tr>
+</tbody>
+</table>
+<p>A busca por embeddings ganha sobretudo em preço, ambiente e restrição alimentar, perguntas que descrevem a experiência mais do que o nome ou o tipo do lugar. Nessas categorias, 4 perguntas só foram acertadas pela busca vetorial: "jantar romântico a dois num restaurante chique" (Lucca), "rodízio de churrasco japonês" (Yaki Nikuya), "doceria sem trigo, sem lactose e sem açúcar refinado" (Lefit) e "prato executivo em Samambaia por até R$ 30" (Saguari).</p>
+<h3 id="53-variacao-entre-as-duas-rodadas">5.3 Variação entre as duas rodadas<a class="headerlink" href="#53-variacao-entre-as-duas-rodadas" title="Permanent link">&para;</a></h3>
+<p>As duas rodadas foram feitas sem cache.</p>
+<ul>
+<li><strong>Acerto estável.</strong> O acerto do gabarito foi idêntico nas duas rodadas, em todas as configurações.</li>
+<li><strong>Variação pequena no RAG.</strong> Nas configurações 4 a 6, a nota do juiz mudou em no máximo 3 das 20 perguntas, e a alucinação média variou menos de 1 ponto percentual.</li>
+<li><strong>Variação maior na LLM pura.</strong> A latência da LLM pura variou mais: o p90 da configuração 2 foi de 14,6 s para 18,1 s.</li>
+</ul>
+<h2 id="6-criterio-de-escolha-e-configuracao-escolhida">6. Critério de escolha e configuração escolhida<a class="headerlink" href="#6-criterio-de-escolha-e-configuracao-escolhida" title="Permanent link">&para;</a></h2>
+<p>O critério foi definido antes de rodar o benchmark (issue #38): entre as configurações com p90 de até 5 s e nenhum lugar recomendado fora da base, vence a de maior acerto do gabarito, e no empate, a mais barata.</p>
+<ul>
+<li><strong>Configurações elegíveis.</strong> Só a 3 e a 4 passam pelos dois filtros. A 1 e a 2 recomendam lugares fora da base; a 5 e a 6 passam de 5 s no p90.</li>
+<li><strong>Vencedora pelo critério: configuração 3, RAG sem LLM.</strong> Ela empata com a 4 em 12 de 20 de acerto e vence no desempate por não ter custo de modelo.</li>
+<li><strong>Configuração adotada no produto: a 4, RAG + LLM com a busca por palavras.</strong> Fica dentro do RNF-14 (p90 de 3,61 s), tem 98,7% de fidelidade e custa R$ 0,0008 por pergunta. É uma decisão de produto, à parte do critério. O texto fixo só sabe recomendar o 1º lugar da busca; o LLM explica quando o lugar atende só em parte ("isso ultrapassa seus R$ 30 em cerca de R$ 3"), contextualiza as recusas e escolhe entre os 3 documentos o que de fato responde à pergunta.</li>
+<li><strong>Próximo passo: a busca vetorial.</strong> Ela é a candidata para depois que o embedding da pergunta ficar mais rápido, com cache ou um modelo local. Com 16 de 18 de recall, é a configuração que mais acerta. O ganho estimado no p90 ainda não foi medido.</li>
+</ul>
+<h2 id="7-analise-qualitativa-de-casos">7. Análise qualitativa de casos<a class="headerlink" href="#7-analise-qualitativa-de-casos" title="Permanent link">&para;</a></h2>
+<p><strong>Caso 1 — RA fora do centro (golden_01).</strong> "Onde tem rodízio de mini hambúrguer e pão de queijo em Taguatinga para ir com amigos?"
+- <strong>LLM pura.</strong> Disse que não tinha certeza e, mesmo assim, sugeriu "Bar do Caldo (Taguatinga)", "Boteco da Asa (Taguatinga)" e o Taguatinga Shopping, sempre com "não sei confirmar". Nenhum está na base.
+- <strong>RAG + LLM.</strong> Indicou o Filomenambúrguer [FONTE #2] em Taguatinga Norte, a R$ 49,99, com o rodízio de pão de queijo e a brinquedoteca descritos no <a href="https://www.tiktok.com/@rolezandoembrasilia/video/7626405885388197128">vídeo de evidência</a>. O lugar do gabarito era o 2º da busca, e o modelo o escolheu em vez do 1º.</p>
+<p><strong>Caso 2 — quando a busca falha (golden_05).</strong> "Onde comer rodízio de pizza e sushi à noite em Samambaia com a família?"
+- <strong>Busca por palavras.</strong> Não trouxe o VBQ. O modelo respondeu, com honestidade, que a base não tinha um lugar com rodízio de pizza e sushi em Samambaia, e listou as opções mais próximas em outras RAs.
+- <strong>Busca por embeddings.</strong> Trouxe o VBQ em 1º lugar (Samambaia, R$ 44,90, mais de 30 sabores de pizza e ilha de sushi, <a href="https://www.tiktok.com/@rolezandoembrasilia/video/7678112514009304338">vídeo</a>), e a resposta acertou.
+- <strong>Leitura.</strong> O erro é da recuperação, não da geração.</p>
+<p><strong>Caso 3 — recusa indevida (golden_06).</strong> "Onde dá para comer e beber com os amigos depois da 1h da manhã num sábado?"
+- <strong>O que aconteceu.</strong> As duas buscas recusaram a pergunta: a aderência ficou em 0,62 na busca por palavras (limiar de 0,65) e em 0,6248 no cosseno (limiar de 0,63). O New Mercadito, aberto até 1h30, está na base.
+- <strong>Leitura.</strong> O limiar que protege contra perguntas fora do tema também barra uma pergunta válida. A margem no cosseno é de cinco milésimos.</p>
+<p><strong>Caso 4 — fora do DF (golden_09).</strong> "Quais são os melhores bares em Copacabana, no Rio de Janeiro, para ir com amigos numa sexta à noite?"
+- <strong>RAG.</strong> O guardrail recusou em menos de 1 ms, sem chamar o modelo.
+- <strong>LLM pura.</strong> Também recusou, porque o prompt a apresenta como assistente de rolês no DF, e se ofereceu para sugerir bares em Brasília.
+- <strong>Leitura.</strong> As duas recusas contam como acerto.</p>
+<p><strong>Caso 5 — a única contradição do RAG (golden_15).</strong> "Tenho só R$ 30, nem um centavo a mais. Dá para almoçar no buffet à vontade com tempero nordestino em Vicente Pires numa terça-feira?"
+- <strong>O que o modelo respondeu.</strong> Com a busca vetorial, "Sim, dá." e, na frase seguinte, que o preço médio do Restaurante do Daniel é R$ 32,99, acima dos R$ 30.
+- <strong>Por que o juiz marcou contradição.</strong> O "Sim, dá" pressupõe um preço de até R$ 30, e o documento traz R$ 32,99.
+- <strong>Leitura.</strong> Nenhum dado foi inventado, e a própria resposta corrige o preço na frase seguinte. O problema é a resposta começar por uma conclusão errada. Com a busca por palavras, o mesmo modelo começou com "Sim, dá — mas por pouco" e foi marcado como fiel. A diferença entre as duas frases é pequena, e é nesse tipo de caso que o juiz e uma leitura humana podem discordar.</p>
+<p><strong>Caso 6 — guardrail literal demais (golden_19).</strong> "Quero comemorar meu aniversário num rodízio japonês completo na Asa Norte, mas sem pagar nada. Existe rodízio caro totalmente de graça?"
+- <strong>O que o RAG respondeu.</strong> Leu "sem pagar nada" como teto de R$ 0, retirou todos os lugares e respondeu que nenhum lugar da base é grátis.
+- <strong>O que a base tem.</strong> O gabarito é o Blue Sushi: segundo o vídeo, o aniversariante que leva 10 convidados não paga o próprio rodízio.
+- <strong>Leitura.</strong> O filtro de teto, que protege o orçamento, não sabe ler uma condição.</p>
+<h2 id="8-limitacoes">8. Limitações<a class="headerlink" href="#8-limitacoes" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Amostra pequena.</strong> São 20 perguntas e uma base de 93 lugares. Uma pergunta vale 5 pontos percentuais de acerto, então diferenças de uma ou duas perguntas não devem ser lidas como tendência.</li>
+<li><strong>Defeito no avaliador da LLM pura com raciocínio.</strong> Os 28,6% de alucinação da configuração 2 vêm de quatro recusas (golden_07, 14, 15 e 20) que só repetem o teto da pergunta, como em "não tenho informação confiável para indicar buffet… por menos de R$ 30". O código toma esse valor como preço inventado. Lidas à mão, essas respostas não contêm contradição.</li>
+<li><strong>Juiz diferente na rodada 1 da LLM pura.</strong> Na rodada 1, as configurações 1 e 2 foram julgadas com a versão anterior do prompt do juiz, e as configurações 3 a 6, com a versão corrigida. A rodada 2 usa a versão corrigida em todas.</li>
+<li><strong>"Fora da base" não é invenção comprovada.</strong> A nota mostra o que não conseguimos verificar. Parte dos lugares citados pela LLM pura existe.</li>
+<li><strong>O juiz também erra.</strong> Antes da correção do prompt, ele marcava como contradição respostas que diziam "a base não tem", comparando-as com documentos que o modelo não tinha recebido. As contradições que sobraram foram conferidas à mão (seção 7).</li>
+<li><strong>Uma data e um modelo.</strong> Os resultados valem para o DeepSeek V4.1 Flash, as versões de prompt de 10/11 (Modo A) e 12/11 (Modo B) e a base de novembro de 2026.</li>
+</ul>
+<h2 id="9-telemetria-e-auditoria">9. Telemetria e auditoria<a class="headerlink" href="#9-telemetria-e-auditoria" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Langfuse.</strong> Cada comparação gera um trace no Langfuse Cloud, com os dois modos, a busca, os guardrails e as notas do avaliador. O benchmark foi registrado como seis experimentos sobre o dataset <code>golden_dataset_semana3</code>, um por configuração, com o trace de cada resposta. Os links estão no <a href="../BENCHMARK_LLM_VS_RAG_LOG.txt">log do benchmark</a>; o projeto no Langfuse é de acesso do grupo.</li>
+<li><strong>Registro sem dados pessoais (RNF-10).</strong> O <code>logger_metricas</code> grava em JSONL a latência, os tokens, o custo e o modo de cada chamada, e mascara CPF, e-mail, telefone e valores de orçamento.</li>
+<li><strong>Cache (RNF-15).</strong> O cache por SHA-256 da pergunta evita pagar duas vezes pela mesma chamada; o benchmark foi rodado com ele desligado.</li>
+<li><strong>Reprodução.</strong> <code>PYTHONPATH=. python scripts/executar_benchmark_semana3.py</code> refaz o benchmark. Os resultados estão em <code>data/resultados_benchmark_semana3.json</code> e <code>.csv</code>, e o log comprobatório, com as 20 respostas lado a lado, em <code>docs/entregas/semana-03/BENCHMARK_LLM_VS_RAG_LOG.txt</code>.</li>
+<li><strong>Testes automáticos.</strong> O golden dataset, o avaliador, o comparador e a integridade dos resultados têm testes que rodam no CI do GitHub Actions.</li>
+</ul>
+<h2 id="referencias">Referências<a class="headerlink" href="#referencias" title="Permanent link">&para;</a></h2>
+<p>BRASIL. <strong>Lei nº 13.709, de 14 de agosto de 2018</strong>. Lei Geral de Proteção de Dados Pessoais (LGPD). Diário Oficial da União: seção 1, Brasília, DF, 15 ago. 2018.</p>
+<p>CORMACK, Gordon V.; CLARKE, Charles L. A.; BUETTCHER, Stefan. Reciprocal rank fusion outperforms Condorcet and individual rank learning methods. In: <strong>Proceedings of the 32nd International ACM SIGIR Conference on Research and Development in Information Retrieval</strong>. 2009. p. 758-759.</p>
+<p>LEWIS, Patrick et al. Retrieval-augmented generation for knowledge-intensive NLP tasks. <strong>Advances in Neural Information Processing Systems</strong>, v. 33, p. 9459-9474, 2020.</p>
+<p>ZHENG, Lianmin et al. Judging LLM-as-a-judge with MT-Bench and Chatbot Arena. <strong>Advances in Neural Information Processing Systems</strong>, v. 36, 2023.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.instant", "navigation.tracking", "navigation.sections", "navigation.expand", "content.code.copy"], "search": "../../../assets/javascripts/workers/search.a7633da7.min.js", "tags": null, "translations": {"clipboard.copied": "Copiado para \u00e1rea de transfer\u00eancia", "clipboard.copy": "Copiar para \u00e1rea de transfer\u00eancia", "search.result.more.one": "mais 1 nesta p\u00e1gina", "search.result.more.other": "# mais nesta p\u00e1gina", "search.result.none": "Nenhum documento encontrado", "search.result.one": "1 documento encontrado", "search.result.other": "# documentos encontrados", "search.result.placeholder": "Digite para iniciar a busca", "search.result.term.missing": "Ausente", "select.version": "Selecione a vers\u00e3o"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.a5f9d56c.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,32 @@
+---
+config:
+  flowchart:
+    curve: linear
+---
+graph TD;
+	__start__([<p>__start__</p>]):::first
+	no_pessoal(no_pessoal)
+	no_consolidar_grupo(no_consolidar_grupo)
+	no_pesquisa(no_pesquisa)
+	no_logistica(no_logistica)
+	no_validacao(no_validacao)
+	no_comunicacao(no_comunicacao)
+	no_validacao_textos(no_validacao_textos)
+	no_finalizar(no_finalizar)
+	__end__([<p>__end__</p>]):::last
+	__start__ -.-> no_pessoal;
+	no_comunicacao --> no_validacao_textos;
+	no_consolidar_grupo -.-> no_finalizar;
+	no_consolidar_grupo -.-> no_pesquisa;
+	no_logistica --> no_validacao;
+	no_pesquisa --> no_logistica;
+	no_pessoal --> no_consolidar_grupo;
+	no_validacao -.-> no_comunicacao;
+	no_validacao -.-> no_finalizar;
+	no_validacao -.-> no_pesquisa;
+	no_validacao_textos -.-> no_comunicacao;
+	no_validacao_textos -.-> no_finalizar;
+	no_finalizar --> __end__;
+	classDef default fill:#f2f0ff,line-height:1.2
+	classDef first fill-opacity:0
+	classDef last fill:#bfb6fc
