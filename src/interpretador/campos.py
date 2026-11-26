@@ -18,12 +18,12 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from datetime import datetime
+from datetime import date, datetime
 from decimal import Decimal
 
 from .lugares import casar, ras_validas
 from .numeros import canon, valor_em_reais
-from .tempo import DIAS, ErroTempo, JanelaResolvida, resolver_janelas
+from .tempo import DIAS, ErroTempo, JanelaResolvida, _data_dia_mes, resolver_janelas
 
 TETO_MAXIMO = Decimal("1000")  # mesmo limite de ConsultaBusca.teto_pessoa
 
@@ -108,6 +108,19 @@ _HORA_EXTENSO = {"uma": 1, "duas": 2, "tres": 3, "quatro": 4, "cinco": 5, "seis"
 _MINUTO_EXTENSO = {"cinco": 5, "dez": 10, "quinze": 15, "vinte": 20, "vinte e cinco": 25, "trinta": 30,
                    "trinta e cinco": 35, "quarenta": 40, "quarenta e cinco": 45, "cinquenta": 50,
                    "cinquenta e cinco": 55, "meia": 30}
+# Datas ditas ("6 de novembro", "dia vinte e oito"): o número do dia, por extenso ou não, e o mês
+_MESES = {"janeiro": 1, "fevereiro": 2, "marco": 3, "abril": 4, "maio": 5, "junho": 6, "julho": 7, "agosto": 8,
+          "setembro": 9, "outubro": 10, "novembro": 11, "dezembro": 12}
+_UNIDADE = {"um": 1, "uma": 1, "dois": 2, "duas": 2, "tres": 3, "quatro": 4, "cinco": 5, "seis": 6, "sete": 7,
+            "oito": 8, "nove": 9}
+_DIA_EXTENSO = {**_UNIDADE, "primeiro": 1, "dez": 10, "onze": 11, "doze": 12, "treze": 13, "catorze": 14,
+                "quatorze": 14, "quinze": 15, "dezesseis": 16, "dezessete": 17, "dezoito": 18, "dezenove": 19,
+                "vinte": 20, "trinta": 30, "trinta e um": 31, **{f"vinte e {k}": 20 + v for k, v in _UNIDADE.items()}}
+# "sem hora pra voltar" não limita o fim. O Whisper ouviu "100 horas pra voltar" e "cem horas" (voz real, 26/11)
+_RE_SEM_HORA = re.compile(r"\b(?:sem|100|cem|cento)\s+horas?\s+(?:pra|para|de)\s+(?:voltar|acabar|ir embora)\b")
+_CORRECAO = r"\s*,?\s*\b(?:quer dizer|ou melhor|alias)\b\s*,?\s*"  # "sábado, ou melhor, domingo"
+_RE_CORRECAO = re.compile(_CORRECAO)
+_RE_FIM_DITO = re.compile(r"\b(?:embora|voltar|vazar|em casa)\b")  # "ir embora às 20h" é o fim
 
 
 def _ou(palavras) -> str:
@@ -136,7 +149,7 @@ _RE_MENCAO = re.compile(
 _T = r"@(\d{2})(\d{2})([~!]?)"  # hora já lida: @HHMM; "~" = dita sem "h" nem parte do dia; "!" = "8 da noite"
 _RE_SEGUNDA = re.compile(r"(@\d{4}[~!]?\s*(?:-|\ba\b|\bate\b)\s*)(\d{1,2})(?![\dh:/])\b")
 _RE_FAIXA = [re.compile(rf"\bentre\s+(?:as?\s+)?{_T}\s+e\s+(?:as?\s+)?{_T}"),
-             re.compile(rf"(?:\bd[ae]s?\s+)?{_T}\s*(?:-|\bas?\b|\bate(?:\s+as?)?\b)\s*{_T}")]
+             re.compile(rf"(?:\bd[ae]s?\s+)?{_T}\s*(?:-|\bas?\b|\bate(?:\s+as?)?(?:\s+umas?)?\b)\s*{_T}")]
 _RE_APOS = [re.compile(rf"\b(?:depois|apos|a partir|partir|desde)\s+(?:d[ae]s?\s+|as\s+)?(?:umas?\s+|uns\s+)?{_T}"),
             re.compile(rf"(?:\bd[ae]s?\s+)?{_T}\s+(?:em diante|pra frente|pra la)\b")]
 _RE_ATE = re.compile(rf"\b(?:ate|antes)\s+(?:d[aeo]s?\s+|[ao]s?\s+)?(?:umas?\s+|uns\s+)?{_T}")
@@ -145,7 +158,7 @@ _RE_HORA = re.compile(_T)
 _OCUPACAO = (r"trabalh\w*|trampo|aulas?|expediente|servico|faculdade|facul|academia|estagio|plantao|curso|escola"
              r"|reuniao|prova")
 _RE_OCUPADO = re.compile(rf"\b(?:{_OCUPACAO}|ocupad[oa]|compromisso)\b")
-_RE_SAIDA = re.compile(r"\b(?:saio|sair|largo|termino|terminar|termina|acabo|acaba|acabar|libero|chego)\b")
+_RE_SAIDA = re.compile(r"\b(?:saio|sai|sair|largo|termino|terminar|termina|acabo|acaba|acabar|libero|chego)\b")
 # "depois do trabalho" sem dizer a hora: o app não sabe a que horas a pessoa sai e precisa perguntar
 _RE_VAGO = re.compile(
     r"\b(?:depois|apos|antes|ate|quando|assim que)\s+(?:eu\s+)?(?:sair\s+|acabar\s+|terminar\s+)?"
@@ -159,6 +172,10 @@ _RE_TOKEN_DIA = re.compile(
     rf"\b(?:{_DIA}|depois de amanha|amanha|hoje|fim de semana|fds|dias?\s+\d{{1,2}})\b|\b\d{{1,2}}/\d{{1,2}}\b")
 _RE_SEPARADOR = re.compile(r"(\s+ou\s+|;|,|\s+mas\s+|\s+porem\s+|\s+so que\s+|\.\s|\n)")
 _RE_MENOS = re.compile(rf"\s+(?=(?:menos|exceto|tirando)\s+(?:(?:n?[ao]s?|de)\s+)?{_DIA}\b)")
+_RE_DATA_DITA = re.compile(
+    rf"\b(?:(?P<sem>{_DIA})\s*,?\s+)?(?:(?:n?o\s+)?dia\s+)?(?P<d>\d{{1,2}}|{_ou(_DIA_EXTENSO)})\s+de\s+"
+    rf"(?P<mes>{_ou(_MESES)})\b")
+_RE_DIA_EXTENSO = re.compile(rf"\b(dias?)\s+({_ou(_DIA_EXTENSO)})\b")
 
 
 @dataclass
@@ -221,7 +238,8 @@ def _marcar_horas(t: str) -> str:
         t = rx.sub(lambda m: f"das {_HORA_EXTENSO[m[1]]} as {_HORA_EXTENSO[m[2]]}", t)
 
     def extenso(m: re.Match) -> str:
-        com_minuto = m["m"] and m["h"] != "vinte"  # "sexta vinte e uma e trinta"; mas "vinte e cinco" é um número
+        # "vinte e uma e trinta", "vinte e trinta"; mas "vinte e cinco" é um número
+        com_minuto = m["m"] and not (m["h"] == "vinte" and m["m"] == "cinco")
         if not (m["pre"] or m["horas"] or m["pos"] or com_minuto):
             return m[0]
         minuto = "" if not m["m"] else " e meia" if m["m"] == "meia" else f" e {_MINUTO_EXTENSO[m['m']]:02d}"
@@ -333,6 +351,8 @@ def _clausula(c: str, separador: str = "") -> _Clausula:
         k.fichas.append("amanha")
     if tirar(r"\bhoje\b"):
         k.fichas.append("hoje")
+    if tirar(r"\bn?(?:essa|esta)\s+semana\b"):
+        k.fichas.append("esta_semana")
     for m in re.finditer(r"\b(\d{1,2})/(\d{1,2})\b", c):
         k.fichas.append(f"{int(m.group(1))}/{int(m.group(2))}")
     c = re.sub(r"\b(\d{1,2})/(\d{1,2})\b", " ", c)
@@ -366,6 +386,8 @@ def _clausula(c: str, separador: str = "") -> _Clausula:
     if not k.hora_ini and not k.hora_fim and (m := _RE_HORA.search(c)):
         k.hora_ini, solta = _ler_hora(m.groups()), True  # "sábado às 20h": começa às 20h
         c = c[:m.start()] + " " + c[m.end():]
+        if _RE_FIM_DITO.search(c):  # "preciso ir embora às 8 da noite": é quando acaba
+            k.hora_ini, k.hora_fim, solta = None, k.hora_ini, False
     # Trava: hora que sobrou sem uso vira pergunta, em vez de o app supor o dia todo
     if "@" in c or re.search(r"\bmadrugada\b", c):
         raise ErroTempo("horario_invalido", "hora não usada")
@@ -413,12 +435,38 @@ def _ordem(hora: str) -> str:
     return hora if hora > "06:00" else f"{int(hora[:2]) + 24}{hora[2:]}"
 
 
-def _pedacos(texto: str) -> list[tuple[str, str]]:
+def _datas_ditas(t: str, hoje: date | None) -> str:
+    """'sexta, 6 de novembro' -> '6/11'. Dia da semana que não bate com a data vira pergunta."""
+    def troca(m: re.Match) -> str:
+        n = int(m["d"]) if m["d"].isdigit() else _DIA_EXTENSO[m["d"]]
+        mes = _MESES[m["mes"]]
+        if m["sem"] and hoje is not None:
+            data = _data_dia_mes(n, mes, hoje)
+            if DIAS.index(_DIA_PALAVRA[_RE_DIA.match(m["sem"])[1]]) != data.weekday():
+                raise ErroTempo("dia_invalido", m[0])
+        return f" {n}/{mes} "
+
+    t = _RE_DATA_DITA.sub(troca, t)
+    return _RE_DIA_EXTENSO.sub(lambda m: f"{m[1]} {_DIA_EXTENSO[m[2]]}", t)
+
+
+def _correcoes(t: str) -> str:
+    """Fica com o que veio depois de "quer dizer" / "ou melhor": a hora ("das três, quer dizer, das quatro") ou o
+    dia com o que foi dito junto ("sábado à noite, ou melhor, domingo à noite")."""
+    t = re.sub(rf"(?:\b(?:d[ao]s?|as)\s+)?@\d{{4}}[~!]?{_CORRECAO}(?=(?:\b(?:d[ao]s?|as)\s+)?@)", " ", t)
+    while m := _RE_CORRECAO.search(t):
+        dias = list(_RE_TOKEN_DIA.finditer(t[:m.start()]))
+        t = t[:dias[-1].start() if dias else m.start()] + " " + t[m.end():]
+    return t
+
+
+def _pedacos(texto: str, hoje: date | None = None) -> list[tuple[str, str]]:
     """(separador, cláusula). Além de vírgula, "ou" e "mas", separa "sexta à noite e sábado à tarde" (cada dia com o
     seu horário, mesmo sem vírgula, como sai da fala) e "qualquer dia menos sexta"."""
     t = re.sub(r"\b([2-6])a\b", lambda m: _NOME_DIA[int(m[1]) - 2], canon(texto))  # "6ª feira", "2ª"
+    t = _RE_SEM_HORA.sub(" ", _datas_ditas(t, hoje))
     t = _RE_ENTRE_DIAS.sub(_expandir_dias, t)
-    t = _marcar_horas(_RE_FAIXA_DIAS.sub(_expandir_dias, t))
+    t = _correcoes(_marcar_horas(_RE_FAIXA_DIAS.sub(_expandir_dias, t)))
     partes = _RE_SEPARADOR.split(t)
     out: list[tuple[str, str]] = []
     for i in range(0, len(partes), 2):
@@ -438,10 +486,10 @@ def _pedacos(texto: str) -> list[tuple[str, str]]:
     return out
 
 
-def _clausulas(texto: str) -> list[_Clausula]:
+def _clausulas(texto: str, hoje: date | None = None) -> list[_Clausula]:
     cls: list[_Clausula] = []
     antes_do_dia: _Clausula | None = None  # "de noite, sexta ou sábado": o horário veio antes dos dias
-    for sep, pedaco in _pedacos(texto):
+    for sep, pedaco in _pedacos(texto, hoje):
         k = _clausula(pedaco, sep)
         anterior = cls[-1] if cls else None
         _fechar_horas(k, anterior)
@@ -460,7 +508,10 @@ def _clausulas(texto: str) -> list[_Clausula]:
             fim = anterior.ate or anterior.apos
             if fim is None:
                 raise ErroTempo("horario_invalido", "depois disso")
-            anterior.apos, anterior.ate, anterior.periodo, anterior.negativa = fim, None, None, False
+            if anterior.negativa and anterior.faixa:  # "aula das 14h às 18h, depois disso pode": valem as duas
+                cls.append(_Clausula(fichas=list(anterior.fichas), proxima=anterior.proxima, apos=fim, separador=sep))
+            else:
+                anterior.apos, anterior.ate, anterior.periodo, anterior.negativa = fim, None, None, False
             continue
         if anterior.ocupacao and k.tem_horario and not k.negativa:
             # "aula até as 22h na segunda e terça. Livre à noite": à noite em que dia, e antes das 22h?
@@ -475,11 +526,21 @@ def _clausulas(texto: str) -> list[_Clausula]:
                     if k.apos and (p.apos is None or k.apos > p.apos):
                         p.apos = k.apos
             continue
-        if k.tem_horario or k.negativa:  # sem dia herda o dia da anterior ("sábado de manhã ou de tarde")
-            k.fichas, k.proxima = list(anterior.fichas), anterior.proxima
+        if k.tem_horario or k.negativa:  # sem dia herda o último dia dito ("sábado de manhã ou de tarde")
+            fonte = next((p for p in reversed(cls) if p.fichas), None)
+            if fonte is anterior and not anterior.tem_horario and not anterior.negativa:
+                # "sábado, 18 horas", "sábado, não pode": completa o dia dito antes, em vez de abrir outra janela
+                anterior.periodo, anterior.apos, anterior.ate = k.periodo, k.apos, k.ate
+                anterior.negativa, anterior.partes, anterior.faixa = k.negativa, k.partes, k.faixa
+                anterior.ocupacao = k.ocupacao
+                continue
+            k.fichas, k.proxima = (list(fonte.fichas), fonte.proxima) if fonte else ([], False)
         elif k.vago and not anterior.tem_horario:
             anterior.vago = True
         cls.append(k)
+    if any(k.tem_horario and not k.fichas for k in cls):
+        raise ErroTempo("falta_dia", "horário sem dia")  # a trava: horário que não achou dia não some
+    _semana_que_vem(cls)
     # sem horário herda o da seguinte ("sexta, sábado ou domingo à noite") ou o dito antes de todos os dias
     seguinte = antes_do_dia
     for k in reversed(cls):
@@ -493,9 +554,26 @@ def _clausulas(texto: str) -> list[_Clausula]:
     return cls
 
 
+def _semana_que_vem(cls: list[_Clausula]) -> None:
+    """'semana que vem, de segunda a quarta': "semana que vem" qualifica os dias seguintes, não é a semana inteira."""
+    i = 0
+    while i < len(cls):
+        k = cls[i]
+        seguintes = cls[i + 1:]
+        if (k.fichas == ["semana_que_vem"] and not k.tem_horario and not k.negativa and seguintes
+                and seguintes[0].fichas and set(seguintes[0].fichas) <= set(DIAS)):
+            for p in seguintes:
+                if not p.fichas or not set(p.fichas) <= set(DIAS):
+                    break
+                p.proxima = True
+            del cls[i]
+            continue
+        i += 1
+
+
 def _por_regras(texto: str, agora: datetime) -> list[JanelaResolvida]:
     janelas: list[JanelaResolvida] = []
-    for k in _clausulas(texto):
+    for k in _clausulas(texto, agora.date()):
         for j in resolver_janelas(k.fichas, k.periodo, k.apos, k.ate, agora, k.proxima,
                                   disponivel=not k.negativa, exigir_dia=True):
             if j not in janelas:

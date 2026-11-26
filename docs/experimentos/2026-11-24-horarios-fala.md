@@ -35,3 +35,20 @@ Com modelos de transcrição piores (Whisper `small`), o que sobrou foi "sexta" 
 - "Depois do almoço" vale 13h, o início da tarde na tabela de períodos.
 - "Fim da tarde" vale a tarde inteira (13h às 18h).
 - A trava aumenta o número de perguntas. O efeito no uso real ainda não foi medido.
+
+## Atualização de 26/11: primeira voz real
+
+A primeira pessoa a gravar o roteiro novo leu a agenda das falas livres como "Sexta, 6 de novembro. Saio do trabalho às 18h30, sem hora pra voltar". A transcrição saiu certa, mas o interpretador teve **12 erros silenciosos em 30 falas**: a data dita por extenso não era reconhecida, e o horário que vinha depois dela perdia o dia e sumia, sem pergunta.
+
+O que mudou:
+
+- **Datas ditas** ("6 de novembro", "dia vinte e oito"). Se o dia da semana não bate com a data ("sexta, 7 de novembro"), o app pergunta.
+- **Trava:** horário que não acha dia vira pergunta, em vez de sumir. O horário dito depois do dia completa esse dia ("sábado, 18 horas"; "sábado, não pode").
+- "Sem hora pra voltar" não limita o fim. O Whisper ouviu "100 horas pra voltar", e isso também é aceito.
+- "Preciso ir embora às 8 da noite" e "tenho que voltar às 22h" são o fim, não o início.
+- "Semana que vem, de segunda a quarta" são só esses três dias.
+- "Quer dizer" e "ou melhor": vale o que veio depois.
+- "Aula das 2 às 6, depois disso pode" marca as duas coisas: não pode das 14h às 18h, pode depois.
+- "Essa semana", "das duas até umas seis", "vinte e trinta" (20h30), "sai da aula às 22h".
+
+As 30 falas dessa pessoa passaram de 15 para 30 certas, mas **isso não mede acerto**: as regras foram corrigidas olhando para elas, que passaram ao conjunto de desenvolvimento. O conjunto cego agora depende de falas novas.

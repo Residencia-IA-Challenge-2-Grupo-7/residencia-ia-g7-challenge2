@@ -3,7 +3,7 @@
 | Caminho | Conteúdo |
 |---|---|
 | `interpretador/frases.jsonl` | 50 frases com a saída esperada (intenções e campos resolvidos), os termos críticos para a voz e o código de quem grava. Data de referência: qui 05/11/2026 10h ([ADR 0007](../docs/decisoes/0007-interpretador-e-contrato-de-busca.md)) |
-| `interpretador/horarios_fala.jsonl` | 24 frases coloquiais do campo de horários, usadas para corrigir as regras (conjunto de **desenvolvimento**, não serve para medir acerto). Mesma data de referência ([experimento](../docs/experimentos/2026-11-24-horarios-fala.md)) |
+| `interpretador/horarios_fala.jsonl` | 42 frases coloquiais do campo de horários (H25–H42 vieram dos erros da primeira voz real, em 26/11), usadas para corrigir as regras (conjunto de **desenvolvimento**, não serve para medir acerto). Mesma data de referência ([experimento](../docs/experimentos/2026-11-24-horarios-fala.md)) |
 | `interpretador/sala.json` | Sala fictícia (membros) e data de referência |
 | `voz/roteiro.md` | Como a equipe grava as frases, com o termo de consentimento ([ADR 0006](../docs/decisoes/0006-transcricao-de-fala.md)) |
 | `comparativo_ab.py` | Roda o comparativo A/B (issue #34) em todos os casos do golden, com raciocínio e busca do Modo B escolhidos por argumento, e grava o JSON bruto para a avaliação das issues #36 e #38 ([ADR 0011](../docs/decisoes/0011-comparativo-ab-com-o-mesmo-llm.md)) |
