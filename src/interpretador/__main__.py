@@ -37,9 +37,8 @@ def main():
     a = p.parse_args()
     origem, texto = "texto", a.mensagem
     if a.audio:
-        from voz.transcrever import transcrever
-        t = transcrever(a.audio, descartar=False)
-        print(f"Transcrição ({t.provedor}/{t.modelo}, {t.latencia_s:.2f} s): {t.texto}")
+        from src.voz.transcrever import transcrever
+        t = transcrever(a.audio.read_bytes())
         origem, texto = "voz", t.texto
     if not texto:
         p.error("informe a mensagem ou --audio")

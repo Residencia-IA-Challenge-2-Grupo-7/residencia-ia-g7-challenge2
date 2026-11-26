@@ -1,0 +1,28 @@
+# Voz no campo de horários (ADR 0017). Modelo, provedores e limites ficam aqui, não no código (RNF-12).
+
+[transcricao]
+url = "https://openrouter.ai/api/v1/audio/transcriptions"
+chave_env = "OPENROUTER_API_KEY"
+modelo = "openai/whisper-large-v3-turbo"
+idioma = "pt"
+timeout_s = 12
+# Vocabulário do domínio: reduz erro em dias, horas e gírias (ADR 0006). Sem nomes de lugares nem valores, porque
+# este campo só fala de quando a pessoa pode.
+prompt = "Conversa entre amigos de Brasília sobre quando podem sair: sexta depois das 19h, sábado o dia todo, domingo à tarde, fim de semana, semana que vem, saio do trampo, tô livre, bora, rolê."
+
+# Só provedores sem retenção e sem coleta, em cada pedido (RNF-01). Groq é a principal; DeepInfra roda o mesmo
+# modelo e entra se a Groq faltar (RNF-15). Na segunda tentativa a ordem se inverte.
+[transcricao.roteamento]
+zdr = true
+data_collection = "deny"
+only = ["groq", "deepinfra"]
+order = ["groq", "deepinfra"]
+
+[limites]
+max_s = 30               # o app para de gravar sozinho
+max_bytes = 1_000_000    # 30 s a 32 kbps são cerca de 120 KB; folga para aparelhos que ignoram a taxa pedida
+max_caracteres = 300     # tamanho do campo de horários (src/salas/rotas.py)
+por_sala = 40            # gravações por sala a cada `janela_s`
+janela_s = 600
+por_dia = 500            # teto do servidor: cerca de US$ 0,06 por dia
+simultaneos = 4

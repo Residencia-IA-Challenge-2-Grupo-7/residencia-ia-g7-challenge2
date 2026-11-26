@@ -20,6 +20,7 @@ from src.telemetria.telemetria import (
     flush_telemetria,
     simular_recuperacao_rag,
 )
+from src.voz.rotas import router as voz_router
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +32,7 @@ app = FastAPI(
     version="0.2.0",
 )
 app.include_router(salas_router)
+app.include_router(voz_router)  # voz no campo de horários da Tela 2 (ADR 0017): /api/voz e /api/salas/{codigo}/voz
 app.include_router(telas_router)  # Telas 1 a 3 do app (issue #42): /app, /sala/{codigo}, /sala/{codigo}/perfil
 app.mount("/static/telas", telas_estaticos, name="telas_estaticos")
 
