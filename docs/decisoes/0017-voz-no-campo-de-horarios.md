@@ -60,7 +60,7 @@ Para o provedor:
 
 ## Como vamos validar
 
-Critérios fixados antes de medir; detalhes em `eval/voz/`.
+Critérios fixados antes de medir. A medição com áudios fica na branch `feat/semana5-voz` até o acordo do grupo.
 
 | Métrica | Meta |
 |---|---|
