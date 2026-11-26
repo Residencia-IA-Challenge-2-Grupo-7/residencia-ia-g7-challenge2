@@ -123,7 +123,7 @@
     .main-col {
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 12px;
       min-width: 0;
     }
 
@@ -134,25 +134,14 @@
       gap: 16px;
     }
 
-    .greeting h1 {
-      font-size: 26px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      line-height: 1.2;
-    }
-
-    .greeting p {
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--indigo-muted);
-      margin-top: 2px;
-    }
+    .greeting h1 { font-size: 25px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
+    .greeting p { font-size: 13px; font-weight: 500; color: var(--indigo-muted); margin-top: 2px; }
 
     .secret-banner {
       display: inline-flex;
       align-items: center;
       gap: 8px;
-      padding: 7px 12px;
+      padding: 6px 12px;
       border-radius: 8px;
       background: var(--tag-ok-bg);
       color: var(--tag-ok-fg);
@@ -164,7 +153,7 @@
       background: var(--surface);
       border: 1.5px solid var(--border-crisp);
       border-radius: 18px;
-      padding: 10px 18px;
+      padding: 9px 18px;
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -201,24 +190,18 @@
     }
 
     .step-item.pending .step-num { background: #FFFFFF; color: var(--indigo-muted); }
+    .step-connector { flex: 1; height: 1.5px; background: var(--border-soft); min-width: 16px; }
 
-    .step-connector {
-      flex: 1;
-      height: 1.5px;
-      background: var(--border-soft);
-      min-width: 16px;
-    }
-
-    /* CARD FORMULÁRIO COMPACTO EM 2 COLUNAS INTERNAS (ZERO SCROLL) */
+    /* FORM CARD COMPACTO COM CALENDÁRIO SEMANAL */
     .form-card {
       background: var(--surface);
       border: 1.5px solid var(--border-crisp);
       border-radius: 22px;
-      padding: 20px 22px;
+      padding: 18px 20px;
       box-shadow: var(--shadow-card);
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 12px;
     }
 
     .form-head {
@@ -228,18 +211,25 @@
       gap: 12px;
     }
 
-    .form-head h2 { font-size: 18px; font-weight: 700; }
+    .form-head h2 { font-size: 17px; font-weight: 700; }
 
-    .fields-grid {
+    .fields-layout {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .left-fields {
+      display: flex;
+      flex-direction: column;
+      gap: 11px;
     }
 
     .field {
       display: flex;
       flex-direction: column;
-      gap: 5px;
+      gap: 4px;
     }
 
     .field label {
@@ -251,14 +241,11 @@
       gap: 6px;
     }
 
-    .field .hint {
-      font-size: 11.5px;
-      color: var(--indigo-muted);
-    }
+    .field .hint { font-size: 11px; color: var(--indigo-muted); }
 
     .text-input, .text-area {
-      padding: 10px 13px;
-      border-radius: 12px;
+      padding: 9px 12px;
+      border-radius: 11px;
       border: 1.5px solid var(--border-crisp);
       background: var(--surface-soft);
       color: var(--indigo-deep);
@@ -266,53 +253,19 @@
       width: 100%;
     }
 
-    .text-input { height: 42px; }
-    .text-area { min-height: 76px; resize: none; line-height: 1.4; }
+    .text-input { height: 40px; }
+    .text-area { min-height: 66px; resize: none; line-height: 1.35; }
+    .text-input:focus, .text-area:focus { background: #FFFFFF; border-color: var(--indigo); }
 
-    .text-input:focus, .text-area:focus {
-      background: #FFFFFF;
-      border-color: var(--indigo);
-    }
-
-    .input-with-btn {
-      display: flex;
-      gap: 8px;
-      align-items: flex-start;
-    }
-
-    .mic-btn {
-      width: 42px;
-      height: 42px;
-      border-radius: 12px;
-      border: 1.5px solid var(--indigo);
-      background: var(--surface-btn-sec);
-      color: var(--indigo-deep);
-      display: grid;
-      place-items: center;
-      cursor: pointer;
-      flex-shrink: 0;
-    }
-
-    .mic-btn.recording {
-      background: #B42318;
-      border-color: #7A1710;
-      color: #FFFFFF;
-    }
-
-    .chip-toggles {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      margin-top: 2px;
-    }
+    .chip-toggles { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
 
     .chip-toggle {
-      padding: 5px 10px;
-      border-radius: 9px;
+      padding: 4px 9px;
+      border-radius: 8px;
       border: 1.5px solid var(--border-crisp);
       background: var(--surface);
       color: var(--indigo-deep);
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 600;
       cursor: pointer;
     }
@@ -321,6 +274,114 @@
       background: var(--indigo);
       color: #FFFFFF;
       border-color: var(--indigo-deep);
+    }
+
+    /* CALENDÁRIO SEMANAL 30 MIN (DRAG TO SELECT) */
+    .cal-box {
+      background: var(--surface-soft);
+      border: 1.5px solid var(--border-crisp);
+      border-radius: 14px;
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      user-select: none;
+    }
+
+    .cal-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .period-tabs {
+      display: inline-flex;
+      background: #E6E1F6;
+      border-radius: 9px;
+      padding: 3px;
+      gap: 3px;
+    }
+
+    .period-btn {
+      padding: 4px 9px;
+      border-radius: 7px;
+      border: none;
+      background: transparent;
+      color: var(--indigo-deep);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .period-btn.active {
+      background: var(--indigo);
+      color: #FFFFFF;
+    }
+
+    .btn-clear-cal {
+      padding: 4px 9px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border-crisp);
+      background: #FFFFFF;
+      color: var(--indigo-deep);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: 42px repeat(7, 1fr);
+      gap: 3px;
+      align-items: center;
+    }
+
+    .cal-day-head {
+      text-align: center;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--indigo-deep);
+      padding-bottom: 2px;
+    }
+
+    .cal-time-lbl {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--indigo-muted);
+      text-align: right;
+      padding-right: 5px;
+    }
+
+    .cal-slot {
+      height: 15px;
+      border-radius: 4px;
+      background: #FFFFFF;
+      border: 1px solid #D7D0EE;
+      cursor: crosshair;
+      transition: background 0.08s;
+    }
+
+    .cal-slot:hover {
+      border-color: var(--indigo);
+    }
+
+    .cal-slot.selected {
+      background: var(--indigo);
+      border-color: var(--indigo-deep);
+    }
+
+    .cal-summary {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--indigo);
+      background: #FFFFFF;
+      border-radius: 8px;
+      padding: 5px 9px;
+      border: 1px solid var(--border-soft);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .info-tag {
@@ -338,7 +399,7 @@
     .info-tag.warn { background: var(--tag-warn-bg); color: var(--tag-warn-fg); }
 
     .btn-primary {
-      height: 44px;
+      height: 42px;
       padding: 0 18px;
       border-radius: 12px;
       border: 1.5px solid var(--indigo-deep);
@@ -359,7 +420,7 @@
     .btn-primary:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--indigo-deep); }
 
     .btn-secondary {
-      height: 44px;
+      height: 42px;
       padding: 0 16px;
       border-radius: 12px;
       border: 1.5px solid var(--indigo);
@@ -415,13 +476,7 @@
       overflow: hidden;
     }
 
-    .turma-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
+    .turma-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
     .turma-head h2 { font-size: 17px; font-weight: 700; }
     .turma-head p { font-size: 12px; color: var(--indigo-muted); }
 
@@ -472,26 +527,9 @@
       margin-top: auto;
     }
 
-    .vote-status-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 12.5px;
-    }
-
-    .progress-track {
-      height: 7px;
-      border-radius: 999px;
-      background: #DED8F2;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      width: 75%;
-      border-radius: 999px;
-      background: var(--indigo);
-    }
+    .vote-status-top { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; }
+    .progress-track { height: 7px; border-radius: 999px; background: #DED8F2; overflow: hidden; }
+    .progress-fill { height: 100%; width: 75%; border-radius: 999px; background: var(--indigo); }
 
     .toast {
       position: fixed;
@@ -514,26 +552,27 @@
       body { height: auto; overflow: auto; }
       .app-frame { height: auto; grid-template-columns: 1fr; }
       .sidebar { display: none; }
-      .fields-grid, .summary-list { grid-template-columns: 1fr; }
+      .fields-layout, .summary-list { grid-template-columns: 1fr; }
       .right-panel { height: auto; }
     }
   </style>
 </head>
 <body>
 <div class="app-frame">
+  <!-- SIDEBAR LIMPA: APENAS AS 4 ETAPAS DO APP -->
   <aside class="sidebar" aria-label="Navegação principal">
     <div class="logo-box">LOGO</div>
-    <a class="nav-btn" href="criar_sala.html" title="Criar ou entrar em sala" aria-label="Criar sala">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    <a class="nav-btn" href="criar_sala.html" title="Home geral (Meus grupos e criar sala)" aria-label="Home geral">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     </a>
     <a class="nav-btn active" href="meus_dados.html" title="Meus dados secretos" aria-label="Meus dados secretos">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
     </a>
     <a class="nav-btn" href="home_sala_v2.html" title="Votação da sala" aria-label="Votação da sala">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
     </a>
     <a class="nav-btn" href="resultado_role.html" title="Resultado final" aria-label="Resultado final">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
     </a>
     <div class="sidebar-spacer"></div>
   </aside>
@@ -560,43 +599,52 @@
     <section class="form-card" id="formState">
       <div class="form-head">
         <h2>Conte do seu jeito</h2>
-        <span class="info-tag">4 campos rápidos</span>
+        <span class="info-tag">Clique e arraste no calendário (blocos de 30 min)</span>
       </div>
 
-      <form onsubmit="interpretar(event)" style="display:flex; flex-direction:column; gap:14px;">
-        <div class="fields-grid">
-          <div class="field">
-            <label for="origem">1. De onde você sai no DF?</label>
-            <span class="hint">Região, quadra ou ponto de referência</span>
-            <input class="text-input" id="origem" type="text" placeholder="Ex.: Águas Claras perto da estação" required />
-          </div>
+      <form onsubmit="interpretar(event)" style="display:flex; flex-direction:column; gap:12px;">
+        <div class="fields-layout">
+          <div class="left-fields">
+            <div class="field">
+              <label for="origem">1. De onde você sai no DF?</label>
+              <span class="hint">Região, quadra ou ponto de referência</span>
+              <input class="text-input" id="origem" type="text" placeholder="Ex.: Águas Claras perto da estação" required />
+            </div>
 
-          <div class="field">
-            <label for="teto">3. Qual seu limite de gasto em R$? <span class="info-tag">🔒 Secreto</span></label>
-            <span class="hint">Total com transporte (ninguém na sala vê)</span>
-            <input class="text-input" id="teto" type="text" placeholder="Ex.: R$ 70" required />
-          </div>
+            <div class="field">
+              <label for="teto">3. Qual seu limite de gasto em R$? <span class="info-tag">🔒 Secreto</span></label>
+              <span class="hint">Total com transporte (ninguém na sala vê)</span>
+              <input class="text-input" id="teto" type="text" placeholder="Ex.: R$ 70" required />
+            </div>
 
-          <div class="field">
-            <label for="horarios">2. Quais dias e horários você pode?</label>
-            <span class="hint">Escreva ou grave como falaria no grupo</span>
-            <div class="input-with-btn">
-              <textarea class="text-area" id="horarios" placeholder="Ex.: sexta depois das 19h ou sábado à tarde" required></textarea>
-              <button class="mic-btn" id="micBtn" type="button" title="Falar horários" onclick="toggleMic()">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-              </button>
+            <div class="field">
+              <label for="prefs">4. O que anima fazer e como vai?</label>
+              <span class="hint">Clima do rolê, restrições e transporte</span>
+              <textarea class="text-area" id="prefs" placeholder="Ex.: boteco ou café calmo, vou de metrô"></textarea>
+              <div class="chip-toggles">
+                <button class="chip-toggle" type="button" onclick="this.classList.toggle('selected')">Vegetariano</button>
+                <button class="chip-toggle" type="button" onclick="this.classList.toggle('selected')">Sem glúten</button>
+                <button class="chip-toggle" type="button" onclick="this.classList.toggle('selected')">Metrô / Uber</button>
+                <button class="chip-toggle" type="button" onclick="this.classList.toggle('selected')">Área coberta</button>
+              </div>
             </div>
           </div>
 
+          <!-- CALENDÁRIO SEMANAL 30 MIN ARRASTÁVEL -->
           <div class="field">
-            <label for="prefs">4. O que anima fazer e como vai?</label>
-            <span class="hint">Clima do rolê, restrições e transporte</span>
-            <textarea class="text-area" id="prefs" placeholder="Ex.: boteco ou café calmo, vou de metrô"></textarea>
-            <div class="chip-toggles">
-              <button class="chip-toggle" type="button" onclick="this.classList.toggle('selected')">Vegetariano</button>
-              <button class="chip-toggle" type="button" onclick="this.classList.toggle('selected')">Sem glúten</button>
-              <button class="chip-toggle" type="button" onclick="this.classList.toggle('selected')">Metrô / Uber</button>
-              <button class="chip-toggle" type="button" onclick="this.classList.toggle('selected')">Área coberta</button>
+            <label>2. Quais dias e horários você pode?</label>
+            <span class="hint">Clique e arraste nos quadradinhos (intervalos de 30 min)</span>
+            <div class="cal-box" id="calBox">
+              <div class="cal-toolbar">
+                <div class="period-tabs">
+                  <button class="period-btn" type="button" data-period="tarde" onclick="switchPeriod('tarde')">Tarde (12h–18h)</button>
+                  <button class="period-btn active" type="button" data-period="noite" onclick="switchPeriod('noite')">Noite (18h–00h)</button>
+                </div>
+                <button class="btn-clear-cal" type="button" onclick="clearCalendar()">Limpar</button>
+              </div>
+
+              <div class="cal-grid" id="calGrid"></div>
+              <div class="cal-summary" id="calSummary">Selecionado: Sex 19:00–22:00</div>
             </div>
           </div>
         </div>
@@ -613,7 +661,7 @@
       <ul class="summary-list">
         <li><strong>Ponto de partida</strong><span id="sumOrigem">Águas Claras</span></li>
         <li><strong>Teto de gasto (secreto)</strong><span id="sumTeto">R$ 70</span></li>
-        <li><strong>Horários livres</strong><span id="sumHorarios">Sexta após 19h</span></li>
+        <li><strong>Horários livres</strong><span id="sumHorarios">Sex 19:00–22:00</span></li>
         <li><strong>Preferências &amp; restrições</strong><span id="sumPrefs">Boteco · Metrô/Uber</span></li>
       </ul>
       <div style="display:flex; gap:10px; margin-top:4px;">
@@ -635,8 +683,8 @@
     <div class="friends-list">
       <div class="friend-row">
         <div class="friend-avatar av-1">ME</div>
-        <div class="friend-info"><strong>Você (Eduarda)</strong><span id="myStatus">Preenchendo agora</span></div>
-        <span class="info-tag warn" id="myTag">Editando</span>
+        <div class="friend-info"><strong>Você (Eduarda)</strong><span>Preenchendo agora</span></div>
+        <span class="info-tag warn">Editando</span>
       </div>
       <div class="friend-row">
         <div class="friend-avatar av-2">CS</div>
@@ -668,11 +716,122 @@
 <div class="toast" id="toast"></div>
 
 <script>
+  const DAYS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+  const PERIODS = {
+    tarde: Array.from({ length: 12 }, (_, i) => 12 * 60 + i * 30), // 12:00..17:30
+    noite: Array.from({ length: 12 }, (_, i) => 18 * 60 + i * 30), // 18:00..23:30
+  };
+  let currentPeriod = 'noite';
+  const selectedSlots = new Set([
+    '4-1140', '4-1170', '4-1200', '4-1230', '4-1260', '4-1290', // Sex 19:00-22:00
+  ]);
+
+  let isDragging = false;
+  let dragMode = true;
+
+  function fmtTime(mins) {
+    const h = String(Math.floor(mins / 60)).padStart(2, '0');
+    const m = String(mins % 60).padStart(2, '0');
+    return `${h}:${m}`;
+  }
+
+  function renderCalendar() {
+    const grid = document.getElementById('calGrid');
+    grid.innerHTML = '';
+
+    // Header row
+    grid.appendChild(document.createElement('div'));
+    DAYS.forEach((d) => {
+      const h = document.createElement('div');
+      h.className = 'cal-day-head';
+      h.textContent = d;
+      grid.appendChild(h);
+    });
+
+    PERIODS[currentPeriod].forEach((mins) => {
+      const lbl = document.createElement('div');
+      lbl.className = 'cal-time-lbl';
+      lbl.textContent = mins % 60 === 0 ? fmtTime(mins) : '';
+      grid.appendChild(lbl);
+
+      DAYS.forEach((_, dayIdx) => {
+        const key = `${dayIdx}-${mins}`;
+        const cell = document.createElement('div');
+        cell.className = 'cal-slot' + (selectedSlots.has(key) ? ' selected' : '');
+        cell.title = `${DAYS[dayIdx]} ${fmtTime(mins)}–${fmtTime(mins + 30)}`;
+        cell.addEventListener('pointerdown', (e) => {
+          e.preventDefault();
+          isDragging = true;
+          dragMode = !selectedSlots.has(key);
+          applySlot(key, cell, dragMode);
+        });
+        cell.addEventListener('pointerenter', () => {
+          if (isDragging) applySlot(key, cell, dragMode);
+        });
+        grid.appendChild(cell);
+      });
+    });
+    updateSummary();
+  }
+
+  function applySlot(key, cell, add) {
+    if (add) {
+      selectedSlots.add(key);
+      cell.classList.add('selected');
+    } else {
+      selectedSlots.delete(key);
+      cell.classList.remove('selected');
+    }
+    updateSummary();
+  }
+
+  window.addEventListener('pointerup', () => { isDragging = false; });
+
+  function getReadableSchedule() {
+    const byDay = Array.from({ length: 7 }, () => []);
+    selectedSlots.forEach((k) => {
+      const [d, m] = k.split('-').map(Number);
+      byDay[d].push(m);
+    });
+    const parts = [];
+    byDay.forEach((list, d) => {
+      if (!list.length) return;
+      list.sort((a, b) => a - b);
+      let start = list[0], prev = list[0];
+      for (let i = 1; i <= list.length; i++) {
+        if (i < list.length && list[i] === prev + 30) {
+          prev = list[i];
+        } else {
+          parts.push(`${DAYS[d]} ${fmtTime(start)}–${fmtTime(prev + 30)}`);
+          if (i < list.length) { start = prev = list[i]; }
+        }
+      }
+    });
+    return parts.length ? parts.join(' · ') : 'Nenhum horário selecionado';
+  }
+
+  function updateSummary() {
+    document.getElementById('calSummary').textContent = 'Selecionado: ' + getReadableSchedule();
+  }
+
+  function switchPeriod(p) {
+    currentPeriod = p;
+    document.querySelectorAll('.period-btn').forEach((b) => {
+      b.classList.toggle('active', b.dataset.period === p);
+    });
+    renderCalendar();
+  }
+
+  function clearCalendar() {
+    selectedSlots.clear();
+    renderCalendar();
+  }
+
   function interpretar(e) {
     e.preventDefault();
     document.getElementById('sumOrigem').textContent = document.getElementById('origem').value || 'Asa Sul';
     document.getElementById('sumTeto').textContent = document.getElementById('teto').value || 'R$ 70';
-    document.getElementById('sumHorarios').textContent = document.getElementById('horarios').value || 'Sexta após 19h';
+    document.getElementById('sumHorarios').textContent = getReadableSchedule();
 
     const chips = [...document.querySelectorAll('.chip-toggle.selected')].map(c => c.textContent);
     const txt = document.getElementById('prefs').value.trim();
@@ -692,17 +851,6 @@
     setTimeout(() => { window.location.href = 'home_sala_v2.html'; }, 700);
   }
 
-  function toggleMic() {
-    const btn = document.getElementById('micBtn');
-    const rec = btn.classList.toggle('recording');
-    if (rec) {
-      showToast('Gravando áudio... fale seus horários.');
-    } else {
-      document.getElementById('horarios').value = 'Sexta depois das 19h30 ou sábado o dia todo.';
-      showToast('Horários transcritos!');
-    }
-  }
-
   let toastTimer = null;
   function showToast(msg) {
     const el = document.getElementById('toast');
@@ -711,6 +859,8 @@
     clearTimeout(toastTimer);
     toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
   }
+
+  renderCalendar();
 </script>
 </body>
 </html>
