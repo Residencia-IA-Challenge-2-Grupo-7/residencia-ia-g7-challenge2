@@ -52,3 +52,16 @@ O que mudou:
 - "Essa semana", "das duas até umas seis", "vinte e trinta" (20h30), "sai da aula às 22h".
 
 As 30 falas dessa pessoa passaram de 15 para 30 certas, mas **isso não mede acerto**: as regras foram corrigidas olhando para elas, que passaram ao conjunto de desenvolvimento. O conjunto cego agora depende de falas novas.
+
+## Segunda atualização de 26/11: duas vozes novas
+
+Mais duas pessoas gravaram. Uma delas gravou o primeiro conjunto cego de verdade, e esse resultado, medido **antes** desta atualização, é o que vale para o relatório. O que mudou depois, olhando para os erros dessas gravações:
+
+- **"Sexta dia 13"** e **"sábado 7 do 11"** são uma data só. Antes, "sexta dia 13" virava duas sextas.
+- **"De segunda a quinta"** são dias seguidos, a partir da próxima segunda. Antes, incluía a quinta de hoje.
+- **O dia de hoje dito pelo nome** ("quinta", numa quinta) vira pergunta: é hoje ou na semana que vem? Dizer "hoje" ou "quinta que vem" resolve.
+- **"Sábado e domingo não posso, das 7 em diante"** vira pergunta. Antes, o horário livre caía dentro do "não posso" e sumia.
+- **"Eu almoço com a família"** é compromisso, não o período do almoço. "No almoço" continua valendo das 11h às 15h.
+- **"Mais pro fim do dia"** e **"eu saio do trabalho"** sem hora viram pergunta. "Até o fim do dia" vale até a meia-noite.
+- **"Das nove da manhã ao meio-dia"** e **"não tenho hora pra voltar"**.
+

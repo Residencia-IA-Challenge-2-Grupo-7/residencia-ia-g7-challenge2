@@ -40,3 +40,18 @@
 {"id": "H40", "conjunto": "desenvolvimento", "texto": "sexta à noite, ou melhor, sábado à noite", "esperado": [{"tipo": "disponibilidade", "janelas": [["2026-11-07 19:00", "2026-11-08 00:00", true]]}]}
 {"id": "H41", "conjunto": "desenvolvimento", "texto": "hoje tenho curso das 3 às 5, depois disso tô livre", "esperado": [{"tipo": "disponibilidade", "janelas": [["2026-11-05 15:00", "2026-11-05 17:00", false], ["2026-11-05 17:00", "2026-11-06 00:00", true]]}]}
 {"id": "H42", "conjunto": "desenvolvimento", "texto": "dia vinte e oito de novembro à noite", "esperado": [{"tipo": "disponibilidade", "janelas": [["2026-11-28 19:00", "2026-11-29 00:00", true]]}]}
+{"id": "H43", "conjunto": "desenvolvimento", "texto": "sábado dia 14 de manhã", "esperado": [{"tipo": "disponibilidade", "janelas": [["2026-11-14 08:00", "2026-11-14 12:00", true]]}]}
+{"id": "H44", "conjunto": "desenvolvimento", "texto": "sexta dia 6 depois das 20h", "esperado": [{"tipo": "disponibilidade", "janelas": [["2026-11-06 20:00", "2026-11-07 00:00", true]]}]}
+{"id": "H45", "conjunto": "desenvolvimento", "texto": "domingo dia 9 à noite", "esperado": [{"tipo": "disponibilidade", "pergunta": "dia_invalido"}]}
+{"id": "H46", "conjunto": "desenvolvimento", "texto": "de terça a quinta, depois das 21h", "esperado": [{"tipo": "disponibilidade", "janelas": [["2026-11-10 21:00", "2026-11-11 00:00", true], ["2026-11-11 21:00", "2026-11-12 00:00", true], ["2026-11-12 21:00", "2026-11-13 00:00", true]]}]}
+{"id": "H47", "conjunto": "desenvolvimento", "texto": "quinta à noite", "esperado": [{"tipo": "disponibilidade", "pergunta": "dia_ambiguo"}]}
+{"id": "H48", "conjunto": "desenvolvimento", "texto": "terça e quinta à noite", "esperado": [{"tipo": "disponibilidade", "pergunta": "dia_ambiguo"}]}
+{"id": "H49", "conjunto": "desenvolvimento", "texto": "sábado e domingo não posso, das 7 da noite em diante", "esperado": [{"tipo": "disponibilidade", "pergunta": "horario_invalido"}]}
+{"id": "H50", "conjunto": "desenvolvimento", "texto": "segunda das oito da manhã ao meio-dia", "esperado": [{"tipo": "disponibilidade", "janelas": [["2026-11-09 08:00", "2026-11-09 12:00", true]]}]}
+{"id": "H51", "conjunto": "desenvolvimento", "texto": "domingo eu almoço com meus pais, depois das três tô livre", "esperado": [{"tipo": "disponibilidade", "janelas": [["2026-11-08 15:00", "2026-11-09 00:00", true]]}]}
+{"id": "H52", "conjunto": "desenvolvimento", "texto": "sexta mais pro fim do dia", "esperado": [{"tipo": "disponibilidade", "pergunta": "horario_invalido"}]}
+{"id": "H53", "conjunto": "desenvolvimento", "texto": "sábado dia 7 do 11, às 18 horas", "esperado": [{"tipo": "disponibilidade", "janelas": [["2026-11-07 18:00", "2026-11-08 00:00", true]]}]}
+{"id": "H54", "conjunto": "desenvolvimento", "texto": "terça, 10 de novembro, saio da aula às 22h e não tenho hora pra voltar", "esperado": [{"tipo": "disponibilidade", "janelas": [["2026-11-10 22:00", "2026-11-11 00:00", true]]}]}
+{"id": "H55", "conjunto": "desenvolvimento", "texto": "sexta, eu saio do trabalho, sem hora pra voltar", "esperado": [{"tipo": "disponibilidade", "pergunta": "horario_invalido"}]}
+{"id": "H56", "conjunto": "desenvolvimento", "texto": "quarta o trabalho acaba às 17h, depois posso até o fim do dia", "esperado": [{"tipo": "disponibilidade", "janelas": [["2026-11-11 17:00", "2026-11-12 00:00", true]]}]}
+{"id": "H57", "conjunto": "desenvolvimento", "texto": "hoje, quinta, à noite", "esperado": [{"tipo": "disponibilidade", "janelas": [["2026-11-05 19:00", "2026-11-06 00:00", true]]}]}
