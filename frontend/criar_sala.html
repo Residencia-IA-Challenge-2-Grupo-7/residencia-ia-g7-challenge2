@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>EIXO — Criar ou Entrar em Sala</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-page: #F6F4FB;
+      --surface: #FFFFFF;
+      --surface-soft: #F5F2FC;
+      --surface-btn-sec: #F4F1FC;
+
+      --indigo-deep: #2E2A5E;
+      --indigo: #4B4590;
+      --indigo-mid: #5A52A8;
+      --indigo-muted: #5E5A8A;
+
+      --border-crisp: #C4BCE4;
+      --border-soft: #DCD6F0;
+
+      --tag-bg: #EEEAF9;
+      --tag-ok-bg: #DDF5EF;
+      --tag-ok-fg: #146356;
+
+      --shadow-card: 0 4px 14px rgba(46, 42, 94, 0.07);
+      --shadow-btn: 0 3px 0 #2E2A5E;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--indigo-deep);
+      height: 100vh;
+      overflow: hidden;
+      padding: 16px 20px;
+      display: flex;
+      justify-content: center;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    button, input { font-family: inherit; }
+
+    button:focus-visible, input:focus-visible, a:focus-visible {
+      outline: 3px solid #4B4590;
+      outline-offset: 2px;
+    }
+
+    .app-frame {
+      width: 100%;
+      max-width: 1400px;
+      height: calc(100vh - 32px);
+      display: grid;
+      grid-template-columns: 74px minmax(0, 1fr) 332px;
+      gap: 20px;
+      align-items: stretch;
+    }
+
+    .sidebar {
+      background: var(--indigo);
+      border: 1.5px solid var(--indigo-deep);
+      border-radius: 24px;
+      padding: 16px 13px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      height: 100%;
+      box-shadow: var(--shadow-card);
+    }
+
+    .logo-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      border: 1.5px solid rgba(255, 255, 255, 0.45);
+      background: rgba(255, 255, 255, 0.1);
+      color: #FFFFFF;
+      font-weight: 700;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      display: grid;
+      place-items: center;
+      margin-bottom: 8px;
+    }
+
+    .nav-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      border: 1.5px solid transparent;
+      background: transparent;
+      color: rgba(255, 255, 255, 0.85);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .nav-btn:hover {
+      background: rgba(255, 255, 255, 0.16);
+      border-color: rgba(255, 255, 255, 0.35);
+      color: #FFFFFF;
+    }
+
+    .nav-btn.active {
+      background: #FFFFFF;
+      color: var(--indigo-deep);
+      border-color: var(--indigo-deep);
+      box-shadow: 0 3px 0 var(--indigo-deep);
+    }
+
+    .sidebar-spacer { flex: 1; }
+
+    .main-col {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      min-width: 0;
+    }
+
+    .top-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .greeting h1 {
+      font-size: 27px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.2;
+    }
+
+    .greeting p {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--indigo-muted);
+      margin-top: 3px;
+    }
+
+    .avatar-btn {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      border: 1.5px solid var(--indigo-deep);
+      background: var(--indigo);
+      color: #FFFFFF;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .stepper-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border-crisp);
+      border-radius: 18px;
+      padding: 10px 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      box-shadow: var(--shadow-card);
+    }
+
+    .step-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 8px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .step-item.active {
+      background: var(--indigo);
+      color: #FFFFFF;
+      border-radius: 10px;
+    }
+
+    .step-item.pending {
+      background: var(--tag-bg);
+      color: var(--indigo-muted);
+    }
+
+    .step-item.pending:hover {
+      background: #E4DEF7;
+      color: var(--indigo-deep);
+    }
+
+    .step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    .step-item.pending .step-num {
+      background: #FFFFFF;
+      color: var(--indigo-muted);
+    }
+
+    .step-connector {
+      flex: 1;
+      height: 1.5px;
+      background: var(--border-soft);
+      min-width: 16px;
+    }
+
+    .create-grid {
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .panel-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border-crisp);
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .panel-card h2 {
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--indigo-deep);
+    }
+
+    .panel-desc {
+      font-size: 13px;
+      color: var(--indigo-muted);
+      line-height: 1.45;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .field label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--indigo-deep);
+    }
+
+    .text-input {
+      height: 44px;
+      padding: 0 14px;
+      border-radius: 12px;
+      border: 1.5px solid var(--border-crisp);
+      background: var(--surface-soft);
+      color: var(--indigo-deep);
+      font-size: 13.5px;
+      width: 100%;
+    }
+
+    .text-input:focus {
+      background: #FFFFFF;
+      border-color: var(--indigo);
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--indigo-deep);
+      cursor: pointer;
+    }
+
+    .checkbox-row input {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--indigo);
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      height: 44px;
+      padding: 0 18px;
+      border-radius: 12px;
+      border: 1.5px solid var(--indigo-deep);
+      background: var(--indigo);
+      color: #FFFFFF;
+      font-size: 13.5px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: var(--shadow-btn);
+      transition: transform 0.1s, background 0.15s;
+    }
+
+    .btn-primary:hover { background: var(--indigo-mid); }
+    .btn-primary:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--indigo-deep); }
+
+    .btn-secondary {
+      height: 42px;
+      padding: 0 14px;
+      border-radius: 12px;
+      border: 1.5px solid var(--indigo);
+      background: var(--surface-btn-sec);
+      color: var(--indigo-deep);
+      font-size: 13px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background 0.15s;
+    }
+
+    .btn-secondary:hover { background: #EAE4FA; }
+
+    .btn-row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .info-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 6px;
+      background: var(--tag-ok-bg);
+      color: var(--tag-ok-fg);
+      font-size: 12px;
+      font-weight: 600;
+      width: fit-content;
+    }
+
+    .code-box {
+      background: var(--surface-soft);
+      border: 1.5px solid var(--border-crisp);
+      border-radius: 12px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .code-box strong {
+      font-size: 17px;
+      letter-spacing: 0.06em;
+      color: var(--indigo-deep);
+    }
+
+    .hidden { display: none !important; }
+
+    .right-panel {
+      background: var(--surface);
+      border: 1.5px solid var(--border-crisp);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: var(--shadow-card);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      height: 100%;
+      overflow: hidden;
+    }
+
+    .right-panel h2 { font-size: 17px; font-weight: 700; }
+
+    .steps-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .how-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      background: var(--surface-soft);
+      border-radius: 12px;
+      padding: 10px 12px;
+    }
+
+    .how-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 8px;
+      background: var(--indigo);
+      color: #FFFFFF;
+      font-size: 12px;
+      font-weight: 700;
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+
+    .how-item p { font-size: 12px; line-height: 1.4; color: var(--indigo-deep); }
+
+    .accordions-group {
+      margin-top: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .retractable-card {
+      background: var(--surface);
+      border: 1.5px solid var(--border-crisp);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .retractable-btn {
+      width: 100%;
+      padding: 11px 14px;
+      background: var(--surface);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    .retractable-btn:hover { background: var(--surface-soft); }
+
+    .retractable-title { font-size: 13.5px; font-weight: 700; color: var(--indigo-deep); }
+
+    .retractable-pill {
+      padding: 4px 10px;
+      border-radius: 9px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1.5px solid var(--indigo);
+      background: var(--surface-btn-sec);
+      color: var(--indigo-deep);
+    }
+
+    .retractable-btn[aria-expanded="true"] .retractable-pill {
+      background: var(--indigo);
+      color: #FFFFFF;
+      border-color: var(--indigo-deep);
+    }
+
+    .retractable-body { padding: 0 14px 14px; display: none; }
+    .retractable-body.open { display: block; }
+
+    .history-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 8px;
+      border-radius: 10px;
+      background: var(--surface-soft);
+    }
+
+    .history-item strong { display: block; font-size: 12.5px; }
+    .history-item span { font-size: 11px; color: var(--indigo-muted); }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: var(--indigo-deep);
+      color: #FFFFFF;
+      padding: 12px 20px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      transition: transform 0.25s ease;
+      z-index: 50;
+    }
+
+    .toast.show { transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 980px) {
+      body { height: auto; overflow: auto; }
+      .app-frame { height: auto; grid-template-columns: 1fr; }
+      .sidebar { display: none; }
+      .create-grid { grid-template-columns: 1fr; }
+      .right-panel { height: auto; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-frame">
+  <aside class="sidebar" aria-label="Navegação principal">
+    <div class="logo-box">LOGO</div>
+    <a class="nav-btn active" href="criar_sala.html" title="Criar ou entrar em sala" aria-label="Criar sala">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    </a>
+    <a class="nav-btn" href="meus_dados.html" title="Meus dados secretos" aria-label="Meus dados secretos">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+    </a>
+    <a class="nav-btn" href="home_sala_v2.html" title="Votação da sala" aria-label="Votação da sala">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+    </a>
+    <a class="nav-btn" href="resultado_role.html" title="Resultado final" aria-label="Resultado final">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+    </a>
+    <div class="sidebar-spacer"></div>
+  </aside>
+
+  <main class="main-col">
+    <header class="top-header">
+      <div class="greeting">
+        <h1>Bora marcar o rolê?</h1>
+        <p>Crie uma sala em segundos e decida o melhor lugar no DF sem estresse</p>
+      </div>
+      <button class="avatar-btn" type="button" onclick="showToast('Perfil: Eduarda')">ME</button>
+    </header>
+
+    <section class="stepper-card" aria-label="Etapas do rolê">
+      <a class="step-item active" href="criar_sala.html"><span class="step-num">1</span> Sala</a>
+      <div class="step-connector"></div>
+      <a class="step-item pending" href="meus_dados.html"><span class="step-num">2</span> Meus dados</a>
+      <div class="step-connector"></div>
+      <a class="step-item pending" href="home_sala_v2.html"><span class="step-num">3</span> Votação</a>
+      <div class="step-connector"></div>
+      <a class="step-item pending" href="resultado_role.html"><span class="step-num">4</span> Resultado</a>
+    </section>
+
+    <section class="create-grid">
+      <div class="panel-card">
+        <div id="createFormState">
+          <h2>Criar nova sala</h2>
+          <p class="panel-desc" style="margin-top:4px; margin-bottom:12px;">Você cria o grupo e envia o link secreto no WhatsApp.</p>
+
+          <form id="formCriar" onsubmit="criarSala(event)" style="display:flex; flex-direction:column; gap:12px;">
+            <div class="field">
+              <label for="orgName">Seu nome</label>
+              <input class="text-input" id="orgName" type="text" placeholder="Ex.: Eduarda" required />
+            </div>
+            <div class="field">
+              <label for="roleName">Nome do rolê</label>
+              <input class="text-input" id="roleName" type="text" placeholder="Ex.: Boteco de Sexta" required />
+            </div>
+            <label class="checkbox-row">
+              <input type="checkbox" id="chk18" required />
+              <span>Tenho 18 anos ou mais (app exclusivo para adultos).</span>
+            </label>
+            <button class="btn-primary" type="submit" style="margin-top:4px;">Criar Sala</button>
+          </form>
+        </div>
+
+        <div id="createdRoomState" class="hidden" style="display:flex; flex-direction:column; gap:12px;">
+          <span class="info-tag">✓ Sala criada com sucesso</span>
+          <h2 id="createdTitle">Boteco de Sexta</h2>
+          <p class="panel-desc">Compartilhe o código ou link no grupo (2 a 20 pessoas):</p>
+          <div class="code-box">
+            <strong id="roomCode">ROLE-7KQ2</strong>
+            <button class="btn-secondary" type="button" style="height:36px;" onclick="copyRoomLink()">Copiar link</button>
+          </div>
+          <div class="btn-row">
+            <a class="btn-secondary" style="flex:1;" href="https://wa.me/?text=Entra%20na%20sala%20do%20nosso%20role%20ROLE-7KQ2" target="_blank" rel="noopener">💬 Mandar no WhatsApp</a>
+            <a class="btn-primary" style="flex:1;" href="meus_dados.html">Preencher meus dados →</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-card">
+        <h2>Recebeu um código?</h2>
+        <p class="panel-desc">Cole o código que mandaram no grupo para entrar direto na sala.</p>
+        <form onsubmit="entrarSala(event)" style="display:flex; flex-direction:column; gap:12px;">
+          <div class="field">
+            <label for="joinCode">Código da sala</label>
+            <input class="text-input" id="joinCode" type="text" placeholder="Ex.: ROLE-7KQ2" required />
+          </div>
+          <button class="btn-secondary" type="submit">Entrar na sala →</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <aside class="right-panel" aria-label="Como funciona e histórico">
+    <h2>Como funciona</h2>
+    <div class="steps-list">
+      <div class="how-item">
+        <span class="how-num">1</span>
+        <p><strong>Crie a sala</strong> e mande o link no grupo do WhatsApp.</p>
+      </div>
+      <div class="how-item">
+        <span class="how-num">2</span>
+        <p><strong>Cada um conta em segredo</strong> de onde sai no DF, horários e teto de gasto.</p>
+      </div>
+      <div class="how-item">
+        <span class="how-num">3</span>
+        <p><strong>A turma vota</strong> em 3 opções justas para todos, com rota e TikTok.</p>
+      </div>
+    </div>
+
+    <a class="btn-secondary" href="home_sala_v2.html" style="width:100%;">✨ Ver sala de exemplo (DEMO)</a>
+
+    <div class="accordions-group">
+      <div class="retractable-card">
+        <button class="retractable-btn" id="historyBtn" type="button" aria-expanded="false" onclick="toggleHistory()">
+          <span class="retractable-title">🕒 Histórico de rolês</span>
+          <span class="retractable-pill" id="historyPill">Abrir aba ▾</span>
+        </button>
+        <div class="retractable-body" id="historyBody">
+          <div class="history-list">
+            <div class="history-item">
+              <span>📍</span>
+              <div><strong>Parrilla Burger &amp; Chopp</strong><span>21 nov &middot; Asa Sul</span></div>
+            </div>
+            <div class="history-item">
+              <span>📍</span>
+              <div><strong>Café &amp; Bate-Papo</strong><span>02 nov &middot; Asa Norte</span></div>
+            </div>
+            <div class="history-item">
+              <span>📍</span>
+              <div><strong>Churrasco da Turma</strong><span>18 out &middot; Guará</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  function criarSala(e) {
+    e.preventDefault();
+    const role = document.getElementById('roleName').value.trim() || 'Boteco de Sexta';
+    document.getElementById('createdTitle').textContent = role;
+    document.getElementById('createFormState').classList.add('hidden');
+    document.getElementById('createdRoomState').classList.remove('hidden');
+    showToast(`Sala "${role}" criada!`);
+  }
+
+  function entrarSala(e) {
+    e.preventDefault();
+    window.location.href = 'meus_dados.html';
+  }
+
+  function copyRoomLink() {
+    showToast('Link da sala ROLE-7KQ2 copiado!');
+  }
+
+  function toggleHistory() {
+    const btn = document.getElementById('historyBtn');
+    const body = document.getElementById('historyBody');
+    const pill = document.getElementById('historyPill');
+    const next = btn.getAttribute('aria-expanded') !== 'true';
+    btn.setAttribute('aria-expanded', String(next));
+    body.classList.toggle('open', next);
+    pill.textContent = next ? 'Fechar aba ▴' : 'Abrir aba ▾';
+  }
+
+  let toastTimer = null;
+  function showToast(msg) {
+    const el = document.getElementById('toast');
+    el.textContent = msg;
+    el.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+  }
+</script>
+</body>
+</html>
