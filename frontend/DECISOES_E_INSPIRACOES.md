@@ -111,8 +111,8 @@ Decisões finais definidas para transformar a interface atual (`v2`) na nova ide
    - Substituição definitiva do placeholder `LOGO` pelos assets oficiais em `frontend/assets/logos/` e `favicon.ico`.
    - Uso da Brasília Amarela lateral (`carro_lateral_64.png` / `_160.png`) como marcador dinâmico na barra de progresso **`Votos da turma`**.
 
-4. **Cards Limpos com Fotos Reais dos Locais:**
-   - Nos cards de **Votação** (`home_sala_v2.html`) e no **Card Vencedor** (`resultado_role.html`), inclusão de **fotos reais dos locais de Brasília** em formato enxuto, combinadas com tipografia marcante, ícones simples e espaçamento limpo para manter o visual sem scroll no desktop.
+4. **Cards Minimalistas Limpos (Sem Fotos, Foco em Tipografia e Ícones):**
+   - Nos cards de **Votação** (`home_sala_v2.html`) e no **Card Vencedor** (`resultado_role.html`), visual minimalista **sem fotos**, com foco em tipografia marcante, ícones leves, tags planas e espaçamento limpo para leitura instantânea e layout sem scroll no desktop.
 
 5. **Tipografia, Cantos e Tom de Voz:**
    - Títulos em `Space Grotesk` / `Poppins` bold com cantos arredondados modernos (`16px`–`20px` nos cards, `12px` nos botões, `6px` nas tags estáticas) e microcopy brasiliense descontraído (*"E aí, qual a boa?"*, *"Hoje é onde?"*).
