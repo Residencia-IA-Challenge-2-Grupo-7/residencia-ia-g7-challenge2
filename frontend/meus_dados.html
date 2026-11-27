@@ -3,210 +3,37 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EIXO — Meus Dados Secretos</title>
+  <title>Qual o Plano? — Meus Dados Secretos</title>
+  <link rel="icon" type="image/x-icon" href="./assets/logos/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/logos/carro_icone_32.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
   <style>
-    :root {
-      --bg-page: #F6F4FB;
-      --surface: #FFFFFF;
-      --surface-soft: #F5F2FC;
-      --surface-btn-sec: #F4F1FC;
-
-      --indigo-deep: #2E2A5E;
-      --indigo: #4B4590;
-      --indigo-mid: #5A52A8;
-      --indigo-muted: #5E5A8A;
-
-      --border-crisp: #C4BCE4;
-      --border-soft: #DCD6F0;
-
-      --tag-bg: #EEEAF9;
-      --tag-ok-bg: #DDF5EF;
-      --tag-ok-fg: #146356;
-      --tag-warn-bg: #FFF1D0;
-      --tag-warn-fg: #7A4F00;
-
-      --shadow-card: 0 4px 14px rgba(46, 42, 94, 0.07);
-      --shadow-btn: 0 3px 0 #2E2A5E;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: var(--bg-page);
-      color: var(--indigo-deep);
-      height: 100vh;
-      overflow: hidden;
-      padding: 12px 14px;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    button, input, textarea { font-family: inherit; }
-
-    button:focus-visible, input:focus-visible, textarea:focus-visible, a:focus-visible {
-      outline: 3px solid #4B4590;
-      outline-offset: 2px;
-    }
-
-    .app-frame {
-      width: 100%;
-      height: calc(100vh - 24px);
-      display: grid;
-      grid-template-columns: 74px minmax(0, 1fr) 332px;
-      gap: 16px;
-      align-items: stretch;
-    }
-
-    .sidebar {
-      background: var(--indigo);
-      border: 1.5px solid var(--indigo-deep);
-      border-radius: 24px;
-      padding: 16px 13px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      height: 100%;
-      box-shadow: var(--shadow-card);
-    }
-
-    .logo-box {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      border: 1.5px solid rgba(255, 255, 255, 0.45);
-      background: rgba(255, 255, 255, 0.1);
-      color: #FFFFFF;
-      font-weight: 700;
-      font-size: 11px;
-      letter-spacing: 0.08em;
-      display: grid;
-      place-items: center;
-      margin-bottom: 8px;
-    }
-
-    .nav-btn {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      border: 1.5px solid transparent;
-      background: transparent;
-      color: rgba(255, 255, 255, 0.85);
-      display: grid;
-      place-items: center;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background 0.15s, border-color 0.15s;
-    }
-
-    .nav-btn:hover {
-      background: rgba(255, 255, 255, 0.16);
-      border-color: rgba(255, 255, 255, 0.35);
-      color: #FFFFFF;
-    }
-
-    .nav-btn.active {
-      background: #FFFFFF;
-      color: var(--indigo-deep);
-      border-color: var(--indigo-deep);
-      box-shadow: 0 3px 0 var(--indigo-deep);
-    }
-
-    .sidebar-spacer { flex: 1; }
-
-    .main-col {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      min-width: 0;
-    }
-
-    .top-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-    }
-
-    .greeting h1 { font-size: 25px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
-    .greeting p { font-size: 13px; font-weight: 500; color: var(--indigo-muted); margin-top: 2px; }
-
     .secret-banner {
       display: inline-flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
       padding: 6px 12px;
-      border-radius: 8px;
-      background: var(--tag-ok-bg);
-      color: var(--tag-ok-fg);
+      border-radius: 10px;
+      background: var(--green-bg);
+      color: var(--green-fg);
       font-size: 12px;
-      font-weight: 600;
-    }
-
-    .stepper-card {
-      background: var(--surface);
-      border: 1.5px solid var(--border-crisp);
-      border-radius: 18px;
-      padding: 9px 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      box-shadow: var(--shadow-card);
-    }
-
-    .step-item {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      padding: 6px 12px;
-      border-radius: 8px;
-      text-decoration: none;
+      font-weight: 700;
+      border: 1px solid #9BD9BA;
       white-space: nowrap;
     }
 
-    .step-item.done { background: var(--tag-ok-bg); color: var(--tag-ok-fg); }
-    .step-item.active { background: var(--indigo); color: #FFFFFF; border-radius: 10px; }
-    .step-item.pending { background: var(--tag-bg); color: var(--indigo-muted); }
-    .step-item.pending:hover { background: #E4DEF7; color: var(--indigo-deep); }
-
-    .step-num {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      font-size: 12px;
-      font-weight: 700;
-      background: rgba(255, 255, 255, 0.22);
-    }
-
-    .step-item.pending .step-num { background: #FFFFFF; color: var(--indigo-muted); }
-    .step-connector { flex: 1; height: 1.5px; background: var(--border-soft); min-width: 16px; }
-
-    /* FORM CARD COMPACTO COM CALENDÁRIO SEMANAL */
     .form-card {
       background: var(--surface);
       border: 1.5px solid var(--border-crisp);
       border-radius: 22px;
-      padding: 18px 20px;
+      padding: 16px 20px;
       box-shadow: var(--shadow-card);
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      flex: 1;
-      min-height: 0;
-    }
-
-    .form-card form {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
+      gap: 11px;
       flex: 1;
       min-height: 0;
     }
@@ -215,15 +42,19 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
+      gap: 10px;
     }
 
-    .form-head h2 { font-size: 17px; font-weight: 700; }
+    .form-head h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--ink);
+    }
 
     .fields-layout {
       display: grid;
-      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-      gap: 22px;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
+      gap: 16px;
       align-items: stretch;
       flex: 1;
       min-height: 0;
@@ -232,47 +63,16 @@
     .left-fields {
       display: flex;
       flex-direction: column;
-      gap: 12px;
-      height: 100%;
-      min-width: 0;
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
+      gap: 10px;
       min-width: 0;
     }
 
     .field.grow {
       flex: 1;
-      min-height: 0;
     }
 
-    .field label {
-      font-size: 12.5px;
-      font-weight: 700;
-      color: var(--indigo-deep);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .field .hint { font-size: 11px; color: var(--indigo-muted); }
-
-    .text-input, .text-area {
-      padding: 10px 12px;
-      border-radius: 11px;
-      border: 1.5px solid var(--border-crisp);
-      background: var(--surface-soft);
-      color: var(--indigo-deep);
-      font-size: 13px;
-      width: 100%;
-    }
-
-    .text-input { height: 42px; }
-    .text-area { flex: 1; min-height: 84px; resize: none; line-height: 1.4; }
-    .text-input:focus, .text-area:focus { background: #FFFFFF; border-color: var(--indigo); }
+    .text-input { height: 40px; }
+    .text-area { flex: 1; min-height: 82px; }
 
     .chip-toggles { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
 
@@ -281,16 +81,16 @@
       border-radius: 8px;
       border: 1.5px solid var(--border-crisp);
       background: var(--surface);
-      color: var(--indigo-deep);
+      color: var(--ink);
       font-size: 11.5px;
       font-weight: 600;
       cursor: pointer;
     }
 
     .chip-toggle.selected {
-      background: var(--indigo);
-      color: #FFFFFF;
-      border-color: var(--indigo-deep);
+      background: var(--ink);
+      color: var(--canary);
+      border-color: var(--ink);
     }
 
     /* CALENDÁRIO SEMANAL 30 MIN (TAMANHO ESTÁTICO + ARRASTO RETANGULAR) */
@@ -319,7 +119,8 @@
 
     .period-tabs {
       display: inline-flex;
-      background: #E6E1F6;
+      background: #EFE1AC;
+      border: 1px solid var(--border-crisp);
       border-radius: 9px;
       padding: 3px;
       gap: 3px;
@@ -330,23 +131,23 @@
       border-radius: 7px;
       border: none;
       background: transparent;
-      color: var(--indigo-deep);
+      color: var(--ink);
       font-size: 11px;
       font-weight: 600;
       cursor: pointer;
     }
 
     .period-btn.active {
-      background: var(--indigo);
-      color: #FFFFFF;
+      background: var(--ink);
+      color: var(--canary);
     }
 
     .btn-clear-cal {
       padding: 4px 9px;
       border-radius: 8px;
       border: 1.5px solid var(--border-crisp);
-      background: #FFFFFF;
-      color: var(--indigo-deep);
+      background: var(--surface);
+      color: var(--ink);
       font-size: 11px;
       font-weight: 600;
       cursor: pointer;
@@ -365,14 +166,14 @@
       text-align: center;
       font-size: 11px;
       font-weight: 700;
-      color: var(--indigo-deep);
+      color: var(--ink);
       padding-bottom: 2px;
     }
 
     .cal-time-lbl {
       font-size: 10px;
       font-weight: 600;
-      color: var(--indigo-muted);
+      color: var(--muted);
       text-align: right;
       padding-right: 5px;
     }
@@ -381,107 +182,36 @@
       width: 100%;
       height: 16px;
       border-radius: 4px;
-      background: #FFFFFF;
-      border: 1px solid #D7D0EE;
+      background: var(--surface);
+      border: 1px solid #D9C398;
       cursor: crosshair;
       touch-action: none;
       transition: background 0.06s;
     }
 
     .cal-slot:hover {
-      border-color: var(--indigo);
+      border-color: var(--ink);
     }
 
     .cal-slot.selected {
-      background: var(--indigo);
-      border: 1px solid var(--indigo-deep);
+      background: var(--ink);
+      border: 1px solid var(--ink);
     }
 
     .cal-summary {
       font-size: 11px;
       font-weight: 600;
-      color: var(--indigo);
-      background: #FFFFFF;
+      color: var(--ink);
+      background: var(--surface);
       border-radius: 8px;
       padding: 5px 9px;
-      border: 1px solid var(--border-soft);
+      border: 1px solid var(--border-crisp);
       width: 100%;
       max-width: 100%;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-
-    dialog.app-dialog {
-      margin: auto;
-      border: 2px solid var(--indigo-deep);
-      border-radius: 20px;
-      padding: 22px;
-      background: var(--surface);
-      color: var(--indigo-deep);
-      max-width: 400px;
-      width: calc(100% - 32px);
-      box-shadow: 0 18px 40px rgba(46, 42, 94, 0.25);
-    }
-    dialog.app-dialog::backdrop { background: rgba(46, 42, 94, 0.5); }
-    .dialog-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-    .dialog-close {
-      width: 32px; height: 32px; border-radius: 9px; border: 1.5px solid var(--border-crisp);
-      background: var(--surface-soft); color: var(--indigo-deep); font-weight: 700; cursor: pointer;
-    }
-
-    .info-tag {
-      display: inline-flex;
-      align-items: center;
-      padding: 3px 8px;
-      border-radius: 6px;
-      background: var(--tag-bg);
-      color: var(--indigo-deep);
-      font-size: 11px;
-      font-weight: 600;
-    }
-
-    .info-tag.ok { background: var(--tag-ok-bg); color: var(--tag-ok-fg); }
-    .info-tag.warn { background: var(--tag-warn-bg); color: var(--tag-warn-fg); }
-
-    .btn-primary {
-      height: 42px;
-      padding: 0 18px;
-      border-radius: 12px;
-      border: 1.5px solid var(--indigo-deep);
-      background: var(--indigo);
-      color: #FFFFFF;
-      font-size: 13.5px;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      cursor: pointer;
-      box-shadow: var(--shadow-btn);
-      transition: transform 0.1s, background 0.15s;
-    }
-
-    .btn-primary:hover { background: var(--indigo-mid); }
-    .btn-primary:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--indigo-deep); }
-
-    .btn-secondary {
-      height: 42px;
-      padding: 0 16px;
-      border-radius: 12px;
-      border: 1.5px solid var(--indigo);
-      background: var(--surface-btn-sec);
-      color: var(--indigo-deep);
-      font-size: 13px;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      cursor: pointer;
-    }
-
-    .btn-secondary:hover { background: #EAE4FA; }
 
     .summary-list {
       list-style: none;
@@ -501,266 +231,191 @@
     .summary-list strong {
       display: block;
       font-size: 11px;
-      color: var(--indigo-muted);
+      color: var(--muted);
       text-transform: uppercase;
       margin-bottom: 2px;
     }
 
-    .hidden { display: none !important; }
-
-    /* PAINEL DIREITO */
-    .right-panel {
-      background: var(--surface);
-      border: 1.5px solid var(--border-crisp);
-      border-radius: 24px;
-      padding: 18px;
-      box-shadow: var(--shadow-card);
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      height: 100%;
-      overflow: hidden;
-    }
-
-    .turma-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
-    .turma-head h2 { font-size: 17px; font-weight: 700; }
-    .turma-head p { font-size: 12px; color: var(--indigo-muted); }
-
-    .btn-invite {
-      height: 38px;
-      padding: 0 13px;
-      border-radius: 12px;
-      border: 1.5px solid var(--indigo-deep);
-      background: var(--indigo);
-      color: #FFFFFF;
-      font-size: 12.5px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: var(--shadow-btn);
-    }
-
-    .friends-list { display: flex; flex-direction: column; gap: 10px; }
-    .friend-row { display: flex; align-items: center; gap: 10px; }
-
-    .friend-avatar {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      font-size: 11.5px;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-
-    .av-1 { background: #4B4590; color: #FFFFFF; }
-    .av-2 { background: #E4EEF9; color: #2E2A5E; }
-    .av-3 { background: #FADCFE; color: #2E2A5E; }
-    .av-4 { background: #EFEBFA; color: #2E2A5E; }
-
-    .friend-info { flex: 1; }
-    .friend-info strong { display: block; font-size: 12.5px; }
-    .friend-info span { font-size: 11px; color: var(--indigo-muted); }
-
-    .vote-status-card {
-      background: var(--surface-soft);
-      border: 1px solid var(--border-soft);
-      border-radius: 14px;
-      padding: 12px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      margin-top: auto;
-    }
-
-    .vote-status-top { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; }
-    .progress-track { height: 7px; border-radius: 999px; background: #DED8F2; overflow: hidden; }
-    .progress-fill { height: 100%; width: 75%; border-radius: 999px; background: var(--indigo); }
-
-    .toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      background: var(--indigo-deep);
-      color: #FFFFFF;
-      padding: 12px 20px;
-      border-radius: 12px;
-      font-size: 13px;
-      font-weight: 600;
-      transition: transform 0.25s ease;
-      z-index: 50;
-    }
-
-    .toast.show { transform: translateX(-50%) translateY(0); }
-
     @media (max-width: 980px) {
-      body { height: auto; overflow: auto; }
-      .app-frame { height: auto; grid-template-columns: 1fr; }
-      .sidebar { display: none; }
       .fields-layout, .summary-list { grid-template-columns: 1fr; }
-      .right-panel { height: auto; }
     }
   </style>
 </head>
 <body>
-<div class="app-frame">
-  <!-- SIDEBAR GLOBAL: APENAS NAVEGAÇÃO GERAL E CONTA -->
-  <aside class="sidebar" aria-label="Menu global">
-    <div class="logo-box">LOGO</div>
-    <a class="nav-btn" href="criar_sala.html" title="Home principal (Meus grupos e criar sala)" aria-label="Home principal">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    </a>
-    <button class="nav-btn" type="button" title="Meu Perfil" aria-label="Meu Perfil" onclick="document.getElementById('profileModal').showModal()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    </button>
-    <button class="nav-btn" type="button" title="Notificações" aria-label="Notificações" onclick="document.getElementById('notifModal').showModal()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-    </button>
-    <div class="sidebar-spacer"></div>
-    <button class="nav-btn" type="button" title="Configurações" aria-label="Configurações" onclick="document.getElementById('settingsModal').showModal()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-    </button>
-  </aside>
-
-  <main class="main-col">
-    <header class="top-header">
-      <div class="greeting">
-        <h1>Meus dados secretos</h1>
-        <p>Boteco de Sexta &middot; 4 amigos na sala</p>
+<div class="app-shell">
+  <!-- TOPBAR SOCIAL LEVE -->
+  <header class="topbar" aria-label="Menu global">
+    <div class="topbar-left">
+      <a class="brand-link" href="criar_sala.html" aria-label="Qual o Plano? Home">
+        <img src="./assets/logos/logo_nome_220.png" alt="Qual o Plano?" height="36" />
+      </a>
+      <span class="brand-divider"></span>
+      <div class="room-badge-top">
+        <strong>Boteco de Sexta</strong>
+        <span>4 amigos na sala · Etapa 2 de 4</span>
       </div>
-      <div class="secret-banner">🔒 Só você vê seus valores e horários</div>
-    </header>
+    </div>
 
-    <section class="stepper-card" aria-label="Etapas do rolê">
-      <a class="step-item done" href="criar_sala.html">✓ Sala criada</a>
-      <div class="step-connector"></div>
-      <a class="step-item active" href="meus_dados.html"><span class="step-num">2</span> Meus dados</a>
-      <div class="step-connector"></div>
-      <a class="step-item pending" href="home_sala_v2.html"><span class="step-num">3</span> Votação</a>
-      <div class="step-connector"></div>
-      <a class="step-item pending" href="resultado_role.html"><span class="step-num">4</span> Resultado</a>
-    </section>
+    <nav class="topbar-right" aria-label="Conta e navegação">
+      <a class="nav-pill" href="criar_sala.html">🏠 Meus rolês</a>
+      <button class="nav-pill" type="button" onclick="document.getElementById('profileModal').showModal()">👤 Perfil</button>
+      <button class="icon-btn" type="button" title="Notificações" aria-label="Notificações" onclick="document.getElementById('notifModal').showModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="notif-dot"></span>
+      </button>
+      <button class="icon-btn" type="button" title="Configurações" aria-label="Configurações" onclick="document.getElementById('settingsModal').showModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+      <button class="avatar-btn" type="button" onclick="document.getElementById('profileModal').showModal()">ME</button>
+    </nav>
+  </header>
 
-    <section class="form-card" id="formState">
-      <div class="form-head">
-        <h2>Conte do seu jeito</h2>
-        <span class="info-tag">Clique e arraste no calendário (blocos de 30 min)</span>
-      </div>
+  <div class="workspace">
+    <main class="main-col">
+      <header class="page-head">
+        <div>
+          <h1>Meus dados secretos</h1>
+          <p>Conte sua logística sem expor seu bolso pro resto da turma</p>
+        </div>
+        <div class="secret-banner">🔒 Só você vê seus valores e horários</div>
+      </header>
 
-      <form onsubmit="interpretar(event)" style="display:flex; flex-direction:column; gap:12px;">
-        <div class="fields-layout">
-          <div class="left-fields">
-            <div class="field">
-              <label for="origem">1. De onde você sai no DF?</label>
-              <span class="hint">Região, quadra ou ponto de referência</span>
-              <input class="text-input" id="origem" type="text" placeholder="Ex.: Águas Claras perto da estação" required />
-            </div>
+      <section class="stepper-card" aria-label="Etapas do rolê">
+        <a class="step-item done" href="criar_sala.html">✓ Sala criada</a>
+        <div class="step-connector"></div>
+        <a class="step-item active" href="meus_dados.html"><span class="step-num">2</span> Meus dados</a>
+        <div class="step-connector"></div>
+        <a class="step-item pending" href="home_sala_v2.html"><span class="step-num">3</span> Votação</a>
+        <div class="step-connector"></div>
+        <a class="step-item pending" href="resultado_role.html"><span class="step-num">4</span> Resultado</a>
+      </section>
 
-            <div class="field">
-              <label for="teto">3. Qual seu limite de gasto em R$? <span class="info-tag">🔒 Secreto</span></label>
-              <span class="hint">Total com transporte (ninguém na sala vê)</span>
-              <input class="text-input" id="teto" type="text" placeholder="Ex.: R$ 70" required />
-            </div>
-
-            <div class="field grow">
-              <label for="prefs">4. O que anima fazer e como vai?</label>
-              <span class="hint">Clima do rolê, restrições e transporte</span>
-              <textarea class="text-area" id="prefs" placeholder="Ex.: boteco ou café calmo, vou de metrô"></textarea>
-              <div class="chip-toggles">
-                <button class="chip-toggle" type="button" onclick="this.classList.toggle('selected')">Vegetariano</button>
-                <button class="chip-toggle" type="button" onclick="this.classList.toggle('selected')">Sem glúten</button>
-                <button class="chip-toggle" type="button" onclick="this.classList.toggle('selected')">Metrô / Uber</button>
-                <button class="chip-toggle" type="button" onclick="this.classList.toggle('selected')">Área coberta</button>
-              </div>
-            </div>
-          </div>
-
-          <!-- CALENDÁRIO SEMANAL 30 MIN ARRASTÁVEL -->
-          <div class="field">
-            <label>2. Quais dias e horários você pode?</label>
-            <span class="hint">Clique e arraste nos quadradinhos (intervalos de 30 min)</span>
-            <div class="cal-box" id="calBox">
-              <div class="cal-toolbar">
-                <div class="period-tabs">
-                  <button class="period-btn" type="button" data-period="manha" onclick="switchPeriod('manha')">Manhã (06h–12h)</button>
-                  <button class="period-btn" type="button" data-period="tarde" onclick="switchPeriod('tarde')">Tarde (12h–18h)</button>
-                  <button class="period-btn active" type="button" data-period="noite" onclick="switchPeriod('noite')">Noite (18h–00h)</button>
-                </div>
-                <button class="btn-clear-cal" type="button" onclick="clearCalendar()">Limpar</button>
-              </div>
-
-              <div class="cal-grid" id="calGrid"></div>
-              <div class="cal-summary" id="calSummary">Selecionado: Sex 19:00–22:00</div>
-            </div>
-          </div>
+      <section class="form-card" id="formState">
+        <div class="form-head">
+          <h2>Conte do seu jeito</h2>
+          <span class="info-tag">Clique e arraste no calendário (blocos de 30 min)</span>
         </div>
 
-        <button class="btn-primary" type="submit">Ver o que o app entendeu →</button>
-      </form>
-    </section>
+        <form onsubmit="interpretar(event)" style="display:flex; flex-direction:column; gap:11px; flex:1; min-height:0;">
+          <div class="fields-layout">
+            <div class="left-fields">
+              <div class="field">
+                <label for="origem">1. De onde você sai no DF?</label>
+                <span class="hint">Região, quadra ou ponto de referência</span>
+                <input class="text-input" id="origem" type="text" placeholder="Ex.: Águas Claras perto da estação" required />
+              </div>
 
-    <section class="form-card hidden" id="summaryState">
-      <div class="form-head">
-        <h2>Foi isso que entendi</h2>
-        <span class="info-tag ok">Pronto para confirmar</span>
-      </div>
-      <ul class="summary-list">
-        <li><strong>Ponto de partida</strong><span id="sumOrigem">Águas Claras</span></li>
-        <li><strong>Teto de gasto (secreto)</strong><span id="sumTeto">R$ 70</span></li>
-        <li><strong>Horários livres</strong><span id="sumHorarios">Sex 19:00–22:00</span></li>
-        <li><strong>Preferências &amp; restrições</strong><span id="sumPrefs">Boteco · Metrô/Uber</span></li>
-      </ul>
-      <div style="display:flex; gap:10px; margin-top:4px;">
-        <button class="btn-secondary" type="button" onclick="voltarEditar()">✏️ Corrigir</button>
-        <button class="btn-primary" type="button" style="flex:1;" onclick="confirmarSegredo()">✓ Confirmar em segredo e ir para Votação →</button>
-      </div>
-    </section>
-  </main>
+              <div class="field">
+                <label for="teto">3. Qual seu limite de gasto em R$? <span class="info-tag">🔒 Secreto</span></label>
+                <span class="hint">Total com transporte (ninguém na sala vê)</span>
+                <input class="text-input" id="teto" type="text" placeholder="Ex.: R$ 70" required />
+              </div>
 
-  <aside class="right-panel" aria-label="Status da turma">
-    <div class="turma-head">
-      <div>
-        <h2>Sua turma</h2>
-        <p>4 amigos na sala</p>
-      </div>
-      <button class="btn-invite" type="button" onclick="showToast('Link da sala copiado!')">+ Convidar</button>
-    </div>
+              <div class="field grow">
+                <label for="prefs">4. O que anima fazer e como vai?</label>
+                <span class="hint">Clima do rolê, restrições e transporte</span>
+                <textarea class="text-area" id="prefs" placeholder="Ex.: boteco ou café calmo, vou de metrô"></textarea>
+                <div class="chip-toggles">
+                  <button class="chip-toggle" type="button" onclick="this.classList.toggle('selected')">Vegetariano</button>
+                  <button class="chip-toggle" type="button" onclick="this.classList.toggle('selected')">Sem glúten</button>
+                  <button class="chip-toggle" type="button" onclick="this.classList.toggle('selected')">Metrô / Uber</button>
+                  <button class="chip-toggle" type="button" onclick="this.classList.toggle('selected')">Área coberta</button>
+                </div>
+              </div>
+            </div>
 
-    <div class="friends-list">
-      <div class="friend-row">
-        <div class="friend-avatar av-1">ME</div>
-        <div class="friend-info"><strong>Você (Eduarda)</strong><span>Preenchendo agora</span></div>
-        <span class="info-tag warn">Editando</span>
-      </div>
-      <div class="friend-row">
-        <div class="friend-avatar av-2">CS</div>
-        <div class="friend-info"><strong>Cauan</strong><span>Dados preenchidos</span></div>
-        <span class="info-tag ok">Pronto</span>
-      </div>
-      <div class="friend-row">
-        <div class="friend-avatar av-3">SL</div>
-        <div class="friend-info"><strong>Samara</strong><span>Dados preenchidos</span></div>
-        <span class="info-tag ok">Pronto</span>
-      </div>
-      <div class="friend-row">
-        <div class="friend-avatar av-4">MC</div>
-        <div class="friend-info"><strong>Carolina</strong><span>Dados preenchidos</span></div>
-        <span class="info-tag ok">Pronto</span>
-      </div>
-    </div>
+            <!-- CALENDÁRIO SEMANAL 30 MIN ARRASTÁVEL -->
+            <div class="field">
+              <label>2. Quais dias e horários você pode?</label>
+              <span class="hint">Clique e arraste nos quadradinhos (intervalos de 30 min)</span>
+              <div class="cal-box" id="calBox">
+                <div class="cal-toolbar">
+                  <div class="period-tabs">
+                    <button class="period-btn" type="button" data-period="manha" onclick="switchPeriod('manha')">Manhã (06h–12h)</button>
+                    <button class="period-btn" type="button" data-period="tarde" onclick="switchPeriod('tarde')">Tarde (12h–18h)</button>
+                    <button class="period-btn active" type="button" data-period="noite" onclick="switchPeriod('noite')">Noite (18h–00h)</button>
+                  </div>
+                  <button class="btn-clear-cal" type="button" onclick="clearCalendar()">Limpar</button>
+                </div>
 
-    <div class="vote-status-card">
-      <div class="vote-status-top">
-        <strong>Preenchimento da turma</strong>
-        <span>3 de 4 prontos</span>
+                <div class="cal-grid" id="calGrid"></div>
+                <div class="cal-summary" id="calSummary">Selecionado: Sex 19:00–22:00</div>
+              </div>
+            </div>
+          </div>
+
+          <button class="btn-primary" type="submit">Ver o que o app entendeu →</button>
+        </form>
+      </section>
+
+      <section class="form-card hidden" id="summaryState">
+        <div class="form-head">
+          <h2>Foi isso que entendi</h2>
+          <span class="info-tag ok">Pronto para confirmar</span>
+        </div>
+        <ul class="summary-list">
+          <li><strong>Ponto de partida</strong><span id="sumOrigem">Águas Claras</span></li>
+          <li><strong>Teto de gasto (secreto)</strong><span id="sumTeto">R$ 70</span></li>
+          <li><strong>Horários livres</strong><span id="sumHorarios">Sex 19:00–22:00</span></li>
+          <li><strong>Preferências &amp; restrições</strong><span id="sumPrefs">Boteco · Metrô/Uber</span></li>
+        </ul>
+        <div style="display:flex; gap:10px; margin-top:4px;">
+          <button class="btn-secondary" type="button" onclick="voltarEditar()">✏️ Corrigir</button>
+          <button class="btn-primary" type="button" style="flex:1;" onclick="confirmarSegredo()">✓ Confirmar em segredo e ir para Votação →</button>
+        </div>
+      </section>
+    </main>
+
+    <aside class="right-panel" aria-label="Status da turma">
+      <div class="turma-head">
+        <div>
+          <h2>Sua turma</h2>
+          <p>4 amigos na sala</p>
+        </div>
+        <button class="btn-primary" style="height:36px; padding:0 12px; font-size:12.5px;" type="button" onclick="showToast('Link da sala copiado!')">+ Convidar</button>
       </div>
-      <div class="progress-track"><div class="progress-fill"></div></div>
-    </div>
-  </aside>
+
+      <div class="friends-list">
+        <div class="friend-row">
+          <div class="friend-avatar av-1">ME</div>
+          <div class="friend-info"><strong>Você (Eduarda)</strong><span>Preenchendo agora</span></div>
+          <span class="info-tag warn">Editando</span>
+        </div>
+        <div class="friend-row">
+          <div class="friend-avatar av-2">CS</div>
+          <div class="friend-info"><strong>Cauan</strong><span>Dados preenchidos</span></div>
+          <span class="info-tag ok">Pronto</span>
+        </div>
+        <div class="friend-row">
+          <div class="friend-avatar av-3">SL</div>
+          <div class="friend-info"><strong>Samara</strong><span>Dados preenchidos</span></div>
+          <span class="info-tag ok">Pronto</span>
+        </div>
+        <div class="friend-row">
+          <div class="friend-avatar av-4">MC</div>
+          <div class="friend-info"><strong>Carolina</strong><span>Dados preenchidos</span></div>
+          <span class="info-tag ok">Pronto</span>
+        </div>
+      </div>
+
+      <div class="privacy-note">
+        🔒 Valores individuais ficam em sigilo
+      </div>
+
+      <div class="vote-status-card" style="margin-top:auto;">
+        <div class="vote-status-top">
+          <strong>Preenchimento da turma</strong>
+          <span>3 de 4 prontos</span>
+        </div>
+        <div class="road-track">
+          <div class="road-bar"><div class="road-fill" style="width:75%;"></div></div>
+          <img src="./assets/logos/carro_lateral_160.png" alt="Brasília Amarela" class="road-car" style="left:calc(75% - 22px);" />
+        </div>
+      </div>
+    </aside>
+  </div>
 </div>
 
-<!-- MODAIS GLOBAIS DA SIDEBAR -->
 <dialog class="app-dialog" id="profileModal">
   <div class="dialog-head">
     <strong>Meu Perfil</strong>
@@ -780,8 +435,8 @@
     <button class="dialog-close" type="button" onclick="this.closest('dialog').close()">✕</button>
   </div>
   <div style="display:flex; flex-direction:column; gap:10px; font-size:12.5px;">
-    <div style="background:#F5F2FC; padding:10px 12px; border-radius:10px;"><strong>Café de Domingo:</strong> Samara convidou você para preencher seus horários.</div>
-    <div style="background:#F5F2FC; padding:10px 12px; border-radius:10px;"><strong>Boteco de Sexta:</strong> Cauan e Samara já votaram.</div>
+    <div style="background:var(--surface-soft); padding:10px 12px; border-radius:10px;"><strong>Café de Domingo:</strong> Samara convidou você para preencher seus horários.</div>
+    <div style="background:var(--surface-soft); padding:10px 12px; border-radius:10px;"><strong>Boteco de Sexta:</strong> Cauan e Samara já votaram.</div>
   </div>
 </dialog>
 
@@ -799,16 +454,17 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="./shell.js"></script>
 <script>
   const DAYS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
   const PERIODS = {
-    manha: Array.from({ length: 12 }, (_, i) => 6 * 60 + i * 30),  // 06:00..11:30
-    tarde: Array.from({ length: 12 }, (_, i) => 12 * 60 + i * 30), // 12:00..17:30
-    noite: Array.from({ length: 12 }, (_, i) => 18 * 60 + i * 30), // 18:00..23:30
+    manha: Array.from({ length: 12 }, (_, i) => 6 * 60 + i * 30),
+    tarde: Array.from({ length: 12 }, (_, i) => 12 * 60 + i * 30),
+    noite: Array.from({ length: 12 }, (_, i) => 18 * 60 + i * 30),
   };
   let currentPeriod = 'noite';
   let selectedSlots = new Set([
-    '4-1140', '4-1170', '4-1200', '4-1230', '4-1260', '4-1290', // Sex 19:00-22:00
+    '4-1140', '4-1170', '4-1200', '4-1230', '4-1260', '4-1290',
   ]);
 
   let isDragging = false;
@@ -961,15 +617,6 @@
   function confirmarSegredo() {
     showToast('Dados salvos em sigilo! Abrindo sugestões...');
     setTimeout(() => { window.location.href = 'home_sala_v2.html'; }, 700);
-  }
-
-  let toastTimer = null;
-  function showToast(msg) {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
   }
 
   renderCalendar();

@@ -3,199 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EIXO — Rolê Definido (Resultado)</title>
+  <title>Qual o Plano? — Rolê Fechado: Beirute Bar</title>
+  <link rel="icon" type="image/x-icon" href="./assets/logos/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/logos/carro_icone_32.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
   <style>
-    :root {
-      --bg-page: #F6F4FB;
-      --surface: #FFFFFF;
-      --surface-soft: #F5F2FC;
-      --surface-btn-sec: #F4F1FC;
-
-      --indigo-deep: #2E2A5E;
-      --indigo: #4B4590;
-      --indigo-mid: #5A52A8;
-      --indigo-dark-box: #363170;
-      --indigo-muted: #5E5A8A;
-
-      --border-crisp: #C4BCE4;
-      --border-soft: #DCD6F0;
-
-      --tag-bg: #EEEAF9;
-      --tag-ok-bg: #DDF5EF;
-      --tag-ok-fg: #146356;
-
-      --shadow-card: 0 4px 14px rgba(46, 42, 94, 0.07);
-      --shadow-btn: 0 3px 0 #2E2A5E;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: var(--bg-page);
-      color: var(--indigo-deep);
-      height: 100vh;
-      overflow: hidden;
-      padding: 12px 14px;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    button, a { font-family: inherit; }
-
-    button:focus-visible, a:focus-visible {
-      outline: 3px solid #4B4590;
-      outline-offset: 2px;
-    }
-
-    .app-frame {
-      width: 100%;
-      height: calc(100vh - 24px);
-      display: grid;
-      grid-template-columns: 74px minmax(0, 1fr) 332px;
-      gap: 16px;
-      align-items: stretch;
-    }
-
-    .sidebar {
-      background: var(--indigo);
-      border: 1.5px solid var(--indigo-deep);
-      border-radius: 24px;
-      padding: 16px 13px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      height: 100%;
-      box-shadow: var(--shadow-card);
-    }
-
-    .logo-box {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      border: 1.5px solid rgba(255, 255, 255, 0.45);
-      background: rgba(255, 255, 255, 0.1);
-      color: #FFFFFF;
-      font-weight: 700;
-      font-size: 11px;
-      letter-spacing: 0.08em;
-      display: grid;
-      place-items: center;
-      margin-bottom: 8px;
-    }
-
-    .nav-btn {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      border: 1.5px solid transparent;
-      background: transparent;
-      color: rgba(255, 255, 255, 0.85);
-      display: grid;
-      place-items: center;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background 0.15s, border-color 0.15s;
-    }
-
-    .nav-btn:hover {
-      background: rgba(255, 255, 255, 0.16);
-      border-color: rgba(255, 255, 255, 0.35);
-      color: #FFFFFF;
-    }
-
-    .nav-btn.active {
-      background: #FFFFFF;
-      color: var(--indigo-deep);
-      border-color: var(--indigo-deep);
-      box-shadow: 0 3px 0 var(--indigo-deep);
-    }
-
-    .sidebar-spacer { flex: 1; }
-
-    .main-col {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      min-width: 0;
-    }
-
-    .top-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-    }
-
-    .greeting h1 { font-size: 27px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
-    .greeting p { font-size: 13.5px; font-weight: 500; color: var(--indigo-muted); margin-top: 3px; }
-
-    .avatar-btn {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      border: 1.5px solid var(--indigo-deep);
-      background: var(--indigo);
-      color: #FFFFFF;
-      font-weight: 700;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    .stepper-card {
-      background: var(--surface);
-      border: 1.5px solid var(--border-crisp);
-      border-radius: 18px;
-      padding: 10px 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      box-shadow: var(--shadow-card);
-    }
-
-    .step-item {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      padding: 6px 12px;
-      border-radius: 8px;
-      text-decoration: none;
-      white-space: nowrap;
-    }
-
-    .step-item.done { background: var(--tag-ok-bg); color: var(--tag-ok-fg); }
-    .step-item.active { background: var(--indigo); color: #FFFFFF; border-radius: 10px; }
-
-    .step-num {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      font-size: 12px;
-      font-weight: 700;
-      background: rgba(255, 255, 255, 0.22);
-    }
-
-    .step-connector { flex: 1; height: 1.5px; background: var(--border-soft); min-width: 16px; }
-
-    /* CARD VENCEDOR */
+    /* CARD VENCEDOR MINIMALISTA SEM FOTO */
     .winner-card {
-      background: var(--indigo);
-      border: 2px solid var(--indigo-deep);
-      border-radius: 24px;
-      padding: 24px;
-      color: #FFFFFF;
+      background: var(--ink);
+      border: 2px solid var(--ink);
+      border-radius: 22px;
+      padding: 20px 24px;
+      color: #FFFDF7;
       display: flex;
       flex-direction: column;
       gap: 14px;
-      box-shadow: var(--shadow-card);
+      box-shadow: 0 8px 20px rgba(91, 47, 21, 0.18);
     }
 
     .badges-row {
@@ -205,20 +31,30 @@
       gap: 10px;
     }
 
-    .info-tag-dark {
+    .info-tag-gold {
       display: inline-flex;
       align-items: center;
       gap: 5px;
       padding: 5px 11px;
       border-radius: 6px;
-      background: var(--indigo-dark-box);
-      color: #FFFFFF;
+      background: var(--yellow);
+      color: var(--ink);
       font-size: 12px;
-      font-weight: 600;
+      font-weight: 700;
     }
 
-    .winner-card h2 { font-size: 32px; font-weight: 700; line-height: 1.15; }
-    .winner-meta { font-size: 14px; color: rgba(255, 255, 255, 0.88); font-weight: 500; }
+    .winner-card h2 {
+      font-size: 32px;
+      font-weight: 700;
+      line-height: 1.15;
+      color: var(--canary);
+    }
+
+    .winner-meta {
+      font-size: 13.5px;
+      color: #F6E6B4;
+      font-weight: 500;
+    }
 
     .winner-metrics {
       display: grid;
@@ -227,62 +63,40 @@
     }
 
     .metric-box {
-      background: var(--indigo-dark-box);
-      border: 1px solid rgba(255, 255, 255, 0.22);
+      background: #46230F;
+      border: 1px solid rgba(255, 229, 0, 0.28);
       border-radius: 12px;
       padding: 12px 14px;
     }
 
-    .metric-box span { display: block; font-size: 11px; color: #D8D3F8; font-weight: 600; text-transform: uppercase; }
-    .metric-box strong { display: block; font-size: 14.5px; margin-top: 3px; }
+    .metric-box span {
+      display: block;
+      font-size: 10.5px;
+      color: var(--yellow);
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .metric-box strong {
+      display: block;
+      font-size: 14.5px;
+      margin-top: 3px;
+      color: #FFFDF7;
+    }
 
     .winner-actions {
       display: flex;
       gap: 10px;
       flex-wrap: wrap;
-      margin-top: 4px;
+      margin-top: 2px;
     }
 
-    .btn-primary-light {
-      height: 44px;
-      padding: 0 18px;
-      border-radius: 12px;
-      border: 1.5px solid var(--indigo-deep);
-      background: #FFFFFF;
-      color: var(--indigo-deep);
-      font-size: 13.5px;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      cursor: pointer;
-      text-decoration: none;
-      box-shadow: var(--shadow-btn);
+    .winner-actions .btn-primary {
+      border-color: #2E1608;
+      box-shadow: 0 3px 0 #2E1608;
     }
 
-    .btn-primary-light:hover { background: #F4F1FC; }
-
-    .btn-outline-dark {
-      height: 44px;
-      padding: 0 16px;
-      border-radius: 12px;
-      border: 1.5px solid rgba(255, 255, 255, 0.75);
-      background: var(--indigo-dark-box);
-      color: #FFFFFF;
-      font-size: 13px;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      cursor: pointer;
-      text-decoration: none;
-    }
-
-    .btn-outline-dark:hover { background: #433D88; }
-
-    /* OUTRAS OPÇÕES DA VOTAÇÃO */
     .runnerups-card {
       background: var(--surface);
       border: 1.5px solid var(--border-crisp);
@@ -304,6 +118,7 @@
 
     .runnerup-item {
       background: var(--surface-soft);
+      border: 1px solid var(--border-soft);
       border-radius: 12px;
       padding: 10px 14px;
       display: flex;
@@ -313,349 +128,199 @@
     }
 
     .runnerup-item strong { display: block; font-size: 13.5px; }
-    .runnerup-item span { font-size: 12px; color: var(--indigo-muted); }
-
-    .info-tag-light {
-      display: inline-flex;
-      align-items: center;
-      padding: 4px 9px;
-      border-radius: 6px;
-      background: var(--tag-bg);
-      color: var(--indigo-deep);
-      font-size: 11.5px;
-      font-weight: 600;
-    }
-
-    .info-tag-light.ok { background: var(--tag-ok-bg); color: var(--tag-ok-fg); }
-
-    /* PAINEL DIREITO */
-    .right-panel {
-      background: var(--surface);
-      border: 1.5px solid var(--border-crisp);
-      border-radius: 24px;
-      padding: 18px;
-      box-shadow: var(--shadow-card);
-      display: flex;
-      flex-direction: column;
-      gap: 13px;
-      height: 100%;
-      overflow: hidden;
-    }
-
-    .right-panel h2 { font-size: 17px; font-weight: 700; }
-    .right-panel .sub { font-size: 12px; color: var(--indigo-muted); }
-
-    .friends-list { display: flex; flex-direction: column; gap: 10px; }
-    .friend-row { display: flex; align-items: center; gap: 10px; }
-
-    .friend-avatar {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      font-size: 11.5px;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-
-    .av-1 { background: #4B4590; color: #FFFFFF; }
-    .av-2 { background: #E4EEF9; color: #2E2A5E; }
-    .av-3 { background: #FADCFE; color: #2E2A5E; }
-    .av-4 { background: #EFEBFA; color: #2E2A5E; }
-
-    .friend-info { flex: 1; }
-    .friend-info strong { display: block; font-size: 12.5px; }
-    .friend-info span { font-size: 11px; color: var(--indigo-muted); }
-
-    .accordions-group {
-      margin-top: auto;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .retractable-card {
-      background: var(--surface);
-      border: 1.5px solid var(--border-crisp);
-      border-radius: 16px;
-      overflow: hidden;
-    }
-
-    .retractable-btn {
-      width: 100%;
-      padding: 11px 14px;
-      background: var(--surface);
-      border: none;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-    }
-
-    .retractable-btn:hover { background: var(--surface-soft); }
-    .retractable-title { font-size: 13.5px; font-weight: 700; color: var(--indigo-deep); }
-
-    .retractable-pill {
-      padding: 4px 10px;
-      border-radius: 9px;
-      font-size: 11px;
-      font-weight: 700;
-      border: 1.5px solid var(--indigo);
-      background: var(--surface-btn-sec);
-      color: var(--indigo-deep);
-    }
-
-    .retractable-btn[aria-expanded="true"] .retractable-pill {
-      background: var(--indigo);
-      color: #FFFFFF;
-      border-color: var(--indigo-deep);
-    }
-
-    .retractable-body { padding: 0 14px 14px; display: none; }
-    .retractable-body.open { display: block; }
-
-    .df-map-canvas {
-      position: relative;
-      height: 132px;
-      border-radius: 12px;
-      background: #EBE8F8;
-      border: 1px solid var(--border-crisp);
-      overflow: hidden;
-    }
-
-    .df-road { position: absolute; background: rgba(255, 255, 255, 0.8); }
-
-    .map-pin-btn {
-      position: absolute;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 5px 10px;
-      border-radius: 10px;
-      background: #FFFFFF;
-      border: 1.5px solid var(--indigo-deep);
-      color: var(--indigo-deep);
-      font-size: 11.5px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 2px 0 var(--indigo-deep);
-    }
-
-    .map-pin-btn.active { background: var(--indigo); color: #FFFFFF; }
-
-    .history-list { display: flex; flex-direction: column; gap: 8px; }
-    .history-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 6px 8px;
-      border-radius: 10px;
-      background: var(--surface-soft);
-    }
-    .history-item strong { display: block; font-size: 12.5px; }
-    .history-item span { font-size: 11px; color: var(--indigo-muted); }
-
-    .toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      background: var(--indigo-deep);
-      color: #FFFFFF;
-      padding: 12px 20px;
-      border-radius: 12px;
-      font-size: 13px;
-      font-weight: 600;
-      transition: transform 0.25s ease;
-      z-index: 50;
-    }
-
-    .toast.show { transform: translateX(-50%) translateY(0); }
-
-    dialog.app-dialog {
-      margin: auto;
-      border: 2px solid var(--indigo-deep);
-      border-radius: 20px;
-      padding: 22px;
-      background: var(--surface);
-      color: var(--indigo-deep);
-      max-width: 400px;
-      width: calc(100% - 32px);
-      box-shadow: 0 18px 40px rgba(46, 42, 94, 0.25);
-    }
-    dialog.app-dialog::backdrop { background: rgba(46, 42, 94, 0.5); }
-    .dialog-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-    .dialog-close {
-      width: 32px; height: 32px; border-radius: 9px; border: 1.5px solid var(--border-crisp);
-      background: var(--surface-soft); color: var(--indigo-deep); font-weight: 700; cursor: pointer;
-    }
+    .runnerup-item span { font-size: 12px; color: var(--muted); }
 
     @media (max-width: 980px) {
-      body { height: auto; overflow: auto; }
-      .app-frame { height: auto; grid-template-columns: 1fr; }
-      .sidebar { display: none; }
       .winner-metrics, .runnerup-grid { grid-template-columns: 1fr; }
-      .right-panel { height: auto; }
     }
   </style>
 </head>
 <body>
-<div class="app-frame">
-  <!-- SIDEBAR GLOBAL: APENAS NAVEGAÇÃO GERAL E CONTA -->
-  <aside class="sidebar" aria-label="Menu global">
-    <div class="logo-box">LOGO</div>
-    <a class="nav-btn" href="criar_sala.html" title="Home principal (Meus grupos e criar sala)" aria-label="Home principal">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    </a>
-    <button class="nav-btn" type="button" title="Meu Perfil" aria-label="Meu Perfil" onclick="document.getElementById('profileModal').showModal()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    </button>
-    <button class="nav-btn" type="button" title="Notificações" aria-label="Notificações" onclick="document.getElementById('notifModal').showModal()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-    </button>
-    <div class="sidebar-spacer"></div>
-    <button class="nav-btn" type="button" title="Configurações" aria-label="Configurações" onclick="document.getElementById('settingsModal').showModal()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-    </button>
-  </aside>
-
-  <main class="main-col">
-    <header class="top-header">
-      <div class="greeting">
-        <h1>Rolê fechado pela turma!</h1>
-        <p>Boteco de Sexta &middot; 4 de 4 votos registrados</p>
-      </div>
-      <button class="avatar-btn" type="button" onclick="showToast('Perfil: Eduarda')">ME</button>
-    </header>
-
-    <section class="stepper-card" aria-label="Etapas do rolê">
-      <a class="step-item done" href="criar_sala.html">✓ Sala criada</a>
-      <div class="step-connector"></div>
-      <a class="step-item done" href="meus_dados.html">✓ Meus dados</a>
-      <div class="step-connector"></div>
-      <a class="step-item done" href="home_sala_v2.html">✓ Votação</a>
-      <div class="step-connector"></div>
-      <a class="step-item active" href="resultado_role.html"><span class="step-num">4</span> Resultado</a>
-    </section>
-
-    <section class="winner-card">
-      <div class="badges-row">
-        <span class="info-tag-dark">🎉 Rolê escolhido (3 de 4 votos)</span>
-        <span class="info-tag-dark">94% de afinidade</span>
-      </div>
-      <div>
-        <h2>Beirute Bar</h2>
-        <p class="winner-meta">Asa Sul &middot; CLS 109, Bloco A &middot; Sexta-feira às 20h00</p>
-      </div>
-      <div class="winner-metrics">
-        <div class="metric-box">
-          <span>Horário combinado</span>
-          <strong>Sexta, 20h00</strong>
-        </div>
-        <div class="metric-box">
-          <span>Média de trajeto</span>
-          <strong>~18 min p/ todos</strong>
-        </div>
-        <div class="metric-box">
-          <span>Restrições OK</span>
-          <strong>Sem glúten &amp; Vegano</strong>
-        </div>
-      </div>
-      <div class="winner-actions">
-        <a class="btn-primary-light" href="https://wa.me/?text=Role%20fechado%3A%20Beirute%20Bar%20(CLS%20109%20Asa%20Sul)%20na%20sexta%20as%2020h!" target="_blank" rel="noopener">💬 Mandar no WhatsApp</a>
-        <button class="btn-outline-dark" type="button" onclick="showToast('Resumo copiado para a área de transferência!')">📋 Copiar resumo</button>
-        <button class="btn-outline-dark" type="button" onclick="showToast('Evento adicionado ao calendário!')">📅 Adicionar na Agenda</button>
-      </div>
-    </section>
-
-    <section class="runnerups-card">
-      <h3>Resultado das outras sugestões</h3>
-      <div class="runnerup-grid">
-        <div class="runnerup-item">
-          <div>
-            <strong>Godofredo Boteco</strong>
-            <span>Asa Norte &middot; Tap house</span>
-          </div>
-          <span class="info-tag-light">1 voto</span>
-        </div>
-        <div class="runnerup-item">
-          <div>
-            <strong>Café Rapport</strong>
-            <span>Asa Sul &middot; Cafeteria</span>
-          </div>
-          <span class="info-tag-light">0 votos</span>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <aside class="right-panel" aria-label="Turma e mapa do resultado">
-    <div>
-      <h2>Presença confirmada</h2>
-      <p class="sub">4 amigos no rolê</p>
-    </div>
-
-    <div class="friends-list">
-      <div class="friend-row">
-        <div class="friend-avatar av-1">ME</div>
-        <div class="friend-info"><strong>Você (Eduarda)</strong><span>Votou em Beirute Bar</span></div>
-        <span class="info-tag-light ok">Confirmada</span>
-      </div>
-      <div class="friend-row">
-        <div class="friend-avatar av-2">CS</div>
-        <div class="friend-info"><strong>Cauan</strong><span>Votou em Beirute Bar</span></div>
-        <span class="info-tag-light ok">Confirmado</span>
-      </div>
-      <div class="friend-row">
-        <div class="friend-avatar av-3">SL</div>
-        <div class="friend-info"><strong>Samara</strong><span>Votou em Beirute Bar</span></div>
-        <span class="info-tag-light ok">Confirmada</span>
-      </div>
-      <div class="friend-row">
-        <div class="friend-avatar av-4">MC</div>
-        <div class="friend-info"><strong>Carolina</strong><span>Votou em Godofredo</span></div>
-        <span class="info-tag-light ok">Confirmada</span>
+<div class="app-shell">
+  <!-- TOPBAR SOCIAL LEVE -->
+  <header class="topbar" aria-label="Menu global">
+    <div class="topbar-left">
+      <a class="brand-link" href="criar_sala.html" aria-label="Qual o Plano? Home">
+        <img src="./assets/logos/logo_nome_220.png" alt="Qual o Plano?" height="36" />
+      </a>
+      <span class="brand-divider"></span>
+      <div class="room-badge-top">
+        <strong>Boteco de Sexta</strong>
+        <span>Resultado final · 3 de 4 votos</span>
       </div>
     </div>
 
-    <div class="accordions-group">
-      <div class="retractable-card">
-        <button class="retractable-btn" id="mapTabBtn" type="button" aria-expanded="true" onclick="toggleAccordion('map')">
-          <span class="retractable-title">🗺️ Mapa do DF</span>
-          <span class="retractable-pill" id="mapTabPill">Fechar aba ▴</span>
-        </button>
-        <div class="retractable-body open" id="mapTabBody">
-          <div class="df-map-canvas">
-            <div class="df-road" style="left:48%; top:0; width:6px; height:100%;"></div>
-            <div class="df-road" style="left:0; top:48%; width:100%; height:6px;"></div>
-            <button class="map-pin-btn active" type="button" style="left:28%; top:52px;" onclick="showToast('Local vencedor: Beirute Bar · CLS 109 Asa Sul')">
-              ★ Beirute (Asa Sul)
-            </button>
+    <nav class="topbar-right" aria-label="Conta e navegação">
+      <a class="nav-pill" href="criar_sala.html">🏠 Meus rolês</a>
+      <button class="nav-pill" type="button" onclick="document.getElementById('profileModal').showModal()">👤 Perfil</button>
+      <button class="icon-btn" type="button" title="Notificações" aria-label="Notificações" onclick="document.getElementById('notifModal').showModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="notif-dot"></span>
+      </button>
+      <button class="icon-btn" type="button" title="Configurações" aria-label="Configurações" onclick="document.getElementById('settingsModal').showModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+      <button class="avatar-btn" type="button" onclick="document.getElementById('profileModal').showModal()">ME</button>
+    </nav>
+  </header>
+
+  <div class="workspace">
+    <main class="main-col">
+      <header class="page-head">
+        <div>
+          <h1>Rolê fechado pela turma!</h1>
+          <p>Boteco de Sexta &middot; 3 de 4 votos escolheram o Beirute Bar</p>
+        </div>
+        <span class="info-tag ok">✓ Decisão fechada</span>
+      </header>
+
+      <section class="stepper-card" aria-label="Etapas do rolê">
+        <a class="step-item done" href="criar_sala.html">✓ Sala criada</a>
+        <div class="step-connector"></div>
+        <a class="step-item done" href="meus_dados.html">✓ Meus dados</a>
+        <div class="step-connector"></div>
+        <a class="step-item done" href="home_sala_v2.html">✓ Votação</a>
+        <div class="step-connector"></div>
+        <a class="step-item active" href="resultado_role.html"><span class="step-num">4</span> Resultado</a>
+      </section>
+
+      <!-- CARD VENCEDOR MINIMALISTA SEM FOTO -->
+      <section class="winner-card">
+        <div class="badges-row">
+          <span class="info-tag-gold">🏆 Vencedor da votação</span>
+          <span class="info-tag on-dark">94% de afinidade</span>
+        </div>
+        <div>
+          <h2>Beirute Bar</h2>
+          <p class="winner-meta">Asa Sul &middot; CLS 109 &middot; Boteco tradicional &middot; ✓ Sem glúten &middot; ✓ Vegano</p>
+        </div>
+        <div class="winner-metrics">
+          <div class="metric-box">
+            <span>Quando</span>
+            <strong>Sexta, 19:30</strong>
+          </div>
+          <div class="metric-box">
+            <span>Onde &amp; Rota</span>
+            <strong>~18 min p/ turma</strong>
+          </div>
+          <div class="metric-box">
+            <span>Gasto médio</span>
+            <strong>~R$ 58 / pessoa</strong>
           </div>
         </div>
-      </div>
+        <div class="winner-actions">
+          <a class="btn-primary" href="https://wa.me/?text=Role%20fechado!%20Beirute%20Bar%20(Asa%20Sul%20-%20CLS%20109)%20Sexta%2019:30" target="_blank" rel="noopener">💬 Mandar no WhatsApp</a>
+          <button class="btn-secondary on-dark" type="button" onclick="copiarResumo()">📋 Copiar resumo</button>
+          <a class="btn-secondary on-dark" href="https://maps.google.com/?q=Beirute+Bar+Asa+Sul+Brasilia" target="_blank" rel="noopener">📍 Abrir no Google Maps</a>
+        </div>
+      </section>
 
-      <div class="retractable-card">
-        <button class="retractable-btn" id="historyTabBtn" type="button" aria-expanded="false" onclick="toggleAccordion('history')">
-          <span class="retractable-title">🕒 Histórico de rolês</span>
-          <span class="retractable-pill" id="historyTabPill">Abrir aba ▾</span>
-        </button>
-        <div class="retractable-body" id="historyTabBody">
-          <div class="history-list">
-            <div class="history-item">
-              <span>📍</span>
-              <div><strong>Beirute Bar (Hoje)</strong><span>Asa Sul &middot; 20h</span></div>
+      <section class="runnerups-card">
+        <div style="display:flex; align-items:center; justify-content:space-between;">
+          <h3>Outras opções da votação</h3>
+          <a class="btn-secondary" style="height:34px; font-size:12px;" href="home_sala_v2.html">← Voltar para votação</a>
+        </div>
+        <div class="runnerup-grid">
+          <div class="runnerup-item">
+            <div>
+              <strong>Godofredo Boteco</strong>
+              <span>Asa Norte &middot; 1 voto</span>
             </div>
-            <div class="history-item">
-              <span>📍</span>
-              <div><strong>Parrilla Burger &amp; Chopp</strong><span>21 nov &middot; Asa Sul</span></div>
+            <span class="info-tag">88%</span>
+          </div>
+          <div class="runnerup-item">
+            <div>
+              <strong>Café Rapport</strong>
+              <span>Asa Sul &middot; 0 votos</span>
+            </div>
+            <span class="info-tag">81%</span>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <aside class="right-panel" aria-label="Confirmação e mapa">
+      <div class="turma-head">
+        <div>
+          <h2>Presença confirmada</h2>
+          <p>Quem vai pro Beirute</p>
+        </div>
+        <a class="btn-primary" style="height:36px; padding:0 12px; font-size:12.5px;" href="criar_sala.html">+ Nova sala</a>
+      </div>
+
+      <div class="friends-list">
+        <div class="friend-row">
+          <div class="friend-avatar av-1">ME</div>
+          <div class="friend-info"><strong>Você (Eduarda)</strong><span>Votou no Beirute</span></div>
+          <span class="info-tag ok">Vai!</span>
+        </div>
+        <div class="friend-row">
+          <div class="friend-avatar av-2">CS</div>
+          <div class="friend-info"><strong>Cauan</strong><span>Votou no Beirute</span></div>
+          <span class="info-tag ok">Vai!</span>
+        </div>
+        <div class="friend-row">
+          <div class="friend-avatar av-3">SL</div>
+          <div class="friend-info"><strong>Samara</strong><span>Votou no Beirute</span></div>
+          <span class="info-tag ok">Vai!</span>
+        </div>
+        <div class="friend-row">
+          <div class="friend-avatar av-4">MC</div>
+          <div class="friend-info"><strong>Carolina</strong><span>Votou no Godofredo</span></div>
+          <span class="info-tag warn">Confirmando</span>
+        </div>
+      </div>
+
+      <!-- STATUS COM BRASÍLIA AMARELA NA CHEGADA -->
+      <div class="vote-status-card">
+        <div class="vote-status-top">
+          <strong>Rolê decidido</strong>
+          <span>4 de 4 amigos</span>
+        </div>
+        <div class="road-track">
+          <div class="road-bar"><div class="road-fill" style="width:100%;"></div></div>
+          <img src="./assets/logos/carro_lateral_160.png" alt="Brasília Amarela" class="road-car" style="left:calc(100% - 44px);" />
+        </div>
+      </div>
+
+      <div class="accordions-group">
+        <div class="retractable-card">
+          <button class="retractable-btn" id="mapTabBtn" type="button" aria-expanded="true" onclick="toggleAccordion('map')">
+            <span class="retractable-title">🗺️ Mapa do DF</span>
+            <span class="retractable-pill" id="mapTabPill">Fechar aba ▴</span>
+          </button>
+          <div class="retractable-body open" id="mapTabBody">
+            <div class="df-map-canvas">
+              <div class="df-road" style="left:48%; top:0; width:6px; height:100%;"></div>
+              <div class="df-road" style="left:0; top:48%; width:100%; height:6px;"></div>
+              <button class="map-pin-btn active" type="button" style="left:22%; top:50px;" onclick="showToast('Beirute Bar · CLS 109, Asa Sul (~18 min)')">
+                📍 Beirute Bar · CLS 109
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="retractable-card">
+          <button class="retractable-btn" id="historyTabBtn" type="button" aria-expanded="false" onclick="toggleAccordion('history')">
+            <span class="retractable-title">🕒 Histórico de rolês</span>
+            <span class="retractable-pill" id="historyTabPill">Abrir aba ▾</span>
+          </button>
+          <div class="retractable-body" id="historyTabBody">
+            <div class="history-list">
+              <div class="history-item">
+                <span>📍</span>
+                <div><strong>Beirute Bar (Hoje)</strong><span>Sexta &middot; Asa Sul</span></div>
+              </div>
+              <div class="history-item">
+                <span>📍</span>
+                <div><strong>Parrilla Burger &amp; Chopp</strong><span>21 nov &middot; Asa Sul</span></div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </aside>
+    </aside>
+  </div>
 </div>
 
 <dialog class="app-dialog" id="profileModal">
@@ -667,7 +332,7 @@
     <div><strong>Nome:</strong> Eduarda (ME)</div>
     <div><strong>Ponto de partida padrão:</strong> Asa Sul · DF</div>
     <div><strong>Restrições salvas:</strong> Sem glúten</div>
-    <button class="btn-primary-light" type="button" style="margin-top:6px; background:#4B4590; color:#fff;" onclick="this.closest('dialog').close(); showToast('Perfil salvo!')">Fechar</button>
+    <button class="btn-primary" type="button" style="margin-top:6px;" onclick="this.closest('dialog').close(); showToast('Perfil salvo!')">Fechar</button>
   </div>
 </dialog>
 
@@ -677,8 +342,8 @@
     <button class="dialog-close" type="button" onclick="this.closest('dialog').close()">✕</button>
   </div>
   <div style="display:flex; flex-direction:column; gap:10px; font-size:12.5px;">
-    <div style="background:#F5F2FC; padding:10px 12px; border-radius:10px;"><strong>Café de Domingo:</strong> Samara convidou você para preencher seus horários.</div>
-    <div style="background:#F5F2FC; padding:10px 12px; border-radius:10px;"><strong>Boteco de Sexta:</strong> Cauan e Samara já votaram.</div>
+    <div style="background:var(--surface-soft); padding:10px 12px; border-radius:10px;"><strong>Café de Domingo:</strong> Samara convidou você para preencher seus horários.</div>
+    <div style="background:var(--surface-soft); padding:10px 12px; border-radius:10px;"><strong>Boteco de Sexta:</strong> Cauan e Samara já votaram.</div>
   </div>
 </dialog>
 
@@ -690,12 +355,13 @@
   <div style="display:flex; flex-direction:column; gap:10px; font-size:13px;">
     <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" checked /> Manter teto de gasto sempre secreto</label>
     <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" checked /> Avisar quando a turma fechar votação</label>
-    <button class="btn-primary-light" type="button" style="margin-top:6px; background:#4B4590; color:#fff;" onclick="this.closest('dialog').close(); showToast('Configurações salvas!')">Salvar</button>
+    <button class="btn-primary" type="button" style="margin-top:6px;" onclick="this.closest('dialog').close(); showToast('Configurações salvas!')">Salvar</button>
   </div>
 </dialog>
 
 <div class="toast" id="toast"></div>
 
+<script src="./shell.js"></script>
 <script>
   function toggleAccordion(target) {
     const items = {
@@ -710,6 +376,7 @@
         pill: document.getElementById('historyTabPill'),
       },
     };
+
     const nextOpen = items[target].btn.getAttribute('aria-expanded') !== 'true';
     Object.entries(items).forEach(([key, el]) => {
       const open = key === target ? nextOpen : false;
@@ -719,13 +386,8 @@
     });
   }
 
-  let toastTimer = null;
-  function showToast(msg) {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+  function copiarResumo() {
+    showToast('Resumo copiado: Beirute Bar (CLS 109) · Sexta 19:30!');
   }
 </script>
 </body>

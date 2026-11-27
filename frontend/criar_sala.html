@@ -3,197 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EIXO — Home &amp; Meus Rolês</title>
+  <title>Qual o Plano? — Home &amp; Meus Rolês</title>
+  <link rel="icon" type="image/x-icon" href="./assets/logos/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/logos/carro_icone_32.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
   <style>
-    :root {
-      --bg-page: #F6F4FB;
-      --surface: #FFFFFF;
-      --surface-soft: #F5F2FC;
-      --surface-btn-sec: #F4F1FC;
-
-      --indigo-deep: #2E2A5E;
-      --indigo: #4B4590;
-      --indigo-mid: #5A52A8;
-      --indigo-muted: #5E5A8A;
-
-      --border-crisp: #C4BCE4;
-      --border-soft: #DCD6F0;
-
-      --tag-bg: #EEEAF9;
-      --tag-ok-bg: #DDF5EF;
-      --tag-ok-fg: #146356;
-      --tag-warn-bg: #FFF1D0;
-      --tag-warn-fg: #7A4F00;
-
-      --shadow-card: 0 4px 14px rgba(46, 42, 94, 0.07);
-      --shadow-btn: 0 3px 0 #2E2A5E;
-    }
-
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-
-    body {
-      font-family: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: var(--bg-page);
-      color: var(--indigo-deep);
-      height: 100vh;
-      overflow: hidden;
-      padding: 12px 14px;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    button, input { font-family: inherit; }
-
-    button:focus-visible, input:focus-visible, a:focus-visible {
-      outline: 3px solid #4B4590;
-      outline-offset: 2px;
-    }
-
-    .app-frame {
-      width: 100%;
-      height: calc(100vh - 24px);
-      display: grid;
-      grid-template-columns: 74px minmax(0, 1fr) 332px;
-      gap: 16px;
-      align-items: stretch;
-    }
-
-    .sidebar {
-      background: var(--indigo);
-      border: 1.5px solid var(--indigo-deep);
-      border-radius: 24px;
-      padding: 16px 13px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      height: 100%;
-      box-shadow: var(--shadow-card);
-    }
-
-    .logo-box {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      border: 1.5px solid rgba(255, 255, 255, 0.45);
-      background: rgba(255, 255, 255, 0.1);
-      color: #FFFFFF;
-      font-weight: 700;
-      font-size: 11px;
-      letter-spacing: 0.08em;
-      display: grid;
-      place-items: center;
-      margin-bottom: 8px;
-    }
-
-    .nav-btn {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      border: 1.5px solid transparent;
-      background: transparent;
-      color: rgba(255, 255, 255, 0.85);
-      display: grid;
-      place-items: center;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background 0.15s, border-color 0.15s;
-    }
-
-    .nav-btn:hover {
-      background: rgba(255, 255, 255, 0.16);
-      border-color: rgba(255, 255, 255, 0.35);
-      color: #FFFFFF;
-    }
-
-    .nav-btn.active {
-      background: #FFFFFF;
-      color: var(--indigo-deep);
-      border-color: var(--indigo-deep);
-      box-shadow: 0 3px 0 var(--indigo-deep);
-    }
-
-    .sidebar-spacer { flex: 1; }
-
-    .main-col {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      min-width: 0;
-    }
-
-    .top-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-    }
-
-    .greeting h1 { font-size: 26px; font-weight: 700; letter-spacing: -0.02em; line-height: 1.2; }
-    .greeting p { font-size: 13px; font-weight: 500; color: var(--indigo-muted); margin-top: 2px; }
-
-    .avatar-btn {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      border: 1.5px solid var(--indigo-deep);
-      background: var(--indigo);
-      color: #FFFFFF;
-      font-weight: 700;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    .stepper-card {
-      background: var(--surface);
-      border: 1.5px solid var(--border-crisp);
-      border-radius: 18px;
-      padding: 10px 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      box-shadow: var(--shadow-card);
-    }
-
-    .step-item {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      padding: 6px 12px;
-      border-radius: 8px;
-      text-decoration: none;
-      white-space: nowrap;
-    }
-
-    .step-item.active { background: var(--indigo); color: #FFFFFF; border-radius: 10px; }
-    .step-item.pending { background: var(--tag-bg); color: var(--indigo-muted); }
-    .step-item.pending:hover { background: #E4DEF7; color: var(--indigo-deep); }
-
-    .step-num {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      font-size: 12px;
-      font-weight: 700;
-      background: rgba(255, 255, 255, 0.22);
-    }
-
-    .step-item.pending .step-num { background: #FFFFFF; color: var(--indigo-muted); }
-    .step-connector { flex: 1; height: 1.5px; background: var(--border-soft); min-width: 16px; }
-
-    /* HOME GERAL: GRUPOS ATIVOS + CRIAR / ENTRAR */
     .home-grid {
       display: grid;
       grid-template-columns: 1.15fr 1fr;
       gap: 16px;
       align-items: start;
+      flex: 1;
+      min-height: 0;
     }
 
     .left-stack {
@@ -202,19 +26,17 @@
       gap: 14px;
     }
 
-    .panel-card {
-      background: var(--surface);
-      border: 1.5px solid var(--border-crisp);
-      border-radius: 20px;
-      padding: 18px 20px;
-      box-shadow: var(--shadow-card);
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
+    .panel-card h2 {
+      font-size: 17px;
+      font-weight: 700;
+      color: var(--ink);
     }
 
-    .panel-card h2 { font-size: 17px; font-weight: 700; color: var(--indigo-deep); }
-    .panel-desc { font-size: 12.5px; color: var(--indigo-muted); line-height: 1.4; }
+    .panel-desc {
+      font-size: 12.5px;
+      color: var(--muted);
+      line-height: 1.4;
+    }
 
     .groups-list {
       display: flex;
@@ -232,50 +54,18 @@
       background: var(--surface-soft);
       border: 1.5px solid var(--border-crisp);
       text-decoration: none;
-      color: var(--indigo-deep);
-      transition: background 0.15s, border-color 0.15s;
+      color: var(--ink);
+      transition: background 0.14s, border-color 0.14s, transform 0.1s;
     }
 
     .group-item:hover {
-      background: #ECE7FA;
-      border-color: var(--indigo);
+      background: #FFEFA6;
+      border-color: var(--ink);
+      transform: translateY(-1px);
     }
 
     .group-item strong { display: block; font-size: 14px; font-weight: 700; }
-    .group-item span { font-size: 12px; color: var(--indigo-muted); }
-
-    .info-tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      padding: 4px 9px;
-      border-radius: 6px;
-      background: var(--tag-ok-bg);
-      color: var(--tag-ok-fg);
-      font-size: 11px;
-      font-weight: 600;
-      width: fit-content;
-      flex-shrink: 0;
-    }
-
-    .info-tag.warn { background: var(--tag-warn-bg); color: var(--tag-warn-fg); }
-    .info-tag.neutral { background: var(--tag-bg); color: var(--indigo-deep); }
-
-    .field { display: flex; flex-direction: column; gap: 5px; }
-    .field label { font-size: 12.5px; font-weight: 600; color: var(--indigo-deep); }
-
-    .text-input {
-      height: 40px;
-      padding: 0 13px;
-      border-radius: 11px;
-      border: 1.5px solid var(--border-crisp);
-      background: var(--surface-soft);
-      color: var(--indigo-deep);
-      font-size: 13px;
-      width: 100%;
-    }
-
-    .text-input:focus { background: #FFFFFF; border-color: var(--indigo); }
+    .group-item span { font-size: 12px; color: var(--muted); }
 
     .checkbox-row {
       display: flex;
@@ -286,55 +76,18 @@
       cursor: pointer;
     }
 
-    .checkbox-row input { width: 17px; height: 17px; accent-color: var(--indigo); cursor: pointer; }
-
-    .btn-primary {
-      height: 42px;
-      padding: 0 16px;
-      border-radius: 12px;
-      border: 1.5px solid var(--indigo-deep);
-      background: var(--indigo);
-      color: #FFFFFF;
-      font-size: 13px;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
+    .checkbox-row input {
+      width: 17px;
+      height: 17px;
+      accent-color: var(--ink);
       cursor: pointer;
-      text-decoration: none;
-      box-shadow: var(--shadow-btn);
-      transition: transform 0.1s, background 0.15s;
     }
-
-    .btn-primary:hover { background: var(--indigo-mid); }
-    .btn-primary:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--indigo-deep); }
-
-    .btn-secondary {
-      height: 40px;
-      padding: 0 14px;
-      border-radius: 12px;
-      border: 1.5px solid var(--indigo);
-      background: var(--surface-btn-sec);
-      color: var(--indigo-deep);
-      font-size: 12.5px;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      cursor: pointer;
-      text-decoration: none;
-      transition: background 0.15s;
-    }
-
-    .btn-secondary:hover { background: #EAE4FA; }
 
     .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
 
     .code-box {
       background: var(--surface-soft);
-      border: 1.5px solid var(--border-crisp);
+      border: 1.5px solid var(--ink);
       border-radius: 12px;
       padding: 10px 12px;
       display: flex;
@@ -344,20 +97,9 @@
     }
 
     .code-box strong { font-size: 16px; letter-spacing: 0.06em; }
-    .hidden { display: none !important; }
 
-    /* PAINEL DIREITO */
-    .right-panel {
-      background: var(--surface);
-      border: 1.5px solid var(--border-crisp);
-      border-radius: 24px;
-      padding: 18px;
-      box-shadow: var(--shadow-card);
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      height: 100%;
-      overflow: hidden;
+    .create-highlight {
+      border-color: var(--ink);
     }
 
     .right-panel h2 { font-size: 17px; font-weight: 700; }
@@ -369,6 +111,7 @@
       align-items: flex-start;
       gap: 10px;
       background: var(--surface-soft);
+      border: 1px solid var(--border-soft);
       border-radius: 12px;
       padding: 10px 12px;
     }
@@ -377,8 +120,9 @@
       width: 24px;
       height: 24px;
       border-radius: 8px;
-      background: var(--indigo);
-      color: #FFFFFF;
+      background: var(--yellow);
+      border: 1.5px solid var(--ink);
+      color: var(--ink);
       font-size: 12px;
       font-weight: 700;
       display: grid;
@@ -388,267 +132,183 @@
 
     .how-item p { font-size: 12px; line-height: 1.4; }
 
-    .accordions-group { margin-top: auto; display: flex; flex-direction: column; gap: 10px; }
-
-    .retractable-card {
-      background: var(--surface);
-      border: 1.5px solid var(--border-crisp);
-      border-radius: 16px;
-      overflow: hidden;
-    }
-
-    .retractable-btn {
-      width: 100%;
-      padding: 11px 14px;
-      background: var(--surface);
-      border: none;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-    }
-
-    .retractable-btn:hover { background: var(--surface-soft); }
-    .retractable-title { font-size: 13.5px; font-weight: 700; color: var(--indigo-deep); }
-
-    .retractable-pill {
-      padding: 4px 10px;
-      border-radius: 9px;
-      font-size: 11px;
-      font-weight: 700;
-      border: 1.5px solid var(--indigo);
-      background: var(--surface-btn-sec);
-      color: var(--indigo-deep);
-    }
-
-    .retractable-btn[aria-expanded="true"] .retractable-pill {
-      background: var(--indigo);
-      color: #FFFFFF;
-      border-color: var(--indigo-deep);
-    }
-
-    .retractable-body { padding: 0 14px 14px; display: none; }
-    .retractable-body.open { display: block; }
-
-    .history-list { display: flex; flex-direction: column; gap: 8px; }
-    .history-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 6px 8px;
-      border-radius: 10px;
-      background: var(--surface-soft);
-    }
-    .history-item strong { display: block; font-size: 12.5px; }
-    .history-item span { font-size: 11px; color: var(--indigo-muted); }
-
-    .toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      background: var(--indigo-deep);
-      color: #FFFFFF;
-      padding: 12px 20px;
-      border-radius: 12px;
-      font-size: 13px;
-      font-weight: 600;
-      transition: transform 0.25s ease;
-      z-index: 50;
-    }
-
-    .toast.show { transform: translateX(-50%) translateY(0); }
-
-    dialog.app-dialog {
-      margin: auto;
-      border: 2px solid var(--indigo-deep);
-      border-radius: 20px;
-      padding: 22px;
-      background: var(--surface);
-      color: var(--indigo-deep);
-      max-width: 400px;
-      width: calc(100% - 32px);
-      box-shadow: 0 18px 40px rgba(46, 42, 94, 0.25);
-    }
-    dialog.app-dialog::backdrop { background: rgba(46, 42, 94, 0.5); }
-    .dialog-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-    .dialog-close {
-      width: 32px; height: 32px; border-radius: 9px; border: 1.5px solid var(--border-crisp);
-      background: var(--surface-soft); color: var(--indigo-deep); font-weight: 700; cursor: pointer;
-    }
-
     @media (max-width: 980px) {
-      body { height: auto; overflow: auto; }
-      .app-frame { height: auto; grid-template-columns: 1fr; }
-      .sidebar { display: none; }
       .home-grid { grid-template-columns: 1fr; }
-      .right-panel { height: auto; }
     }
   </style>
 </head>
 <body>
-<div class="app-frame">
-  <!-- SIDEBAR GLOBAL: APENAS NAVEGAÇÃO GERAL E CONTA -->
-  <aside class="sidebar" aria-label="Menu global">
-    <div class="logo-box">LOGO</div>
-    <a class="nav-btn active" href="criar_sala.html" title="Home principal (Meus grupos e criar sala)" aria-label="Home principal">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    </a>
-    <button class="nav-btn" type="button" title="Meu Perfil" aria-label="Meu Perfil" onclick="document.getElementById('profileModal').showModal()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    </button>
-    <button class="nav-btn" type="button" title="Notificações" aria-label="Notificações" onclick="document.getElementById('notifModal').showModal()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-    </button>
-    <div class="sidebar-spacer"></div>
-    <button class="nav-btn" type="button" title="Configurações" aria-label="Configurações" onclick="document.getElementById('settingsModal').showModal()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-    </button>
-  </aside>
-
-  <main class="main-col">
-    <header class="top-header">
-      <div class="greeting">
-        <h1>Seus grupos de rolê</h1>
-        <p>Acesse suas salas ativas ou crie um novo rolê com a turma</p>
-      </div>
-      <button class="avatar-btn" type="button" onclick="showToast('Perfil: Eduarda')">ME</button>
-    </header>
-
-    <section class="stepper-card hidden" id="stepperHome" aria-label="Etapas do rolê">
-      <a class="step-item active" href="criar_sala.html"><span class="step-num">1</span> Sala criada</a>
-      <div class="step-connector"></div>
-      <a class="step-item pending" href="meus_dados.html"><span class="step-num">2</span> Meus dados</a>
-      <div class="step-connector"></div>
-      <a class="step-item pending" href="home_sala_v2.html"><span class="step-num">3</span> Votação</a>
-      <div class="step-connector"></div>
-      <a class="step-item pending" href="resultado_role.html"><span class="step-num">4</span> Resultado</a>
-    </section>
-
-    <section class="home-grid">
-      <div class="left-stack">
-        <!-- GRUPOS DE ROLÊ QUE A PESSOA TEM -->
-        <div class="panel-card">
-          <h2>Meus grupos ativos</h2>
-          <div class="groups-list">
-            <a class="group-item" href="home_sala_v2.html">
-              <div>
-                <strong>Boteco de Sexta</strong>
-                <span>4 amigos &middot; 2 de 4 votos</span>
-              </div>
-              <span class="info-tag">Votação aberta →</span>
-            </a>
-            <a class="group-item" href="meus_dados.html">
-              <div>
-                <strong>Café de Domingo</strong>
-                <span>3 amigos &middot; Falta seus dados</span>
-              </div>
-              <span class="info-tag warn">Preencher →</span>
-            </a>
-            <a class="group-item" href="resultado_role.html">
-              <div>
-                <strong>Happy Hour da Firma</strong>
-                <span>6 amigos &middot; Beirute Bar</span>
-              </div>
-              <span class="info-tag neutral">Definido →</span>
-            </a>
-          </div>
-        </div>
-
-        <!-- ENTRAR COM CÓDIGO -->
-        <div class="panel-card">
-          <h2>Recebeu um código?</h2>
-          <form onsubmit="entrarSala(event)" style="display:flex; gap:10px; align-items:center;">
-            <input class="text-input" id="joinCode" type="text" placeholder="Ex.: ROLE-7KQ2" required />
-            <button class="btn-secondary" type="submit" style="white-space:nowrap;">Entrar →</button>
-          </form>
-        </div>
-      </div>
-
-      <!-- CRIAR NOVO ROLÊ -->
-      <div class="panel-card">
-        <div id="createFormState">
-          <h2>Criar novo rolê</h2>
-          <p class="panel-desc" style="margin-top:4px; margin-bottom:10px;">Abra uma sala e mande o link secreto no grupo do WhatsApp.</p>
-
-          <form id="formCriar" onsubmit="criarSala(event)" style="display:flex; flex-direction:column; gap:11px;">
-            <div class="field">
-              <label for="orgName">Seu nome</label>
-              <input class="text-input" id="orgName" type="text" placeholder="Ex.: Eduarda" required />
-            </div>
-            <div class="field">
-              <label for="roleName">Nome do rolê</label>
-              <input class="text-input" id="roleName" type="text" placeholder="Ex.: Boteco de Sexta" required />
-            </div>
-            <label class="checkbox-row">
-              <input type="checkbox" id="chk18" required />
-              <span>Tenho 18 anos ou mais (app para adultos).</span>
-            </label>
-            <button class="btn-primary" type="submit" style="margin-top:4px;">+ Criar Sala</button>
-          </form>
-        </div>
-
-        <div id="createdRoomState" class="hidden" style="display:flex; flex-direction:column; gap:12px;">
-          <span class="info-tag">✓ Sala criada com sucesso</span>
-          <h2 id="createdTitle">Boteco de Sexta</h2>
-          <p class="panel-desc">Compartilhe o código ou link no grupo (2 a 20 pessoas):</p>
-          <div class="code-box">
-            <strong id="roomCode">ROLE-7KQ2</strong>
-            <button class="btn-secondary" type="button" style="height:36px;" onclick="copyRoomLink()">Copiar link</button>
-          </div>
-          <div class="btn-row">
-            <a class="btn-secondary" style="flex:1;" href="https://wa.me/?text=Entra%20na%20sala%20do%20nosso%20role%20ROLE-7KQ2" target="_blank" rel="noopener">💬 WhatsApp</a>
-            <a class="btn-primary" style="flex:1;" href="meus_dados.html">Meus dados →</a>
-          </div>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <aside class="right-panel" aria-label="Como funciona e histórico">
-    <h2>Como funciona</h2>
-    <div class="steps-list">
-      <div class="how-item">
-        <span class="how-num">1</span>
-        <p><strong>Crie a sala</strong> e mande o link no grupo do WhatsApp.</p>
-      </div>
-      <div class="how-item">
-        <span class="how-num">2</span>
-        <p><strong>Cada um conta em segredo</strong> de onde sai no DF, horários no calendário e teto de gasto.</p>
-      </div>
-      <div class="how-item">
-        <span class="how-num">3</span>
-        <p><strong>A turma vota</strong> em 3 opções justas para todos, com rota e TikTok.</p>
+<div class="app-shell">
+  <!-- TOPBAR SOCIAL LEVE (SEM SIDEBAR ROXA) -->
+  <header class="topbar" aria-label="Menu global">
+    <div class="topbar-left">
+      <a class="brand-link" href="criar_sala.html" aria-label="Qual o Plano? Home">
+        <img src="./assets/logos/logo_completa_horizontal_320.png" alt="Qual o Plano?" height="40" />
+      </a>
+      <span class="brand-divider"></span>
+      <div class="room-badge-top">
+        <strong>E aí, qual a boa?</strong>
+        <span>Organize rolês sem estresse no DF</span>
       </div>
     </div>
 
-    <a class="btn-secondary" href="home_sala_v2.html" style="width:100%;">✨ Ver sala de exemplo (DEMO)</a>
+    <nav class="topbar-right" aria-label="Conta e navegação">
+      <a class="nav-pill active" href="criar_sala.html">🏠 Meus rolês</a>
+      <button class="nav-pill" type="button" onclick="document.getElementById('profileModal').showModal()">👤 Perfil</button>
+      <button class="icon-btn" type="button" title="Notificações" aria-label="Notificações" onclick="document.getElementById('notifModal').showModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="notif-dot"></span>
+      </button>
+      <button class="icon-btn" type="button" title="Configurações" aria-label="Configurações" onclick="document.getElementById('settingsModal').showModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+      <button class="avatar-btn" type="button" onclick="document.getElementById('profileModal').showModal()">ME</button>
+    </nav>
+  </header>
 
-    <div class="accordions-group">
-      <div class="retractable-card">
-        <button class="retractable-btn" id="historyBtn" type="button" aria-expanded="false" onclick="toggleHistory()">
-          <span class="retractable-title">🕒 Histórico de rolês</span>
-          <span class="retractable-pill" id="historyPill">Abrir aba ▾</span>
-        </button>
-        <div class="retractable-body" id="historyBody">
-          <div class="history-list">
-            <div class="history-item">
-              <span>📍</span>
-              <div><strong>Parrilla Burger &amp; Chopp</strong><span>21 nov &middot; Asa Sul</span></div>
+  <div class="workspace">
+    <main class="main-col">
+      <header class="page-head">
+        <div>
+          <h1>Seus grupos de rolê</h1>
+          <p>Entre em uma sala da turma ou puxe um rolê novo em segundos</p>
+        </div>
+        <span class="info-tag">Brasília · DF</span>
+      </header>
+
+      <!-- STEPPER: OCULTO NA HOME PRINCIPAL, EXIBIDO AO CRIAR SALA -->
+      <section class="stepper-card hidden" id="stepperHome" aria-label="Etapas do rolê">
+        <a class="step-item active" href="criar_sala.html"><span class="step-num">1</span> Sala criada</a>
+        <div class="step-connector"></div>
+        <a class="step-item pending" href="meus_dados.html"><span class="step-num">2</span> Meus dados</a>
+        <div class="step-connector"></div>
+        <a class="step-item pending" href="home_sala_v2.html"><span class="step-num">3</span> Votação</a>
+        <div class="step-connector"></div>
+        <a class="step-item pending" href="resultado_role.html"><span class="step-num">4</span> Resultado</a>
+      </section>
+
+      <section class="home-grid">
+        <div class="left-stack">
+          <div class="panel-card">
+            <h2>Meus grupos ativos</h2>
+            <div class="groups-list">
+              <a class="group-item" href="home_sala_v2.html">
+                <div>
+                  <strong>Boteco de Sexta</strong>
+                  <span>4 amigos &middot; 2 de 4 votos</span>
+                </div>
+                <span class="info-tag ok">Votação aberta →</span>
+              </a>
+              <a class="group-item" href="meus_dados.html">
+                <div>
+                  <strong>Café de Domingo</strong>
+                  <span>3 amigos &middot; Falta seus dados</span>
+                </div>
+                <span class="info-tag warn">Preencher →</span>
+              </a>
+              <a class="group-item" href="resultado_role.html">
+                <div>
+                  <strong>Happy Hour da Firma</strong>
+                  <span>6 amigos &middot; Beirute Bar</span>
+                </div>
+                <span class="info-tag">Definido →</span>
+              </a>
             </div>
-            <div class="history-item">
-              <span>📍</span>
-              <div><strong>Café &amp; Bate-Papo</strong><span>02 nov &middot; Asa Norte</span></div>
+          </div>
+
+          <div class="panel-card">
+            <h2>Recebeu um código?</h2>
+            <form onsubmit="entrarSala(event)" style="display:flex; gap:10px; align-items:center;">
+              <input class="text-input" id="joinCode" type="text" placeholder="Ex.: ROLE-7KQ2" required />
+              <button class="btn-secondary" type="submit" style="white-space:nowrap;">Entrar →</button>
+            </form>
+          </div>
+        </div>
+
+        <div class="panel-card create-highlight">
+          <div id="createFormState">
+            <h2>Criar novo rolê</h2>
+            <p class="panel-desc" style="margin-top:4px; margin-bottom:10px;">Abra uma sala e mande o link secreto no grupo do WhatsApp.</p>
+
+            <form id="formCriar" onsubmit="criarSala(event)" style="display:flex; flex-direction:column; gap:11px;">
+              <div class="field">
+                <label for="orgName">Seu nome</label>
+                <input class="text-input" id="orgName" type="text" placeholder="Ex.: Eduarda" required />
+              </div>
+              <div class="field">
+                <label for="roleName">Nome do rolê</label>
+                <input class="text-input" id="roleName" type="text" placeholder="Ex.: Boteco de Sexta" required />
+              </div>
+              <label class="checkbox-row">
+                <input type="checkbox" id="chk18" required />
+                <span>Tenho 18 anos ou mais (app para adultos).</span>
+              </label>
+              <button class="btn-primary" type="submit" style="margin-top:4px;">+ Criar Sala</button>
+            </form>
+          </div>
+
+          <div id="createdRoomState" class="hidden" style="display:flex; flex-direction:column; gap:12px;">
+            <span class="info-tag ok">✓ Sala criada com sucesso</span>
+            <h2 id="createdTitle">Boteco de Sexta</h2>
+            <p class="panel-desc">Compartilhe o código ou link no grupo (2 a 20 pessoas):</p>
+            <div class="code-box">
+              <strong id="roomCode">ROLE-7KQ2</strong>
+              <button class="btn-secondary" type="button" style="height:36px;" onclick="copyRoomLink()">Copiar link</button>
             </div>
-            <div class="history-item">
-              <span>📍</span>
-              <div><strong>Churrasco da Turma</strong><span>18 out &middot; Guará</span></div>
+            <div class="btn-row">
+              <a class="btn-secondary" style="flex:1;" href="https://wa.me/?text=Entra%20na%20sala%20do%20nosso%20role%20ROLE-7KQ2" target="_blank" rel="noopener">💬 WhatsApp</a>
+              <a class="btn-primary" style="flex:1;" href="meus_dados.html">Meus dados →</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <aside class="right-panel" aria-label="Como funciona e histórico">
+      <h2>Como funciona</h2>
+      <div class="steps-list">
+        <div class="how-item">
+          <span class="how-num">1</span>
+          <p><strong>Crie a sala</strong> e mande o link no grupo do WhatsApp.</p>
+        </div>
+        <div class="how-item">
+          <span class="how-num">2</span>
+          <p><strong>Cada um conta em segredo</strong> de onde sai no DF, horários no calendário e teto de gasto.</p>
+        </div>
+        <div class="how-item">
+          <span class="how-num">3</span>
+          <p><strong>A turma vota</strong> em 3 opções justas para todos, com rota e TikTok.</p>
+        </div>
+      </div>
+
+      <a class="btn-secondary" href="home_sala_v2.html" style="width:100%;">✨ Ver sala de exemplo (DEMO)</a>
+
+      <div class="accordions-group">
+        <div class="retractable-card">
+          <button class="retractable-btn" id="historyBtn" type="button" aria-expanded="false" onclick="toggleSingleAccordion('historyBtn','historyBody','historyPill')">
+            <span class="retractable-title">🕒 Histórico de rolês</span>
+            <span class="retractable-pill" id="historyPill">Abrir aba ▾</span>
+          </button>
+          <div class="retractable-body" id="historyBody">
+            <div class="history-list">
+              <div class="history-item">
+                <span>📍</span>
+                <div><strong>Parrilla Burger &amp; Chopp</strong><span>21 nov &middot; Asa Sul</span></div>
+              </div>
+              <div class="history-item">
+                <span>📍</span>
+                <div><strong>Café &amp; Bate-Papo</strong><span>02 nov &middot; Asa Norte</span></div>
+              </div>
+              <div class="history-item">
+                <span>📍</span>
+                <div><strong>Churrasco da Turma</strong><span>18 out &middot; Guará</span></div>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-  </aside>
+    </aside>
+  </div>
 </div>
 
 <dialog class="app-dialog" id="profileModal">
@@ -670,8 +330,8 @@
     <button class="dialog-close" type="button" onclick="this.closest('dialog').close()">✕</button>
   </div>
   <div style="display:flex; flex-direction:column; gap:10px; font-size:12.5px;">
-    <div style="background:#F5F2FC; padding:10px 12px; border-radius:10px;"><strong>Café de Domingo:</strong> Samara convidou você para preencher seus horários.</div>
-    <div style="background:#F5F2FC; padding:10px 12px; border-radius:10px;"><strong>Boteco de Sexta:</strong> Cauan e Samara já votaram.</div>
+    <div style="background:var(--surface-soft); padding:10px 12px; border-radius:10px;"><strong>Café de Domingo:</strong> Samara convidou você para preencher seus horários.</div>
+    <div style="background:var(--surface-soft); padding:10px 12px; border-radius:10px;"><strong>Boteco de Sexta:</strong> Cauan e Samara já votaram.</div>
   </div>
 </dialog>
 
@@ -689,6 +349,7 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="./shell.js"></script>
 <script>
   function criarSala(e) {
     e.preventDefault();
@@ -707,25 +368,6 @@
 
   function copyRoomLink() {
     showToast('Link da sala ROLE-7KQ2 copiado!');
-  }
-
-  function toggleHistory() {
-    const btn = document.getElementById('historyBtn');
-    const body = document.getElementById('historyBody');
-    const pill = document.getElementById('historyPill');
-    const next = btn.getAttribute('aria-expanded') !== 'true';
-    btn.setAttribute('aria-expanded', String(next));
-    body.classList.toggle('open', next);
-    pill.textContent = next ? 'Fechar aba ▴' : 'Abrir aba ▾';
-  }
-
-  let toastTimer = null;
-  function showToast(msg) {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
   }
 </script>
 </body>

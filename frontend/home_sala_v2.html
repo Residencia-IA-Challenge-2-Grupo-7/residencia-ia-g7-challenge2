@@ -3,308 +3,35 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>EIXO — Home da Sala (Protótipo v2)</title>
+  <title>Qual o Plano? — Votação: Boteco de Sexta</title>
+  <link rel="icon" type="image/x-icon" href="./assets/logos/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/logos/carro_icone_32.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="./styles.css" />
   <style>
-    :root {
-      --bg-page: #F6F4FB;
-      --surface: #FFFFFF;
-      --surface-soft: #F5F2FC;
-      --surface-btn-sec: #F4F1FC;
-
-      --indigo-deep: #2E2A5E;
-      --indigo: #4B4590;
-      --indigo-mid: #5A52A8;
-      --indigo-dark-box: #363170;
-      --indigo-muted: #5E5A8A;
-
-      --border-crisp: #C4BCE4;
-      --border-soft: #DCD6F0;
-
-      --tag-bg: #EEEAF9;
-      --tag-ok-bg: #DDF5EF;
-      --tag-ok-fg: #146356;
-      --tag-warn-bg: #FFF1D0;
-      --tag-warn-fg: #7A4F00;
-
-      --shadow-card: 0 4px 14px rgba(46, 42, 94, 0.07);
-      --shadow-btn: 0 3px 0 #2E2A5E;
-    }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      font-family: 'Poppins', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-      background-color: var(--bg-page);
-      color: var(--indigo-deep);
-      height: 100vh;
-      overflow: hidden;
-      padding: 12px 14px;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    button {
-      font-family: inherit;
-    }
-
-    button:focus-visible,
-    input:focus-visible,
-    textarea:focus-visible {
-      outline: 3px solid #4B4590;
-      outline-offset: 2px;
-    }
-
-    /* LAYOUT PRINCIPAL (BASEADO NO FIGMA 14:2, SEM SCROLL) */
-    .app-frame {
-      width: 100%;
-      height: calc(100vh - 24px);
-      display: grid;
-      grid-template-columns: 74px minmax(0, 1fr) 332px;
-      gap: 16px;
-      align-items: stretch;
-    }
-
-    /* SIDEBAR ESQUERDA RECOLHIDA */
-    .sidebar {
-      background: var(--indigo);
-      border: 1.5px solid var(--indigo-deep);
-      border-radius: 24px;
-      padding: 16px 13px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 10px;
-      height: 100%;
-      box-shadow: var(--shadow-card);
-    }
-
-    .logo-box {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      border: 1.5px solid rgba(255, 255, 255, 0.45);
-      background: rgba(255, 255, 255, 0.1);
-      color: #FFFFFF;
-      font-weight: 700;
-      font-size: 11px;
-      letter-spacing: 0.08em;
-      display: grid;
-      place-items: center;
-      margin-bottom: 8px;
-    }
-
-    .nav-btn {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      border: 1.5px solid transparent;
-      background: transparent;
-      color: rgba(255, 255, 255, 0.85);
-      display: grid;
-      place-items: center;
-      cursor: pointer;
-      transition: background 0.15s, transform 0.1s, border-color 0.15s;
-      position: relative;
-    }
-
-    .nav-btn:hover {
-      background: rgba(255, 255, 255, 0.16);
-      border-color: rgba(255, 255, 255, 0.35);
-      color: #FFFFFF;
-    }
-
-    .nav-btn.active {
-      background: #FFFFFF;
-      color: var(--indigo-deep);
-      border-color: var(--indigo-deep);
-      box-shadow: 0 3px 0 var(--indigo-deep);
-    }
-
-    .sidebar-spacer {
-      flex: 1;
-    }
-
-    /* CONTEÚDO CENTRAL */
-    .main-col {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      min-width: 0;
-      height: 100%;
-      min-height: 0;
-    }
-
-    /* HEADER */
-    .top-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-
-    .greeting h1 {
-      font-size: 27px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--indigo-deep);
-      line-height: 1.2;
-    }
-
-    .greeting p {
-      font-size: 13.5px;
-      font-weight: 500;
-      color: var(--indigo-muted);
-      margin-top: 3px;
-    }
-
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
     .search-box {
       display: flex;
       align-items: center;
       gap: 8px;
-      background: var(--surface);
+      background: var(--surface-soft);
       border: 1.5px solid var(--border-crisp);
-      border-radius: 14px;
-      padding: 0 14px;
-      height: 44px;
-      width: 248px;
+      border-radius: 11px;
+      padding: 0 11px;
+      height: 38px;
+      width: 230px;
     }
 
     .search-box input {
       border: none;
       background: transparent;
-      font-family: inherit;
-      font-size: 13px;
-      color: var(--indigo-deep);
       width: 100%;
+      font-size: 12.5px;
+      color: var(--ink);
+      outline: none;
     }
 
-    .search-box input::placeholder {
-      color: var(--indigo-muted);
-    }
-
-    .icon-btn {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      border: 1.5px solid var(--border-crisp);
-      background: var(--surface);
-      color: var(--indigo-deep);
-      display: grid;
-      place-items: center;
-      cursor: pointer;
-      position: relative;
-      transition: background 0.15s, border-color 0.15s, transform 0.1s;
-    }
-
-    .icon-btn:hover {
-      background: var(--surface-btn-sec);
-      border-color: var(--indigo);
-    }
-
-    .icon-btn:active {
-      transform: translateY(1px);
-    }
-
-    .notif-dot {
-      position: absolute;
-      top: 9px;
-      right: 10px;
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #D92D20;
-      border: 1.5px solid #FFFFFF;
-    }
-
-    .avatar-btn {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      border: 1.5px solid var(--indigo-deep);
-      background: var(--indigo);
-      color: #FFFFFF;
-      font-weight: 700;
-      font-size: 14px;
-      cursor: pointer;
-    }
-
-    /* BARRA DE PROGRESSO DO ROLÊ */
-    .stepper-card {
-      background: var(--surface);
-      border: 1.5px solid var(--border-crisp);
-      border-radius: 18px;
-      padding: 10px 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      box-shadow: var(--shadow-card);
-    }
-
-    .step-item {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      padding: 6px 12px;
-      border-radius: 8px; /* Tag / estado não clicável, sem cara de botão */
-      white-space: nowrap;
-    }
-
-    .step-item.done {
-      background: var(--tag-ok-bg);
-      color: var(--tag-ok-fg);
-    }
-
-    .step-item.active {
-      background: var(--indigo);
-      color: #FFFFFF;
-      border-radius: 10px;
-    }
-
-    .step-item.pending {
-      background: var(--tag-bg);
-      color: var(--indigo-muted);
-    }
-
-    .step-num {
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      font-size: 12px;
-      font-weight: 700;
-      background: rgba(255, 255, 255, 0.22);
-    }
-
-    .step-item.pending .step-num {
-      background: #FFFFFF;
-      color: var(--indigo-muted);
-    }
-
-    .step-connector {
-      flex: 1;
-      height: 1.5px;
-      background: var(--border-soft);
-      min-width: 16px;
-    }
-
-    /* SEÇÃO ROLÊS PARA O GRUPO */
     .section-head {
       display: flex;
       align-items: center;
@@ -313,49 +40,50 @@
     }
 
     .section-head h2 {
-      font-size: 19px;
+      font-size: 18px;
       font-weight: 700;
-      color: var(--indigo-deep);
+      color: var(--ink);
     }
 
     .section-head p {
-      font-size: 13px;
-      color: var(--indigo-muted);
-      margin-top: 2px;
+      font-size: 12.5px;
+      color: var(--muted);
     }
 
     .carousel-controls {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 7px;
     }
 
     .carousel-count {
       font-size: 12.5px;
-      font-weight: 600;
-      color: var(--indigo-muted);
+      font-weight: 700;
+      color: var(--muted);
       margin-right: 4px;
     }
 
-    /* GRID DE CARDS (1 DESTAQUE + 2 LATERAIS) */
+    /* GRID 3 CARDS MINIMALISTAS SEM FOTOS */
     .roles-grid {
       display: grid;
-      grid-template-columns: 1.85fr 1fr 1fr;
-      gap: 16px;
-      align-items: start;
+      grid-template-columns: 1.32fr 1fr 1fr;
+      gap: 14px;
+      flex: 1;
+      min-height: 0;
     }
 
-    /* CARD DESTAQUE */
+    /* DESTAQUE: SEAL BROWN COM ACENTO AMARELO SOLAR */
     .card-featured {
-      background: var(--indigo);
-      border: 2px solid var(--indigo-deep);
+      background: var(--ink);
+      border: 2px solid var(--ink);
       border-radius: 22px;
-      padding: 20px;
-      color: #FFFFFF;
+      padding: 18px 20px;
+      color: #FFFDF7;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      box-shadow: var(--shadow-card);
+      gap: 11px;
+      box-shadow: 0 6px 18px rgba(91, 47, 21, 0.18);
+      min-height: 0;
     }
 
     .badges-row {
@@ -366,54 +94,30 @@
       flex-wrap: wrap;
     }
 
-    /* TAGS INFORMATIVAS ESTÁTICAS (SEM BORDA, SEM SOMBRA, CANTO 6px) */
-    .info-tag-dark {
+    .info-tag-gold {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      padding: 4px 10px;
-      border-radius: 6px;
-      background: var(--indigo-dark-box);
-      color: #FFFFFF;
-      font-size: 11.5px;
-      font-weight: 600;
-      user-select: none;
-    }
-
-    .info-tag-light {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
+      gap: 4px;
       padding: 4px 9px;
       border-radius: 6px;
-      background: var(--tag-bg);
-      color: var(--indigo-deep);
+      background: var(--yellow);
+      color: var(--ink);
       font-size: 11.5px;
-      font-weight: 600;
-      user-select: none;
-    }
-
-    .info-tag-light.ok {
-      background: var(--tag-ok-bg);
-      color: var(--tag-ok-fg);
-    }
-
-    .info-tag-light.warn {
-      background: var(--tag-warn-bg);
-      color: var(--tag-warn-fg);
+      font-weight: 700;
     }
 
     .card-featured h3 {
-      font-size: 27px;
+      font-size: 25px;
       font-weight: 700;
       line-height: 1.15;
-      margin-top: 2px;
+      color: var(--canary);
     }
 
     .card-subtitle-dark {
       font-size: 13px;
-      color: rgba(255, 255, 255, 0.85);
+      color: #F6E6B4;
       font-weight: 500;
+      margin-top: 3px;
     }
 
     .tags-wrap {
@@ -423,35 +127,51 @@
     }
 
     .rationale-dark {
-      background: var(--indigo-dark-box);
-      border: 1px solid rgba(255, 255, 255, 0.24);
+      background: #46230F;
+      border: 1px solid rgba(255, 229, 0, 0.25);
+      border-left: 3px solid var(--yellow);
       border-radius: 12px;
-      padding: 12px 14px;
-      margin-top: 2px;
+      padding: 11px 13px;
+      margin-top: auto;
     }
 
     .rationale-dark .r-label {
-      font-size: 10.5px;
+      font-size: 10px;
       font-weight: 700;
-      letter-spacing: 0.06em;
-      color: #D8D3F8;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--yellow);
       margin-bottom: 4px;
     }
 
     .rationale-dark p {
       font-size: 12.5px;
-      line-height: 1.45;
-      color: #FFFFFF;
+      line-height: 1.4;
+      color: #FFFDF7;
     }
 
     .featured-actions {
       display: flex;
-      gap: 10px;
-      margin-top: 4px;
-      padding-top: 4px;
+      gap: 9px;
+      padding-top: 2px;
     }
 
-    /* CARDS SECUNDÁRIOS (ALTO CONTRASTE, FUNDO BRANCO + BORDA NÍTIDA) */
+    .featured-actions .btn-primary {
+      flex: 1;
+      background: var(--yellow);
+      color: var(--ink);
+      border-color: #2E1608;
+      box-shadow: 0 3px 0 #2E1608;
+    }
+
+    .featured-actions .btn-primary.voted-state {
+      background: var(--green);
+      color: #FFFFFF;
+      border-color: #094D32;
+      box-shadow: 0 3px 0 #094D32;
+    }
+
+    /* CARDS SECUNDÁRIOS LIMPOS SEM FOTO */
     .card-place {
       background: var(--surface);
       border: 1.5px solid var(--border-crisp);
@@ -459,18 +179,20 @@
       padding: 18px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 11px;
       box-shadow: var(--shadow-card);
+      transition: border-color 0.15s;
+      min-height: 0;
     }
 
     .card-place.is-voted {
-      border: 2px solid var(--indigo);
-      box-shadow: 0 5px 0 var(--indigo);
+      border-color: var(--green);
+      border-width: 2px;
     }
 
     .place-top {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
       gap: 8px;
     }
@@ -480,31 +202,29 @@
       height: 44px;
       border-radius: 12px;
       background: var(--surface-soft);
-      color: var(--indigo);
+      border: 1.5px solid var(--ink);
+      color: var(--ink);
       display: grid;
       place-items: center;
     }
 
     .card-place h3 {
-      font-size: 17px;
+      font-size: 19px;
       font-weight: 700;
-      color: var(--indigo-deep);
-      line-height: 1.25;
-      margin-top: 2px;
+      line-height: 1.2;
+      color: var(--ink);
     }
 
     .place-meta {
       font-size: 12.5px;
-      color: var(--indigo-muted);
-      font-weight: 500;
+      color: var(--muted);
+      margin-top: 3px;
     }
 
     .place-tags {
       display: flex;
-      flex-direction: column;
-      align-items: flex-start;
+      flex-wrap: wrap;
       gap: 6px;
-      margin-top: 4px;
     }
 
     .place-actions {
@@ -512,423 +232,13 @@
       flex-direction: column;
       gap: 8px;
       margin-top: auto;
-      padding-top: 8px;
-    }
-
-    /* BOTÕES CLICÁVEIS — DISTINÇÃO INEQUÍVOCA! */
-    .btn-primary {
-      height: 44px;
-      padding: 0 16px;
-      border-radius: 12px;
-      border: 1.5px solid var(--indigo-deep);
-      background: var(--indigo);
-      color: #FFFFFF;
-      font-size: 13.5px;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      cursor: pointer;
-      box-shadow: var(--shadow-btn);
-      transition: transform 0.1s, background 0.15s;
-    }
-
-    .btn-primary:hover {
-      background: var(--indigo-mid);
-    }
-
-    .btn-primary:active {
-      transform: translateY(2px);
-      box-shadow: 0 1px 0 var(--indigo-deep);
-    }
-
-    .btn-primary.on-dark {
-      background: #FFFFFF;
-      color: var(--indigo-deep);
-      border-color: var(--indigo-deep);
-      flex: 1;
-    }
-
-    .btn-primary.on-dark:hover {
-      background: #F4F1FC;
-    }
-
-    .btn-primary.voted-state {
-      background: #146356;
-      border-color: #0D443B;
-      color: #FFFFFF;
-      box-shadow: 0 3px 0 #0D443B;
-    }
-
-    .btn-secondary {
-      height: 40px;
-      padding: 0 14px;
-      border-radius: 12px;
-      border: 1.5px solid var(--indigo);
-      background: var(--surface-btn-sec);
-      color: var(--indigo-deep);
-      font-size: 13px;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 7px;
-      cursor: pointer;
-      transition: background 0.15s, transform 0.1s;
-    }
-
-    .btn-secondary:hover {
-      background: #EAE4FA;
-    }
-
-    .btn-secondary:active {
-      transform: translateY(1px);
-    }
-
-    .btn-secondary.on-dark {
-      background: var(--indigo-dark-box);
-      color: #FFFFFF;
-      border-color: rgba(255, 255, 255, 0.78);
-      height: 44px;
-    }
-
-    .btn-secondary.on-dark:hover {
-      background: #433D88;
-    }
-
-    .history-list {
-      display: flex;
-      flex-direction: column;
-      gap: 9px;
-    }
-
-    .history-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 6px 8px;
-      border-radius: 10px;
-      background: var(--surface-soft);
-    }
-
-    .history-pin {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: #FFFFFF;
-      border: 1px solid var(--border-soft);
-      color: var(--indigo);
-      display: grid;
-      place-items: center;
-      flex-shrink: 0;
-      font-size: 14px;
-    }
-
-    .history-item strong {
-      display: block;
-      font-size: 12.5px;
-      font-weight: 600;
-      color: var(--indigo-deep);
-      line-height: 1.25;
-    }
-
-    .history-item span {
-      font-size: 11px;
-      color: var(--indigo-muted);
-    }
-
-    /* PAINEL DIREITO / SUA TURMA (FIT 100VH SEM SCROLL) */
-    .right-panel {
-      background: var(--surface);
-      border: 1.5px solid var(--border-crisp);
-      border-radius: 24px;
-      padding: 18px;
-      box-shadow: var(--shadow-card);
-      display: flex;
-      flex-direction: column;
-      gap: 13px;
-      height: 100%;
-      overflow: hidden;
-    }
-
-    .turma-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-    }
-
-    .turma-head h2 {
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--indigo-deep);
-    }
-
-    .turma-head p {
-      font-size: 12px;
-      color: var(--indigo-muted);
-    }
-
-    .btn-invite {
-      height: 38px;
-      padding: 0 13px;
-      border-radius: 12px;
-      border: 1.5px solid var(--indigo-deep);
-      background: var(--indigo);
-      color: #FFFFFF;
-      font-size: 12.5px;
-      font-weight: 700;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      box-shadow: var(--shadow-btn);
-    }
-
-    .friends-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .friend-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .friend-avatar {
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      display: grid;
-      place-items: center;
-      font-size: 11.5px;
-      font-weight: 700;
-      flex-shrink: 0;
-    }
-
-    .av-1 { background: #4B4590; color: #FFFFFF; }
-    .av-2 { background: #E4EEF9; color: #2E2A5E; }
-    .av-3 { background: #FADCFE; color: #2E2A5E; }
-    .av-4 { background: #EFEBFA; color: #2E2A5E; }
-
-    .friend-info {
-      flex: 1;
-      min-width: 0;
-    }
-
-    .friend-info strong {
-      display: block;
-      font-size: 12.5px;
-      font-weight: 600;
-      color: var(--indigo-deep);
-      line-height: 1.25;
-    }
-
-    .friend-info span {
-      font-size: 11px;
-      color: var(--indigo-muted);
-    }
-
-    .privacy-note {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      font-size: 11.5px;
-      color: var(--indigo-muted);
-      font-weight: 500;
-    }
-
-    /* STATUS DA VOTAÇÃO (SEM TIMER!) */
-    .vote-status-card {
-      background: var(--surface-soft);
-      border: 1px solid var(--border-soft);
-      border-radius: 14px;
-      padding: 12px 14px;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .vote-status-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      font-size: 12.5px;
-    }
-
-    .vote-status-top strong {
-      color: var(--indigo-deep);
-      font-weight: 700;
-    }
-
-    .vote-status-top span {
-      color: var(--indigo);
-      font-weight: 600;
-    }
-
-    .progress-track {
-      height: 7px;
-      border-radius: 999px;
-      background: #DED8F2;
-      overflow: hidden;
-    }
-
-    .progress-fill {
-      height: 100%;
-      width: 50%;
-      border-radius: 999px;
-      background: var(--indigo);
-      transition: width 0.25s ease;
-    }
-
-    /* ABAS RETRÁTEIS (MAPA DO DF + HISTÓRICO DE ROLÊS) */
-    .accordions-group {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: auto;
-    }
-
-    .retractable-card {
-      background: var(--surface);
-      border: 1.5px solid var(--border-crisp);
-      border-radius: 16px;
-      overflow: hidden;
-    }
-
-    .retractable-btn {
-      width: 100%;
-      padding: 11px 14px;
-      background: var(--surface);
-      border: none;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 10px;
-      cursor: pointer;
-      text-align: left;
-      transition: background 0.15s;
-    }
-
-    .retractable-btn:hover {
-      background: var(--surface-soft);
-    }
-
-    .retractable-title {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      font-size: 13.5px;
-      font-weight: 700;
-      color: var(--indigo-deep);
-    }
-
-    .retractable-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 4px 10px;
-      border-radius: 9px;
-      font-size: 11px;
-      font-weight: 700;
-      border: 1.5px solid var(--indigo);
-      background: var(--surface-btn-sec);
-      color: var(--indigo-deep);
-    }
-
-    .retractable-btn[aria-expanded="true"] .retractable-pill {
-      background: var(--indigo);
-      color: #FFFFFF;
-      border-color: var(--indigo-deep);
-    }
-
-    .retractable-body {
-      padding: 0 14px 14px;
-      display: none;
-    }
-
-    .retractable-body.open {
-      display: block;
-    }
-
-    .df-map-canvas {
-      position: relative;
-      height: 132px;
-      border-radius: 12px;
-      background: #EBE8F8;
-      border: 1px solid var(--border-crisp);
-      overflow: hidden;
-    }
-
-    .df-road {
-      position: absolute;
-      background: rgba(255, 255, 255, 0.8);
-    }
-
-    .map-pin-btn {
-      position: absolute;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 5px 10px;
-      border-radius: 10px;
-      background: #FFFFFF;
-      border: 1.5px solid var(--indigo-deep);
-      color: var(--indigo-deep);
-      font-size: 11.5px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 2px 0 var(--indigo-deep);
-    }
-
-    .map-pin-btn.active {
-      background: var(--indigo);
-      color: #FFFFFF;
-    }
-
-    /* MODAL DIALOG NATIVO */
-    dialog {
-      margin: auto;
-      border: 2px solid var(--indigo-deep);
-      border-radius: 22px;
-      padding: 24px;
-      background: var(--surface);
-      color: var(--indigo-deep);
-      max-width: 420px;
-      width: calc(100% - 32px);
-      box-shadow: 0 18px 40px rgba(46, 42, 94, 0.28);
-    }
-
-    dialog::backdrop {
-      background: rgba(46, 42, 94, 0.55);
-    }
-
-    .dialog-head {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 14px;
-    }
-
-    .dialog-close {
-      width: 34px;
-      height: 34px;
-      border-radius: 10px;
-      border: 1.5px solid var(--border-crisp);
-      background: var(--surface-soft);
-      color: var(--indigo-deep);
-      font-weight: 700;
-      cursor: pointer;
     }
 
     .tiktok-mock {
-      height: 320px;
+      height: 300px;
       border-radius: 16px;
-      background: #2E2A5E;
-      color: #FFFFFF;
+      background: var(--ink);
+      color: #FFFDF7;
       padding: 18px;
       display: flex;
       flex-direction: column;
@@ -936,362 +246,286 @@
       margin-bottom: 14px;
     }
 
-    .toast {
-      position: fixed;
-      bottom: 24px;
-      left: 50%;
-      transform: translateX(-50%) translateY(80px);
-      background: var(--indigo-deep);
-      color: #FFFFFF;
-      padding: 12px 20px;
-      border-radius: 12px;
-      font-size: 13px;
-      font-weight: 600;
-      box-shadow: 0 10px 24px rgba(46, 42, 94, 0.25);
-      transition: transform 0.25s ease;
-      z-index: 50;
-    }
-
-    .toast.show {
-      transform: translateX(-50%) translateY(0);
-    }
-
-    @media (max-width: 1220px) {
-      .app-frame {
-        grid-template-columns: 76px 1fr;
-      }
-      .right-panel {
-        grid-column: 2;
-      }
-    }
-
-    @media (max-width: 900px) {
-      body {
-        height: auto;
-        overflow: auto;
-      }
-      .app-frame {
-        height: auto;
-        grid-template-columns: 1fr;
-      }
-      .sidebar {
-        display: none;
-      }
-      .roles-grid {
-        grid-template-columns: 1fr;
-        max-height: none;
-      }
-      .right-panel {
-        grid-column: 1;
-        height: auto;
-      }
+    @media (max-width: 980px) {
+      .search-box { display: none; }
+      .roles-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-
-<div class="app-frame">
-  <!-- SIDEBAR GLOBAL: APENAS NAVEGAÇÃO GERAL E CONTA -->
-  <aside class="sidebar" aria-label="Menu global">
-    <div class="logo-box">LOGO</div>
-    <a class="nav-btn" style="text-decoration:none" href="criar_sala.html" title="Home principal (Meus grupos e criar sala)" aria-label="Home principal">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-    </a>
-    <button class="nav-btn" type="button" title="Meu Perfil" aria-label="Meu Perfil" onclick="document.getElementById('profileModal').showModal()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-    </button>
-    <button class="nav-btn" type="button" title="Notificações" aria-label="Notificações" onclick="document.getElementById('notifModal').showModal()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-    </button>
-    <div class="sidebar-spacer"></div>
-    <button class="nav-btn" type="button" title="Configurações" aria-label="Configurações" onclick="document.getElementById('settingsModal').showModal()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-    </button>
-  </aside>
-
-  <!-- COLUNA CENTRAL -->
-  <main class="main-col">
-    <header class="top-header">
-      <div class="greeting">
-        <h1>Boa noite, Eduarda</h1>
-        <p>Boteco de Sexta &middot; 4 amigos &middot; votação em andamento</p>
-      </div>
-      <div class="header-actions">
-        <div class="search-box">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#5E5A8A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input type="text" placeholder="Buscar rolê, amigo ou lugar" aria-label="Buscar rolê, amigo ou lugar" />
-        </div>
-        <button class="icon-btn" type="button" aria-label="Notificações" onclick="showToast('Cauan e Samara já enviaram suas preferências')">
-          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-          <span class="notif-dot"></span>
-        </button>
-        <button class="avatar-btn" type="button" aria-label="Perfil ME" onclick="showToast('Perfil: Eduarda (Asa Sul)')">ME</button>
-      </div>
-    </header>
-
-    <!-- PROGRESSO -->
-    <section class="stepper-card" aria-label="Etapas do rolê">
-      <a class="step-item done" style="text-decoration:none" href="criar_sala.html">✓ Sala criada</a>
-      <div class="step-connector"></div>
-      <a class="step-item done" style="text-decoration:none" href="meus_dados.html">✓ Meus dados</a>
-      <div class="step-connector"></div>
-      <a class="step-item active" style="text-decoration:none" href="home_sala_v2.html"><span class="step-num">3</span> Votação</a>
-      <div class="step-connector"></div>
-      <a class="step-item pending" style="text-decoration:none" href="resultado_role.html"><span class="step-num">4</span> Resultado</a>
-    </section>
-
-    <!-- CABEÇALHO SUGESTÕES -->
-    <div class="section-head">
-      <div>
-        <h2>Rolês para o grupo</h2>
-        <p>3 sugestões validadas &middot; escolha seu favorito</p>
-      </div>
-      <div class="carousel-controls">
-        <span class="carousel-count" id="carouselCount">1 / 3</span>
-        <button class="icon-btn" type="button" aria-label="Sugestão anterior" onclick="cycleSlide(-1)">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
-        </button>
-        <button class="icon-btn" type="button" aria-label="Próxima sugestão" onclick="cycleSlide(1)">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
-        </button>
+<div class="app-shell">
+  <!-- TOPBAR SOCIAL LEVE -->
+  <header class="topbar" aria-label="Menu global">
+    <div class="topbar-left">
+      <a class="brand-link" href="criar_sala.html" aria-label="Qual o Plano? Home">
+        <img src="./assets/logos/logo_nome_220.png" alt="Qual o Plano?" height="36" />
+      </a>
+      <span class="brand-divider"></span>
+      <div class="room-badge-top">
+        <strong>Boteco de Sexta</strong>
+        <span>4 amigos · votação em andamento</span>
       </div>
     </div>
 
-    <!-- 3 CARDS DE ROLÊS -->
-    <section class="roles-grid" aria-label="Sugestões para votação">
-      <!-- DESTAQUE -->
-      <article class="card-featured" id="card-beirute">
-        <div class="badges-row">
-          <span class="info-tag-dark">★ Menor Miséria</span>
-          <span class="info-tag-dark">94% de afinidade</span>
-        </div>
-        <div>
-          <h3>Beirute Bar</h3>
-          <p class="card-subtitle-dark">Asa Sul &middot; CLS 109 &middot; Boteco tradicional</p>
-        </div>
-        <div class="tags-wrap">
-          <span class="info-tag-dark">✓ Sem glúten</span>
-          <span class="info-tag-dark">✓ Vegano</span>
-          <span class="info-tag-dark">~18 min p/ todos</span>
-        </div>
-        <div class="rationale-dark">
-          <div class="r-label">POR QUE SUGERIMOS</div>
-          <p>Fica no meio do caminho do grupo, respeita o menor teto de gasto e tem opções seguras para as restrições de todos.</p>
-        </div>
-        <div class="featured-actions">
-          <button class="btn-primary on-dark" type="button" data-vote="Beirute Bar" onclick="voteFor(this)">
-            ✓ Votar neste rolê
-          </button>
-          <button class="btn-secondary on-dark" type="button" onclick="openTikTok('Beirute Bar', 'Asa Sul · CLS 109', 'Chopp bem tirado, kibe recheado e clima de boteco clássico no meio do caminho do grupo!')">
-            ▶ TikTok
-          </button>
-        </div>
-      </article>
-
-      <!-- CARD 2 -->
-      <article class="card-place" id="card-godofredo">
-        <div class="place-top">
-          <div class="place-icon-box" aria-hidden="true">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M17 11h1a3 3 0 0 1 0 6h-1"/><path d="M9 12v6"/><path d="M13 12v6"/><path d="M14 7.5c-1 0-1.44.5-3 .5s-2-.5-3-.5-1.72.5-2.5.5a2.5 2.5 0 0 1 0-5c.78 0 1.57.5 2.5.5S9.44 2 11 2s2 1.5 3 1.5 1.72-.5 2.5-.5a2.5 2.5 0 0 1 0 5c-.78 0-1.5-.5-2.5-.5Z"/><path d="M5 8v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8"/></svg>
-          </div>
-          <span class="info-tag-light">88%</span>
-        </div>
-        <div>
-          <h3>Godofredo Boteco</h3>
-          <p class="place-meta">Asa Norte &middot; Tap house</p>
-        </div>
-        <div class="place-tags">
-          <span class="info-tag-light ok">✓ Cabe no teto</span>
-          <span class="info-tag-light">⏱ ~24 min</span>
-        </div>
-        <div class="place-actions">
-          <button class="btn-primary" type="button" data-vote="Godofredo Boteco" onclick="voteFor(this)">
-            ✓ Votar
-          </button>
-          <button class="btn-secondary" type="button" onclick="openTikTok('Godofredo Boteco', 'Asa Norte · CLN 408', 'Mais de 30 torneiras de chopp artesanal, mesas na calçada e porções pra dividir.')">
-            ▶ Ver no TikTok
-          </button>
-        </div>
-      </article>
-
-      <!-- CARD 3 -->
-      <article class="card-place" id="card-rapport">
-        <div class="place-top">
-          <div class="place-icon-box" aria-hidden="true">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
-          </div>
-          <span class="info-tag-light">81%</span>
-        </div>
-        <div>
-          <h3>Café Rapport</h3>
-          <p class="place-meta">Asa Sul &middot; Cafeteria</p>
-        </div>
-        <div class="place-tags">
-          <span class="info-tag-light ok">✓ Cabe no teto</span>
-          <span class="info-tag-light">⏱ ~16 min</span>
-        </div>
-        <div class="place-actions">
-          <button class="btn-primary" type="button" data-vote="Café Rapport" onclick="voteFor(this)">
-            ✓ Votar
-          </button>
-          <button class="btn-secondary" type="button" onclick="openTikTok('Café Rapport', 'Asa Sul · CLS 201', 'Ambiente coberto, cafés especiais, comidinhas leves e menor deslocamento da turma.')">
-            ▶ Ver no TikTok
-          </button>
-        </div>
-      </article>
-    </section>
-  </main>
-
-  <!-- PAINEL DIREITO: SUA TURMA + STATUS SEM TIMER + MAPA E HISTÓRICO RETRÁTEIS -->
-  <aside class="right-panel" id="turmaPanel" aria-label="Sua turma, mapa e histórico">
-    <div class="turma-head">
-      <div>
-        <h2>Sua turma</h2>
-        <p>4 amigos na sala</p>
+    <nav class="topbar-right" aria-label="Busca e conta">
+      <div class="search-box">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#754E35" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Buscar rolê ou lugar" aria-label="Buscar rolê ou lugar" />
       </div>
-      <button class="btn-invite" type="button" onclick="document.getElementById('inviteDialog').showModal()">
-        + Convidar
+      <a class="nav-pill" href="criar_sala.html">🏠 Meus rolês</a>
+      <button class="nav-pill" type="button" onclick="document.getElementById('profileModal').showModal()">👤 Perfil</button>
+      <button class="icon-btn" type="button" title="Notificações" aria-label="Notificações" onclick="document.getElementById('notifModal').showModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+        <span class="notif-dot"></span>
       </button>
-    </div>
+      <button class="icon-btn" type="button" title="Configurações" aria-label="Configurações" onclick="document.getElementById('settingsModal').showModal()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+      </button>
+      <button class="avatar-btn" type="button" onclick="document.getElementById('profileModal').showModal()">ME</button>
+    </nav>
+  </header>
 
-    <div class="friends-list">
-      <div class="friend-row">
-        <div class="friend-avatar av-1">ME</div>
-        <div class="friend-info">
-          <strong>Você (Eduarda)</strong>
-          <span>Dados preenchidos</span>
+  <div class="workspace">
+    <main class="main-col">
+      <header class="page-head">
+        <div>
+          <h1>Hoje é onde, Eduarda?</h1>
+          <p>3 sugestões calculadas pelo ponto de encontro e teto secreto de cada um</p>
         </div>
-        <span class="info-tag-light ok">Pronto</span>
-      </div>
-      <div class="friend-row">
-        <div class="friend-avatar av-2">CS</div>
-        <div class="friend-info">
-          <strong>Cauan</strong>
-          <span>Dados preenchidos</span>
+        <div class="carousel-controls">
+          <span class="carousel-count" id="carouselCount">1 / 3</span>
+          <button class="icon-btn" type="button" aria-label="Sugestão anterior" onclick="cycleSlide(-1)">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          </button>
+          <button class="icon-btn" type="button" aria-label="Próxima sugestão" onclick="cycleSlide(1)">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
         </div>
-        <span class="info-tag-light ok">Pronto</span>
-      </div>
-      <div class="friend-row">
-        <div class="friend-avatar av-3">SL</div>
-        <div class="friend-info">
-          <strong>Samara</strong>
-          <span>Dados preenchidos</span>
-        </div>
-        <span class="info-tag-light ok">Pronto</span>
-      </div>
-      <div class="friend-row">
-        <div class="friend-avatar av-4">MC</div>
-        <div class="friend-info">
-          <strong>Carolina</strong>
-          <span>Preenchendo...</span>
-        </div>
-        <span class="info-tag-light warn">Aguardando</span>
-      </div>
-    </div>
+      </header>
 
-    <div class="privacy-note">
-      🔒 Valores individuais ficam em sigilo
-    </div>
+      <section class="stepper-card" aria-label="Etapas do rolê">
+        <a class="step-item done" href="criar_sala.html">✓ Sala criada</a>
+        <div class="step-connector"></div>
+        <a class="step-item done" href="meus_dados.html">✓ Meus dados</a>
+        <div class="step-connector"></div>
+        <a class="step-item active" href="home_sala_v2.html"><span class="step-num">3</span> Votação</a>
+        <div class="step-connector"></div>
+        <a class="step-item pending" href="resultado_role.html"><span class="step-num">4</span> Resultado</a>
+      </section>
 
-    <!-- SUBSTITUIU O TIMER POR STATUS TRANQUILO -->
-    <div class="vote-status-card">
-      <div class="vote-status-top">
-        <strong>Votos da turma</strong>
-        <span id="voteProgressText">2 de 4 votos</span>
-      </div>
-      <div class="progress-track">
-        <div class="progress-fill" id="voteProgressBar"></div>
-      </div>
-    </div>
+      <!-- 3 CARDS MINIMALISTAS SEM FOTOS -->
+      <section class="roles-grid" aria-label="Sugestões para votação">
+        <article class="card-featured" id="card-beirute">
+          <div class="badges-row">
+            <span class="info-tag-gold">★ Menor Miséria</span>
+            <span class="info-tag on-dark">94% de afinidade</span>
+          </div>
+          <div>
+            <h3>Beirute Bar</h3>
+            <p class="card-subtitle-dark">Asa Sul &middot; CLS 109 &middot; Boteco tradicional</p>
+          </div>
+          <div class="tags-wrap">
+            <span class="info-tag on-dark">✓ Sem glúten</span>
+            <span class="info-tag on-dark">✓ Vegano</span>
+            <span class="info-tag on-dark">⏱ ~18 min p/ todos</span>
+          </div>
+          <div class="rationale-dark">
+            <div class="r-label">POR QUE SUGERIMOS</div>
+            <p>Fica no meio do caminho do grupo, respeita o menor teto de gasto e tem opções seguras para as restrições de todos.</p>
+          </div>
+          <div class="featured-actions">
+            <button class="btn-primary on-dark" type="button" data-vote="Beirute Bar" onclick="voteFor(this)">
+              ✓ Votar neste rolê
+            </button>
+            <button class="btn-secondary on-dark" type="button" onclick="openTikTok('Beirute Bar', 'Asa Sul · CLS 109', 'Chopp bem tirado, kibe recheado e clima de boteco clássico no meio do caminho do grupo!')">
+              ▶ TikTok
+            </button>
+          </div>
+        </article>
 
-    <!-- ABAS RETRÁTEIS: MAPA DO DF + HISTÓRICO DE ROLÊS -->
-    <div class="accordions-group">
-      <div class="retractable-card">
-        <button class="retractable-btn" id="mapTabBtn" type="button" aria-expanded="true" aria-controls="mapTabBody" onclick="toggleAccordion('map')">
-          <span class="retractable-title">🗺️ Mapa do DF</span>
-          <span class="retractable-pill" id="mapTabPill">Fechar aba ▴</span>
+        <article class="card-place" id="card-godofredo">
+          <div class="place-top">
+            <div class="place-icon-box" aria-hidden="true">
+              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M17 11h1a3 3 0 0 1 0 6h-1"/><path d="M9 12v6"/><path d="M13 12v6"/><path d="M14 7.5c-1 0-1.44.5-3 .5s-2-.5-3-.5-1.72.5-2.5.5a2.5 2.5 0 0 1 0-5c.78 0 1.57.5 2.5.5S9.44 2 11 2s2 1.5 3 1.5 1.72-.5 2.5-.5a2.5 2.5 0 0 1 0 5c-.78 0-1.5-.5-2.5-.5Z"/><path d="M5 8v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V8"/></svg>
+            </div>
+            <span class="info-tag">88%</span>
+          </div>
+          <div>
+            <h3>Godofredo Boteco</h3>
+            <p class="place-meta">Asa Norte &middot; Tap house</p>
+          </div>
+          <div class="place-tags">
+            <span class="info-tag ok">✓ Cabe no teto</span>
+            <span class="info-tag">⏱ ~24 min</span>
+          </div>
+          <div class="place-actions">
+            <button class="btn-primary" type="button" data-vote="Godofredo Boteco" onclick="voteFor(this)">
+              ✓ Votar
+            </button>
+            <button class="btn-secondary" type="button" onclick="openTikTok('Godofredo Boteco', 'Asa Norte · CLN 408', 'Mais de 30 torneiras de chopp artesanal, mesas na calçada e porções pra dividir.')">
+              ▶ Ver no TikTok
+            </button>
+          </div>
+        </article>
+
+        <article class="card-place" id="card-rapport">
+          <div class="place-top">
+            <div class="place-icon-box" aria-hidden="true">
+              <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>
+            </div>
+            <span class="info-tag">81%</span>
+          </div>
+          <div>
+            <h3>Café Rapport</h3>
+            <p class="place-meta">Asa Sul &middot; Cafeteria</p>
+          </div>
+          <div class="place-tags">
+            <span class="info-tag ok">✓ Cabe no teto</span>
+            <span class="info-tag">⏱ ~16 min</span>
+          </div>
+          <div class="place-actions">
+            <button class="btn-primary" type="button" data-vote="Café Rapport" onclick="voteFor(this)">
+              ✓ Votar
+            </button>
+            <button class="btn-secondary" type="button" onclick="openTikTok('Café Rapport', 'Asa Sul · CLS 201', 'Ambiente coberto, cafés especiais, comidinhas leves e menor deslocamento da turma.')">
+              ▶ Ver no TikTok
+            </button>
+          </div>
+        </article>
+      </section>
+    </main>
+
+    <!-- PAINEL DIREITO: TURMA + BRASÍLIA AMARELA NA BARRA DE VOTOS + MAPA E HISTÓRICO -->
+    <aside class="right-panel" id="turmaPanel" aria-label="Sua turma, mapa e histórico">
+      <div class="turma-head">
+        <div>
+          <h2>Sua turma</h2>
+          <p>4 amigos na sala</p>
+        </div>
+        <button class="btn-primary" style="height:36px; padding:0 12px; font-size:12.5px;" type="button" onclick="document.getElementById('inviteDialog').showModal()">
+          + Convidar
         </button>
-        <div class="retractable-body open" id="mapTabBody">
-          <div class="df-map-canvas">
-            <div class="df-road" style="left:48%; top:0; width:6px; height:100%;"></div>
-            <div class="df-road" style="left:0; top:48%; width:100%; height:6px;"></div>
+      </div>
 
-            <button class="map-pin-btn" type="button" style="left:36%; top:12px;" onclick="selectMapPin(this, 'Asa Norte · Godofredo Boteco (~24 min)')">
-              📍 Asa Norte
-            </button>
-            <button class="map-pin-btn active" type="button" style="left:32%; top:52px;" onclick="selectMapPin(this, 'Asa Sul · Beirute Bar (~18 min) & Café Rapport (~16 min)')">
-              📍 Asa Sul
-            </button>
-            <button class="map-pin-btn" type="button" style="left:58%; top:90px;" onclick="selectMapPin(this, 'Guará · Ponto de partida de 1 membro')">
-              📍 Guará
-            </button>
+      <div class="friends-list">
+        <div class="friend-row">
+          <div class="friend-avatar av-1">ME</div>
+          <div class="friend-info"><strong>Você (Eduarda)</strong><span>Dados preenchidos</span></div>
+          <span class="info-tag ok">Pronto</span>
+        </div>
+        <div class="friend-row">
+          <div class="friend-avatar av-2">CS</div>
+          <div class="friend-info"><strong>Cauan</strong><span>Dados preenchidos</span></div>
+          <span class="info-tag ok">Pronto</span>
+        </div>
+        <div class="friend-row">
+          <div class="friend-avatar av-3">SL</div>
+          <div class="friend-info"><strong>Samara</strong><span>Dados preenchidos</span></div>
+          <span class="info-tag ok">Pronto</span>
+        </div>
+        <div class="friend-row">
+          <div class="friend-avatar av-4">MC</div>
+          <div class="friend-info"><strong>Carolina</strong><span>Preenchendo...</span></div>
+          <span class="info-tag warn">Aguardando</span>
+        </div>
+      </div>
+
+      <div class="privacy-note">
+        🔒 Valores individuais ficam em sigilo
+      </div>
+
+      <!-- STATUS DA VOTAÇÃO COM BRASÍLIA AMARELA -->
+      <div class="vote-status-card">
+        <div class="vote-status-top">
+          <strong>Votos da turma</strong>
+          <span id="voteProgressText">2 de 4 votos</span>
+        </div>
+        <div class="road-track">
+          <div class="road-bar"><div class="road-fill" id="voteProgressBar"></div></div>
+          <img src="./assets/logos/carro_lateral_160.png" alt="Brasília Amarela na barra de votos" class="road-car" id="voteCar" />
+        </div>
+      </div>
+
+      <!-- ABAS RETRÁTEIS: MAPA DO DF (ABERTO POR PADRÃO) + HISTÓRICO -->
+      <div class="accordions-group">
+        <div class="retractable-card">
+          <button class="retractable-btn" id="mapTabBtn" type="button" aria-expanded="true" aria-controls="mapTabBody" onclick="toggleAccordion('map')">
+            <span class="retractable-title">🗺️ Mapa do DF</span>
+            <span class="retractable-pill" id="mapTabPill">Fechar aba ▴</span>
+          </button>
+          <div class="retractable-body open" id="mapTabBody">
+            <div class="df-map-canvas">
+              <div class="df-road" style="left:48%; top:0; width:6px; height:100%;"></div>
+              <div class="df-road" style="left:0; top:48%; width:100%; height:6px;"></div>
+
+              <button class="map-pin-btn" type="button" style="left:35%; top:12px;" onclick="selectMapPin(this, 'Asa Norte · Godofredo Boteco (~24 min)')">
+                📍 Asa Norte
+              </button>
+              <button class="map-pin-btn active" type="button" style="left:30%; top:50px;" onclick="selectMapPin(this, 'Asa Sul · Beirute Bar (~18 min) & Café Rapport (~16 min)')">
+                📍 Asa Sul
+              </button>
+              <button class="map-pin-btn" type="button" style="left:58%; top:88px;" onclick="selectMapPin(this, 'Guará · Ponto de partida de 1 membro')">
+                📍 Guará
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="retractable-card">
+          <button class="retractable-btn" id="historyTabBtn" type="button" aria-expanded="false" aria-controls="historyTabBody" onclick="toggleAccordion('history')">
+            <span class="retractable-title">🕒 Histórico de rolês</span>
+            <span class="retractable-pill" id="historyTabPill">Abrir aba ▾</span>
+          </button>
+          <div class="retractable-body" id="historyTabBody">
+            <div class="history-list">
+              <div class="history-item">
+                <span>📍</span>
+                <div><strong>Parrilla Burger &amp; Chopp</strong><span>21 nov &middot; Asa Sul</span></div>
+              </div>
+              <div class="history-item">
+                <span>📍</span>
+                <div><strong>Café &amp; Bate-Papo</strong><span>02 nov &middot; Asa Norte</span></div>
+              </div>
+              <div class="history-item">
+                <span>📍</span>
+                <div><strong>Churrasco da Turma</strong><span>18 out &middot; Guará</span></div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
-
-      <div class="retractable-card">
-        <button class="retractable-btn" id="historyTabBtn" type="button" aria-expanded="false" aria-controls="historyTabBody" onclick="toggleAccordion('history')">
-          <span class="retractable-title">🕒 Histórico de rolês</span>
-          <span class="retractable-pill" id="historyTabPill">Abrir aba ▾</span>
-        </button>
-        <div class="retractable-body" id="historyTabBody">
-          <div class="history-list">
-            <div class="history-item">
-              <div class="history-pin">📍</div>
-              <div>
-                <strong>Parrilla Burger &amp; Chopp</strong>
-                <span>21 nov &middot; Asa Sul</span>
-              </div>
-            </div>
-            <div class="history-item">
-              <div class="history-pin">📍</div>
-              <div>
-                <strong>Café &amp; Bate-Papo</strong>
-                <span>02 nov &middot; Asa Norte</span>
-              </div>
-            </div>
-            <div class="history-item">
-              <div class="history-pin">📍</div>
-              <div>
-                <strong>Churrasco da Turma</strong>
-                <span>18 out &middot; Guará</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </aside>
+    </aside>
+  </div>
 </div>
 
 <!-- MODAL TIKTOK -->
-<dialog id="tiktokDialog">
+<dialog class="app-dialog" id="tiktokDialog">
   <div class="dialog-head">
     <strong id="ttTitle">Beirute Bar</strong>
     <button class="dialog-close" type="button" onclick="document.getElementById('tiktokDialog').close()">✕</button>
   </div>
   <div class="tiktok-mock">
-    <span class="info-tag-dark" id="ttSub">Asa Sul · CLS 109</span>
-    <div style="text-align:center; font-size:44px;">▶</div>
+    <span class="info-tag on-dark" id="ttSub">Asa Sul · CLS 109</span>
+    <div style="text-align:center; font-size:44px; color:var(--yellow);">▶</div>
     <p id="ttDesc" style="font-size:13px; line-height:1.45;"></p>
   </div>
   <button class="btn-primary" type="button" style="width:100%;" onclick="document.getElementById('tiktokDialog').close()">Fechar preview</button>
 </dialog>
 
 <!-- MODAL CONVIDAR -->
-<dialog id="inviteDialog">
+<dialog class="app-dialog" id="inviteDialog">
   <div class="dialog-head">
     <strong>Convidar amigos para a sala</strong>
     <button class="dialog-close" type="button" onclick="document.getElementById('inviteDialog').close()">✕</button>
   </div>
-  <p style="font-size:13px; color:#5E5A8A; margin-bottom:14px;">Envie o link secreto da sala <strong>Boteco de Sexta</strong> no WhatsApp da turma:</p>
-  <div style="background:#F5F2FC; border:1.5px solid #C4BCE4; border-radius:12px; padding:10px 12px; font-size:12.5px; margin-bottom:14px;">
-    https://eixo.bsb.app/sala/boteco-sexta
+  <p style="font-size:13px; color:var(--muted); margin-bottom:14px;">Envie o link secreto da sala <strong>Boteco de Sexta</strong> no WhatsApp da turma:</p>
+  <div style="background:var(--surface-soft); border:1.5px solid var(--border-crisp); border-radius:12px; padding:10px 12px; font-size:12.5px; margin-bottom:14px;">
+    https://qualoplano.bsb.app/sala/boteco-sexta
   </div>
   <button class="btn-primary" type="button" style="width:100%;" onclick="copyInvite()">Copiar link de convite</button>
 </dialog>
 
-<dialog id="profileModal">
+<dialog class="app-dialog" id="profileModal">
   <div class="dialog-head">
     <strong>Meu Perfil</strong>
     <button class="dialog-close" type="button" onclick="this.closest('dialog').close()">✕</button>
@@ -1304,18 +538,18 @@
   </div>
 </dialog>
 
-<dialog id="notifModal">
+<dialog class="app-dialog" id="notifModal">
   <div class="dialog-head">
     <strong>Notificações</strong>
     <button class="dialog-close" type="button" onclick="this.closest('dialog').close()">✕</button>
   </div>
   <div style="display:flex; flex-direction:column; gap:10px; font-size:12.5px;">
-    <div style="background:#F5F2FC; padding:10px 12px; border-radius:10px;"><strong>Café de Domingo:</strong> Samara convidou você para preencher seus horários.</div>
-    <div style="background:#F5F2FC; padding:10px 12px; border-radius:10px;"><strong>Boteco de Sexta:</strong> Cauan e Samara já votaram.</div>
+    <div style="background:var(--surface-soft); padding:10px 12px; border-radius:10px;"><strong>Café de Domingo:</strong> Samara convidou você para preencher seus horários.</div>
+    <div style="background:var(--surface-soft); padding:10px 12px; border-radius:10px;"><strong>Boteco de Sexta:</strong> Cauan e Samara já votaram.</div>
   </div>
 </dialog>
 
-<dialog id="settingsModal">
+<dialog class="app-dialog" id="settingsModal">
   <div class="dialog-head">
     <strong>Configurações</strong>
     <button class="dialog-close" type="button" onclick="this.closest('dialog').close()">✕</button>
@@ -1329,9 +563,16 @@
 
 <div class="toast" id="toast"></div>
 
+<script src="./shell.js"></script>
 <script>
   let votedPlace = null;
   let currentSlide = 1;
+
+  function setVoteProgress(pct, label) {
+    document.getElementById('voteProgressText').textContent = label;
+    document.getElementById('voteProgressBar').style.width = pct + '%';
+    document.getElementById('voteCar').style.left = `calc(${pct}% - 22px)`;
+  }
 
   function voteFor(btn) {
     const place = btn.dataset.vote;
@@ -1343,8 +584,7 @@
 
     if (votedPlace === place) {
       votedPlace = null;
-      document.getElementById('voteProgressText').textContent = '2 de 4 votos';
-      document.getElementById('voteProgressBar').style.width = '50%';
+      setVoteProgress(50, '2 de 4 votos');
       showToast('Voto removido.');
       return;
     }
@@ -1355,12 +595,11 @@
     const card = btn.closest('.card-place');
     if (card) card.classList.add('is-voted');
 
-    document.getElementById('voteProgressText').textContent = '3 de 4 votos';
-    document.getElementById('voteProgressBar').style.width = '75%';
+    setVoteProgress(75, '3 de 4 votos');
     showToast(`Seu voto em "${place}" foi registrado!`);
   }
 
-  function toggleAccordion(target, forceOpen) {
+  function toggleAccordion(target) {
     const items = {
       map: {
         btn: document.getElementById('mapTabBtn'),
@@ -1375,7 +614,7 @@
     };
 
     const currentOpen = items[target].btn.getAttribute('aria-expanded') === 'true';
-    const nextOpen = typeof forceOpen === 'boolean' ? forceOpen : !currentOpen;
+    const nextOpen = !currentOpen;
 
     Object.entries(items).forEach(([key, el]) => {
       const open = key === target ? nextOpen : false;
@@ -1406,15 +645,6 @@
   function copyInvite() {
     document.getElementById('inviteDialog').close();
     showToast('Link copiado! Agora é só mandar no grupo.');
-  }
-
-  let toastTimer = null;
-  function showToast(msg) {
-    const el = document.getElementById('toast');
-    el.textContent = msg;
-    el.classList.add('show');
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
   }
 </script>
 </body>
