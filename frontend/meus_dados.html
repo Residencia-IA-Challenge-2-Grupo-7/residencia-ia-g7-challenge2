@@ -13,11 +13,11 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding: 9px 16px;
+      padding: 7px 14px;
       background: var(--surface-soft);
       border: 1.5px solid var(--ink);
       border-radius: var(--radius-lg);
-      font-size: 12.5px;
+      font-size: 12px;
       font-weight: 700;
       color: var(--ink);
       flex-shrink: 0;
@@ -26,15 +26,17 @@
     .form-card {
       flex: 1;
       min-height: 0;
+      padding: 14px 18px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 10px;
+      overflow: hidden;
     }
 
     .fields-layout {
       display: grid;
       grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
-      gap: 20px;
+      gap: 18px;
       align-items: stretch;
       flex: 1;
       min-height: 0;
@@ -42,21 +44,23 @@
 
     .left-fields {
       min-width: 0;
+      min-height: 0;
       height: 100%;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 9px;
     }
 
     .field.grow {
       flex: 1;
       min-height: 0;
+      overflow: hidden;
     }
 
     .field.grow .text-area {
       flex: 1;
-      min-height: 82px;
-      height: 100%;
+      min-height: 48px;
     }
 
     .chip-toggles {
@@ -67,9 +71,9 @@
 
     .chip-toggle {
       font-family: inherit;
-      font-size: 12px;
+      font-size: 11.5px;
       font-weight: 700;
-      padding: 6px 12px;
+      padding: 5px 11px;
       border-radius: var(--radius-pill);
       border: 1.5px solid var(--border-crisp);
       background: var(--surface-alt);
@@ -92,10 +96,12 @@
 
     .cal-col {
       min-width: 0;
+      min-height: 0;
       height: 100%;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 5px;
     }
 
     .cal-box {
@@ -105,10 +111,10 @@
       background: var(--surface-alt);
       border: 1.5px solid var(--ink);
       border-radius: var(--radius-lg);
-      padding: 12px 14px;
+      padding: 9px 12px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 7px;
       flex: 1;
       min-height: 0;
     }
@@ -117,24 +123,25 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 8px;
+      gap: 6px;
       flex-wrap: wrap;
+      flex-shrink: 0;
     }
 
     .period-tabs {
       display: inline-flex;
-      gap: 4px;
+      gap: 3px;
       background: var(--surface);
       border: 1.5px solid var(--border-crisp);
       border-radius: var(--radius-pill);
-      padding: 3px;
+      padding: 2px;
     }
 
     .period-btn {
       font-family: inherit;
       font-size: 11px;
       font-weight: 700;
-      padding: 5px 10px;
+      padding: 4px 8px;
       border-radius: var(--radius-pill);
       border: 1px solid transparent;
       background: transparent;
@@ -151,7 +158,7 @@
     .cal-legend {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       font-size: 11px;
       font-weight: 600;
       color: var(--muted);
@@ -160,12 +167,12 @@
     .legend-item {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
+      gap: 4px;
     }
 
     .legend-swatch {
-      width: 13px;
-      height: 13px;
+      width: 12px;
+      height: 12px;
       border-radius: 4px;
       border: 1.5px solid var(--border-crisp);
       background: var(--surface);
@@ -179,23 +186,25 @@
 
     .cal-grid {
       display: grid;
-      grid-template-columns: 44px repeat(7, minmax(0, 1fr));
-      grid-template-rows: auto repeat(12, 17px);
-      gap: 4px;
+      grid-template-columns: 42px repeat(7, minmax(0, 1fr));
+      grid-template-rows: auto repeat(12, minmax(11px, 1fr));
+      gap: 3px;
       width: 100%;
+      flex: 1;
+      min-height: 0;
       user-select: none;
     }
 
     .cal-day-head {
       text-align: center;
-      font-size: 11px;
+      font-size: 10.5px;
       font-weight: 700;
       color: var(--ink);
-      padding-bottom: 2px;
+      padding-bottom: 1px;
     }
 
     .cal-time-label {
-      font-size: 10.5px;
+      font-size: 10px;
       font-weight: 700;
       color: var(--muted);
       display: flex;
@@ -207,9 +216,10 @@
 
     .cal-slot {
       width: 100%;
-      height: 17px;
+      height: 100%;
+      min-height: 11px;
       display: block;
-      border-radius: 6px;
+      border-radius: 5px;
       border: 1.5px solid var(--border-crisp);
       background: var(--surface);
       cursor: crosshair;
@@ -230,19 +240,19 @@
     }
 
     #calSummary {
-      font-size: 11.5px;
+      font-size: 11px;
       font-weight: 700;
       color: var(--ink);
       background: var(--surface-soft);
       border: 1px solid var(--border-crisp);
       border-radius: var(--radius-pill);
-      padding: 6px 12px;
+      padding: 4px 10px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       width: 100%;
       max-width: 100%;
-      margin-top: auto;
+      flex-shrink: 0;
     }
 
     .form-footer {
@@ -250,7 +260,7 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding-top: 10px;
+      padding-top: 8px;
       border-top: 1.5px solid var(--border-soft);
       flex-shrink: 0;
     }
@@ -259,6 +269,14 @@
       .fields-layout {
         grid-template-columns: 1fr;
       }
+      .cal-grid {
+        grid-template-rows: auto repeat(12, 16px);
+      }
+    }
+
+    @media (max-height: 670px) {
+      body { height: auto; overflow-y: auto; }
+      .app-shell { height: auto; min-height: calc(100vh - 24px); }
     }
   </style>
 </head>
