@@ -12,9 +12,9 @@
       background: var(--ink);
       color: #FFFDF7;
       border: 2px solid var(--ink);
-      border-radius: var(--radius-lg);
-      padding: 20px;
-      box-shadow: 0 5px 0 rgba(91, 47, 21, 0.3);
+      border-radius: var(--radius-xl);
+      padding: 20px 22px;
+      box-shadow: 0 5px 0 rgba(91, 47, 21, 0.28);
       display: flex;
       flex-direction: column;
       gap: 14px;
@@ -33,14 +33,14 @@
       display: flex;
       align-items: center;
       gap: 12px;
-      margin-top: 8px;
+      margin-top: 10px;
     }
 
     .winner-badge-icon {
       width: 48px;
       height: 48px;
       border-radius: var(--radius-md);
-      background: var(--accent-yellow);
+      background: var(--yellow);
       border: 2px solid #FFF5B4;
       color: var(--ink);
       display: grid;
@@ -51,14 +51,14 @@
 
     .winner-title-row h2 {
       font-size: 24px;
-      font-weight: 900;
-      letter-spacing: -0.025em;
+      font-weight: 700;
+      letter-spacing: -0.02em;
       line-height: 1.15;
     }
 
     .winner-sub {
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 500;
       color: #FFF5B4;
       margin-top: 3px;
     }
@@ -73,13 +73,13 @@
       background: #47230F;
       border: 1px solid rgba(255, 245, 180, 0.28);
       border-radius: var(--radius-md);
-      padding: 10px 12px;
+      padding: 11px 13px;
     }
 
     .metric-box span {
       display: block;
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 600;
       color: #FFF5B4;
       text-transform: uppercase;
       letter-spacing: 0.04em;
@@ -88,14 +88,14 @@
 
     .metric-box strong {
       font-size: 14px;
-      font-weight: 800;
+      font-weight: 700;
       color: #FFFDF7;
     }
 
     .winner-actions {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
+      gap: 10px;
       align-items: center;
     }
 
@@ -115,9 +115,9 @@
 
     .runnerup-item {
       background: var(--surface-alt);
-      border: 1.5px solid var(--border-light);
+      border: 1.5px solid var(--border-soft);
       border-radius: var(--radius-md);
-      padding: 12px 14px;
+      padding: 13px 15px;
       display: flex;
       flex-direction: column;
       gap: 6px;
@@ -132,13 +132,13 @@
 
     .runnerup-item strong {
       font-size: 14.5px;
-      font-weight: 800;
+      font-weight: 700;
     }
 
     .runnerup-item p {
       font-size: 12px;
-      font-weight: 600;
-      color: var(--ink-muted);
+      font-weight: 500;
+      color: var(--muted);
       line-height: 1.4;
     }
 
@@ -155,7 +155,8 @@
     <header class="topbar">
       <div class="topbar-left">
         <a href="./criar_sala.html" class="brand-link" title="Qual o Plano? — Início">
-          <img src="./assets/logos/logo_completa_horizontal_320.png" alt="Qual o Plano?" />
+          <img src="./assets/logos/carro_icone_64.png" alt="" class="brand-icon" />
+          <img src="./assets/logos/logo_nome_220.png" alt="Qual o Plano?" class="brand-wordmark" />
         </a>
         <div class="brand-divider" aria-hidden="true"></div>
         <span class="room-badge-top">Sala #BSB-429 · Sexta da Galera</span>
@@ -182,24 +183,24 @@
             <h1>Rolê fechado!</h1>
             <p>Votação encerrada na Sala #BSB-429. Agora é só jogar o combinado no grupo e aparecer lá.</p>
           </div>
-          <div style="display:flex; gap:8px;">
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
             <a href="./home_sala_v2.html" class="btn-secondary">Reabrir votação</a>
             <a href="./criar_sala.html" class="btn-secondary">Meus Rolês</a>
           </div>
         </div>
 
         <section class="stepper-card" aria-label="Etapas do rolê">
-          <a href="./criar_sala.html" class="step-item done" style="text-decoration:none;">
+          <a href="./criar_sala.html" class="step-item done">
             <span class="step-num">✓</span>
             <span>Sala criada</span>
           </a>
           <div class="step-connector"></div>
-          <a href="./meus_dados.html" class="step-item done" style="text-decoration:none;">
+          <a href="./meus_dados.html" class="step-item done">
             <span class="step-num">✓</span>
             <span>Meus dados</span>
           </a>
           <div class="step-connector"></div>
-          <a href="./home_sala_v2.html" class="step-item done" style="text-decoration:none;">
+          <a href="./home_sala_v2.html" class="step-item done">
             <span class="step-num">✓</span>
             <span>Votação</span>
           </a>
@@ -251,8 +252,8 @@
         </section>
 
         <section class="panel-card runnerups-card">
-          <div style="display:flex; align-items:center; justify-content:space-between;">
-            <h3 style="font-size:15px; font-weight:800;">Outras opções da rodada</h3>
+          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
+            <h3 style="font-size:15px; font-weight:700;">Outras opções da rodada</h3>
             <span class="info-tag">Salvas caso queiram plano B</span>
           </div>
           <div class="runnerup-grid">
@@ -339,8 +340,8 @@
               <div class="df-map-canvas" aria-label="Localização do rolê no Plano Piloto">
                 <div class="df-road h"></div>
                 <div class="df-road v"></div>
-                <button type="button" class="map-pin-btn active" style="top: 64%; left: 34%;" onclick="showToast('Beirute Bar · CLS 109 Bloco A, Asa Sul')">Beirute 109S</button>
-                <button type="button" class="map-pin-btn" style="top: 58%; left: 54%;" onclick="showToast('Metrô Estação 108 Sul · 4 min a pé')">Metrô 108S</button>
+                <button type="button" class="map-pin-btn active" style="top: 62%; left: 14%;" onclick="showToast('Beirute Bar · CLS 109 Bloco A, Asa Sul')">Beirute 109S</button>
+                <button type="button" class="map-pin-btn" style="top: 56%; left: 52%;" onclick="showToast('Metrô Estação 108 Sul · 4 min a pé')">Metrô 108S</button>
               </div>
               <div style="margin-top:6px; font-size:11.5px; font-weight:700; color:var(--ink);">
                 Ponto de encontro: CLS 109 Bloco A · Calçada lateral
@@ -402,7 +403,7 @@
       <h3>Configurações</h3>
       <button type="button" class="dialog-close" onclick="closeModal('settingsModal')">Fechar</button>
     </div>
-    <p style="font-size:13px; font-weight:600; color:var(--ink-muted); margin-bottom:12px;">
+    <p style="font-size:13px; font-weight:500; color:var(--muted); margin-bottom:14px;">
       Histórico salvo automaticamente na sua conta.
     </p>
     <button type="button" class="btn-secondary" onclick="closeModal('settingsModal')">Ok</button>

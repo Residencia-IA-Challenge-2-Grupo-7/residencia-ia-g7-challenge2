@@ -10,9 +10,11 @@
   <style>
     .home-grid {
       display: grid;
-      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1.12fr) minmax(0, 1fr);
       gap: 16px;
       align-items: start;
+      flex: 1;
+      min-height: 0;
     }
 
     .left-stack {
@@ -27,20 +29,18 @@
       align-items: center;
       justify-content: space-between;
       gap: 10px;
-      margin-bottom: 10px;
     }
 
     .card-header h2 {
       font-size: 16px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
+      font-weight: 700;
+      letter-spacing: -0.015em;
     }
 
     .card-sub {
-      font-size: 12px;
-      color: var(--ink-muted);
-      font-weight: 600;
-      margin-bottom: 12px;
+      font-size: 12.5px;
+      color: var(--muted);
+      font-weight: 500;
       line-height: 1.45;
     }
 
@@ -55,9 +55,9 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding: 10px 12px;
+      padding: 11px 14px;
       background: var(--surface-alt);
-      border: 1.5px solid var(--border-light);
+      border: 1.5px solid var(--border-soft);
       border-radius: var(--radius-md);
       text-decoration: none;
       color: inherit;
@@ -65,7 +65,7 @@
     }
 
     .group-item:hover {
-      background: var(--surface-warm);
+      background: var(--surface-soft);
       border-color: var(--ink);
       transform: translateY(-1px);
     }
@@ -79,7 +79,7 @@
 
     .group-main strong {
       font-size: 13.5px;
-      font-weight: 800;
+      font-weight: 700;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -87,8 +87,8 @@
 
     .group-main span {
       font-size: 11.5px;
-      font-weight: 600;
-      color: var(--ink-muted);
+      font-weight: 500;
+      color: var(--muted);
     }
 
     .form-stack {
@@ -102,8 +102,8 @@
       align-items: center;
       gap: 8px;
       font-size: 12px;
-      font-weight: 700;
-      color: var(--ink-muted);
+      font-weight: 600;
+      color: var(--muted);
       cursor: pointer;
     }
 
@@ -112,29 +112,31 @@
       height: 16px;
       accent-color: var(--ink);
       cursor: pointer;
+      flex-shrink: 0;
     }
 
     .btn-row {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       flex-wrap: wrap;
+      align-items: center;
     }
 
     .code-box {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      padding: 10px 12px;
-      background: var(--surface-warm);
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 12px 14px;
+      background: var(--surface-soft);
       border: 1.5px dashed var(--ink);
       border-radius: var(--radius-md);
-      margin-top: 12px;
     }
 
     .code-box code {
       font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 800;
       color: var(--ink);
       letter-spacing: 0.04em;
@@ -142,7 +144,7 @@
 
     .join-row {
       display: flex;
-      gap: 8px;
+      gap: 10px;
       align-items: center;
     }
 
@@ -155,7 +157,7 @@
     .steps-list {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 9px;
     }
 
     .how-item {
@@ -164,20 +166,20 @@
       gap: 10px;
       padding: 10px 12px;
       background: var(--surface-alt);
-      border: 1.5px solid var(--border-light);
+      border: 1.5px solid var(--border-soft);
       border-radius: var(--radius-md);
     }
 
     .how-num {
       width: 24px;
       height: 24px;
-      border-radius: var(--radius-sm);
-      background: var(--accent-yellow);
+      border-radius: 50%;
+      background: var(--yellow);
       border: 1.5px solid var(--ink);
       display: grid;
       place-items: center;
       font-size: 11px;
-      font-weight: 900;
+      font-weight: 800;
       flex-shrink: 0;
       color: var(--ink);
     }
@@ -185,14 +187,14 @@
     .how-text strong {
       display: block;
       font-size: 13px;
-      font-weight: 800;
+      font-weight: 700;
       margin-bottom: 2px;
     }
 
     .how-text p {
       font-size: 11.5px;
-      color: var(--ink-muted);
-      font-weight: 600;
+      color: var(--muted);
+      font-weight: 500;
       line-height: 1.4;
     }
 
@@ -200,24 +202,24 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-      padding: 12px 14px;
+      gap: 12px;
+      padding: 14px 16px;
       background: var(--ink);
       color: #FFFDF7;
-      border-radius: var(--radius-md);
-      border: 2px solid var(--ink);
+      border-radius: var(--radius-lg);
+      border: 1.5px solid var(--ink);
     }
 
     .demo-strip strong {
       display: block;
-      font-size: 13px;
-      font-weight: 800;
+      font-size: 13.5px;
+      font-weight: 700;
     }
 
     .demo-strip span {
       font-size: 11.5px;
       color: #FFF5B4;
-      font-weight: 600;
+      font-weight: 500;
     }
 
     @media (max-width: 1100px) {
@@ -232,7 +234,8 @@
     <header class="topbar">
       <div class="topbar-left">
         <a href="./criar_sala.html" class="brand-link" title="Qual o Plano? — Início">
-          <img src="./assets/logos/logo_completa_horizontal_320.png" alt="Qual o Plano?" />
+          <img src="./assets/logos/carro_icone_64.png" alt="" class="brand-icon" />
+          <img src="./assets/logos/logo_nome_220.png" alt="Qual o Plano?" class="brand-wordmark" />
         </a>
         <div class="brand-divider" aria-hidden="true"></div>
         <span class="room-badge-top">Home · Brasília, DF</span>
@@ -262,24 +265,23 @@
           <span class="info-tag ok">Sem login obrigatório para convidados</span>
         </div>
 
-        <!-- Stepper escondido na Home; aparece assim que a pessoa cria uma sala -->
         <section class="stepper-card hidden" id="stepperHome" aria-label="Etapas do novo rolê">
           <div class="step-item active">
             <span class="step-num">1</span>
             <span>Sala criada</span>
           </div>
           <div class="step-connector"></div>
-          <a href="./meus_dados.html" class="step-item pending" style="text-decoration:none;">
+          <a href="./meus_dados.html" class="step-item pending">
             <span class="step-num">2</span>
             <span>Meus dados</span>
           </a>
           <div class="step-connector"></div>
-          <a href="./home_sala_v2.html" class="step-item pending" style="text-decoration:none;">
+          <a href="./home_sala_v2.html" class="step-item pending">
             <span class="step-num">3</span>
             <span>Votação</span>
           </a>
           <div class="step-connector"></div>
-          <a href="./resultado_role.html" class="step-item pending" style="text-decoration:none;">
+          <a href="./resultado_role.html" class="step-item pending">
             <span class="step-num">4</span>
             <span>Resultado</span>
           </a>
@@ -358,7 +360,7 @@
 
               <div class="code-box hidden" id="createdCodeBox">
                 <div>
-                  <div style="font-size:11px; font-weight:800; color:var(--ink-muted);">Sala pronta! Compartilhe:</div>
+                  <div style="font-size:11px; font-weight:700; color:var(--muted);">Sala pronta! Compartilhe:</div>
                   <code id="generatedCode">BSB-842</code>
                 </div>
                 <div class="btn-row">
@@ -373,14 +375,14 @@
                 <strong>Quer testar o fluxo completo agora?</strong>
                 <span>Entre na votação simulada com a turma em Brasília.</span>
               </div>
-              <a href="./home_sala_v2.html" class="btn-primary" style="flex-shrink:0;">Abrir DEMO</a>
+              <a href="./home_sala_v2.html" class="btn-primary">Abrir DEMO</a>
             </div>
           </div>
         </div>
       </main>
 
       <aside class="right-panel" aria-label="Guia rápido e histórico">
-        <div class="panel-card" style="padding: 14px;">
+        <div>
           <div class="turma-head">
             <h3>Como funciona</h3>
             <span class="info-tag">4 passos</span>
@@ -397,7 +399,7 @@
               <span class="how-num">2</span>
               <div class="how-text">
                 <strong>Respostas secretas</strong>
-                <p>Cada pessoa marca orçamento, bairro e horários no calendário sem ninguém ver.</p>
+                <p>Cada pessoa marca orçamento, bairro e horários sem ninguém ver.</p>
               </div>
             </div>
             <div class="how-item">
@@ -451,7 +453,7 @@
       <h3>Meu Perfil</h3>
       <button type="button" class="dialog-close" onclick="closeModal('profileModal')">Fechar</button>
     </div>
-    <p style="font-size:13px; color:var(--ink-muted); font-weight:600; margin-bottom:14px;">
+    <p style="font-size:13px; color:var(--muted); font-weight:500; margin-bottom:14px;">
       Preferências padrão usadas quando você entra em uma sala nova.
     </p>
     <div class="form-stack">

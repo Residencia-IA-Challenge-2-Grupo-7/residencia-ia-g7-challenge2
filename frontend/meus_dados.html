@@ -13,10 +13,10 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding: 8px 14px;
-      background: var(--surface-warm);
+      padding: 9px 16px;
+      background: var(--surface-soft);
       border: 1.5px solid var(--ink);
-      border-radius: var(--radius-md);
+      border-radius: var(--radius-lg);
       font-size: 12.5px;
       font-weight: 700;
       color: var(--ink);
@@ -33,7 +33,7 @@
 
     .fields-layout {
       display: grid;
-      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.08fr);
       gap: 20px;
       align-items: stretch;
       flex: 1;
@@ -45,7 +45,7 @@
       height: 100%;
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 12px;
     }
 
     .field.grow {
@@ -55,7 +55,7 @@
 
     .field.grow .text-area {
       flex: 1;
-      min-height: 76px;
+      min-height: 82px;
       height: 100%;
     }
 
@@ -67,14 +67,15 @@
 
     .chip-toggle {
       font-family: inherit;
-      font-size: 11.5px;
-      font-weight: 800;
-      padding: 6px 10px;
-      border-radius: var(--radius-sm);
-      border: 1.5px solid var(--border-medium);
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: var(--radius-pill);
+      border: 1.5px solid var(--border-crisp);
       background: var(--surface-alt);
-      color: var(--ink-muted);
+      color: var(--muted);
       cursor: pointer;
+      white-space: nowrap;
       transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
     }
 
@@ -84,7 +85,7 @@
     }
 
     .chip-toggle.selected {
-      background: var(--accent-yellow);
+      background: var(--yellow);
       border-color: var(--ink);
       color: var(--ink);
     }
@@ -94,7 +95,7 @@
       height: 100%;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 6px;
     }
 
     .cal-box {
@@ -103,11 +104,11 @@
       overflow: hidden;
       background: var(--surface-alt);
       border: 1.5px solid var(--ink);
-      border-radius: var(--radius-md);
-      padding: 10px 12px;
+      border-radius: var(--radius-lg);
+      padding: 12px 14px;
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 10px;
       flex: 1;
       min-height: 0;
     }
@@ -123,50 +124,80 @@
     .period-tabs {
       display: inline-flex;
       gap: 4px;
-      background: var(--surface-card);
-      border: 1.5px solid var(--border-medium);
-      border-radius: var(--radius-sm);
+      background: var(--surface);
+      border: 1.5px solid var(--border-crisp);
+      border-radius: var(--radius-pill);
       padding: 3px;
     }
 
     .period-btn {
       font-family: inherit;
       font-size: 11px;
-      font-weight: 800;
-      padding: 4px 8px;
-      border-radius: 6px;
+      font-weight: 700;
+      padding: 5px 10px;
+      border-radius: var(--radius-pill);
       border: 1px solid transparent;
       background: transparent;
-      color: var(--ink-muted);
+      color: var(--muted);
       cursor: pointer;
+      white-space: nowrap;
     }
 
     .period-btn.active {
       background: var(--ink);
-      color: #FFFDF7;
+      color: var(--canary);
+    }
+
+    .cal-legend {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .legend-swatch {
+      width: 13px;
+      height: 13px;
+      border-radius: 4px;
+      border: 1.5px solid var(--border-crisp);
+      background: var(--surface);
+      display: inline-block;
+    }
+
+    .legend-swatch.active {
+      background: var(--green);
+      border-color: #094D32;
     }
 
     .cal-grid {
       display: grid;
-      grid-template-columns: 42px repeat(7, minmax(0, 1fr));
-      grid-template-rows: auto repeat(12, 16px);
-      gap: 3px;
+      grid-template-columns: 44px repeat(7, minmax(0, 1fr));
+      grid-template-rows: auto repeat(12, 17px);
+      gap: 4px;
       width: 100%;
       user-select: none;
     }
 
     .cal-day-head {
       text-align: center;
-      font-size: 10.5px;
-      font-weight: 800;
+      font-size: 11px;
+      font-weight: 700;
       color: var(--ink);
       padding-bottom: 2px;
     }
 
     .cal-time-label {
-      font-size: 10px;
+      font-size: 10.5px;
       font-weight: 700;
-      color: var(--ink-muted);
+      color: var(--muted);
       display: flex;
       align-items: center;
       justify-content: flex-end;
@@ -176,10 +207,11 @@
 
     .cal-slot {
       width: 100%;
-      height: 16px;
-      border-radius: 4px;
-      border: 1px solid var(--border-light);
-      background: var(--surface-card);
+      height: 17px;
+      display: block;
+      border-radius: 6px;
+      border: 1.5px solid var(--border-crisp);
+      background: var(--surface);
       cursor: crosshair;
       touch-action: none;
       padding: 0;
@@ -188,27 +220,29 @@
     }
 
     .cal-slot:hover {
+      background: #FFF0B3;
       border-color: var(--ink);
     }
 
     .cal-slot.selected {
-      background: var(--accent-green);
-      border-color: var(--ink);
+      background: var(--green);
+      border-color: #094D32;
     }
 
     #calSummary {
       font-size: 11.5px;
       font-weight: 700;
       color: var(--ink);
-      background: var(--surface-warm);
-      border: 1px solid var(--border-light);
-      border-radius: 6px;
-      padding: 5px 8px;
+      background: var(--surface-soft);
+      border: 1px solid var(--border-crisp);
+      border-radius: var(--radius-pill);
+      padding: 6px 12px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       width: 100%;
       max-width: 100%;
+      margin-top: auto;
     }
 
     .form-footer {
@@ -216,40 +250,9 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding-top: 8px;
-      border-top: 1px solid var(--border-light);
+      padding-top: 10px;
+      border-top: 1.5px solid var(--border-soft);
       flex-shrink: 0;
-    }
-
-    .summary-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .summary-row {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      padding: 8px 10px;
-      background: var(--surface-alt);
-      border: 1px solid var(--border-light);
-      border-radius: var(--radius-sm);
-    }
-
-    .summary-row span {
-      font-size: 10.5px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      color: var(--ink-muted);
-    }
-
-    .summary-row strong {
-      font-size: 12.5px;
-      font-weight: 700;
-      color: var(--ink);
-      line-height: 1.35;
     }
 
     @media (max-width: 1120px) {
@@ -264,7 +267,8 @@
     <header class="topbar">
       <div class="topbar-left">
         <a href="./criar_sala.html" class="brand-link" title="Qual o Plano? — Início">
-          <img src="./assets/logos/logo_completa_horizontal_320.png" alt="Qual o Plano?" />
+          <img src="./assets/logos/carro_icone_64.png" alt="" class="brand-icon" />
+          <img src="./assets/logos/logo_nome_220.png" alt="Qual o Plano?" class="brand-wordmark" />
         </a>
         <div class="brand-divider" aria-hidden="true"></div>
         <span class="room-badge-top">Sala #BSB-429 · Sexta da Galera</span>
@@ -289,13 +293,13 @@
         <div class="page-head">
           <div>
             <h1>Seus dados secretos do rolê</h1>
-            <p>Arraste no calendário semanal os blocos de 30 min em que você pode ir e ajuste seu teto e região.</p>
+            <p>Digite seu teto, de onde sai e arraste nos quadradinhos da semana os horários em que você pode ir.</p>
           </div>
           <span class="info-tag ok">Só você e o agente veem</span>
         </div>
 
         <section class="stepper-card" aria-label="Etapas do rolê">
-          <a href="./criar_sala.html" class="step-item done" style="text-decoration:none;">
+          <a href="./criar_sala.html" class="step-item done">
             <span class="step-num">✓</span>
             <span>Sala criada</span>
           </a>
@@ -305,12 +309,12 @@
             <span>Meus dados</span>
           </div>
           <div class="step-connector"></div>
-          <a href="./home_sala_v2.html" class="step-item pending" style="text-decoration:none;">
+          <a href="./home_sala_v2.html" class="step-item pending">
             <span class="step-num">3</span>
             <span>Votação</span>
           </a>
           <div class="step-connector"></div>
-          <a href="./resultado_role.html" class="step-item pending" style="text-decoration:none;">
+          <a href="./resultado_role.html" class="step-item pending">
             <span class="step-num">4</span>
             <span>Resultado</span>
           </a>
@@ -325,34 +329,29 @@
           <div class="fields-layout">
             <div class="left-fields">
               <div class="field">
-                <label>1. Quanto tô afim de gastar <span class="hint">(teto pessoal)</span></label>
-                <div class="chip-toggles" id="budgetChips">
-                  <button type="button" class="chip-toggle" data-val="Até R$ 50" onclick="selectSingleChip('budgetChips', this, 'sumBudget')">Até R$ 50</button>
-                  <button type="button" class="chip-toggle selected" data-val="R$ 50 – R$ 90" onclick="selectSingleChip('budgetChips', this, 'sumBudget')">R$ 50 – R$ 90</button>
-                  <button type="button" class="chip-toggle" data-val="R$ 90 – R$ 150" onclick="selectSingleChip('budgetChips', this, 'sumBudget')">R$ 90 – R$ 150</button>
-                  <button type="button" class="chip-toggle" data-val="Tanto faz" onclick="selectSingleChip('budgetChips', this, 'sumBudget')">Tanto faz</button>
-                </div>
+                <label for="budgetInput">1. Quanto posso gastar <span class="hint">(texto livre, só você vê)</span></label>
+                <input type="text" id="budgetInput" class="text-input" placeholder="Ex: Até R$ 70 por pessoa" value="Até R$ 70 por pessoa" />
               </div>
 
               <div class="field">
-                <label>2. De onde saio e como chego</label>
-                <div class="chip-toggles" id="transportChips" style="margin-bottom:6px;">
-                  <button type="button" class="chip-toggle selected" data-val="Uber / 99" onclick="selectSingleChip('transportChips', this, 'sumTransport')">Uber / 99</button>
-                  <button type="button" class="chip-toggle" data-val="Metrô DF" onclick="selectSingleChip('transportChips', this, 'sumTransport')">Metrô DF</button>
-                  <button type="button" class="chip-toggle" data-val="Carona / Carro" onclick="selectSingleChip('transportChips', this, 'sumTransport')">Carro próprio</button>
+                <label for="originInput">2. De onde saio e como chego</label>
+                <div class="chip-toggles" id="transportChips" style="margin-bottom:4px;">
+                  <button type="button" class="chip-toggle selected" onclick="selectTransport(this)">Uber / 99</button>
+                  <button type="button" class="chip-toggle" onclick="selectTransport(this)">Metrô DF</button>
+                  <button type="button" class="chip-toggle" onclick="selectTransport(this)">Carro próprio</button>
                 </div>
-                <input type="text" id="originInput" class="text-input" value="Asa Norte (SQN 208) — topo Asa Sul ou Centro" oninput="syncSummary()" />
+                <input type="text" id="originInput" class="text-input" value="Asa Norte (SQN 208) — topo Asa Sul ou Centro" />
               </div>
 
               <div class="field grow">
                 <label for="vibeInput">3. O que tô afim / restrições <span class="hint">(clima, comida, som)</span></label>
-                <textarea id="vibeInput" class="text-area" oninput="syncSummary()">Mesa boa pra conversar sem som estourando, chopp gelado e opção vegetariana pro pessoal.</textarea>
+                <textarea id="vibeInput" class="text-area">Mesa boa pra conversar sem som estourando, chopp gelado e opção vegetariana pro pessoal.</textarea>
               </div>
             </div>
 
             <div class="cal-col">
               <div class="field" style="flex:1; min-height:0;">
-                <label>4. Horários que consigo <span class="hint">(clique e arraste em retângulo · 30 min)</span></label>
+                <label>4. Horários que consigo <span class="hint">(clique e arraste nos quadrados · 30 min)</span></label>
                 <div class="cal-box">
                   <div class="cal-toolbar">
                     <div class="period-tabs" role="tablist" aria-label="Período do dia">
@@ -360,7 +359,13 @@
                       <button type="button" class="period-btn" data-period="afternoon" onclick="switchPeriod('afternoon', this)">Tarde (12h–18h)</button>
                       <button type="button" class="period-btn active" data-period="night" onclick="switchPeriod('night', this)">Noite (18h–00h)</button>
                     </div>
-                    <button type="button" class="dialog-close" onclick="clearCalendar()">Limpar</button>
+                    <div style="display:flex; align-items:center; gap:10px;">
+                      <div class="cal-legend">
+                        <span class="legend-item"><span class="legend-swatch"></span>Livre</span>
+                        <span class="legend-item"><span class="legend-swatch active"></span>Posso</span>
+                      </div>
+                      <button type="button" class="btn-compact" onclick="clearCalendar()">Limpar</button>
+                    </div>
                   </div>
 
                   <div class="cal-grid" id="calGrid" aria-label="Grade semanal de disponibilidade"></div>
@@ -371,8 +376,8 @@
           </div>
 
           <div class="form-footer">
-            <span style="font-size:12px; font-weight:700; color:var(--ink-muted);">Você ainda pode ajustar até a galera fechar a rodada.</span>
-            <div style="display:flex; gap:8px;">
+            <span style="font-size:12px; font-weight:600; color:var(--muted);">Você ainda pode ajustar até a galera fechar a rodada.</span>
+            <div style="display:flex; gap:10px;">
               <a href="./criar_sala.html" class="btn-secondary">← Voltar</a>
               <button type="button" class="btn-primary" onclick="saveAndContinue()">Salvar e ir pra votação →</button>
             </div>
@@ -380,11 +385,11 @@
         </section>
       </main>
 
-      <aside class="right-panel" aria-label="Resumo e turma">
+      <aside class="right-panel" aria-label="Turma e preenchimento">
         <div>
           <div class="turma-head">
             <h3>Sua turma</h3>
-            <button type="button" class="dialog-close" onclick="openModal('inviteDialog')">+ Convidar</button>
+            <button type="button" class="btn-compact" onclick="openModal('inviteDialog')">+ Convidar</button>
           </div>
           <div class="friends-list">
             <div class="friend-row">
@@ -420,10 +425,10 @@
               <span class="info-tag warn" id="marinaStatusTag">Preenchendo</span>
             </div>
           </div>
-          <p class="privacy-note">Só você vê os valores exatos do seu formulário.</p>
+          <p class="privacy-note">🔒 Só você vê os valores exatos do seu formulário.</p>
         </div>
 
-        <div class="vote-status-card">
+        <div class="vote-status-card" style="margin-top:auto;">
           <div class="vote-status-top">
             <span>Preenchimento da turma</span>
             <strong id="pbarLabel">3 de 4 já enviaram</strong>
@@ -433,31 +438,6 @@
               <div class="road-fill" id="pbarFill" style="width: 75%;"></div>
             </div>
             <img src="./assets/logos/carro_lateral_160.png" alt="Brasília Amarela" class="road-car" id="pbarCar" style="left: calc(75% - 22px);" />
-          </div>
-        </div>
-
-        <div class="panel-card" style="padding:12px 14px; flex:1; min-height:0; overflow-y:auto;">
-          <div class="turma-head" style="margin-bottom:8px;">
-            <h3>Foi isso que entendi</h3>
-            <span class="info-tag ok">Live</span>
-          </div>
-          <div class="summary-list">
-            <div class="summary-row">
-              <span>Orçamento</span>
-              <strong id="sumBudget">R$ 50 – R$ 90</strong>
-            </div>
-            <div class="summary-row">
-              <span>Origem &amp; transporte</span>
-              <strong id="sumOrigin">Asa Norte (SQN 208) · Uber / 99</strong>
-            </div>
-            <div class="summary-row">
-              <span>Vibe desejada</span>
-              <strong id="sumVibe">Mesa boa pra conversar sem som estourando, chopp gelado e opção vegetariana.</strong>
-            </div>
-            <div class="summary-row">
-              <span>Horários no grid</span>
-              <strong id="sumTimes">Sex 19h00–23h00 · Sáb 19h00–22h30</strong>
-            </div>
           </div>
         </div>
       </aside>
@@ -470,8 +450,8 @@
       <h3>Convidar para a Sala #BSB-429</h3>
       <button type="button" class="dialog-close" onclick="closeModal('inviteDialog')">Fechar</button>
     </div>
-    <p style="font-size:13px; color:var(--ink-muted); font-weight:600; margin-bottom:12px;">
-      Quem abrir esse link entra direto na etapa de preenchimento secreto sem precisar criar conta.
+    <p style="font-size:13px; color:var(--muted); font-weight:500; margin-bottom:12px;">
+      Quem abrir esse link entra direto no preenchimento secreto sem precisar criar conta.
     </p>
     <div style="display:flex; gap:8px;">
       <input type="text" class="text-input" value="https://qualplano.df/sala/BSB-429" readonly />
@@ -509,7 +489,7 @@
       <h3>Configurações</h3>
       <button type="button" class="dialog-close" onclick="closeModal('settingsModal')">Fechar</button>
     </div>
-    <p style="font-size:13px; font-weight:600; color:var(--ink-muted); margin-bottom:12px;">
+    <p style="font-size:13px; font-weight:500; color:var(--muted); margin-bottom:14px;">
       Suas respostas individuais de orçamento e endereço nunca aparecem para os amigos.
     </p>
     <button type="button" class="btn-secondary" onclick="closeModal('settingsModal')">Entendi</button>
@@ -526,16 +506,12 @@
     };
 
     let currentPeriod = 'night';
-    let selectedTransport = 'Uber / 99';
-
-    // Chave global por slot: `${dayIndex}-${globalSlotIndex}` (0..47 para 00h..24h em passos de 30min)
     const selectedSlots = new Set();
-    // Pré-seleção realista (Sex 19h00-23h00 = slots 38..45; Sáb 19h00-22h30 = slots 38..44)
     for (let s = 38; s <= 45; s++) selectedSlots.add('4-' + s);
     for (let s = 38; s <= 44; s++) selectedSlots.add('5-' + s);
 
     let dragAnchor = null;
-    let dragMode = true; // true = selecionar retângulo, false = desmarcar retângulo
+    let dragMode = true;
     let dragSnapshot = null;
 
     function formatGlobalSlot(slotIdx) {
@@ -559,7 +535,7 @@
         grid.appendChild(h);
       });
 
-      const baseSlot = PERIODS[currentPeriod].startHour * 2; // 12 slots por período de 6h
+      const baseSlot = PERIODS[currentPeriod].startHour * 2;
 
       for (let r = 0; r < 12; r++) {
         const gSlot = baseSlot + r;
@@ -669,7 +645,6 @@
       const el = document.getElementById('calSummary');
       el.textContent = 'Selecionado: ' + txt;
       el.title = txt;
-      document.getElementById('sumTimes').textContent = txt;
     }
 
     function switchPeriod(period, btn) {
@@ -685,27 +660,20 @@
       showToast('Horários limpos.');
     }
 
-    function selectSingleChip(groupId, btn, targetSummaryId) {
-      document.querySelectorAll(`#${groupId} .chip-toggle`).forEach((b) => b.classList.remove('selected'));
+    function selectTransport(btn) {
+      document.querySelectorAll('#transportChips .chip-toggle').forEach((b) => b.classList.remove('selected'));
       btn.classList.add('selected');
-      if (targetSummaryId === 'sumTransport') {
-        selectedTransport = btn.dataset.val;
-        syncSummary();
-      } else {
-        document.getElementById(targetSummaryId).textContent = btn.dataset.val;
-      }
-    }
-
-    function syncSummary() {
-      const origin = document.getElementById('originInput').value.trim() || 'Brasília';
-      const vibe = document.getElementById('vibeInput').value.trim() || 'Sem restrições extras';
-      document.getElementById('sumOrigin').textContent = `${origin} · ${selectedTransport}`;
-      document.getElementById('sumVibe').textContent = vibe;
     }
 
     function saveAndContinue() {
+      const budget = document.getElementById('budgetInput').value.trim();
+      if (!budget) {
+        showToast('Digite quanto pode gastar no campo 1.');
+        document.getElementById('budgetInput').focus();
+        return;
+      }
       if (selectedSlots.size === 0) {
-        showToast('Marque ao menos um bloco de 30 min no calendário.');
+        showToast('Marque ao menos um quadradinho no calendário.');
         return;
       }
       document.getElementById('pbarFill').style.width = '100%';
@@ -713,7 +681,7 @@
       document.getElementById('pbarLabel').textContent = '4 de 4 enviaram!';
       document.getElementById('marinaStatusTag').textContent = 'Pronto';
       document.getElementById('marinaStatusTag').className = 'info-tag ok';
-      showToast('Dados secretos salvos! Carregando votação...');
+      showToast('Dados secretos salvos! Abrindo votação...');
       setTimeout(() => {
         window.location.href = './home_sala_v2.html';
       }, 650);
@@ -752,7 +720,6 @@
     }
 
     renderCalendar();
-    syncSummary();
   </script>
 </body>
 </html>

@@ -25,8 +25,8 @@
 
     .section-head h2 {
       font-size: 16px;
-      font-weight: 800;
-      letter-spacing: -0.02em;
+      font-weight: 700;
+      letter-spacing: -0.015em;
     }
 
     .carousel-controls {
@@ -37,7 +37,7 @@
 
     .roles-grid {
       display: grid;
-      grid-template-columns: 1.85fr 1fr 1fr;
+      grid-template-columns: 1.75fr 1fr 1fr;
       gap: 16px;
       align-items: stretch;
       flex: 1;
@@ -47,37 +47,39 @@
     .card-featured {
       background: var(--ink);
       border: 2px solid var(--ink);
-      border-radius: var(--radius-lg);
-      padding: 18px;
+      border-radius: var(--radius-xl);
+      padding: 20px;
       color: #FFFDF7;
-      box-shadow: 0 5px 0 rgba(91, 47, 21, 0.28);
+      box-shadow: 0 5px 0 rgba(91, 47, 21, 0.25);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       gap: 12px;
-      transition: transform 0.14s ease;
+      min-width: 0;
+      transition: box-shadow 0.14s ease;
     }
 
     .card-featured.is-voted {
-      box-shadow: 0 0 0 3px var(--accent-yellow), 0 6px 0 rgba(91, 47, 21, 0.35);
+      box-shadow: 0 0 0 3px var(--yellow), 0 6px 0 rgba(91, 47, 21, 0.35);
     }
 
     .card-place {
-      background: var(--surface-card);
-      border: 2px solid var(--ink);
-      border-radius: var(--radius-lg);
-      padding: 16px;
+      background: var(--surface);
+      border: 1.5px solid var(--border-crisp);
+      border-radius: var(--radius-xl);
+      padding: 18px;
       box-shadow: var(--shadow-card);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       gap: 12px;
+      min-width: 0;
       transition: border-color 0.14s ease, box-shadow 0.14s ease;
     }
 
     .card-place.is-voted {
-      border-color: var(--accent-green);
-      box-shadow: 0 0 0 2px var(--accent-green), 0 5px 0 rgba(0, 153, 94, 0.25);
+      border-color: var(--green);
+      box-shadow: 0 0 0 2px var(--green), 0 5px 0 rgba(0, 153, 94, 0.22);
     }
 
     .card-top-tags {
@@ -90,15 +92,15 @@
     .place-header {
       display: flex;
       align-items: flex-start;
-      gap: 10px;
-      margin-top: 8px;
+      gap: 11px;
+      margin-top: 10px;
     }
 
     .place-icon-box {
-      width: 40px;
-      height: 40px;
-      border-radius: var(--radius-sm);
-      background: var(--surface-warm);
+      width: 42px;
+      height: 42px;
+      border-radius: var(--radius-md);
+      background: var(--surface-soft);
       border: 1.5px solid var(--ink);
       display: grid;
       place-items: center;
@@ -108,14 +110,14 @@
     }
 
     .card-featured .place-icon-box {
-      background: var(--accent-yellow);
+      background: var(--yellow);
       border-color: #FFF5B4;
     }
 
     .place-title {
       font-size: 20px;
-      font-weight: 900;
-      letter-spacing: -0.025em;
+      font-weight: 700;
+      letter-spacing: -0.02em;
       line-height: 1.15;
     }
 
@@ -125,16 +127,16 @@
 
     .place-address {
       font-size: 12px;
-      font-weight: 700;
-      margin-top: 2px;
+      font-weight: 600;
+      margin-top: 3px;
       opacity: 0.85;
     }
 
     .place-desc {
       font-size: 13px;
       line-height: 1.45;
-      font-weight: 500;
-      margin-top: 8px;
+      font-weight: 400;
+      margin-top: 10px;
     }
 
     .card-featured .place-desc {
@@ -142,7 +144,7 @@
     }
 
     .card-place .place-desc {
-      color: var(--ink-muted);
+      color: var(--muted);
       font-size: 12.5px;
     }
 
@@ -150,7 +152,7 @@
       background: #47230F;
       border: 1px solid rgba(255, 245, 180, 0.28);
       border-radius: var(--radius-md);
-      padding: 11px 12px;
+      padding: 12px 14px;
       font-size: 12px;
       line-height: 1.45;
       color: #FFFDF7;
@@ -161,47 +163,49 @@
       font-size: 11px;
       text-transform: uppercase;
       letter-spacing: 0.04em;
-      color: var(--accent-yellow);
+      color: var(--canary);
       margin-bottom: 4px;
     }
 
     .rationale-light {
       background: var(--surface-alt);
-      border: 1px solid var(--border-light);
+      border: 1px solid var(--border-soft);
       border-radius: var(--radius-md);
-      padding: 10px 11px;
-      font-size: 11.5px;
+      padding: 11px 12px;
+      font-size: 12px;
       line-height: 1.4;
       color: var(--ink);
-      font-weight: 600;
+      font-weight: 500;
     }
 
     .card-actions {
       display: flex;
       align-items: center;
       gap: 8px;
+      flex-wrap: wrap;
       padding-top: 4px;
     }
 
     .card-actions .btn-primary {
       flex: 1;
+      min-width: 110px;
     }
 
     .vote-count-line {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      font-size: 11.5px;
-      font-weight: 800;
-      opacity: 0.9;
+      font-size: 12px;
+      font-weight: 700;
+      opacity: 0.92;
     }
 
     .tiktok-mock {
       background: #5B2F15;
       color: #FFFDF7;
       border: 2px solid var(--ink);
-      border-radius: var(--radius-md);
-      padding: 20px 16px;
+      border-radius: var(--radius-lg);
+      padding: 20px 18px;
       display: flex;
       flex-direction: column;
       gap: 10px;
@@ -211,12 +215,12 @@
     .tiktok-mock-badge {
       display: inline-block;
       align-self: flex-start;
-      background: var(--accent-yellow);
+      background: var(--yellow);
       color: var(--ink);
       font-size: 11px;
-      font-weight: 900;
-      padding: 3px 8px;
-      border-radius: var(--radius-tag);
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: var(--radius-pill);
     }
 
     .finish-banner {
@@ -224,13 +228,13 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding: 10px 14px;
-      background: var(--accent-green);
+      padding: 10px 16px;
+      background: var(--green);
       color: #FFFFFF;
-      border: 2px solid var(--ink);
-      border-radius: var(--radius-md);
+      border: 1.5px solid #094D32;
+      border-radius: var(--radius-lg);
       font-size: 13px;
-      font-weight: 800;
+      font-weight: 700;
       flex-shrink: 0;
     }
 
@@ -250,7 +254,8 @@
     <header class="topbar">
       <div class="topbar-left">
         <a href="./criar_sala.html" class="brand-link" title="Qual o Plano? — Início">
-          <img src="./assets/logos/logo_completa_horizontal_320.png" alt="Qual o Plano?" />
+          <img src="./assets/logos/carro_icone_64.png" alt="" class="brand-icon" />
+          <img src="./assets/logos/logo_nome_220.png" alt="Qual o Plano?" class="brand-wordmark" />
         </a>
         <div class="brand-divider" aria-hidden="true"></div>
         <span class="room-badge-top">Sala #BSB-429 · Sexta da Galera</span>
@@ -281,12 +286,12 @@
         </div>
 
         <section class="stepper-card" aria-label="Etapas do rolê">
-          <a href="./criar_sala.html" class="step-item done" style="text-decoration:none;">
+          <a href="./criar_sala.html" class="step-item done">
             <span class="step-num">✓</span>
             <span>Sala criada</span>
           </a>
           <div class="step-connector"></div>
-          <a href="./meus_dados.html" class="step-item done" style="text-decoration:none;">
+          <a href="./meus_dados.html" class="step-item done">
             <span class="step-num">✓</span>
             <span>Meus dados</span>
           </a>
@@ -296,7 +301,7 @@
             <span>Votação</span>
           </div>
           <div class="step-connector"></div>
-          <a href="./resultado_role.html" class="step-item pending" style="text-decoration:none;">
+          <a href="./resultado_role.html" class="step-item pending">
             <span class="step-num">4</span>
             <span>Resultado</span>
           </a>
@@ -304,7 +309,7 @@
 
         <div class="finish-banner" id="finishBanner">
           <span>4/4 votos fechados! A Brasília chegou no destino.</span>
-          <a href="./resultado_role.html" class="btn-primary" style="background:#FFE500;">Ver resultado final →</a>
+          <a href="./resultado_role.html" class="btn-primary">Ver resultado final →</a>
         </div>
 
         <div class="section-head">
@@ -313,14 +318,13 @@
             <span class="info-tag ok" id="slideTag">Rodada 1 · Asa Sul e Norte</span>
           </div>
           <div class="carousel-controls">
-            <button type="button" class="dialog-close" onclick="cycleSlide(-1)" aria-label="Opções anteriores">‹</button>
-            <button type="button" class="dialog-close" onclick="cycleSlide(1)" aria-label="Mais opções">›</button>
-            <button type="button" class="btn-secondary" style="padding:6px 11px; font-size:12px;" onclick="cycleSlide(1)">Recalcular</button>
+            <button type="button" class="btn-compact" onclick="cycleSlide(-1)" aria-label="Opções anteriores">‹</button>
+            <button type="button" class="btn-compact" onclick="cycleSlide(1)" aria-label="Mais opções">›</button>
+            <button type="button" class="btn-compact" onclick="cycleSlide(1)">Recalcular</button>
           </div>
         </div>
 
         <section class="roles-grid" id="rolesGrid" aria-label="Cartões de votação">
-          <!-- Opção 1: Destaque sem foto -->
           <article class="card-featured" data-place="Beirute Bar" data-pin="beirute">
             <div>
               <div class="card-top-tags">
@@ -359,7 +363,6 @@
             </div>
           </article>
 
-          <!-- Opção 2: Minimalista sem foto -->
           <article class="card-place" data-place="Godofredo Boteco" data-pin="godofredo">
             <div>
               <div class="card-top-tags">
@@ -387,7 +390,7 @@
             <div>
               <div class="vote-count-line" style="margin-bottom:8px;">
                 <span>Votos atuais: <strong class="vote-num" data-base="1">1</strong></span>
-                <span style="color:var(--ink-muted);">Boa alternativa</span>
+                <span style="color:var(--muted);">Boa alternativa</span>
               </div>
               <div class="card-actions">
                 <button type="button" class="btn-primary" onclick="voteFor(this)">Votar</button>
@@ -396,7 +399,6 @@
             </div>
           </article>
 
-          <!-- Opção 3: Minimalista sem foto -->
           <article class="card-place" data-place="Café Rapport" data-pin="rapport">
             <div>
               <div class="card-top-tags">
@@ -424,7 +426,7 @@
             <div>
               <div class="vote-count-line" style="margin-bottom:8px;">
                 <span>Votos atuais: <strong class="vote-num" data-base="0">0</strong></span>
-                <span style="color:var(--ink-muted);">Plano diurno</span>
+                <span style="color:var(--muted);">Plano diurno</span>
               </div>
               <div class="card-actions">
                 <button type="button" class="btn-primary" onclick="voteFor(this)">Votar</button>
@@ -439,7 +441,7 @@
         <div>
           <div class="turma-head">
             <h3>Sua turma</h3>
-            <button type="button" class="dialog-close" onclick="openModal('inviteDialog')">+ Convidar</button>
+            <button type="button" class="btn-compact" onclick="openModal('inviteDialog')">+ Convidar</button>
           </div>
           <div class="friends-list">
             <div class="friend-row">
@@ -501,9 +503,9 @@
               <div class="df-map-canvas" aria-label="Mapa esquemático do Plano Piloto">
                 <div class="df-road h"></div>
                 <div class="df-road v"></div>
-                <button type="button" class="map-pin-btn active" style="top: 66%; left: 32%;" onclick="selectMapPin(this, 'Beirute Bar · CLS 109 Sul (Metrô a 350m)')">Beirute 109S</button>
-                <button type="button" class="map-pin-btn" style="top: 18%; left: 60%;" onclick="selectMapPin(this, 'Godofredo · CLN 408 Norte (Asa Norte)')">Godofredo 408N</button>
-                <button type="button" class="map-pin-btn" style="top: 72%; left: 64%;" onclick="selectMapPin(this, 'Café Rapport · CLS 201 Sul (Asa Sul)')">Rapport 201S</button>
+                <button type="button" class="map-pin-btn active" style="top: 64%; left: 12%;" onclick="selectMapPin(this, 'Beirute Bar · CLS 109 Sul (Metrô a 350m)')">Beirute 109S</button>
+                <button type="button" class="map-pin-btn" style="top: 16%; left: 48%;" onclick="selectMapPin(this, 'Godofredo · CLN 408 Norte (Asa Norte)')">Godofredo 408N</button>
+                <button type="button" class="map-pin-btn" style="top: 72%; left: 54%;" onclick="selectMapPin(this, 'Café Rapport · CLS 201 Sul (Asa Sul)')">Rapport 201S</button>
               </div>
               <div id="mapPinInfo" style="margin-top:6px; font-size:11.5px; font-weight:700; color:var(--ink);">
                 Beirute Bar · CLS 109 Sul (Metrô a 350m)
@@ -545,7 +547,7 @@
       <strong style="font-size:16px;" id="ttSub">CLS 109 Bloco A · Asa Sul</strong>
       <p style="font-size:13px; color:#FFF5B4; line-height:1.45;" id="ttDesc"></p>
     </div>
-    <div style="display:flex; justify-content:flex-end; gap:8px;">
+    <div style="display:flex; justify-content:flex-end;">
       <button type="button" class="btn-secondary" onclick="closeModal('tiktokDialog')">Voltar para votação</button>
     </div>
   </dialog>
@@ -556,7 +558,7 @@
       <h3>Convidar para a Sala #BSB-429</h3>
       <button type="button" class="dialog-close" onclick="closeModal('inviteDialog')">Fechar</button>
     </div>
-    <p style="font-size:13px; color:var(--ink-muted); font-weight:600; margin-bottom:12px;">
+    <p style="font-size:13px; color:var(--muted); font-weight:500; margin-bottom:12px;">
       Compartilhe no grupo para mais alguém entrar na votação.
     </p>
     <div style="display:flex; gap:8px;">
@@ -596,7 +598,7 @@
       <h3>Configurações</h3>
       <button type="button" class="dialog-close" onclick="closeModal('settingsModal')">Fechar</button>
     </div>
-    <p style="font-size:13px; font-weight:600; color:var(--ink-muted); margin-bottom:12px;">
+    <p style="font-size:13px; font-weight:500; color:var(--muted); margin-bottom:14px;">
       Notificações ativas para fechamento automático da sala.
     </p>
     <button type="button" class="btn-secondary" onclick="closeModal('settingsModal')">Fechar</button>
