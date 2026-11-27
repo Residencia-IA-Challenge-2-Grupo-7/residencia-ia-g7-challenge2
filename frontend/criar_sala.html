@@ -3,45 +3,51 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Qual o Plano? — Home &amp; Meus Rolês</title>
+  <title>Qual o Plano? — Home e Criar Rolê</title>
   <link rel="icon" type="image/x-icon" href="./assets/logos/favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="./assets/logos/carro_icone_32.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./styles.css" />
   <style>
     .home-grid {
       display: grid;
-      grid-template-columns: 1.15fr 1fr;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
       gap: 16px;
       align-items: start;
-      flex: 1;
-      min-height: 0;
     }
 
     .left-stack {
       display: flex;
       flex-direction: column;
       gap: 14px;
+      min-width: 0;
     }
 
-    .panel-card h2 {
-      font-size: 17px;
-      font-weight: 700;
-      color: var(--ink);
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 10px;
     }
 
-    .panel-desc {
-      font-size: 12.5px;
-      color: var(--muted);
-      line-height: 1.4;
+    .card-header h2 {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .card-sub {
+      font-size: 12px;
+      color: var(--ink-muted);
+      font-weight: 600;
+      margin-bottom: 12px;
+      line-height: 1.45;
     }
 
     .groups-list {
       display: flex;
       flex-direction: column;
-      gap: 10px;
+      gap: 8px;
     }
 
     .group-item {
@@ -49,326 +55,521 @@
       align-items: center;
       justify-content: space-between;
       gap: 12px;
-      padding: 12px 14px;
-      border-radius: 14px;
-      background: var(--surface-soft);
-      border: 1.5px solid var(--border-crisp);
+      padding: 10px 12px;
+      background: var(--surface-alt);
+      border: 1.5px solid var(--border-light);
+      border-radius: var(--radius-md);
       text-decoration: none;
-      color: var(--ink);
-      transition: background 0.14s, border-color 0.14s, transform 0.1s;
+      color: inherit;
+      transition: transform 0.14s ease, border-color 0.14s ease, background 0.14s ease;
     }
 
     .group-item:hover {
-      background: #FFEFA6;
+      background: var(--surface-warm);
       border-color: var(--ink);
       transform: translateY(-1px);
     }
 
-    .group-item strong { display: block; font-size: 14px; font-weight: 700; }
-    .group-item span { font-size: 12px; color: var(--muted); }
+    .group-main {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      min-width: 0;
+    }
+
+    .group-main strong {
+      font-size: 13.5px;
+      font-weight: 800;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .group-main span {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: var(--ink-muted);
+    }
+
+    .form-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
 
     .checkbox-row {
       display: flex;
       align-items: center;
-      gap: 9px;
-      font-size: 12.5px;
-      font-weight: 500;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ink-muted);
       cursor: pointer;
     }
 
     .checkbox-row input {
-      width: 17px;
-      height: 17px;
+      width: 16px;
+      height: 16px;
       accent-color: var(--ink);
       cursor: pointer;
     }
 
-    .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
 
     .code-box {
-      background: var(--surface-soft);
-      border: 1.5px solid var(--ink);
-      border-radius: 12px;
-      padding: 10px 12px;
       display: flex;
       align-items: center;
       justify-content: space-between;
       gap: 10px;
+      padding: 10px 12px;
+      background: var(--surface-warm);
+      border: 1.5px dashed var(--ink);
+      border-radius: var(--radius-md);
+      margin-top: 12px;
     }
 
-    .code-box strong { font-size: 16px; letter-spacing: 0.06em; }
-
-    .create-highlight {
-      border-color: var(--ink);
+    .code-box code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--ink);
+      letter-spacing: 0.04em;
     }
 
-    .right-panel h2 { font-size: 17px; font-weight: 700; }
+    .join-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
 
-    .steps-list { display: flex; flex-direction: column; gap: 9px; }
+    .join-row .text-input {
+      flex: 1;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .steps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
 
     .how-item {
       display: flex;
       align-items: flex-start;
       gap: 10px;
-      background: var(--surface-soft);
-      border: 1px solid var(--border-soft);
-      border-radius: 12px;
       padding: 10px 12px;
+      background: var(--surface-alt);
+      border: 1.5px solid var(--border-light);
+      border-radius: var(--radius-md);
     }
 
     .how-num {
       width: 24px;
       height: 24px;
-      border-radius: 8px;
-      background: var(--yellow);
+      border-radius: var(--radius-sm);
+      background: var(--accent-yellow);
       border: 1.5px solid var(--ink);
-      color: var(--ink);
-      font-size: 12px;
-      font-weight: 700;
       display: grid;
       place-items: center;
+      font-size: 11px;
+      font-weight: 900;
       flex-shrink: 0;
+      color: var(--ink);
     }
 
-    .how-item p { font-size: 12px; line-height: 1.4; }
+    .how-text strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 2px;
+    }
 
-    @media (max-width: 980px) {
-      .home-grid { grid-template-columns: 1fr; }
+    .how-text p {
+      font-size: 11.5px;
+      color: var(--ink-muted);
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    .demo-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      background: var(--ink);
+      color: #FFFDF7;
+      border-radius: var(--radius-md);
+      border: 2px solid var(--ink);
+    }
+
+    .demo-strip strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .demo-strip span {
+      font-size: 11.5px;
+      color: #FFF5B4;
+      font-weight: 600;
+    }
+
+    @media (max-width: 1100px) {
+      .home-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
-<div class="app-shell">
-  <!-- TOPBAR SOCIAL LEVE (SEM SIDEBAR ROXA) -->
-  <header class="topbar" aria-label="Menu global">
-    <div class="topbar-left">
-      <a class="brand-link" href="criar_sala.html" aria-label="Qual o Plano? Home">
-        <img src="./assets/logos/logo_completa_horizontal_320.png" alt="Qual o Plano?" height="40" />
-      </a>
-      <span class="brand-divider"></span>
-      <div class="room-badge-top">
-        <strong>E aí, qual a boa?</strong>
-        <span>Organize rolês sem estresse no DF</span>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="topbar-left">
+        <a href="./criar_sala.html" class="brand-link" title="Qual o Plano? — Início">
+          <img src="./assets/logos/logo_completa_horizontal_320.png" alt="Qual o Plano?" />
+        </a>
+        <div class="brand-divider" aria-hidden="true"></div>
+        <span class="room-badge-top">Home · Brasília, DF</span>
+      </div>
+
+      <nav class="topbar-right" aria-label="Menu principal">
+        <a href="./criar_sala.html" class="nav-pill active">Home · Meus Rolês</a>
+        <button type="button" class="nav-pill" onclick="openModal('profileModal')">Meu Perfil</button>
+        <button type="button" class="icon-btn" onclick="openModal('notifModal')" title="Notificações" aria-label="Notificações">
+          🔔
+          <span class="notif-dot" aria-hidden="true"></span>
+        </button>
+        <button type="button" class="icon-btn" onclick="openModal('settingsModal')" title="Configurações" aria-label="Configurações">
+          ⚙️
+        </button>
+        <button type="button" class="avatar-btn" onclick="openModal('profileModal')" title="Conta de Marina">ME</button>
+      </nav>
+    </header>
+
+    <div class="workspace">
+      <main class="main-col">
+        <div class="page-head">
+          <div>
+            <h1>Qual o Plano, Marina?</h1>
+            <p>Acompanhe seus rolês ativos no DF ou abra uma sala nova para a galera decidir sem estresse.</p>
+          </div>
+          <span class="info-tag ok">Sem login obrigatório para convidados</span>
+        </div>
+
+        <!-- Stepper escondido na Home; aparece assim que a pessoa cria uma sala -->
+        <section class="stepper-card hidden" id="stepperHome" aria-label="Etapas do novo rolê">
+          <div class="step-item active">
+            <span class="step-num">1</span>
+            <span>Sala criada</span>
+          </div>
+          <div class="step-connector"></div>
+          <a href="./meus_dados.html" class="step-item pending" style="text-decoration:none;">
+            <span class="step-num">2</span>
+            <span>Meus dados</span>
+          </a>
+          <div class="step-connector"></div>
+          <a href="./home_sala_v2.html" class="step-item pending" style="text-decoration:none;">
+            <span class="step-num">3</span>
+            <span>Votação</span>
+          </a>
+          <div class="step-connector"></div>
+          <a href="./resultado_role.html" class="step-item pending" style="text-decoration:none;">
+            <span class="step-num">4</span>
+            <span>Resultado</span>
+          </a>
+        </section>
+
+        <div class="home-grid">
+          <div class="left-stack">
+            <section class="panel-card">
+              <div class="card-header">
+                <h2>Meus grupos ativos</h2>
+                <span class="info-tag">3 salas no ar</span>
+              </div>
+              <div class="groups-list">
+                <a href="./home_sala_v2.html" class="group-item">
+                  <div class="group-main">
+                    <strong>Sexta da Galera — Asa Sul</strong>
+                    <span>4 pessoas · Votação aberta (3/4 votaram)</span>
+                  </div>
+                  <span class="info-tag warn">Votar agora</span>
+                </a>
+                <a href="./meus_dados.html" class="group-item">
+                  <div class="group-main">
+                    <strong>Café Pós-Prova — UnB Darcy</strong>
+                    <span>5 pessoas · Faltam seus horários</span>
+                  </div>
+                  <span class="info-tag">Preencher</span>
+                </a>
+                <a href="./resultado_role.html" class="group-item">
+                  <div class="group-main">
+                    <strong>Happy Hour da Firma — SCS</strong>
+                    <span>6 pessoas · Beirute Bar fechado</span>
+                  </div>
+                  <span class="info-tag ok">Confirmado</span>
+                </a>
+              </div>
+            </section>
+
+            <section class="panel-card">
+              <div class="card-header">
+                <h2>Recebeu um código?</h2>
+                <span class="info-tag">Entrar rápido</span>
+              </div>
+              <p class="card-sub">Cole o código enviado no WhatsApp para preencher seus horários secretos direto na sala.</p>
+              <form class="join-row" onsubmit="entrarSala(event)">
+                <input type="text" id="joinCodeInput" class="text-input" placeholder="Ex: BSB-429" maxlength="12" required />
+                <button type="submit" class="btn-secondary">Entrar na sala</button>
+              </form>
+            </section>
+          </div>
+
+          <div class="left-stack">
+            <section class="panel-card">
+              <div class="card-header">
+                <h2>Criar novo rolê</h2>
+                <span class="info-tag ok">Passo 1</span>
+              </div>
+              <p class="card-sub">Dê um nome para o encontro. O agente cruza horários, orçamentos e deslocamento em Brasília automaticamente.</p>
+              <form class="form-stack" onsubmit="criarSala(event)">
+                <div class="field">
+                  <label for="roomName">Nome do rolê</label>
+                  <input type="text" id="roomName" class="text-input" placeholder="Ex: Sextou na 109 Sul" required />
+                </div>
+                <div class="field">
+                  <label for="roomWhen">Janela sugerida</label>
+                  <input type="text" id="roomWhen" class="text-input" value="Esta semana (Sex a Dom)" />
+                </div>
+                <label class="checkbox-row">
+                  <input type="checkbox" checked />
+                  Manter respostas de orçamento e região em sigilo
+                </label>
+                <div class="btn-row">
+                  <button type="submit" class="btn-primary">Gerar sala e código →</button>
+                  <a href="./home_sala_v2.html" class="btn-secondary">Ver DEMO</a>
+                </div>
+              </form>
+
+              <div class="code-box hidden" id="createdCodeBox">
+                <div>
+                  <div style="font-size:11px; font-weight:800; color:var(--ink-muted);">Sala pronta! Compartilhe:</div>
+                  <code id="generatedCode">BSB-842</code>
+                </div>
+                <div class="btn-row">
+                  <button type="button" class="btn-secondary" onclick="copyRoomLink()">Copiar link</button>
+                  <a href="./meus_dados.html" class="btn-primary">Ir para Meus dados →</a>
+                </div>
+              </div>
+            </section>
+
+            <div class="demo-strip">
+              <div>
+                <strong>Quer testar o fluxo completo agora?</strong>
+                <span>Entre na votação simulada com a turma em Brasília.</span>
+              </div>
+              <a href="./home_sala_v2.html" class="btn-primary" style="flex-shrink:0;">Abrir DEMO</a>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      <aside class="right-panel" aria-label="Guia rápido e histórico">
+        <div class="panel-card" style="padding: 14px;">
+          <div class="turma-head">
+            <h3>Como funciona</h3>
+            <span class="info-tag">4 passos</span>
+          </div>
+          <div class="steps-list">
+            <div class="how-item">
+              <span class="how-num">1</span>
+              <div class="how-text">
+                <strong>Abra a sala</strong>
+                <p>Crie um link rápido e mande no grupo do WhatsApp.</p>
+              </div>
+            </div>
+            <div class="how-item">
+              <span class="how-num">2</span>
+              <div class="how-text">
+                <strong>Respostas secretas</strong>
+                <p>Cada pessoa marca orçamento, bairro e horários no calendário sem ninguém ver.</p>
+              </div>
+            </div>
+            <div class="how-item">
+              <span class="how-num">3</span>
+              <div class="how-text">
+                <strong>Agente filtra 3 opções</strong>
+                <p>Sem discussão infinita: só entram lugares que cabem para todo mundo.</p>
+              </div>
+            </div>
+            <div class="how-item">
+              <span class="how-num">4</span>
+              <div class="how-text">
+                <strong>Votou, fechou</strong>
+                <p>Vencedor vai direto com horário e endereço no DF.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="accordions-group">
+          <section class="retractable-card">
+            <button type="button" class="retractable-btn" onclick="toggleHistory()" aria-expanded="false" id="historyBtn">
+              <span class="retractable-title">Histórico de rolês</span>
+              <span class="retractable-pill" id="historyPill">Abrir aba ▾</span>
+            </button>
+            <div class="retractable-body" id="historyBody">
+              <div class="history-list">
+                <a href="./resultado_role.html" class="history-item">
+                  <strong>Beirute Bar · 109 Sul</strong>
+                  <span>Sexta passada · 4 pessoas · Concluído</span>
+                </a>
+                <a href="./resultado_role.html" class="history-item">
+                  <strong>Godofredo Boteco · Asa Norte</strong>
+                  <span>Há 2 semanas · 5 pessoas · Concluído</span>
+                </a>
+                <a href="./resultado_role.html" class="history-item">
+                  <strong>Parque da Cidade · Estac. 10</strong>
+                  <span>Há 1 mês · 6 pessoas · Concluído</span>
+                </a>
+              </div>
+            </div>
+          </section>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Modais Globais da Conta -->
+  <dialog class="app-dialog" id="profileModal">
+    <div class="dialog-head">
+      <h3>Meu Perfil</h3>
+      <button type="button" class="dialog-close" onclick="closeModal('profileModal')">Fechar</button>
+    </div>
+    <p style="font-size:13px; color:var(--ink-muted); font-weight:600; margin-bottom:14px;">
+      Preferências padrão usadas quando você entra em uma sala nova.
+    </p>
+    <div class="form-stack">
+      <div class="field">
+        <label>Nome exibido para a turma</label>
+        <input type="text" class="text-input" value="Marina Costa" />
+      </div>
+      <div class="field">
+        <label>Bairro base em Brasília</label>
+        <input type="text" class="text-input" value="Asa Norte (SQN 208)" />
+      </div>
+      <div class="field">
+        <label>Transporte padrão</label>
+        <input type="text" class="text-input" value="Uber / Metrô" />
+      </div>
+      <button type="button" class="btn-primary" onclick="closeModal('profileModal'); showToast('Perfil atualizado!')">Salvar alterações</button>
+    </div>
+  </dialog>
+
+  <dialog class="app-dialog" id="notifModal">
+    <div class="dialog-head">
+      <h3>Notificações</h3>
+      <button type="button" class="dialog-close" onclick="closeModal('notifModal')">Fechar</button>
+    </div>
+    <div class="history-list">
+      <div class="history-item">
+        <strong>Sexta da Galera · Votação quase fechando</strong>
+        <span>João e Pedro já votaram. Falta o voto de Bia.</span>
+      </div>
+      <div class="history-item">
+        <strong>Café Pós-Prova · Lembrete</strong>
+        <span>Preencha seus horários de manhã e tarde até quinta.</span>
       </div>
     </div>
+  </dialog>
 
-    <nav class="topbar-right" aria-label="Conta e navegação">
-      <a class="nav-pill active" href="criar_sala.html">🏠 Meus rolês</a>
-      <button class="nav-pill" type="button" onclick="document.getElementById('profileModal').showModal()">👤 Perfil</button>
-      <button class="icon-btn" type="button" title="Notificações" aria-label="Notificações" onclick="document.getElementById('notifModal').showModal()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        <span class="notif-dot"></span>
-      </button>
-      <button class="icon-btn" type="button" title="Configurações" aria-label="Configurações" onclick="document.getElementById('settingsModal').showModal()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      </button>
-      <button class="avatar-btn" type="button" onclick="document.getElementById('profileModal').showModal()">ME</button>
-    </nav>
-  </header>
+  <dialog class="app-dialog" id="settingsModal">
+    <div class="dialog-head">
+      <h3>Configurações</h3>
+      <button type="button" class="dialog-close" onclick="closeModal('settingsModal')">Fechar</button>
+    </div>
+    <div class="form-stack">
+      <label class="checkbox-row">
+        <input type="checkbox" checked />
+        Receber resumo do rolê vencedor no WhatsApp
+      </label>
+      <label class="checkbox-row">
+        <input type="checkbox" checked />
+        Ocultar meu orçamento individual em todas as salas
+      </label>
+      <button type="button" class="btn-secondary" onclick="closeModal('settingsModal'); showToast('Preferências salvas.')">Concluir</button>
+    </div>
+  </dialog>
 
-  <div class="workspace">
-    <main class="main-col">
-      <header class="page-head">
-        <div>
-          <h1>Seus grupos de rolê</h1>
-          <p>Entre em uma sala da turma ou puxe um rolê novo em segundos</p>
-        </div>
-        <span class="info-tag">Brasília · DF</span>
-      </header>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-      <!-- STEPPER: OCULTO NA HOME PRINCIPAL, EXIBIDO AO CRIAR SALA -->
-      <section class="stepper-card hidden" id="stepperHome" aria-label="Etapas do rolê">
-        <a class="step-item active" href="criar_sala.html"><span class="step-num">1</span> Sala criada</a>
-        <div class="step-connector"></div>
-        <a class="step-item pending" href="meus_dados.html"><span class="step-num">2</span> Meus dados</a>
-        <div class="step-connector"></div>
-        <a class="step-item pending" href="home_sala_v2.html"><span class="step-num">3</span> Votação</a>
-        <div class="step-connector"></div>
-        <a class="step-item pending" href="resultado_role.html"><span class="step-num">4</span> Resultado</a>
-      </section>
+  <script>
+    function openModal(id) {
+      const dlg = document.getElementById(id);
+      if (dlg && typeof dlg.showModal === 'function') dlg.showModal();
+    }
 
-      <section class="home-grid">
-        <div class="left-stack">
-          <div class="panel-card">
-            <h2>Meus grupos ativos</h2>
-            <div class="groups-list">
-              <a class="group-item" href="home_sala_v2.html">
-                <div>
-                  <strong>Boteco de Sexta</strong>
-                  <span>4 amigos &middot; 2 de 4 votos</span>
-                </div>
-                <span class="info-tag ok">Votação aberta →</span>
-              </a>
-              <a class="group-item" href="meus_dados.html">
-                <div>
-                  <strong>Café de Domingo</strong>
-                  <span>3 amigos &middot; Falta seus dados</span>
-                </div>
-                <span class="info-tag warn">Preencher →</span>
-              </a>
-              <a class="group-item" href="resultado_role.html">
-                <div>
-                  <strong>Happy Hour da Firma</strong>
-                  <span>6 amigos &middot; Beirute Bar</span>
-                </div>
-                <span class="info-tag">Definido →</span>
-              </a>
-            </div>
-          </div>
+    function closeModal(id) {
+      const dlg = document.getElementById(id);
+      if (dlg && dlg.open) dlg.close();
+    }
 
-          <div class="panel-card">
-            <h2>Recebeu um código?</h2>
-            <form onsubmit="entrarSala(event)" style="display:flex; gap:10px; align-items:center;">
-              <input class="text-input" id="joinCode" type="text" placeholder="Ex.: ROLE-7KQ2" required />
-              <button class="btn-secondary" type="submit" style="white-space:nowrap;">Entrar →</button>
-            </form>
-          </div>
-        </div>
+    document.querySelectorAll('dialog.app-dialog').forEach((dlg) => {
+      dlg.addEventListener('click', (e) => {
+        if (e.target === dlg) dlg.close();
+      });
+    });
 
-        <div class="panel-card create-highlight">
-          <div id="createFormState">
-            <h2>Criar novo rolê</h2>
-            <p class="panel-desc" style="margin-top:4px; margin-bottom:10px;">Abra uma sala e mande o link secreto no grupo do WhatsApp.</p>
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+    }
 
-            <form id="formCriar" onsubmit="criarSala(event)" style="display:flex; flex-direction:column; gap:11px;">
-              <div class="field">
-                <label for="orgName">Seu nome</label>
-                <input class="text-input" id="orgName" type="text" placeholder="Ex.: Eduarda" required />
-              </div>
-              <div class="field">
-                <label for="roleName">Nome do rolê</label>
-                <input class="text-input" id="roleName" type="text" placeholder="Ex.: Boteco de Sexta" required />
-              </div>
-              <label class="checkbox-row">
-                <input type="checkbox" id="chk18" required />
-                <span>Tenho 18 anos ou mais (app para adultos).</span>
-              </label>
-              <button class="btn-primary" type="submit" style="margin-top:4px;">+ Criar Sala</button>
-            </form>
-          </div>
+    function criarSala(e) {
+      e.preventDefault();
+      const name = document.getElementById('roomName').value.trim() || 'Rolê da Turma';
+      const code = 'BSB-' + Math.floor(100 + Math.random() * 899);
+      document.getElementById('generatedCode').textContent = code;
+      document.getElementById('createdCodeBox').classList.remove('hidden');
+      document.getElementById('stepperHome').classList.remove('hidden');
+      showToast('Sala "' + name + '" criada! Código ' + code);
+    }
 
-          <div id="createdRoomState" class="hidden" style="display:flex; flex-direction:column; gap:12px;">
-            <span class="info-tag ok">✓ Sala criada com sucesso</span>
-            <h2 id="createdTitle">Boteco de Sexta</h2>
-            <p class="panel-desc">Compartilhe o código ou link no grupo (2 a 20 pessoas):</p>
-            <div class="code-box">
-              <strong id="roomCode">ROLE-7KQ2</strong>
-              <button class="btn-secondary" type="button" style="height:36px;" onclick="copyRoomLink()">Copiar link</button>
-            </div>
-            <div class="btn-row">
-              <a class="btn-secondary" style="flex:1;" href="https://wa.me/?text=Entra%20na%20sala%20do%20nosso%20role%20ROLE-7KQ2" target="_blank" rel="noopener">💬 WhatsApp</a>
-              <a class="btn-primary" style="flex:1;" href="meus_dados.html">Meus dados →</a>
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
+    function entrarSala(e) {
+      e.preventDefault();
+      const code = document.getElementById('joinCodeInput').value.trim().toUpperCase();
+      if (!code) return;
+      showToast('Entrando na sala ' + code + '...');
+      setTimeout(() => {
+        window.location.href = './meus_dados.html';
+      }, 650);
+    }
 
-    <aside class="right-panel" aria-label="Como funciona e histórico">
-      <h2>Como funciona</h2>
-      <div class="steps-list">
-        <div class="how-item">
-          <span class="how-num">1</span>
-          <p><strong>Crie a sala</strong> e mande o link no grupo do WhatsApp.</p>
-        </div>
-        <div class="how-item">
-          <span class="how-num">2</span>
-          <p><strong>Cada um conta em segredo</strong> de onde sai no DF, horários no calendário e teto de gasto.</p>
-        </div>
-        <div class="how-item">
-          <span class="how-num">3</span>
-          <p><strong>A turma vota</strong> em 3 opções justas para todos, com rota e TikTok.</p>
-        </div>
-      </div>
+    function copyRoomLink() {
+      const code = document.getElementById('generatedCode').textContent;
+      const url = 'https://qualplano.df/sala/' + code;
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).catch(() => {});
+      }
+      showToast('Link copiado: ' + url);
+    }
 
-      <a class="btn-secondary" href="home_sala_v2.html" style="width:100%;">✨ Ver sala de exemplo (DEMO)</a>
-
-      <div class="accordions-group">
-        <div class="retractable-card">
-          <button class="retractable-btn" id="historyBtn" type="button" aria-expanded="false" onclick="toggleSingleAccordion('historyBtn','historyBody','historyPill')">
-            <span class="retractable-title">🕒 Histórico de rolês</span>
-            <span class="retractable-pill" id="historyPill">Abrir aba ▾</span>
-          </button>
-          <div class="retractable-body" id="historyBody">
-            <div class="history-list">
-              <div class="history-item">
-                <span>📍</span>
-                <div><strong>Parrilla Burger &amp; Chopp</strong><span>21 nov &middot; Asa Sul</span></div>
-              </div>
-              <div class="history-item">
-                <span>📍</span>
-                <div><strong>Café &amp; Bate-Papo</strong><span>02 nov &middot; Asa Norte</span></div>
-              </div>
-              <div class="history-item">
-                <span>📍</span>
-                <div><strong>Churrasco da Turma</strong><span>18 out &middot; Guará</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </aside>
-  </div>
-</div>
-
-<dialog class="app-dialog" id="profileModal">
-  <div class="dialog-head">
-    <strong>Meu Perfil</strong>
-    <button class="dialog-close" type="button" onclick="this.closest('dialog').close()">✕</button>
-  </div>
-  <div style="display:flex; flex-direction:column; gap:10px; font-size:13px;">
-    <div><strong>Nome:</strong> Eduarda (ME)</div>
-    <div><strong>Ponto de partida padrão:</strong> Asa Sul · DF</div>
-    <div><strong>Restrições salvas:</strong> Sem glúten</div>
-    <button class="btn-primary" type="button" style="margin-top:6px;" onclick="this.closest('dialog').close(); showToast('Perfil salvo!')">Fechar</button>
-  </div>
-</dialog>
-
-<dialog class="app-dialog" id="notifModal">
-  <div class="dialog-head">
-    <strong>Notificações</strong>
-    <button class="dialog-close" type="button" onclick="this.closest('dialog').close()">✕</button>
-  </div>
-  <div style="display:flex; flex-direction:column; gap:10px; font-size:12.5px;">
-    <div style="background:var(--surface-soft); padding:10px 12px; border-radius:10px;"><strong>Café de Domingo:</strong> Samara convidou você para preencher seus horários.</div>
-    <div style="background:var(--surface-soft); padding:10px 12px; border-radius:10px;"><strong>Boteco de Sexta:</strong> Cauan e Samara já votaram.</div>
-  </div>
-</dialog>
-
-<dialog class="app-dialog" id="settingsModal">
-  <div class="dialog-head">
-    <strong>Configurações</strong>
-    <button class="dialog-close" type="button" onclick="this.closest('dialog').close()">✕</button>
-  </div>
-  <div style="display:flex; flex-direction:column; gap:10px; font-size:13px;">
-    <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" checked /> Manter teto de gasto sempre secreto</label>
-    <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" checked /> Avisar quando a turma fechar votação</label>
-    <button class="btn-primary" type="button" style="margin-top:6px;" onclick="this.closest('dialog').close(); showToast('Configurações salvas!')">Salvar</button>
-  </div>
-</dialog>
-
-<div class="toast" id="toast"></div>
-
-<script src="./shell.js"></script>
-<script>
-  function criarSala(e) {
-    e.preventDefault();
-    const role = document.getElementById('roleName').value.trim() || 'Boteco de Sexta';
-    document.getElementById('createdTitle').textContent = role;
-    document.getElementById('stepperHome').classList.remove('hidden');
-    document.getElementById('createFormState').classList.add('hidden');
-    document.getElementById('createdRoomState').classList.remove('hidden');
-    showToast(`Sala "${role}" criada!`);
-  }
-
-  function entrarSala(e) {
-    e.preventDefault();
-    window.location.href = 'meus_dados.html';
-  }
-
-  function copyRoomLink() {
-    showToast('Link da sala ROLE-7KQ2 copiado!');
-  }
-</script>
+    function toggleHistory() {
+      const body = document.getElementById('historyBody');
+      const btn = document.getElementById('historyBtn');
+      const pill = document.getElementById('historyPill');
+      const isOpen = body.classList.toggle('open');
+      btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+      pill.textContent = isOpen ? 'Fechar aba ▴' : 'Abrir aba ▾';
+    }
+  </script>
 </body>
 </html>

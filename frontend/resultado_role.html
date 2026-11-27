@@ -3,392 +3,506 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Qual o Plano? — Rolê Fechado: Beirute Bar</title>
+  <title>Qual o Plano? — Resultado do Rolê</title>
   <link rel="icon" type="image/x-icon" href="./assets/logos/favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="./assets/logos/carro_icone_32.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./styles.css" />
   <style>
-    /* CARD VENCEDOR MINIMALISTA SEM FOTO */
     .winner-card {
       background: var(--ink);
-      border: 2px solid var(--ink);
-      border-radius: 22px;
-      padding: 20px 24px;
       color: #FFFDF7;
+      border: 2px solid var(--ink);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: 0 5px 0 rgba(91, 47, 21, 0.3);
       display: flex;
       flex-direction: column;
       gap: 14px;
-      box-shadow: 0 8px 20px rgba(91, 47, 21, 0.18);
+      flex-shrink: 0;
     }
 
-    .badges-row {
+    .winner-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .winner-title-row {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      gap: 10px;
+      gap: 12px;
+      margin-top: 8px;
     }
 
-    .info-tag-gold {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 5px 11px;
-      border-radius: 6px;
-      background: var(--yellow);
+    .winner-badge-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--radius-md);
+      background: var(--accent-yellow);
+      border: 2px solid #FFF5B4;
       color: var(--ink);
-      font-size: 12px;
-      font-weight: 700;
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+      flex-shrink: 0;
     }
 
-    .winner-card h2 {
-      font-size: 32px;
-      font-weight: 700;
+    .winner-title-row h2 {
+      font-size: 24px;
+      font-weight: 900;
+      letter-spacing: -0.025em;
       line-height: 1.15;
-      color: var(--canary);
     }
 
-    .winner-meta {
-      font-size: 13.5px;
-      color: #F6E6B4;
-      font-weight: 500;
+    .winner-sub {
+      font-size: 13px;
+      font-weight: 600;
+      color: #FFF5B4;
+      margin-top: 3px;
     }
 
     .winner-metrics {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
     }
 
     .metric-box {
-      background: #46230F;
-      border: 1px solid rgba(255, 229, 0, 0.28);
-      border-radius: 12px;
-      padding: 12px 14px;
+      background: #47230F;
+      border: 1px solid rgba(255, 245, 180, 0.28);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
     }
 
     .metric-box span {
       display: block;
-      font-size: 10.5px;
-      color: var(--yellow);
+      font-size: 11px;
       font-weight: 700;
-      letter-spacing: 0.05em;
+      color: #FFF5B4;
       text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 3px;
     }
 
     .metric-box strong {
-      display: block;
-      font-size: 14.5px;
-      margin-top: 3px;
+      font-size: 14px;
+      font-weight: 800;
       color: #FFFDF7;
     }
 
     .winner-actions {
       display: flex;
-      gap: 10px;
       flex-wrap: wrap;
-      margin-top: 2px;
-    }
-
-    .winner-actions .btn-primary {
-      border-color: #2E1608;
-      box-shadow: 0 3px 0 #2E1608;
+      gap: 8px;
+      align-items: center;
     }
 
     .runnerups-card {
-      background: var(--surface);
-      border: 1.5px solid var(--border-crisp);
-      border-radius: 20px;
-      padding: 16px 20px;
-      box-shadow: var(--shadow-card);
+      flex: 1;
+      min-height: 0;
       display: flex;
       flex-direction: column;
       gap: 10px;
     }
 
-    .runnerups-card h3 { font-size: 15px; font-weight: 700; }
-
     .runnerup-grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 12px;
     }
 
     .runnerup-item {
-      background: var(--surface-soft);
-      border: 1px solid var(--border-soft);
-      border-radius: 12px;
-      padding: 10px 14px;
+      background: var(--surface-alt);
+      border: 1.5px solid var(--border-light);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .runnerup-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: 8px;
     }
 
-    .runnerup-item strong { display: block; font-size: 13.5px; }
-    .runnerup-item span { font-size: 12px; color: var(--muted); }
+    .runnerup-item strong {
+      font-size: 14.5px;
+      font-weight: 800;
+    }
 
-    @media (max-width: 980px) {
-      .winner-metrics, .runnerup-grid { grid-template-columns: 1fr; }
+    .runnerup-item p {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink-muted);
+      line-height: 1.4;
+    }
+
+    @media (max-width: 1100px) {
+      .winner-metrics,
+      .runnerup-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
-<div class="app-shell">
-  <!-- TOPBAR SOCIAL LEVE -->
-  <header class="topbar" aria-label="Menu global">
-    <div class="topbar-left">
-      <a class="brand-link" href="criar_sala.html" aria-label="Qual o Plano? Home">
-        <img src="./assets/logos/logo_nome_220.png" alt="Qual o Plano?" height="36" />
-      </a>
-      <span class="brand-divider"></span>
-      <div class="room-badge-top">
-        <strong>Boteco de Sexta</strong>
-        <span>Resultado final · 3 de 4 votos</span>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="topbar-left">
+        <a href="./criar_sala.html" class="brand-link" title="Qual o Plano? — Início">
+          <img src="./assets/logos/logo_completa_horizontal_320.png" alt="Qual o Plano?" />
+        </a>
+        <div class="brand-divider" aria-hidden="true"></div>
+        <span class="room-badge-top">Sala #BSB-429 · Sexta da Galera</span>
+      </div>
+
+      <nav class="topbar-right" aria-label="Menu principal">
+        <a href="./criar_sala.html" class="nav-pill">Home · Meus Rolês</a>
+        <button type="button" class="nav-pill" onclick="openModal('profileModal')">Meu Perfil</button>
+        <button type="button" class="icon-btn" onclick="openModal('notifModal')" title="Notificações" aria-label="Notificações">
+          🔔
+          <span class="notif-dot" aria-hidden="true"></span>
+        </button>
+        <button type="button" class="icon-btn" onclick="openModal('settingsModal')" title="Configurações" aria-label="Configurações">
+          ⚙️
+        </button>
+        <button type="button" class="avatar-btn" onclick="openModal('profileModal')" title="Conta de Marina">ME</button>
+      </nav>
+    </header>
+
+    <div class="workspace">
+      <main class="main-col">
+        <div class="page-head">
+          <div>
+            <h1>Rolê fechado!</h1>
+            <p>Votação encerrada na Sala #BSB-429. Agora é só jogar o combinado no grupo e aparecer lá.</p>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <a href="./home_sala_v2.html" class="btn-secondary">Reabrir votação</a>
+            <a href="./criar_sala.html" class="btn-secondary">Meus Rolês</a>
+          </div>
+        </div>
+
+        <section class="stepper-card" aria-label="Etapas do rolê">
+          <a href="./criar_sala.html" class="step-item done" style="text-decoration:none;">
+            <span class="step-num">✓</span>
+            <span>Sala criada</span>
+          </a>
+          <div class="step-connector"></div>
+          <a href="./meus_dados.html" class="step-item done" style="text-decoration:none;">
+            <span class="step-num">✓</span>
+            <span>Meus dados</span>
+          </a>
+          <div class="step-connector"></div>
+          <a href="./home_sala_v2.html" class="step-item done" style="text-decoration:none;">
+            <span class="step-num">✓</span>
+            <span>Votação</span>
+          </a>
+          <div class="step-connector"></div>
+          <div class="step-item active">
+            <span class="step-num">4</span>
+            <span>Resultado</span>
+          </div>
+        </section>
+
+        <section class="winner-card" aria-label="Destino vencedor">
+          <div class="winner-head">
+            <div>
+              <div style="display:flex; gap:6px; flex-wrap:wrap;">
+                <span class="info-tag ok">Vencedor · 3 de 4 votos</span>
+                <span class="info-tag on-dark">Sexta · 20h00</span>
+                <span class="info-tag on-dark">Asa Sul</span>
+              </div>
+              <div class="winner-title-row">
+                <div class="winner-badge-icon" aria-hidden="true">🏆</div>
+                <div>
+                  <h2>Beirute Bar · Sexta, 20h00</h2>
+                  <div class="winner-sub">CLS 109 Bloco A · Asa Sul (próximo à Estação 108 Sul do Metrô)</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="winner-metrics">
+            <div class="metric-box">
+              <span>Estimativa justa</span>
+              <strong>~R$ 65 / pessoa</strong>
+            </div>
+            <div class="metric-box">
+              <span>Deslocamento médio</span>
+              <strong>12 min · Metrô/Uber</strong>
+            </div>
+            <div class="metric-box">
+              <span>Compatibilidade</span>
+              <strong>4/4 dentro do teto</strong>
+            </div>
+          </div>
+
+          <div class="winner-actions">
+            <button type="button" class="btn-primary" onclick="shareWhatsApp()">Mandar no WhatsApp</button>
+            <button type="button" class="btn-secondary on-dark" onclick="copyInviteSummary()">Copiar resumo</button>
+            <button type="button" class="btn-secondary on-dark" onclick="downloadIcs()">Adicionar à agenda (.ics)</button>
+          </div>
+        </section>
+
+        <section class="panel-card runnerups-card">
+          <div style="display:flex; align-items:center; justify-content:space-between;">
+            <h3 style="font-size:15px; font-weight:800;">Outras opções da rodada</h3>
+            <span class="info-tag">Salvas caso queiram plano B</span>
+          </div>
+          <div class="runnerup-grid">
+            <div class="runnerup-item">
+              <div class="runnerup-top">
+                <strong>2º · Godofredo Boteco</strong>
+                <span class="info-tag">1 voto</span>
+              </div>
+              <p>CLN 408 Bloco B · Asa Norte · Sexta, 20h30 · ~R$ 75/pessoa</p>
+            </div>
+            <div class="runnerup-item">
+              <div class="runnerup-top">
+                <strong>3º · Café Rapport</strong>
+                <span class="info-tag">0 votos</span>
+              </div>
+              <p>CLS 201 Bloco B · Asa Sul · Sábado, 17h00 · ~R$ 55/pessoa</p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <aside class="right-panel" aria-label="Turma confirmada e mapa">
+        <div>
+          <div class="turma-head">
+            <h3>Turma confirmada</h3>
+            <span class="info-tag ok">4/4 dentro</span>
+          </div>
+          <div class="friends-list">
+            <div class="friend-row">
+              <div class="friend-avatar av-1">JS</div>
+              <div class="friend-info">
+                <strong>João</strong>
+                <span>Votou no Beirute · Asa Norte</span>
+              </div>
+              <span class="info-tag ok">Confirmado</span>
+            </div>
+            <div class="friend-row">
+              <div class="friend-avatar av-2">PM</div>
+              <div class="friend-info">
+                <strong>Pedro</strong>
+                <span>Votou no Godofredo · Sudoeste</span>
+              </div>
+              <span class="info-tag ok">Confirmado</span>
+            </div>
+            <div class="friend-row">
+              <div class="friend-avatar av-3">BL</div>
+              <div class="friend-info">
+                <strong>Bia</strong>
+                <span>Votou no Beirute · Águas Claras</span>
+              </div>
+              <span class="info-tag ok">Confirmado</span>
+            </div>
+            <div class="friend-row">
+              <div class="friend-avatar av-4">ME</div>
+              <div class="friend-info">
+                <strong>Marina (Você)</strong>
+                <span>Votou no Beirute · Asa Norte</span>
+              </div>
+              <span class="info-tag ok">Confirmado</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="vote-status-card">
+          <div class="vote-status-top">
+            <span>Votos da turma</span>
+            <strong>4 de 4 votaram</strong>
+          </div>
+          <div class="road-track">
+            <div class="road-bar">
+              <div class="road-fill" style="width: 100%;"></div>
+            </div>
+            <img src="./assets/logos/carro_lateral_160.png" alt="Brasília Amarela" class="road-car" style="left: calc(100% - 22px);" />
+          </div>
+        </div>
+
+        <div class="accordions-group">
+          <section class="retractable-card">
+            <button type="button" class="retractable-btn" onclick="toggleAccordion('map')" aria-expanded="true" id="mapBtn">
+              <span class="retractable-title">Mapa do DF</span>
+              <span class="retractable-pill" id="mapPill">Fechar aba ▴</span>
+            </button>
+            <div class="retractable-body open" id="mapBody">
+              <div class="df-map-canvas" aria-label="Localização do rolê no Plano Piloto">
+                <div class="df-road h"></div>
+                <div class="df-road v"></div>
+                <button type="button" class="map-pin-btn active" style="top: 64%; left: 34%;" onclick="showToast('Beirute Bar · CLS 109 Bloco A, Asa Sul')">Beirute 109S</button>
+                <button type="button" class="map-pin-btn" style="top: 58%; left: 54%;" onclick="showToast('Metrô Estação 108 Sul · 4 min a pé')">Metrô 108S</button>
+              </div>
+              <div style="margin-top:6px; font-size:11.5px; font-weight:700; color:var(--ink);">
+                Ponto de encontro: CLS 109 Bloco A · Calçada lateral
+              </div>
+            </div>
+          </section>
+
+          <section class="retractable-card">
+            <button type="button" class="retractable-btn" onclick="toggleAccordion('history')" aria-expanded="false" id="historyBtn">
+              <span class="retractable-title">Histórico de rolês</span>
+              <span class="retractable-pill" id="historyPill">Abrir aba ▾</span>
+            </button>
+            <div class="retractable-body" id="historyBody">
+              <div class="history-list">
+                <div class="history-item">
+                  <strong>Beirute Bar · 109 Sul</strong>
+                  <span>Hoje · 4 pessoas · Encerrado</span>
+                </div>
+                <div class="history-item">
+                  <strong>Godofredo Boteco · 408 Norte</strong>
+                  <span>Há 2 semanas · 5 pessoas · Concluído</span>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Modais Globais da Conta -->
+  <dialog class="app-dialog" id="profileModal">
+    <div class="dialog-head">
+      <h3>Meu Perfil</h3>
+      <button type="button" class="dialog-close" onclick="closeModal('profileModal')">Fechar</button>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <div class="field"><label>Nome</label><input type="text" class="text-input" value="Marina Costa" /></div>
+      <div class="field"><label>Bairro base</label><input type="text" class="text-input" value="Asa Norte (SQN 208)" /></div>
+      <button type="button" class="btn-primary" onclick="closeModal('profileModal'); showToast('Perfil salvo!')">Salvar</button>
+    </div>
+  </dialog>
+
+  <dialog class="app-dialog" id="notifModal">
+    <div class="dialog-head">
+      <h3>Notificações</h3>
+      <button type="button" class="dialog-close" onclick="closeModal('notifModal')">Fechar</button>
+    </div>
+    <div class="history-list">
+      <div class="history-item">
+        <strong>Sexta da Galera fechado!</strong>
+        <span>Beirute Bar venceu com 3 votos para Sexta às 20h00.</span>
       </div>
     </div>
+  </dialog>
 
-    <nav class="topbar-right" aria-label="Conta e navegação">
-      <a class="nav-pill" href="criar_sala.html">🏠 Meus rolês</a>
-      <button class="nav-pill" type="button" onclick="document.getElementById('profileModal').showModal()">👤 Perfil</button>
-      <button class="icon-btn" type="button" title="Notificações" aria-label="Notificações" onclick="document.getElementById('notifModal').showModal()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        <span class="notif-dot"></span>
-      </button>
-      <button class="icon-btn" type="button" title="Configurações" aria-label="Configurações" onclick="document.getElementById('settingsModal').showModal()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      </button>
-      <button class="avatar-btn" type="button" onclick="document.getElementById('profileModal').showModal()">ME</button>
-    </nav>
-  </header>
+  <dialog class="app-dialog" id="settingsModal">
+    <div class="dialog-head">
+      <h3>Configurações</h3>
+      <button type="button" class="dialog-close" onclick="closeModal('settingsModal')">Fechar</button>
+    </div>
+    <p style="font-size:13px; font-weight:600; color:var(--ink-muted); margin-bottom:12px;">
+      Histórico salvo automaticamente na sua conta.
+    </p>
+    <button type="button" class="btn-secondary" onclick="closeModal('settingsModal')">Ok</button>
+  </dialog>
 
-  <div class="workspace">
-    <main class="main-col">
-      <header class="page-head">
-        <div>
-          <h1>Rolê fechado pela turma!</h1>
-          <p>Boteco de Sexta &middot; 3 de 4 votos escolheram o Beirute Bar</p>
-        </div>
-        <span class="info-tag ok">✓ Decisão fechada</span>
-      </header>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-      <section class="stepper-card" aria-label="Etapas do rolê">
-        <a class="step-item done" href="criar_sala.html">✓ Sala criada</a>
-        <div class="step-connector"></div>
-        <a class="step-item done" href="meus_dados.html">✓ Meus dados</a>
-        <div class="step-connector"></div>
-        <a class="step-item done" href="home_sala_v2.html">✓ Votação</a>
-        <div class="step-connector"></div>
-        <a class="step-item active" href="resultado_role.html"><span class="step-num">4</span> Resultado</a>
-      </section>
+  <script>
+    const SUMMARY_TEXT = 'Rolê fechado no Qual o Plano?!\n📍 Beirute Bar (CLS 109 Bloco A · Asa Sul)\n🗓️ Sexta-feira às 20h00\n💸 Média ~R$ 65/pessoa · Próx. Metrô 108 Sul';
 
-      <!-- CARD VENCEDOR MINIMALISTA SEM FOTO -->
-      <section class="winner-card">
-        <div class="badges-row">
-          <span class="info-tag-gold">🏆 Vencedor da votação</span>
-          <span class="info-tag on-dark">94% de afinidade</span>
-        </div>
-        <div>
-          <h2>Beirute Bar</h2>
-          <p class="winner-meta">Asa Sul &middot; CLS 109 &middot; Boteco tradicional &middot; ✓ Sem glúten &middot; ✓ Vegano</p>
-        </div>
-        <div class="winner-metrics">
-          <div class="metric-box">
-            <span>Quando</span>
-            <strong>Sexta, 19:30</strong>
-          </div>
-          <div class="metric-box">
-            <span>Onde &amp; Rota</span>
-            <strong>~18 min p/ turma</strong>
-          </div>
-          <div class="metric-box">
-            <span>Gasto médio</span>
-            <strong>~R$ 58 / pessoa</strong>
-          </div>
-        </div>
-        <div class="winner-actions">
-          <a class="btn-primary" href="https://wa.me/?text=Role%20fechado!%20Beirute%20Bar%20(Asa%20Sul%20-%20CLS%20109)%20Sexta%2019:30" target="_blank" rel="noopener">💬 Mandar no WhatsApp</a>
-          <button class="btn-secondary on-dark" type="button" onclick="copiarResumo()">📋 Copiar resumo</button>
-          <a class="btn-secondary on-dark" href="https://maps.google.com/?q=Beirute+Bar+Asa+Sul+Brasilia" target="_blank" rel="noopener">📍 Abrir no Google Maps</a>
-        </div>
-      </section>
+    function copyInviteSummary() {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(SUMMARY_TEXT).catch(() => {});
+      }
+      showToast('Resumo copiado para a área de transferência!');
+    }
 
-      <section class="runnerups-card">
-        <div style="display:flex; align-items:center; justify-content:space-between;">
-          <h3>Outras opções da votação</h3>
-          <a class="btn-secondary" style="height:34px; font-size:12px;" href="home_sala_v2.html">← Voltar para votação</a>
-        </div>
-        <div class="runnerup-grid">
-          <div class="runnerup-item">
-            <div>
-              <strong>Godofredo Boteco</strong>
-              <span>Asa Norte &middot; 1 voto</span>
-            </div>
-            <span class="info-tag">88%</span>
-          </div>
-          <div class="runnerup-item">
-            <div>
-              <strong>Café Rapport</strong>
-              <span>Asa Sul &middot; 0 votos</span>
-            </div>
-            <span class="info-tag">81%</span>
-          </div>
-        </div>
-      </section>
-    </main>
+    function shareWhatsApp() {
+      copyInviteSummary();
+      showToast('Texto pronto! Abrindo compartilhamento para o WhatsApp...');
+    }
 
-    <aside class="right-panel" aria-label="Confirmação e mapa">
-      <div class="turma-head">
-        <div>
-          <h2>Presença confirmada</h2>
-          <p>Quem vai pro Beirute</p>
-        </div>
-        <a class="btn-primary" style="height:36px; padding:0 12px; font-size:12.5px;" href="criar_sala.html">+ Nova sala</a>
-      </div>
+    function downloadIcs() {
+      const ics = [
+        'BEGIN:VCALENDAR',
+        'VERSION:2.0',
+        'PRODID:-//Qual o Plano//DF//PT-BR',
+        'BEGIN:VEVENT',
+        'SUMMARY:Sexta da Galera - Beirute Bar',
+        'LOCATION:CLS 109 Bloco A, Asa Sul, Brasília - DF',
+        'DESCRIPTION:Rolê fechado via Qual o Plano? (~R$ 65/pessoa)',
+        'DTSTART:20261127T200000',
+        'DTEND:20261127T233000',
+        'END:VEVENT',
+        'END:VCALENDAR'
+      ].join('\r\n');
+      const blob = new Blob([ics], { type: 'text/calendar;charset=utf-8' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'role-beirute-109-sul.ics';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      showToast('Evento .ics baixado!');
+    }
 
-      <div class="friends-list">
-        <div class="friend-row">
-          <div class="friend-avatar av-1">ME</div>
-          <div class="friend-info"><strong>Você (Eduarda)</strong><span>Votou no Beirute</span></div>
-          <span class="info-tag ok">Vai!</span>
-        </div>
-        <div class="friend-row">
-          <div class="friend-avatar av-2">CS</div>
-          <div class="friend-info"><strong>Cauan</strong><span>Votou no Beirute</span></div>
-          <span class="info-tag ok">Vai!</span>
-        </div>
-        <div class="friend-row">
-          <div class="friend-avatar av-3">SL</div>
-          <div class="friend-info"><strong>Samara</strong><span>Votou no Beirute</span></div>
-          <span class="info-tag ok">Vai!</span>
-        </div>
-        <div class="friend-row">
-          <div class="friend-avatar av-4">MC</div>
-          <div class="friend-info"><strong>Carolina</strong><span>Votou no Godofredo</span></div>
-          <span class="info-tag warn">Confirmando</span>
-        </div>
-      </div>
+    function toggleAccordion(which) {
+      const mapBody = document.getElementById('mapBody');
+      const histBody = document.getElementById('historyBody');
+      const mapBtn = document.getElementById('mapBtn');
+      const histBtn = document.getElementById('historyBtn');
+      const mapPill = document.getElementById('mapPill');
+      const histPill = document.getElementById('historyPill');
 
-      <!-- STATUS COM BRASÍLIA AMARELA NA CHEGADA -->
-      <div class="vote-status-card">
-        <div class="vote-status-top">
-          <strong>Rolê decidido</strong>
-          <span>4 de 4 amigos</span>
-        </div>
-        <div class="road-track">
-          <div class="road-bar"><div class="road-fill" style="width:100%;"></div></div>
-          <img src="./assets/logos/carro_lateral_160.png" alt="Brasília Amarela" class="road-car" style="left:calc(100% - 44px);" />
-        </div>
-      </div>
+      if (which === 'map') {
+        const open = mapBody.classList.toggle('open');
+        mapBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        mapPill.textContent = open ? 'Fechar aba ▴' : 'Abrir aba ▾';
+        if (open) {
+          histBody.classList.remove('open');
+          histBtn.setAttribute('aria-expanded', 'false');
+          histPill.textContent = 'Abrir aba ▾';
+        }
+      } else {
+        const open = histBody.classList.toggle('open');
+        histBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        histPill.textContent = open ? 'Fechar aba ▴' : 'Abrir aba ▾';
+        if (open) {
+          mapBody.classList.remove('open');
+          mapBtn.setAttribute('aria-expanded', 'false');
+          mapPill.textContent = 'Abrir aba ▾';
+        }
+      }
+    }
 
-      <div class="accordions-group">
-        <div class="retractable-card">
-          <button class="retractable-btn" id="mapTabBtn" type="button" aria-expanded="true" onclick="toggleAccordion('map')">
-            <span class="retractable-title">🗺️ Mapa do DF</span>
-            <span class="retractable-pill" id="mapTabPill">Fechar aba ▴</span>
-          </button>
-          <div class="retractable-body open" id="mapTabBody">
-            <div class="df-map-canvas">
-              <div class="df-road" style="left:48%; top:0; width:6px; height:100%;"></div>
-              <div class="df-road" style="left:0; top:48%; width:100%; height:6px;"></div>
-              <button class="map-pin-btn active" type="button" style="left:22%; top:50px;" onclick="showToast('Beirute Bar · CLS 109, Asa Sul (~18 min)')">
-                📍 Beirute Bar · CLS 109
-              </button>
-            </div>
-          </div>
-        </div>
+    function openModal(id) {
+      const dlg = document.getElementById(id);
+      if (dlg && typeof dlg.showModal === 'function') dlg.showModal();
+    }
 
-        <div class="retractable-card">
-          <button class="retractable-btn" id="historyTabBtn" type="button" aria-expanded="false" onclick="toggleAccordion('history')">
-            <span class="retractable-title">🕒 Histórico de rolês</span>
-            <span class="retractable-pill" id="historyTabPill">Abrir aba ▾</span>
-          </button>
-          <div class="retractable-body" id="historyTabBody">
-            <div class="history-list">
-              <div class="history-item">
-                <span>📍</span>
-                <div><strong>Beirute Bar (Hoje)</strong><span>Sexta &middot; Asa Sul</span></div>
-              </div>
-              <div class="history-item">
-                <span>📍</span>
-                <div><strong>Parrilla Burger &amp; Chopp</strong><span>21 nov &middot; Asa Sul</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </aside>
-  </div>
-</div>
+    function closeModal(id) {
+      const dlg = document.getElementById(id);
+      if (dlg && dlg.open) dlg.close();
+    }
 
-<dialog class="app-dialog" id="profileModal">
-  <div class="dialog-head">
-    <strong>Meu Perfil</strong>
-    <button class="dialog-close" type="button" onclick="this.closest('dialog').close()">✕</button>
-  </div>
-  <div style="display:flex; flex-direction:column; gap:10px; font-size:13px;">
-    <div><strong>Nome:</strong> Eduarda (ME)</div>
-    <div><strong>Ponto de partida padrão:</strong> Asa Sul · DF</div>
-    <div><strong>Restrições salvas:</strong> Sem glúten</div>
-    <button class="btn-primary" type="button" style="margin-top:6px;" onclick="this.closest('dialog').close(); showToast('Perfil salvo!')">Fechar</button>
-  </div>
-</dialog>
-
-<dialog class="app-dialog" id="notifModal">
-  <div class="dialog-head">
-    <strong>Notificações</strong>
-    <button class="dialog-close" type="button" onclick="this.closest('dialog').close()">✕</button>
-  </div>
-  <div style="display:flex; flex-direction:column; gap:10px; font-size:12.5px;">
-    <div style="background:var(--surface-soft); padding:10px 12px; border-radius:10px;"><strong>Café de Domingo:</strong> Samara convidou você para preencher seus horários.</div>
-    <div style="background:var(--surface-soft); padding:10px 12px; border-radius:10px;"><strong>Boteco de Sexta:</strong> Cauan e Samara já votaram.</div>
-  </div>
-</dialog>
-
-<dialog class="app-dialog" id="settingsModal">
-  <div class="dialog-head">
-    <strong>Configurações</strong>
-    <button class="dialog-close" type="button" onclick="this.closest('dialog').close()">✕</button>
-  </div>
-  <div style="display:flex; flex-direction:column; gap:10px; font-size:13px;">
-    <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" checked /> Manter teto de gasto sempre secreto</label>
-    <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" checked /> Avisar quando a turma fechar votação</label>
-    <button class="btn-primary" type="button" style="margin-top:6px;" onclick="this.closest('dialog').close(); showToast('Configurações salvas!')">Salvar</button>
-  </div>
-</dialog>
-
-<div class="toast" id="toast"></div>
-
-<script src="./shell.js"></script>
-<script>
-  function toggleAccordion(target) {
-    const items = {
-      map: {
-        btn: document.getElementById('mapTabBtn'),
-        body: document.getElementById('mapTabBody'),
-        pill: document.getElementById('mapTabPill'),
-      },
-      history: {
-        btn: document.getElementById('historyTabBtn'),
-        body: document.getElementById('historyTabBody'),
-        pill: document.getElementById('historyTabPill'),
-      },
-    };
-
-    const nextOpen = items[target].btn.getAttribute('aria-expanded') !== 'true';
-    Object.entries(items).forEach(([key, el]) => {
-      const open = key === target ? nextOpen : false;
-      el.btn.setAttribute('aria-expanded', String(open));
-      el.body.classList.toggle('open', open);
-      el.pill.textContent = open ? 'Fechar aba ▴' : 'Abrir aba ▾';
+    document.querySelectorAll('dialog.app-dialog').forEach((dlg) => {
+      dlg.addEventListener('click', (e) => {
+        if (e.target === dlg) dlg.close();
+      });
     });
-  }
 
-  function copiarResumo() {
-    showToast('Resumo copiado: Beirute Bar (CLS 109) · Sexta 19:30!');
-  }
-</script>
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+    }
+  </script>
 </body>
 </html>

@@ -6,108 +6,110 @@
   <title>Qual o Plano? — Meus Dados Secretos</title>
   <link rel="icon" type="image/x-icon" href="./assets/logos/favicon.ico" />
   <link rel="icon" type="image/png" sizes="32x32" href="./assets/logos/carro_icone_32.png" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Space+Grotesk:wght@600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="./styles.css" />
   <style>
     .secret-banner {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 6px 12px;
-      border-radius: 10px;
-      background: var(--green-bg);
-      color: var(--green-fg);
-      font-size: 12px;
-      font-weight: 700;
-      border: 1px solid #9BD9BA;
-      white-space: nowrap;
-    }
-
-    .form-card {
-      background: var(--surface);
-      border: 1.5px solid var(--border-crisp);
-      border-radius: 22px;
-      padding: 16px 20px;
-      box-shadow: var(--shadow-card);
-      display: flex;
-      flex-direction: column;
-      gap: 11px;
-      flex: 1;
-      min-height: 0;
-    }
-
-    .form-head {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 10px;
-    }
-
-    .form-head h2 {
-      font-size: 17px;
+      gap: 12px;
+      padding: 8px 14px;
+      background: var(--surface-warm);
+      border: 1.5px solid var(--ink);
+      border-radius: var(--radius-md);
+      font-size: 12.5px;
       font-weight: 700;
       color: var(--ink);
+      flex-shrink: 0;
+    }
+
+    .form-card {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
 
     .fields-layout {
       display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1.3fr);
-      gap: 16px;
+      grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+      gap: 20px;
       align-items: stretch;
       flex: 1;
       min-height: 0;
     }
 
     .left-fields {
+      min-width: 0;
+      height: 100%;
       display: flex;
       flex-direction: column;
       gap: 10px;
-      min-width: 0;
     }
 
     .field.grow {
       flex: 1;
+      min-height: 0;
     }
 
-    .text-input { height: 40px; }
-    .text-area { flex: 1; min-height: 82px; }
+    .field.grow .text-area {
+      flex: 1;
+      min-height: 76px;
+      height: 100%;
+    }
 
-    .chip-toggles { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
+    .chip-toggles {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
 
     .chip-toggle {
-      padding: 5px 10px;
-      border-radius: 8px;
-      border: 1.5px solid var(--border-crisp);
-      background: var(--surface);
-      color: var(--ink);
+      font-family: inherit;
       font-size: 11.5px;
-      font-weight: 600;
+      font-weight: 800;
+      padding: 6px 10px;
+      border-radius: var(--radius-sm);
+      border: 1.5px solid var(--border-medium);
+      background: var(--surface-alt);
+      color: var(--ink-muted);
       cursor: pointer;
+      transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+    }
+
+    .chip-toggle:hover {
+      border-color: var(--ink);
+      color: var(--ink);
     }
 
     .chip-toggle.selected {
-      background: var(--ink);
-      color: var(--canary);
+      background: var(--accent-yellow);
       border-color: var(--ink);
+      color: var(--ink);
     }
 
-    /* CALENDÁRIO SEMANAL 30 MIN (TAMANHO ESTÁTICO + ARRASTO RETANGULAR) */
-    .cal-box {
-      background: var(--surface-soft);
-      border: 1.5px solid var(--border-crisp);
-      border-radius: 14px;
-      padding: 10px 12px;
+    .cal-col {
+      min-width: 0;
+      height: 100%;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
       gap: 8px;
-      flex: 1;
+    }
+
+    .cal-box {
       min-width: 0;
       width: 100%;
       overflow: hidden;
-      user-select: none;
+      background: var(--surface-alt);
+      border: 1.5px solid var(--ink);
+      border-radius: var(--radius-md);
+      padding: 10px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      flex: 1;
+      min-height: 0;
     }
 
     .cal-toolbar {
@@ -115,42 +117,33 @@
       align-items: center;
       justify-content: space-between;
       gap: 8px;
+      flex-wrap: wrap;
     }
 
     .period-tabs {
       display: inline-flex;
-      background: #EFE1AC;
-      border: 1px solid var(--border-crisp);
-      border-radius: 9px;
+      gap: 4px;
+      background: var(--surface-card);
+      border: 1.5px solid var(--border-medium);
+      border-radius: var(--radius-sm);
       padding: 3px;
-      gap: 3px;
     }
 
     .period-btn {
-      padding: 4px 9px;
-      border-radius: 7px;
-      border: none;
-      background: transparent;
-      color: var(--ink);
+      font-family: inherit;
       font-size: 11px;
-      font-weight: 600;
+      font-weight: 800;
+      padding: 4px 8px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--ink-muted);
       cursor: pointer;
     }
 
     .period-btn.active {
       background: var(--ink);
-      color: var(--canary);
-    }
-
-    .btn-clear-cal {
-      padding: 4px 9px;
-      border-radius: 8px;
-      border: 1.5px solid var(--border-crisp);
-      background: var(--surface);
-      color: var(--ink);
-      font-size: 11px;
-      font-weight: 600;
-      cursor: pointer;
+      color: #FFFDF7;
     }
 
     .cal-grid {
@@ -158,35 +151,40 @@
       grid-template-columns: 42px repeat(7, minmax(0, 1fr));
       grid-template-rows: auto repeat(12, 16px);
       gap: 3px;
-      align-items: center;
       width: 100%;
+      user-select: none;
     }
 
     .cal-day-head {
       text-align: center;
-      font-size: 11px;
-      font-weight: 700;
+      font-size: 10.5px;
+      font-weight: 800;
       color: var(--ink);
       padding-bottom: 2px;
     }
 
-    .cal-time-lbl {
+    .cal-time-label {
       font-size: 10px;
-      font-weight: 600;
-      color: var(--muted);
-      text-align: right;
-      padding-right: 5px;
+      font-weight: 700;
+      color: var(--ink-muted);
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 4px;
+      line-height: 1;
     }
 
     .cal-slot {
       width: 100%;
       height: 16px;
       border-radius: 4px;
-      background: var(--surface);
-      border: 1px solid #D9C398;
+      border: 1px solid var(--border-light);
+      background: var(--surface-card);
       cursor: crosshair;
       touch-action: none;
-      transition: background 0.06s;
+      padding: 0;
+      margin: 0;
+      transition: background 0.08s ease, border-color 0.08s ease;
     }
 
     .cal-slot:hover {
@@ -194,432 +192,567 @@
     }
 
     .cal-slot.selected {
-      background: var(--ink);
-      border: 1px solid var(--ink);
+      background: var(--accent-green);
+      border-color: var(--ink);
     }
 
-    .cal-summary {
-      font-size: 11px;
-      font-weight: 600;
+    #calSummary {
+      font-size: 11.5px;
+      font-weight: 700;
       color: var(--ink);
-      background: var(--surface);
-      border-radius: 8px;
-      padding: 5px 9px;
-      border: 1px solid var(--border-crisp);
-      width: 100%;
-      max-width: 100%;
+      background: var(--surface-warm);
+      border: 1px solid var(--border-light);
+      border-radius: 6px;
+      padding: 5px 8px;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      width: 100%;
+      max-width: 100%;
+    }
+
+    .form-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding-top: 8px;
+      border-top: 1px solid var(--border-light);
+      flex-shrink: 0;
     }
 
     .summary-list {
-      list-style: none;
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
     }
 
-    .summary-list li {
-      background: var(--surface-soft);
-      border: 1px solid var(--border-soft);
-      border-radius: 12px;
-      padding: 10px 12px;
-      font-size: 12.5px;
+    .summary-row {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 8px 10px;
+      background: var(--surface-alt);
+      border: 1px solid var(--border-light);
+      border-radius: var(--radius-sm);
     }
 
-    .summary-list strong {
-      display: block;
-      font-size: 11px;
-      color: var(--muted);
+    .summary-row span {
+      font-size: 10.5px;
+      font-weight: 800;
       text-transform: uppercase;
-      margin-bottom: 2px;
+      letter-spacing: 0.04em;
+      color: var(--ink-muted);
     }
 
-    @media (max-width: 980px) {
-      .fields-layout, .summary-list { grid-template-columns: 1fr; }
+    .summary-row strong {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.35;
+    }
+
+    @media (max-width: 1120px) {
+      .fields-layout {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
-<div class="app-shell">
-  <!-- TOPBAR SOCIAL LEVE -->
-  <header class="topbar" aria-label="Menu global">
-    <div class="topbar-left">
-      <a class="brand-link" href="criar_sala.html" aria-label="Qual o Plano? Home">
-        <img src="./assets/logos/logo_nome_220.png" alt="Qual o Plano?" height="36" />
-      </a>
-      <span class="brand-divider"></span>
-      <div class="room-badge-top">
-        <strong>Boteco de Sexta</strong>
-        <span>4 amigos na sala · Etapa 2 de 4</span>
+  <div class="app-shell">
+    <header class="topbar">
+      <div class="topbar-left">
+        <a href="./criar_sala.html" class="brand-link" title="Qual o Plano? — Início">
+          <img src="./assets/logos/logo_completa_horizontal_320.png" alt="Qual o Plano?" />
+        </a>
+        <div class="brand-divider" aria-hidden="true"></div>
+        <span class="room-badge-top">Sala #BSB-429 · Sexta da Galera</span>
       </div>
-    </div>
 
-    <nav class="topbar-right" aria-label="Conta e navegação">
-      <a class="nav-pill" href="criar_sala.html">🏠 Meus rolês</a>
-      <button class="nav-pill" type="button" onclick="document.getElementById('profileModal').showModal()">👤 Perfil</button>
-      <button class="icon-btn" type="button" title="Notificações" aria-label="Notificações" onclick="document.getElementById('notifModal').showModal()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-        <span class="notif-dot"></span>
-      </button>
-      <button class="icon-btn" type="button" title="Configurações" aria-label="Configurações" onclick="document.getElementById('settingsModal').showModal()">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      </button>
-      <button class="avatar-btn" type="button" onclick="document.getElementById('profileModal').showModal()">ME</button>
-    </nav>
-  </header>
+      <nav class="topbar-right" aria-label="Menu principal">
+        <a href="./criar_sala.html" class="nav-pill">Home · Meus Rolês</a>
+        <button type="button" class="nav-pill" onclick="openModal('profileModal')">Meu Perfil</button>
+        <button type="button" class="icon-btn" onclick="openModal('notifModal')" title="Notificações" aria-label="Notificações">
+          🔔
+          <span class="notif-dot" aria-hidden="true"></span>
+        </button>
+        <button type="button" class="icon-btn" onclick="openModal('settingsModal')" title="Configurações" aria-label="Configurações">
+          ⚙️
+        </button>
+        <button type="button" class="avatar-btn" onclick="openModal('profileModal')" title="Conta de Marina">ME</button>
+      </nav>
+    </header>
 
-  <div class="workspace">
-    <main class="main-col">
-      <header class="page-head">
-        <div>
-          <h1>Meus dados secretos</h1>
-          <p>Conte sua logística sem expor seu bolso pro resto da turma</p>
-        </div>
-        <div class="secret-banner">🔒 Só você vê seus valores e horários</div>
-      </header>
-
-      <section class="stepper-card" aria-label="Etapas do rolê">
-        <a class="step-item done" href="criar_sala.html">✓ Sala criada</a>
-        <div class="step-connector"></div>
-        <a class="step-item active" href="meus_dados.html"><span class="step-num">2</span> Meus dados</a>
-        <div class="step-connector"></div>
-        <a class="step-item pending" href="home_sala_v2.html"><span class="step-num">3</span> Votação</a>
-        <div class="step-connector"></div>
-        <a class="step-item pending" href="resultado_role.html"><span class="step-num">4</span> Resultado</a>
-      </section>
-
-      <section class="form-card" id="formState">
-        <div class="form-head">
-          <h2>Conte do seu jeito</h2>
-          <span class="info-tag">Clique e arraste no calendário (blocos de 30 min)</span>
+    <div class="workspace">
+      <main class="main-col">
+        <div class="page-head">
+          <div>
+            <h1>Seus dados secretos do rolê</h1>
+            <p>Arraste no calendário semanal os blocos de 30 min em que você pode ir e ajuste seu teto e região.</p>
+          </div>
+          <span class="info-tag ok">Só você e o agente veem</span>
         </div>
 
-        <form onsubmit="interpretar(event)" style="display:flex; flex-direction:column; gap:11px; flex:1; min-height:0;">
+        <section class="stepper-card" aria-label="Etapas do rolê">
+          <a href="./criar_sala.html" class="step-item done" style="text-decoration:none;">
+            <span class="step-num">✓</span>
+            <span>Sala criada</span>
+          </a>
+          <div class="step-connector"></div>
+          <div class="step-item active">
+            <span class="step-num">2</span>
+            <span>Meus dados</span>
+          </div>
+          <div class="step-connector"></div>
+          <a href="./home_sala_v2.html" class="step-item pending" style="text-decoration:none;">
+            <span class="step-num">3</span>
+            <span>Votação</span>
+          </a>
+          <div class="step-connector"></div>
+          <a href="./resultado_role.html" class="step-item pending" style="text-decoration:none;">
+            <span class="step-num">4</span>
+            <span>Resultado</span>
+          </a>
+        </section>
+
+        <div class="secret-banner">
+          <span>🔒 Respostas individuais ficam ocultas para evitar constrangimento com grana ou distância.</span>
+          <span class="info-tag">Sala #BSB-429</span>
+        </div>
+
+        <section class="panel-card form-card">
           <div class="fields-layout">
             <div class="left-fields">
               <div class="field">
-                <label for="origem">1. De onde você sai no DF?</label>
-                <span class="hint">Região, quadra ou ponto de referência</span>
-                <input class="text-input" id="origem" type="text" placeholder="Ex.: Águas Claras perto da estação" required />
+                <label>1. Quanto tô afim de gastar <span class="hint">(teto pessoal)</span></label>
+                <div class="chip-toggles" id="budgetChips">
+                  <button type="button" class="chip-toggle" data-val="Até R$ 50" onclick="selectSingleChip('budgetChips', this, 'sumBudget')">Até R$ 50</button>
+                  <button type="button" class="chip-toggle selected" data-val="R$ 50 – R$ 90" onclick="selectSingleChip('budgetChips', this, 'sumBudget')">R$ 50 – R$ 90</button>
+                  <button type="button" class="chip-toggle" data-val="R$ 90 – R$ 150" onclick="selectSingleChip('budgetChips', this, 'sumBudget')">R$ 90 – R$ 150</button>
+                  <button type="button" class="chip-toggle" data-val="Tanto faz" onclick="selectSingleChip('budgetChips', this, 'sumBudget')">Tanto faz</button>
+                </div>
               </div>
 
               <div class="field">
-                <label for="teto">3. Qual seu limite de gasto em R$? <span class="info-tag">🔒 Secreto</span></label>
-                <span class="hint">Total com transporte (ninguém na sala vê)</span>
-                <input class="text-input" id="teto" type="text" placeholder="Ex.: R$ 70" required />
+                <label>2. De onde saio e como chego</label>
+                <div class="chip-toggles" id="transportChips" style="margin-bottom:6px;">
+                  <button type="button" class="chip-toggle selected" data-val="Uber / 99" onclick="selectSingleChip('transportChips', this, 'sumTransport')">Uber / 99</button>
+                  <button type="button" class="chip-toggle" data-val="Metrô DF" onclick="selectSingleChip('transportChips', this, 'sumTransport')">Metrô DF</button>
+                  <button type="button" class="chip-toggle" data-val="Carona / Carro" onclick="selectSingleChip('transportChips', this, 'sumTransport')">Carro próprio</button>
+                </div>
+                <input type="text" id="originInput" class="text-input" value="Asa Norte (SQN 208) — topo Asa Sul ou Centro" oninput="syncSummary()" />
               </div>
 
               <div class="field grow">
-                <label for="prefs">4. O que anima fazer e como vai?</label>
-                <span class="hint">Clima do rolê, restrições e transporte</span>
-                <textarea class="text-area" id="prefs" placeholder="Ex.: boteco ou café calmo, vou de metrô"></textarea>
-                <div class="chip-toggles">
-                  <button class="chip-toggle" type="button" onclick="this.classList.toggle('selected')">Vegetariano</button>
-                  <button class="chip-toggle" type="button" onclick="this.classList.toggle('selected')">Sem glúten</button>
-                  <button class="chip-toggle" type="button" onclick="this.classList.toggle('selected')">Metrô / Uber</button>
-                  <button class="chip-toggle" type="button" onclick="this.classList.toggle('selected')">Área coberta</button>
-                </div>
+                <label for="vibeInput">3. O que tô afim / restrições <span class="hint">(clima, comida, som)</span></label>
+                <textarea id="vibeInput" class="text-area" oninput="syncSummary()">Mesa boa pra conversar sem som estourando, chopp gelado e opção vegetariana pro pessoal.</textarea>
               </div>
             </div>
 
-            <!-- CALENDÁRIO SEMANAL 30 MIN ARRASTÁVEL -->
-            <div class="field">
-              <label>2. Quais dias e horários você pode?</label>
-              <span class="hint">Clique e arraste nos quadradinhos (intervalos de 30 min)</span>
-              <div class="cal-box" id="calBox">
-                <div class="cal-toolbar">
-                  <div class="period-tabs">
-                    <button class="period-btn" type="button" data-period="manha" onclick="switchPeriod('manha')">Manhã (06h–12h)</button>
-                    <button class="period-btn" type="button" data-period="tarde" onclick="switchPeriod('tarde')">Tarde (12h–18h)</button>
-                    <button class="period-btn active" type="button" data-period="noite" onclick="switchPeriod('noite')">Noite (18h–00h)</button>
+            <div class="cal-col">
+              <div class="field" style="flex:1; min-height:0;">
+                <label>4. Horários que consigo <span class="hint">(clique e arraste em retângulo · 30 min)</span></label>
+                <div class="cal-box">
+                  <div class="cal-toolbar">
+                    <div class="period-tabs" role="tablist" aria-label="Período do dia">
+                      <button type="button" class="period-btn" data-period="morning" onclick="switchPeriod('morning', this)">Manhã (06h–12h)</button>
+                      <button type="button" class="period-btn" data-period="afternoon" onclick="switchPeriod('afternoon', this)">Tarde (12h–18h)</button>
+                      <button type="button" class="period-btn active" data-period="night" onclick="switchPeriod('night', this)">Noite (18h–00h)</button>
+                    </div>
+                    <button type="button" class="dialog-close" onclick="clearCalendar()">Limpar</button>
                   </div>
-                  <button class="btn-clear-cal" type="button" onclick="clearCalendar()">Limpar</button>
-                </div>
 
-                <div class="cal-grid" id="calGrid"></div>
-                <div class="cal-summary" id="calSummary">Selecionado: Sex 19:00–22:00</div>
+                  <div class="cal-grid" id="calGrid" aria-label="Grade semanal de disponibilidade"></div>
+                  <div id="calSummary" title="">Selecionado: Sex 19h00–23h00 · Sáb 19h00–22h30</div>
+                </div>
               </div>
             </div>
           </div>
 
-          <button class="btn-primary" type="submit">Ver o que o app entendeu →</button>
-        </form>
-      </section>
+          <div class="form-footer">
+            <span style="font-size:12px; font-weight:700; color:var(--ink-muted);">Você ainda pode ajustar até a galera fechar a rodada.</span>
+            <div style="display:flex; gap:8px;">
+              <a href="./criar_sala.html" class="btn-secondary">← Voltar</a>
+              <button type="button" class="btn-primary" onclick="saveAndContinue()">Salvar e ir pra votação →</button>
+            </div>
+          </div>
+        </section>
+      </main>
 
-      <section class="form-card hidden" id="summaryState">
-        <div class="form-head">
-          <h2>Foi isso que entendi</h2>
-          <span class="info-tag ok">Pronto para confirmar</span>
-        </div>
-        <ul class="summary-list">
-          <li><strong>Ponto de partida</strong><span id="sumOrigem">Águas Claras</span></li>
-          <li><strong>Teto de gasto (secreto)</strong><span id="sumTeto">R$ 70</span></li>
-          <li><strong>Horários livres</strong><span id="sumHorarios">Sex 19:00–22:00</span></li>
-          <li><strong>Preferências &amp; restrições</strong><span id="sumPrefs">Boteco · Metrô/Uber</span></li>
-        </ul>
-        <div style="display:flex; gap:10px; margin-top:4px;">
-          <button class="btn-secondary" type="button" onclick="voltarEditar()">✏️ Corrigir</button>
-          <button class="btn-primary" type="button" style="flex:1;" onclick="confirmarSegredo()">✓ Confirmar em segredo e ir para Votação →</button>
-        </div>
-      </section>
-    </main>
-
-    <aside class="right-panel" aria-label="Status da turma">
-      <div class="turma-head">
+      <aside class="right-panel" aria-label="Resumo e turma">
         <div>
-          <h2>Sua turma</h2>
-          <p>4 amigos na sala</p>
+          <div class="turma-head">
+            <h3>Sua turma</h3>
+            <button type="button" class="dialog-close" onclick="openModal('inviteDialog')">+ Convidar</button>
+          </div>
+          <div class="friends-list">
+            <div class="friend-row">
+              <div class="friend-avatar av-1">JS</div>
+              <div class="friend-info">
+                <strong>João</strong>
+                <span>Preencheu · Asa Norte</span>
+              </div>
+              <span class="info-tag ok">Pronto</span>
+            </div>
+            <div class="friend-row">
+              <div class="friend-avatar av-2">PM</div>
+              <div class="friend-info">
+                <strong>Pedro</strong>
+                <span>Preencheu · Sudoeste</span>
+              </div>
+              <span class="info-tag ok">Pronto</span>
+            </div>
+            <div class="friend-row">
+              <div class="friend-avatar av-3">BL</div>
+              <div class="friend-info">
+                <strong>Bia</strong>
+                <span>Preencheu · Águas Claras</span>
+              </div>
+              <span class="info-tag ok">Pronto</span>
+            </div>
+            <div class="friend-row">
+              <div class="friend-avatar av-4">ME</div>
+              <div class="friend-info">
+                <strong>Marina (Você)</strong>
+                <span>Editando agora</span>
+              </div>
+              <span class="info-tag warn" id="marinaStatusTag">Preenchendo</span>
+            </div>
+          </div>
+          <p class="privacy-note">Só você vê os valores exatos do seu formulário.</p>
         </div>
-        <button class="btn-primary" style="height:36px; padding:0 12px; font-size:12.5px;" type="button" onclick="showToast('Link da sala copiado!')">+ Convidar</button>
+
+        <div class="vote-status-card">
+          <div class="vote-status-top">
+            <span>Preenchimento da turma</span>
+            <strong id="pbarLabel">3 de 4 já enviaram</strong>
+          </div>
+          <div class="road-track">
+            <div class="road-bar">
+              <div class="road-fill" id="pbarFill" style="width: 75%;"></div>
+            </div>
+            <img src="./assets/logos/carro_lateral_160.png" alt="Brasília Amarela" class="road-car" id="pbarCar" style="left: calc(75% - 22px);" />
+          </div>
+        </div>
+
+        <div class="panel-card" style="padding:12px 14px; flex:1; min-height:0; overflow-y:auto;">
+          <div class="turma-head" style="margin-bottom:8px;">
+            <h3>Foi isso que entendi</h3>
+            <span class="info-tag ok">Live</span>
+          </div>
+          <div class="summary-list">
+            <div class="summary-row">
+              <span>Orçamento</span>
+              <strong id="sumBudget">R$ 50 – R$ 90</strong>
+            </div>
+            <div class="summary-row">
+              <span>Origem &amp; transporte</span>
+              <strong id="sumOrigin">Asa Norte (SQN 208) · Uber / 99</strong>
+            </div>
+            <div class="summary-row">
+              <span>Vibe desejada</span>
+              <strong id="sumVibe">Mesa boa pra conversar sem som estourando, chopp gelado e opção vegetariana.</strong>
+            </div>
+            <div class="summary-row">
+              <span>Horários no grid</span>
+              <strong id="sumTimes">Sex 19h00–23h00 · Sáb 19h00–22h30</strong>
+            </div>
+          </div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- Modais -->
+  <dialog class="app-dialog" id="inviteDialog">
+    <div class="dialog-head">
+      <h3>Convidar para a Sala #BSB-429</h3>
+      <button type="button" class="dialog-close" onclick="closeModal('inviteDialog')">Fechar</button>
+    </div>
+    <p style="font-size:13px; color:var(--ink-muted); font-weight:600; margin-bottom:12px;">
+      Quem abrir esse link entra direto na etapa de preenchimento secreto sem precisar criar conta.
+    </p>
+    <div style="display:flex; gap:8px;">
+      <input type="text" class="text-input" value="https://qualplano.df/sala/BSB-429" readonly />
+      <button type="button" class="btn-primary" onclick="copyInvite()">Copiar</button>
+    </div>
+  </dialog>
+
+  <dialog class="app-dialog" id="profileModal">
+    <div class="dialog-head">
+      <h3>Meu Perfil</h3>
+      <button type="button" class="dialog-close" onclick="closeModal('profileModal')">Fechar</button>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:10px;">
+      <div class="field"><label>Nome</label><input type="text" class="text-input" value="Marina Costa" /></div>
+      <div class="field"><label>Bairro base</label><input type="text" class="text-input" value="Asa Norte (SQN 208)" /></div>
+      <button type="button" class="btn-primary" onclick="closeModal('profileModal'); showToast('Perfil salvo!')">Salvar</button>
+    </div>
+  </dialog>
+
+  <dialog class="app-dialog" id="notifModal">
+    <div class="dialog-head">
+      <h3>Notificações</h3>
+      <button type="button" class="dialog-close" onclick="closeModal('notifModal')">Fechar</button>
+    </div>
+    <div class="history-list">
+      <div class="history-item">
+        <strong>Bia acabou de preencher os horários</strong>
+        <span>Falta só você para liberar as 3 sugestões da IA.</span>
       </div>
+    </div>
+  </dialog>
 
-      <div class="friends-list">
-        <div class="friend-row">
-          <div class="friend-avatar av-1">ME</div>
-          <div class="friend-info"><strong>Você (Eduarda)</strong><span>Preenchendo agora</span></div>
-          <span class="info-tag warn">Editando</span>
-        </div>
-        <div class="friend-row">
-          <div class="friend-avatar av-2">CS</div>
-          <div class="friend-info"><strong>Cauan</strong><span>Dados preenchidos</span></div>
-          <span class="info-tag ok">Pronto</span>
-        </div>
-        <div class="friend-row">
-          <div class="friend-avatar av-3">SL</div>
-          <div class="friend-info"><strong>Samara</strong><span>Dados preenchidos</span></div>
-          <span class="info-tag ok">Pronto</span>
-        </div>
-        <div class="friend-row">
-          <div class="friend-avatar av-4">MC</div>
-          <div class="friend-info"><strong>Carolina</strong><span>Dados preenchidos</span></div>
-          <span class="info-tag ok">Pronto</span>
-        </div>
-      </div>
+  <dialog class="app-dialog" id="settingsModal">
+    <div class="dialog-head">
+      <h3>Configurações</h3>
+      <button type="button" class="dialog-close" onclick="closeModal('settingsModal')">Fechar</button>
+    </div>
+    <p style="font-size:13px; font-weight:600; color:var(--ink-muted); margin-bottom:12px;">
+      Suas respostas individuais de orçamento e endereço nunca aparecem para os amigos.
+    </p>
+    <button type="button" class="btn-secondary" onclick="closeModal('settingsModal')">Entendi</button>
+  </dialog>
 
-      <div class="privacy-note">
-        🔒 Valores individuais ficam em sigilo
-      </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-      <div class="vote-status-card" style="margin-top:auto;">
-        <div class="vote-status-top">
-          <strong>Preenchimento da turma</strong>
-          <span>3 de 4 prontos</span>
-        </div>
-        <div class="road-track">
-          <div class="road-bar"><div class="road-fill" style="width:75%;"></div></div>
-          <img src="./assets/logos/carro_lateral_160.png" alt="Brasília Amarela" class="road-car" style="left:calc(75% - 22px);" />
-        </div>
-      </div>
-    </aside>
-  </div>
-</div>
+  <script>
+    const DAYS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
+    const PERIODS = {
+      morning: { label: 'Manhã', startHour: 6 },
+      afternoon: { label: 'Tarde', startHour: 12 },
+      night: { label: 'Noite', startHour: 18 }
+    };
 
-<dialog class="app-dialog" id="profileModal">
-  <div class="dialog-head">
-    <strong>Meu Perfil</strong>
-    <button class="dialog-close" type="button" onclick="this.closest('dialog').close()">✕</button>
-  </div>
-  <div style="display:flex; flex-direction:column; gap:10px; font-size:13px;">
-    <div><strong>Nome:</strong> Eduarda (ME)</div>
-    <div><strong>Ponto de partida padrão:</strong> Asa Sul · DF</div>
-    <div><strong>Restrições salvas:</strong> Sem glúten</div>
-    <button class="btn-primary" type="button" style="margin-top:6px;" onclick="this.closest('dialog').close(); showToast('Perfil salvo!')">Fechar</button>
-  </div>
-</dialog>
+    let currentPeriod = 'night';
+    let selectedTransport = 'Uber / 99';
 
-<dialog class="app-dialog" id="notifModal">
-  <div class="dialog-head">
-    <strong>Notificações</strong>
-    <button class="dialog-close" type="button" onclick="this.closest('dialog').close()">✕</button>
-  </div>
-  <div style="display:flex; flex-direction:column; gap:10px; font-size:12.5px;">
-    <div style="background:var(--surface-soft); padding:10px 12px; border-radius:10px;"><strong>Café de Domingo:</strong> Samara convidou você para preencher seus horários.</div>
-    <div style="background:var(--surface-soft); padding:10px 12px; border-radius:10px;"><strong>Boteco de Sexta:</strong> Cauan e Samara já votaram.</div>
-  </div>
-</dialog>
+    // Chave global por slot: `${dayIndex}-${globalSlotIndex}` (0..47 para 00h..24h em passos de 30min)
+    const selectedSlots = new Set();
+    // Pré-seleção realista (Sex 19h00-23h00 = slots 38..45; Sáb 19h00-22h30 = slots 38..44)
+    for (let s = 38; s <= 45; s++) selectedSlots.add('4-' + s);
+    for (let s = 38; s <= 44; s++) selectedSlots.add('5-' + s);
 
-<dialog class="app-dialog" id="settingsModal">
-  <div class="dialog-head">
-    <strong>Configurações</strong>
-    <button class="dialog-close" type="button" onclick="this.closest('dialog').close()">✕</button>
-  </div>
-  <div style="display:flex; flex-direction:column; gap:10px; font-size:13px;">
-    <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" checked /> Manter teto de gasto sempre secreto</label>
-    <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" checked /> Avisar quando a turma fechar votação</label>
-    <button class="btn-primary" type="button" style="margin-top:6px;" onclick="this.closest('dialog').close(); showToast('Configurações salvas!')">Salvar</button>
-  </div>
-</dialog>
+    let dragAnchor = null;
+    let dragMode = true; // true = selecionar retângulo, false = desmarcar retângulo
+    let dragSnapshot = null;
 
-<div class="toast" id="toast"></div>
+    function formatGlobalSlot(slotIdx) {
+      const totalMins = slotIdx * 30;
+      const hh = String(Math.floor(totalMins / 60)).padStart(2, '0');
+      const mm = totalMins % 60 === 0 ? '00' : '30';
+      return `${hh}h${mm}`;
+    }
 
-<script src="./shell.js"></script>
-<script>
-  const DAYS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
-  const PERIODS = {
-    manha: Array.from({ length: 12 }, (_, i) => 6 * 60 + i * 30),
-    tarde: Array.from({ length: 12 }, (_, i) => 12 * 60 + i * 30),
-    noite: Array.from({ length: 12 }, (_, i) => 18 * 60 + i * 30),
-  };
-  let currentPeriod = 'noite';
-  let selectedSlots = new Set([
-    '4-1140', '4-1170', '4-1200', '4-1230', '4-1260', '4-1290',
-  ]);
+    function renderCalendar() {
+      const grid = document.getElementById('calGrid');
+      grid.innerHTML = '';
 
-  let isDragging = false;
-  let dragMode = true;
-  let dragAnchor = null;
-  let dragSnapshot = null;
+      const corner = document.createElement('div');
+      grid.appendChild(corner);
 
-  function fmtTime(mins) {
-    const h = String(Math.floor(mins / 60)).padStart(2, '0');
-    const m = String(mins % 60).padStart(2, '0');
-    return `${h}:${m}`;
-  }
-
-  function renderCalendar() {
-    const grid = document.getElementById('calGrid');
-    grid.innerHTML = '';
-
-    grid.appendChild(document.createElement('div'));
-    DAYS.forEach((d) => {
-      const h = document.createElement('div');
-      h.className = 'cal-day-head';
-      h.textContent = d;
-      grid.appendChild(h);
-    });
-
-    const rows = PERIODS[currentPeriod];
-    rows.forEach((mins, rowIdx) => {
-      const lbl = document.createElement('div');
-      lbl.className = 'cal-time-lbl';
-      lbl.textContent = mins % 60 === 0 ? fmtTime(mins) : '';
-      grid.appendChild(lbl);
-
-      DAYS.forEach((_, dayIdx) => {
-        const key = `${dayIdx}-${mins}`;
-        const cell = document.createElement('div');
-        cell.className = 'cal-slot' + (selectedSlots.has(key) ? ' selected' : '');
-        cell.dataset.day = dayIdx;
-        cell.dataset.row = rowIdx;
-        cell.title = `${DAYS[dayIdx]} ${fmtTime(mins)}–${fmtTime(mins + 30)}`;
-
-        cell.addEventListener('pointerdown', (e) => {
-          e.preventDefault();
-          isDragging = true;
-          dragMode = !selectedSlots.has(key);
-          dragAnchor = { day: dayIdx, row: rowIdx };
-          dragSnapshot = new Set(selectedSlots);
-          applyRectSelection(dayIdx, rowIdx);
-        });
-
-        cell.addEventListener('pointerenter', () => {
-          if (isDragging) applyRectSelection(dayIdx, rowIdx);
-        });
-
-        grid.appendChild(cell);
+      DAYS.forEach((d) => {
+        const h = document.createElement('div');
+        h.className = 'cal-day-head';
+        h.textContent = d;
+        grid.appendChild(h);
       });
-    });
-    updateSummary();
-  }
 
-  function applyRectSelection(targetDay, targetRow) {
-    const rows = PERIODS[currentPeriod];
-    const minD = Math.min(dragAnchor.day, targetDay);
-    const maxD = Math.max(dragAnchor.day, targetDay);
-    const minR = Math.min(dragAnchor.row, targetRow);
-    const maxR = Math.max(dragAnchor.row, targetRow);
+      const baseSlot = PERIODS[currentPeriod].startHour * 2; // 12 slots por período de 6h
 
-    selectedSlots = new Set(dragSnapshot);
-    for (let r = minR; r <= maxR; r++) {
-      for (let d = minD; d <= maxD; d++) {
-        const k = `${d}-${rows[r]}`;
-        if (dragMode) selectedSlots.add(k);
-        else selectedSlots.delete(k);
+      for (let r = 0; r < 12; r++) {
+        const gSlot = baseSlot + r;
+        const lbl = document.createElement('div');
+        lbl.className = 'cal-time-label';
+        lbl.textContent = r % 2 === 0 ? formatGlobalSlot(gSlot) : '';
+        grid.appendChild(lbl);
+
+        for (let c = 0; c < 7; c++) {
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'cal-slot';
+          btn.dataset.row = String(r);
+          btn.dataset.col = String(c);
+          btn.dataset.gslot = String(gSlot);
+          const key = `${c}-${gSlot}`;
+          if (selectedSlots.has(key)) btn.classList.add('selected');
+          btn.setAttribute('aria-label', `${DAYS[c]} ${formatGlobalSlot(gSlot)}`);
+          grid.appendChild(btn);
+        }
+      }
+
+      updateCalendarSummary();
+    }
+
+    function applyRectSelection(targetRow, targetCol) {
+      if (!dragAnchor || !dragSnapshot) return;
+      selectedSlots.clear();
+      dragSnapshot.forEach((k) => selectedSlots.add(k));
+
+      const rMin = Math.min(dragAnchor.row, targetRow);
+      const rMax = Math.max(dragAnchor.row, targetRow);
+      const cMin = Math.min(dragAnchor.col, targetCol);
+      const cMax = Math.max(dragAnchor.col, targetCol);
+      const baseSlot = PERIODS[currentPeriod].startHour * 2;
+
+      for (let r = rMin; r <= rMax; r++) {
+        for (let c = cMin; c <= cMax; c++) {
+          const key = `${c}-${baseSlot + r}`;
+          if (dragMode) selectedSlots.add(key);
+          else selectedSlots.delete(key);
+        }
+      }
+
+      document.querySelectorAll('#calGrid .cal-slot').forEach((cell) => {
+        const k = `${cell.dataset.col}-${cell.dataset.gslot}`;
+        cell.classList.toggle('selected', selectedSlots.has(k));
+      });
+      updateCalendarSummary();
+    }
+
+    (function bindCalendarDrag() {
+      const grid = document.getElementById('calGrid');
+      grid.addEventListener('pointerdown', (e) => {
+        const slot = e.target.closest('.cal-slot');
+        if (!slot) return;
+        e.preventDefault();
+        const row = Number(slot.dataset.row);
+        const col = Number(slot.dataset.col);
+        const key = `${col}-${slot.dataset.gslot}`;
+        dragAnchor = { row, col };
+        dragMode = !selectedSlots.has(key);
+        dragSnapshot = new Set(selectedSlots);
+        applyRectSelection(row, col);
+      });
+
+      window.addEventListener('pointermove', (e) => {
+        if (!dragAnchor) return;
+        const el = document.elementFromPoint(e.clientX, e.clientY);
+        const slot = el && el.closest && el.closest('#calGrid .cal-slot');
+        if (!slot) return;
+        applyRectSelection(Number(slot.dataset.row), Number(slot.dataset.col));
+      });
+
+      window.addEventListener('pointerup', () => {
+        dragAnchor = null;
+        dragSnapshot = null;
+      });
+    })();
+
+    function updateCalendarSummary() {
+      const byDay = [];
+      for (let d = 0; d < 7; d++) {
+        const slots = [];
+        for (let s = 0; s < 48; s++) {
+          if (selectedSlots.has(`${d}-${s}`)) slots.push(s);
+        }
+        if (slots.length) {
+          const ranges = [];
+          let start = slots[0];
+          let prev = slots[0];
+          for (let i = 1; i < slots.length; i++) {
+            if (slots[i] === prev + 1) {
+              prev = slots[i];
+            } else {
+              ranges.push(`${formatGlobalSlot(start)}–${formatGlobalSlot(prev + 1)}`);
+              start = slots[i];
+              prev = slots[i];
+            }
+          }
+          ranges.push(`${formatGlobalSlot(start)}–${formatGlobalSlot(prev + 1)}`);
+          byDay.push(`${DAYS[d]} ${ranges.join(', ')}`);
+        }
+      }
+
+      const txt = byDay.length ? byDay.join(' · ') : 'Nenhum horário selecionado ainda';
+      const el = document.getElementById('calSummary');
+      el.textContent = 'Selecionado: ' + txt;
+      el.title = txt;
+      document.getElementById('sumTimes').textContent = txt;
+    }
+
+    function switchPeriod(period, btn) {
+      currentPeriod = period;
+      document.querySelectorAll('.period-btn').forEach((b) => b.classList.remove('active'));
+      btn.classList.add('active');
+      renderCalendar();
+    }
+
+    function clearCalendar() {
+      selectedSlots.clear();
+      renderCalendar();
+      showToast('Horários limpos.');
+    }
+
+    function selectSingleChip(groupId, btn, targetSummaryId) {
+      document.querySelectorAll(`#${groupId} .chip-toggle`).forEach((b) => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      if (targetSummaryId === 'sumTransport') {
+        selectedTransport = btn.dataset.val;
+        syncSummary();
+      } else {
+        document.getElementById(targetSummaryId).textContent = btn.dataset.val;
       }
     }
 
-    document.querySelectorAll('.cal-slot').forEach((cell) => {
-      const d = Number(cell.dataset.day);
-      const r = Number(cell.dataset.row);
-      const k = `${d}-${rows[r]}`;
-      cell.classList.toggle('selected', selectedSlots.has(k));
-    });
-    updateSummary();
-  }
+    function syncSummary() {
+      const origin = document.getElementById('originInput').value.trim() || 'Brasília';
+      const vibe = document.getElementById('vibeInput').value.trim() || 'Sem restrições extras';
+      document.getElementById('sumOrigin').textContent = `${origin} · ${selectedTransport}`;
+      document.getElementById('sumVibe').textContent = vibe;
+    }
 
-  window.addEventListener('pointerup', () => {
-    isDragging = false;
-    dragAnchor = null;
-    dragSnapshot = null;
-  });
-
-  function getReadableSchedule() {
-    const byDay = Array.from({ length: 7 }, () => []);
-    selectedSlots.forEach((k) => {
-      const [d, m] = k.split('-').map(Number);
-      byDay[d].push(m);
-    });
-    const parts = [];
-    byDay.forEach((list, d) => {
-      if (!list.length) return;
-      list.sort((a, b) => a - b);
-      let start = list[0], prev = list[0];
-      for (let i = 1; i <= list.length; i++) {
-        if (i < list.length && list[i] === prev + 30) {
-          prev = list[i];
-        } else {
-          parts.push(`${DAYS[d]} ${fmtTime(start)}–${fmtTime(prev + 30)}`);
-          if (i < list.length) { start = prev = list[i]; }
-        }
+    function saveAndContinue() {
+      if (selectedSlots.size === 0) {
+        showToast('Marque ao menos um bloco de 30 min no calendário.');
+        return;
       }
+      document.getElementById('pbarFill').style.width = '100%';
+      document.getElementById('pbarCar').style.left = 'calc(100% - 22px)';
+      document.getElementById('pbarLabel').textContent = '4 de 4 enviaram!';
+      document.getElementById('marinaStatusTag').textContent = 'Pronto';
+      document.getElementById('marinaStatusTag').className = 'info-tag ok';
+      showToast('Dados secretos salvos! Carregando votação...');
+      setTimeout(() => {
+        window.location.href = './home_sala_v2.html';
+      }, 650);
+    }
+
+    function copyInvite() {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText('https://qualplano.df/sala/BSB-429').catch(() => {});
+      }
+      closeModal('inviteDialog');
+      showToast('Link de convite copiado!');
+    }
+
+    function openModal(id) {
+      const dlg = document.getElementById(id);
+      if (dlg && typeof dlg.showModal === 'function') dlg.showModal();
+    }
+
+    function closeModal(id) {
+      const dlg = document.getElementById(id);
+      if (dlg && dlg.open) dlg.close();
+    }
+
+    document.querySelectorAll('dialog.app-dialog').forEach((dlg) => {
+      dlg.addEventListener('click', (e) => {
+        if (e.target === dlg) dlg.close();
+      });
     });
-    return parts.length ? parts.join(' · ') : 'Nenhum horário selecionado';
-  }
 
-  function updateSummary() {
-    document.getElementById('calSummary').textContent = 'Selecionado: ' + getReadableSchedule();
-  }
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      toast.textContent = msg;
+      toast.classList.add('show');
+      clearTimeout(window.__toastTimer);
+      window.__toastTimer = setTimeout(() => toast.classList.remove('show'), 2600);
+    }
 
-  function switchPeriod(p) {
-    currentPeriod = p;
-    document.querySelectorAll('.period-btn').forEach((b) => {
-      b.classList.toggle('active', b.dataset.period === p);
-    });
     renderCalendar();
-  }
-
-  function clearCalendar() {
-    selectedSlots.clear();
-    renderCalendar();
-  }
-
-  function interpretar(e) {
-    e.preventDefault();
-    document.getElementById('sumOrigem').textContent = document.getElementById('origem').value || 'Asa Sul';
-    document.getElementById('sumTeto').textContent = document.getElementById('teto').value || 'R$ 70';
-    document.getElementById('sumHorarios').textContent = getReadableSchedule();
-
-    const chips = [...document.querySelectorAll('.chip-toggle.selected')].map(c => c.textContent);
-    const txt = document.getElementById('prefs').value.trim();
-    document.getElementById('sumPrefs').textContent = [txt, ...chips].filter(Boolean).join(' · ') || 'Sem restrições';
-
-    document.getElementById('formState').classList.add('hidden');
-    document.getElementById('summaryState').classList.remove('hidden');
-  }
-
-  function voltarEditar() {
-    document.getElementById('summaryState').classList.add('hidden');
-    document.getElementById('formState').classList.remove('hidden');
-  }
-
-  function confirmarSegredo() {
-    showToast('Dados salvos em sigilo! Abrindo sugestões...');
-    setTimeout(() => { window.location.href = 'home_sala_v2.html'; }, 700);
-  }
-
-  renderCalendar();
-</script>
+    syncSummary();
+  </script>
 </body>
 </html>
