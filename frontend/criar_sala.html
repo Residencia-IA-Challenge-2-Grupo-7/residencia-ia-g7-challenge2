@@ -40,9 +40,7 @@
       color: var(--indigo-deep);
       height: 100vh;
       overflow: hidden;
-      padding: 16px 20px;
-      display: flex;
-      justify-content: center;
+      padding: 12px 14px;
       -webkit-font-smoothing: antialiased;
     }
 
@@ -55,11 +53,10 @@
 
     .app-frame {
       width: 100%;
-      max-width: 1400px;
-      height: calc(100vh - 32px);
+      height: calc(100vh - 24px);
       display: grid;
       grid-template-columns: 74px minmax(0, 1fr) 332px;
-      gap: 20px;
+      gap: 16px;
       align-items: stretch;
     }
 
@@ -500,8 +497,8 @@
       <button class="avatar-btn" type="button" onclick="showToast('Perfil: Eduarda')">ME</button>
     </header>
 
-    <section class="stepper-card" aria-label="Etapas do rolê">
-      <a class="step-item active" href="criar_sala.html"><span class="step-num">1</span> Home / Sala</a>
+    <section class="stepper-card hidden" id="stepperHome" aria-label="Etapas do rolê">
+      <a class="step-item active" href="criar_sala.html"><span class="step-num">1</span> Sala criada</a>
       <div class="step-connector"></div>
       <a class="step-item pending" href="meus_dados.html"><span class="step-num">2</span> Meus dados</a>
       <div class="step-connector"></div>
@@ -643,6 +640,7 @@
     e.preventDefault();
     const role = document.getElementById('roleName').value.trim() || 'Boteco de Sexta';
     document.getElementById('createdTitle').textContent = role;
+    document.getElementById('stepperHome').classList.remove('hidden');
     document.getElementById('createFormState').classList.add('hidden');
     document.getElementById('createdRoomState').classList.remove('hidden');
     showToast(`Sala "${role}" criada!`);

@@ -40,9 +40,7 @@
       color: var(--indigo-deep);
       height: 100vh;
       overflow: hidden;
-      padding: 16px 20px;
-      display: flex;
-      justify-content: center;
+      padding: 12px 14px;
       -webkit-font-smoothing: antialiased;
     }
 
@@ -55,11 +53,10 @@
 
     .app-frame {
       width: 100%;
-      max-width: 1400px;
-      height: calc(100vh - 32px);
+      height: calc(100vh - 24px);
       display: grid;
       grid-template-columns: 74px minmax(0, 1fr) 332px;
-      gap: 20px;
+      gap: 16px;
       align-items: stretch;
     }
 
@@ -202,6 +199,16 @@
       display: flex;
       flex-direction: column;
       gap: 12px;
+      flex: 1;
+      min-height: 0;
+    }
+
+    .form-card form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      flex: 1;
+      min-height: 0;
     }
 
     .form-head {
@@ -215,21 +222,29 @@
 
     .fields-layout {
       display: grid;
-      grid-template-columns: 1fr 1.15fr;
-      gap: 18px;
-      align-items: start;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 22px;
+      align-items: stretch;
+      flex: 1;
+      min-height: 0;
     }
 
     .left-fields {
       display: flex;
       flex-direction: column;
-      gap: 11px;
+      gap: 12px;
+      height: 100%;
     }
 
     .field {
       display: flex;
       flex-direction: column;
       gap: 4px;
+    }
+
+    .field.grow {
+      flex: 1;
+      min-height: 0;
     }
 
     .field label {
@@ -244,7 +259,7 @@
     .field .hint { font-size: 11px; color: var(--indigo-muted); }
 
     .text-input, .text-area {
-      padding: 9px 12px;
+      padding: 10px 12px;
       border-radius: 11px;
       border: 1.5px solid var(--border-crisp);
       background: var(--surface-soft);
@@ -253,19 +268,19 @@
       width: 100%;
     }
 
-    .text-input { height: 40px; }
-    .text-area { min-height: 66px; resize: none; line-height: 1.35; }
+    .text-input { height: 42px; }
+    .text-area { flex: 1; min-height: 84px; resize: none; line-height: 1.4; }
     .text-input:focus, .text-area:focus { background: #FFFFFF; border-color: var(--indigo); }
 
-    .chip-toggles { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+    .chip-toggles { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
 
     .chip-toggle {
-      padding: 4px 9px;
+      padding: 5px 10px;
       border-radius: 8px;
       border: 1.5px solid var(--border-crisp);
       background: var(--surface);
       color: var(--indigo-deep);
-      font-size: 11px;
+      font-size: 11.5px;
       font-weight: 600;
       cursor: pointer;
     }
@@ -284,7 +299,9 @@
       padding: 10px 12px;
       display: flex;
       flex-direction: column;
+      justify-content: space-between;
       gap: 8px;
+      flex: 1;
       user-select: none;
     }
 
@@ -617,7 +634,7 @@
               <input class="text-input" id="teto" type="text" placeholder="Ex.: R$ 70" required />
             </div>
 
-            <div class="field">
+            <div class="field grow">
               <label for="prefs">4. O que anima fazer e como vai?</label>
               <span class="hint">Clima do rolê, restrições e transporte</span>
               <textarea class="text-area" id="prefs" placeholder="Ex.: boteco ou café calmo, vou de metrô"></textarea>
@@ -637,6 +654,7 @@
             <div class="cal-box" id="calBox">
               <div class="cal-toolbar">
                 <div class="period-tabs">
+                  <button class="period-btn" type="button" data-period="manha" onclick="switchPeriod('manha')">Manhã (06h–12h)</button>
                   <button class="period-btn" type="button" data-period="tarde" onclick="switchPeriod('tarde')">Tarde (12h–18h)</button>
                   <button class="period-btn active" type="button" data-period="noite" onclick="switchPeriod('noite')">Noite (18h–00h)</button>
                 </div>
@@ -718,6 +736,7 @@
 <script>
   const DAYS = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
   const PERIODS = {
+    manha: Array.from({ length: 12 }, (_, i) => 6 * 60 + i * 30),  // 06:00..11:30
     tarde: Array.from({ length: 12 }, (_, i) => 12 * 60 + i * 30), // 12:00..17:30
     noite: Array.from({ length: 12 }, (_, i) => 18 * 60 + i * 30), // 18:00..23:30
   };
