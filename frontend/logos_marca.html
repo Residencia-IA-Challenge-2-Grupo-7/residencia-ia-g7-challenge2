@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Qual o Plano? — Kit de Logos &amp; Identidade Retrô Pop</title>
+  <link rel="icon" type="image/x-icon" href="./assets/logos/favicon.ico" />
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/logos/carro_icone_32.png" />
+  <style>
+    :root {
+      --bg: #FFF9E6;
+      --surface: #FFFFFF;
+      --ink: #18181B;
+      --muted: #52525B;
+      --yellow: #FFC567;
+      --canary: #FFE500;
+      --purple: #552CB7;
+      --coral: #FD5A46;
+      --pink: #FB7DA8;
+      --green: #00995E;
+      --blue: #058CD7;
+      --radius: 14px;
+      --shadow: 4px 4px 0 var(--ink);
+      --shadow-sm: 3px 3px 0 var(--ink);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      color: var(--ink);
+      background-color: var(--bg);
+      background-image:
+        linear-gradient(to right, rgba(24, 24, 27, 0.06) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(24, 24, 27, 0.06) 1px, transparent 1px);
+      background-size: 28px 28px;
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 32px 20px 64px;
+    }
+
+    header.hero {
+      background: var(--surface);
+      border: 2px solid var(--ink);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 28px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .hero-copy {
+      max-width: 500px;
+    }
+
+    .pill {
+      display: inline-block;
+      background: var(--yellow);
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      padding: 4px 12px;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(1.5rem, 2.5vw, 2rem);
+      line-height: 1.15;
+    }
+
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.98rem;
+    }
+
+    .section-title {
+      margin: 36px 0 16px;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title span.tag {
+      background: var(--purple);
+      color: #fff;
+      border: 2px solid var(--ink);
+      border-radius: 8px;
+      padding: 2px 10px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--surface);
+      border: 2px solid var(--ink);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .card-full {
+      grid-column: 1 / -1;
+    }
+
+    .card h2 {
+      margin: 0;
+      font-size: 1.05rem;
+    }
+
+    .card p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .preview-stage {
+      border: 2px dashed rgba(24, 24, 27, 0.25);
+      border-radius: 10px;
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 24px;
+      background: #FFFDF7;
+      min-height: 150px;
+    }
+
+    .preview-stage.dark {
+      background: var(--purple);
+      border-color: var(--ink);
+    }
+
+    .preview-stage.yellow {
+      background: var(--yellow);
+      border-color: var(--ink);
+    }
+
+    .size-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      text-align: center;
+    }
+
+    .size-item img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+    }
+
+    .file-label {
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 0.75rem;
+      background: #F4F4F5;
+      border: 1.5px solid var(--ink);
+      border-radius: 6px;
+      padding: 2px 8px;
+      color: var(--ink);
+    }
+
+    /* Simulações reais de uso na UI */
+    .mock-navbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      background: var(--surface);
+      border: 2px solid var(--ink);
+      border-radius: 12px;
+      box-shadow: var(--shadow-sm);
+      padding: 10px 18px;
+    }
+
+    .mock-nav-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .btn-retro {
+      background: var(--yellow);
+      color: var(--ink);
+      border: 2px solid var(--ink);
+      border-radius: 10px;
+      box-shadow: 0 3px 0 var(--ink);
+      padding: 8px 14px;
+      font-weight: 800;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .btn-retro.green {
+      background: var(--green);
+      color: #fff;
+    }
+
+    .mock-progress-wrap {
+      background: #FFFDF7;
+      border: 2px solid var(--ink);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 800;
+      font-size: 0.9rem;
+      margin-bottom: 12px;
+    }
+
+    .road-track {
+      position: relative;
+      height: 54px;
+      display: flex;
+      align-items: flex-end;
+      padding-bottom: 10px;
+    }
+
+    .road-bar {
+      width: 100%;
+      height: 14px;
+      background: #E4E4E7;
+      border: 2px solid var(--ink);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .road-fill {
+      height: 100%;
+      width: 66%;
+      background: var(--green);
+      transition: width 0.35s ease;
+    }
+
+    .road-car {
+      position: absolute;
+      bottom: 14px;
+      left: calc(66% - 34px);
+      width: 68px;
+      height: auto;
+      transition: left 0.35s ease;
+      pointer-events: none;
+    }
+
+    .palette-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .swatch {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 2px solid var(--ink);
+      border-radius: 10px;
+      padding: 6px 10px;
+      background: #fff;
+      font-size: 0.8rem;
+      font-weight: 700;
+    }
+
+    .swatch-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 6px;
+      border: 1.5px solid var(--ink);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .road-fill,
+      .road-car {
+        transition: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header class="hero">
+      <div class="hero-copy">
+        <span class="pill">Kit de Marca &bull; Brasília Amarela</span>
+        <h1>Qual o Plano? &mdash; Variações de Logo</h1>
+        <p class="subtitle">
+          Versões prontas em PNG transparente (e <code>favicon.ico</code>) em <code>frontend/assets/logos/</code>
+          para cabeçalhos, ícones de app, redes sociais, slides e barra de progresso da turma.
+        </p>
+      </div>
+      <img
+        src="./assets/logos/logo_completa_horizontal_600.png"
+        alt="Logo principal Qual o Plano? com a Brasília Amarela"
+        width="360"
+      />
+    </header>
+
+    <h2 class="section-title">1. Logo Completa (Nome + Brasília Amarela) <span class="tag">Hero, Capa &amp; Slides</span></h2>
+    <section class="grid">
+      <article class="card card-full">
+        <h2>Horizontal &mdash; 3 tamanhos</h2>
+        <p>Ideal para tela inicial, apresentação para o grupo, banners e cabeçalhos largos.</p>
+        <div class="preview-stage">
+          <div class="size-item">
+            <img src="./assets/logos/logo_completa_horizontal_600.png" alt="Logo completa 600px" width="420" />
+            <span class="file-label">logo_completa_horizontal_1200.png (HD) / _600.png</span>
+          </div>
+          <div class="size-item">
+            <img src="./assets/logos/logo_completa_horizontal_320.png" alt="Logo completa 320px" width="240" />
+            <span class="file-label">logo_completa_horizontal_320.png (Mobile)</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card card-full">
+        <h2>Selo / Badge Quadrado (1:1) &mdash; 3 tamanhos</h2>
+        <p>Ideal para card de convite no WhatsApp, avatar de perfil, splash screen e adesivo.</p>
+        <div class="preview-stage yellow">
+          <div class="size-item">
+            <img src="./assets/logos/logo_badge_512.png" alt="Badge 512px" width="220" height="220" />
+            <span class="file-label">logo_badge_512.png</span>
+          </div>
+          <div class="size-item">
+            <img src="./assets/logos/logo_badge_256.png" alt="Badge 256px" width="140" height="140" />
+            <span class="file-label">logo_badge_256.png</span>
+          </div>
+          <div class="size-item">
+            <img src="./assets/logos/logo_badge_128.png" alt="Badge 128px" width="84" height="84" />
+            <span class="file-label">logo_badge_128.png</span>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <h2 class="section-title">2. Só o Nome (Wordmark) <span class="tag">Navbar &amp; Rodapé</span></h2>
+    <section class="grid">
+      <article class="card card-full">
+        <h2>Tipografia em linha única &mdash; 3 tamanhos</h2>
+        <p>Para barras superiores estreitas, rodapé e marca d'água sem competir com o conteúdo.</p>
+        <div class="preview-stage">
+          <div class="size-item">
+            <img src="./assets/logos/logo_nome_800.png" alt="Wordmark 800px" width="380" />
+            <span class="file-label">logo_nome_800.png</span>
+          </div>
+          <div class="size-item">
+            <img src="./assets/logos/logo_nome_400.png" alt="Wordmark 400px" width="240" />
+            <span class="file-label">logo_nome_400.png</span>
+          </div>
+          <div class="size-item">
+            <img src="./assets/logos/logo_nome_220.png" alt="Wordmark 220px" width="150" />
+            <span class="file-label">logo_nome_220.png</span>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <h2 class="section-title">3. Só a Brasília Amarela <span class="tag">Favicon, App Icon &amp; UI</span></h2>
+    <section class="grid">
+      <article class="card">
+        <h2>Ícone de App &amp; Favicon</h2>
+        <p>Emblema fechado para continuar legível até em 32px na aba do navegador.</p>
+        <div class="preview-stage">
+          <div class="size-item">
+            <img src="./assets/logos/carro_icone_192.png" alt="Ícone 192px" width="112" height="112" />
+            <span class="file-label">_512 / _192.png</span>
+          </div>
+          <div class="size-item">
+            <img src="./assets/logos/carro_icone_64.png" alt="Ícone 64px" width="64" height="64" />
+            <span class="file-label">carro_icone_64.png</span>
+          </div>
+          <div class="size-item">
+            <img src="./assets/logos/carro_icone_32.png" alt="Favicon 32px" width="32" height="32" />
+            <span class="file-label">_32.png / favicon.ico</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <h2>Perfil Lateral (Sprite de UI)</h2>
+        <p>Recortado para animar na barra de votos, carregamento dos agentes e pin no mapa.</p>
+        <div class="preview-stage dark">
+          <div class="size-item">
+            <img src="./assets/logos/carro_lateral_480.png" alt="Brasília lateral 480px" width="230" />
+            <span class="file-label">carro_lateral_480.png</span>
+          </div>
+          <div class="size-item">
+            <img src="./assets/logos/carro_lateral_160.png" alt="Brasília lateral 160px" width="110" />
+            <span class="file-label">_160.png / _64.png</span>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <h2 class="section-title">4. Exemplos em Uso Real na Interface</h2>
+    <section class="grid">
+      <article class="card card-full">
+        <h2>Simulação: Navbar (só nome) + Barra de Votos da Turma (só o carro)</h2>
+        <div class="mock-navbar">
+          <img src="./assets/logos/logo_nome_220.png" alt="Qual o Plano?" height="36" />
+          <div class="mock-nav-actions">
+            <span style="font-size: 0.85rem; color: var(--muted); font-weight: 700;">E aí, qual a boa?</span>
+            <button type="button" class="btn-retro">+ Criar Sala</button>
+          </div>
+        </div>
+
+        <div class="mock-progress-wrap">
+          <div class="progress-header">
+            <span>Votos da turma: <span id="vote-count">2</span> de 3 amigos</span>
+            <button type="button" class="btn-retro green" id="toggle-vote">Simular voto</button>
+          </div>
+          <div class="road-track">
+            <div class="road-bar">
+              <div class="road-fill" id="road-fill"></div>
+            </div>
+            <img src="./assets/logos/carro_lateral_160.png" alt="Brasília Amarela na barra de progresso" class="road-car" id="road-car" />
+          </div>
+        </div>
+
+        <div class="palette-row">
+          <div class="swatch"><span class="swatch-dot" style="background:#FFC567"></span>#FFC567</div>
+          <div class="swatch"><span class="swatch-dot" style="background:#FFE500"></span>#FFE500</div>
+          <div class="swatch"><span class="swatch-dot" style="background:#552CB7"></span>#552CB7</div>
+          <div class="swatch"><span class="swatch-dot" style="background:#00995E"></span>#00995E</div>
+          <div class="swatch"><span class="swatch-dot" style="background:#FD5A46"></span>#FD5A46</div>
+          <div class="swatch"><span class="swatch-dot" style="background:#FB7DA8"></span>#FB7DA8</div>
+          <div class="swatch"><span class="swatch-dot" style="background:#058CD7"></span>#058CD7</div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script>
+    const btn = document.getElementById("toggle-vote");
+    const countEl = document.getElementById("vote-count");
+    const fill = document.getElementById("road-fill");
+    const car = document.getElementById("road-car");
+    let votes = 2;
+
+    btn.addEventListener("click", () => {
+      votes = votes >= 3 ? 1 : votes + 1;
+      const pct = Math.round((votes / 3) * 100);
+      countEl.textContent = String(votes);
+      fill.style.width = `${pct}%`;
+      car.style.left = `calc(${pct}% - ${pct === 100 ? 64 : 34}px)`;
+    });
+  </script>
+</body>
+</html>
