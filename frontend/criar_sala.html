@@ -459,6 +459,24 @@
 
     .toast.show { transform: translateX(-50%) translateY(0); }
 
+    dialog.app-dialog {
+      margin: auto;
+      border: 2px solid var(--indigo-deep);
+      border-radius: 20px;
+      padding: 22px;
+      background: var(--surface);
+      color: var(--indigo-deep);
+      max-width: 400px;
+      width: calc(100% - 32px);
+      box-shadow: 0 18px 40px rgba(46, 42, 94, 0.25);
+    }
+    dialog.app-dialog::backdrop { background: rgba(46, 42, 94, 0.5); }
+    .dialog-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+    .dialog-close {
+      width: 32px; height: 32px; border-radius: 9px; border: 1.5px solid var(--border-crisp);
+      background: var(--surface-soft); color: var(--indigo-deep); font-weight: 700; cursor: pointer;
+    }
+
     @media (max-width: 980px) {
       body { height: auto; overflow: auto; }
       .app-frame { height: auto; grid-template-columns: 1fr; }
@@ -470,22 +488,22 @@
 </head>
 <body>
 <div class="app-frame">
-  <!-- SIDEBAR LIMPA: APENAS AS 4 ETAPAS DO APP -->
-  <aside class="sidebar" aria-label="Navegação principal">
+  <!-- SIDEBAR GLOBAL: APENAS NAVEGAÇÃO GERAL E CONTA -->
+  <aside class="sidebar" aria-label="Menu global">
     <div class="logo-box">LOGO</div>
-    <a class="nav-btn active" href="criar_sala.html" title="Home geral (Meus grupos e criar sala)" aria-label="Home geral">
+    <a class="nav-btn active" href="criar_sala.html" title="Home principal (Meus grupos e criar sala)" aria-label="Home principal">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
     </a>
-    <a class="nav-btn" href="meus_dados.html" title="Meus dados secretos" aria-label="Meus dados secretos">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-    </a>
-    <a class="nav-btn" href="home_sala_v2.html" title="Votação da sala" aria-label="Votação da sala">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
-    </a>
-    <a class="nav-btn" href="resultado_role.html" title="Resultado final" aria-label="Resultado final">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/></svg>
-    </a>
+    <button class="nav-btn" type="button" title="Meu Perfil" aria-label="Meu Perfil" onclick="document.getElementById('profileModal').showModal()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+    </button>
+    <button class="nav-btn" type="button" title="Notificações" aria-label="Notificações" onclick="document.getElementById('notifModal').showModal()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    </button>
     <div class="sidebar-spacer"></div>
+    <button class="nav-btn" type="button" title="Configurações" aria-label="Configurações" onclick="document.getElementById('settingsModal').showModal()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    </button>
   </aside>
 
   <main class="main-col">
@@ -632,6 +650,42 @@
     </div>
   </aside>
 </div>
+
+<dialog class="app-dialog" id="profileModal">
+  <div class="dialog-head">
+    <strong>Meu Perfil</strong>
+    <button class="dialog-close" type="button" onclick="this.closest('dialog').close()">✕</button>
+  </div>
+  <div style="display:flex; flex-direction:column; gap:10px; font-size:13px;">
+    <div><strong>Nome:</strong> Eduarda (ME)</div>
+    <div><strong>Ponto de partida padrão:</strong> Asa Sul · DF</div>
+    <div><strong>Restrições salvas:</strong> Sem glúten</div>
+    <button class="btn-primary" type="button" style="margin-top:6px;" onclick="this.closest('dialog').close(); showToast('Perfil salvo!')">Fechar</button>
+  </div>
+</dialog>
+
+<dialog class="app-dialog" id="notifModal">
+  <div class="dialog-head">
+    <strong>Notificações</strong>
+    <button class="dialog-close" type="button" onclick="this.closest('dialog').close()">✕</button>
+  </div>
+  <div style="display:flex; flex-direction:column; gap:10px; font-size:12.5px;">
+    <div style="background:#F5F2FC; padding:10px 12px; border-radius:10px;"><strong>Café de Domingo:</strong> Samara convidou você para preencher seus horários.</div>
+    <div style="background:#F5F2FC; padding:10px 12px; border-radius:10px;"><strong>Boteco de Sexta:</strong> Cauan e Samara já votaram.</div>
+  </div>
+</dialog>
+
+<dialog class="app-dialog" id="settingsModal">
+  <div class="dialog-head">
+    <strong>Configurações</strong>
+    <button class="dialog-close" type="button" onclick="this.closest('dialog').close()">✕</button>
+  </div>
+  <div style="display:flex; flex-direction:column; gap:10px; font-size:13px;">
+    <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" checked /> Manter teto de gasto sempre secreto</label>
+    <label style="display:flex; align-items:center; gap:8px;"><input type="checkbox" checked /> Avisar quando a turma fechar votação</label>
+    <button class="btn-primary" type="button" style="margin-top:6px;" onclick="this.closest('dialog').close(); showToast('Configurações salvas!')">Salvar</button>
+  </div>
+</dialog>
 
 <div class="toast" id="toast"></div>
 
