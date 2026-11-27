@@ -102,15 +102,27 @@ def test_rota_comparativo_retorna_200_e_estrutura_lado_a_lado():
 
 
 def test_navegacao_para_comparativo_na_home_e_rag_e_trace_removido():
-    """Valida que / mantém a LANDING_PAGE com link para /comparativo, /rag aponta para /comparativo e /telemetria/trace não existe."""
+    """Valida que / serve a nova home Qual o Plano?, /hub mantém a LANDING_PAGE, /rag aponta para /comparativo e /telemetria/trace não existe."""
     res_home = client.get("/", headers={"Accept": "text/html"})
     assert res_home.status_code == 200
-    assert "Orquestrador de Rolês" in res_home.text
-    assert 'href="/comparativo"' in res_home.text
+    assert "Qual o Plano" in res_home.text
+    assert "./styles.css" in res_home.text
+
+    for rota in ("/styles.css", "/criar_sala.html", "/meus_dados.html", "/home_sala_v2.html", "/resultado_role.html", "/assets/logos/carro_icone_64.png"):
+        r = client.get(rota)
+        assert r.status_code == 200, f"Falha ao carregar {rota}"
+
+    res_hub = client.get("/hub")
+    assert res_hub.status_code == 200
+    assert "Orquestrador de Rolês" in res_hub.text
+    assert 'href="/comparativo"' in res_hub.text
 
     res_rag = client.get("/rag")
     assert res_rag.status_code == 200
     assert 'href="/comparativo"' in res_rag.text
+
+    res_entregaveis = client.get("/entregaveis")
+    assert res_entregaveis.status_code == 200
 
     res_trace = client.get("/telemetria/trace")
     assert res_trace.status_code == 404

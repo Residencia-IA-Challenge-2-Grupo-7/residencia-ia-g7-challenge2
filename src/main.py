@@ -7,6 +7,7 @@ import time
 from typing import Literal, Optional
 from fastapi import FastAPI, HTTPException, Query, Request
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, ConfigDict, Field
 
 from src.interface import COMPARATIVO_PAGE, ENTREGAVEIS_PAGE, HTML_PAGE, LANDING_PAGE
@@ -25,6 +26,9 @@ from src.voz.rotas import router as voz_router
 logger = logging.getLogger(__name__)
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
+FRONTEND_ASSETS_DIR = os.path.join(FRONTEND_DIR, "assets")
+_FRONTEND_HTML_HEADERS = {"Cache-Control": "no-cache"}
 
 app = FastAPI(
     title="Orquestrador de Roles - RAG API",
@@ -35,6 +39,16 @@ app.include_router(salas_router)
 app.include_router(voz_router)  # voz no campo de horários da Tela 2 (ADR 0017): /api/voz e /api/salas/{codigo}/voz
 app.include_router(telas_router)  # Telas 1 a 3 do app (issue #42): /app, /sala/{codigo}, /sala/{codigo}/perfil
 app.mount("/static/telas", telas_estaticos, name="telas_estaticos")
+if os.path.isdir(FRONTEND_ASSETS_DIR):
+    app.mount("/assets", StaticFiles(directory=FRONTEND_ASSETS_DIR), name="frontend_assets")
+
+
+def _frontend_html(nome_arquivo: str) -> HTMLResponse:
+    caminho = os.path.join(FRONTEND_DIR, nome_arquivo)
+    if not os.path.isfile(caminho):
+        raise HTTPException(status_code=404, detail=f"Página {nome_arquivo} não encontrada.")
+    with open(caminho, "r", encoding="utf-8") as f:
+        return HTMLResponse(content=f.read(), headers=_FRONTEND_HTML_HEADERS)
 
 
 class ConsultaRAGRequest(BaseModel):
@@ -46,12 +60,54 @@ class ConsultaRAGRequest(BaseModel):
 @app.get("/", response_class=HTMLResponse)
 def home(request: Request):
     """
-    Entrega a pagina inicial do Orquestrador de Roles com botao para /rag e /comparativo.
+    Entrega a nova home do aplicativo Qual o Plano? (frontend/criar_sala.html).
     Se o cliente pedir explicitamente application/json (ex: curl/testes), retorna JSON.
     """
     accept = request.headers.get("accept", "")
     if "application/json" in accept and "text/html" not in accept:
         return status_api()
+    return _frontend_html("criar_sala.html")
+
+
+@app.get("/styles.css", include_in_schema=False)
+def frontend_styles():
+    caminho = os.path.join(FRONTEND_DIR, "styles.css")
+    if not os.path.isfile(caminho):
+        raise HTTPException(status_code=404, detail="styles.css não encontrado.")
+    return FileResponse(caminho, media_type="text/css", headers=_FRONTEND_HTML_HEADERS)
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+def frontend_favicon():
+    caminho = os.path.join(FRONTEND_ASSETS_DIR, "logos", "favicon.ico")
+    if not os.path.isfile(caminho):
+        raise HTTPException(status_code=404, detail="favicon.ico não encontrado.")
+    return FileResponse(caminho, media_type="image/x-icon")
+
+
+@app.get("/criar_sala.html", response_class=HTMLResponse, include_in_schema=False)
+def pagina_criar_sala():
+    return _frontend_html("criar_sala.html")
+
+
+@app.get("/meus_dados.html", response_class=HTMLResponse, include_in_schema=False)
+def pagina_meus_dados():
+    return _frontend_html("meus_dados.html")
+
+
+@app.get("/home_sala_v2.html", response_class=HTMLResponse, include_in_schema=False)
+def pagina_home_sala():
+    return _frontend_html("home_sala_v2.html")
+
+
+@app.get("/resultado_role.html", response_class=HTMLResponse, include_in_schema=False)
+def pagina_resultado_role():
+    return _frontend_html("resultado_role.html")
+
+
+@app.get("/hub", response_class=HTMLResponse)
+def hub_tecnico():
+    """Rota preservada para o hub técnico anterior com links para RAG, Comparativo e Entregáveis."""
     return HTMLResponse(content=LANDING_PAGE)
 
 
